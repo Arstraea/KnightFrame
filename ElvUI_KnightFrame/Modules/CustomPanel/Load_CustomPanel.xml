@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Profile.lua"/>
+	<Script file="CustomPanel.lua"/>
+	<Include file="Buttons\Load_Buttons.xml"/>
+</Ui>

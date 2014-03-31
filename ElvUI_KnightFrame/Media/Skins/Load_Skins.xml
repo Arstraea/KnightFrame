@@ -1,0 +1,7 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">	
+	<Script file='ACP.lua'/>
+	<Script file='DBM.lua'/>
+	<Script file='Omen.lua'/>
+	<Script file='Recount.lua'/>
+	<Script file='Skada.lua'/>
+</Ui>

@@ -1,0 +1,4 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Locale.lua"/>
+	<Script file="TimeFormat.lua"/>
+</Ui>

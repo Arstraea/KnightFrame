@@ -1,0 +1,16 @@
+<Bindings>
+  	<Binding name="InspectMouseover" header="KnightFrame" runOnUp="true">
+		InspectUnit('mouseover');
+  	</Binding>
+	<Binding name="SpecSwitch" header="KnightFrame" runOnUp="true">
+		if GetNumSpecGroups() > 1 then
+			SetActiveSpecGroup(GetActiveSpecGroup() == 1 and 2 or 1)
+		end
+	</Binding>
+	<Binding name="CLICK KF_WorldMarker1:LeftButton" header="KnightFrame"></Binding>
+	<Binding name="CLICK KF_WorldMarker2:LeftButton" header="KnightFrame"></Binding>
+	<Binding name="CLICK KF_WorldMarker3:LeftButton" header="KnightFrame"></Binding>
+	<Binding name="CLICK KF_WorldMarker4:LeftButton" header="KnightFrame"></Binding>
+	<Binding name="CLICK KF_WorldMarker5:LeftButton" header="KnightFrame"></Binding>
+	<Binding name="CLICK KF_WorldMarker6:LeftButton" header="KnightFrame"></Binding>
+</Bindings>

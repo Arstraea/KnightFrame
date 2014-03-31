@@ -1,0 +1,7 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="CommonData.lua"/>
+	<Include file="Data_Moonlight\Load_Moonlight.xml"/>
+	<Include file="Data_Kimsungjae\Load_Kimsungjae.xml"/>
+	<Include file="Data_SubPack\Load_SubPack.xml"/>
+	<Script file="Install.lua"/>
+</Ui>
