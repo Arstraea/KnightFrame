@@ -1893,7 +1893,7 @@ elseif KF.UIParent then
 			if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) then
 				self.Model:SetUnit(DataTable.UnitID)
 				
-				self.Character.Message = 'This is a test 0string. When contained string is too long then string will scrolling. If you check this scrolling ingame then erase this string part and make a nil. Like this : "self.Character.Message = nil". Congratulation your birthday Trevor :D'
+				self.Character.Message = 'This is a test string. When contained string is too long then string will scrolling. If you check this scrolling ingame then erase this string part and make a nil. Like this : "self.Character.Message = nil". Congratulation your birthday Trevor :D'
 			else
 				self.Model:SetCustomRace(self.ModelList[DataTable.RaceID].RaceID, DataTable.GenderID - 2)
 				self.Model:TryOn(HeadSlotItem)
