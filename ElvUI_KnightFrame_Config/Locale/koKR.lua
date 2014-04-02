@@ -79,7 +79,7 @@ do	-- print message
 end
 
 
-do	-- Layout
+do	-- Modules
 	L['Custom Panel'] = '커스텀 패널'
 		L['Panel Name'] = '대화창 이름'
 		L['Enable Texture'] = '배경그림 사용'
@@ -111,10 +111,7 @@ do	-- Layout
 	
 	L['Misc'] = '기타'
 	L['Minimap Backdrop When FarmMode'] = '채집모드 사용 시 미니맵 배경 표시'
-end
-
-
-do	-- Extra Functions
+	
 	L['Switch Equipment'] = '장비세트 자동변경'
 		L['Change equipment set when changing specialization or entering a pvp area(battleground or arena).'] = '전문화를 변경하거나 전장, 투기장에 입장하면 지정한 장비세트를 자동으로 입습니다.'
 		L['Primary'] = '전문화 1'
@@ -126,6 +123,7 @@ do	-- Extra Functions
 		
 	L['TimeFormat'] = '시간단위 변경'
 	
+	L['Knight Inspect'] = '살펴보기'
 		L['Adds additional information to your character panel.'] = '전투정보실처럼 보이도록 캐릭터 프레임에 마부보석 정보를 표시합니다.'
 	
 	L['Full Values'] = '실수치로 표시'
@@ -133,11 +131,9 @@ do	-- Extra Functions
 	L['Tooltip Talent'] = '툴팁에 특성표시'
 	L['Show Chat Tab'] = '채팅창 탭 항상보기'
 	L['Toggle WatchFrame'] = '퀘스트창 자동숨김'
-	L['Aura Tracker'] = '오라 추적기'
-end
-
-
-do	-- RaidCooldown
+	L['Synergy Tracker'] = '시너지 추적기'
+	L['Bank Open'] = '은행에서 가방 자동열기'
+	
 	L['RaidCooldown'] = '레이드쿨다운'
 	
 	--General

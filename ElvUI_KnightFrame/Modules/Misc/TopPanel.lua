@@ -79,7 +79,7 @@ elseif KF.UIParent then
 			KF:RegisterEventList('PLAYER_ENTERING_WORLD', UpdateLocation, 'TopPanel_UpdateLocation')
 			KF:RegisterEventList('WORLD_MAP_UPDATE', UpdateLocation, 'TopPanel_UpdateLocation')
 			
-			if not (KF.db.Modules.SynergyTracker ~= false and UnitExists('target')) then
+			if (KF_SynergyTracker_Player or KF_SynergyTracker_Target) and not (KF.db.Modules.SynergyTracker ~= false and UnitExists('target')) then
 				KF_SynergyTracker_Player:Point('TOPRIGHT', KF_TopPanel, 'BOTTOMRIGHT', -8, 10)
 				KF_SynergyTracker_Target:Point('CENTER', KF_TopPanel.LocationName)
 				KF.Update.TopPanel_UpdateLocation.Action()

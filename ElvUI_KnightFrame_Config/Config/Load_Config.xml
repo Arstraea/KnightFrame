@@ -9,4 +9,6 @@
 	
 	<Include file="SwitchEquipment\Load_SwitchEquipment.xml"/>
 	<Include file="EmbedMeter\Load_EmbedMeter.xml"/>
+	
+	<Include file="Misc\Load_Misc.xml"/>
 </Ui>

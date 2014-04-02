@@ -1,7 +1,7 @@
 ## Interface: 50400
 ## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cConfig|r
 ## Author: Arstraea
-## Version: 2.0
+## Version: 3.0_01
 ## eMail: qjr2513@naver.com
 ## DefaultState: Disabled
 ## Notes: Setup Informations and Options for ElvUI_KnightFrame.

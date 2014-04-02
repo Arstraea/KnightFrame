@@ -179,7 +179,7 @@ KF_Config.Install_Profile_Data['Moonlight']['Default'] = function()
 		['EmbedPanel'] = L['MiddleChatPanel'],
 		['EmbedLocation'] = 'DP',
 	}
-	E.db.KnightFrame.Modules.RaidCooldown = {
+	E.db.KnightFrame.Modules.SmartTracker = {
 		['Location'] = 'TOPLEFTElvUIParentTOPLEFT11-258',
 	}
 end

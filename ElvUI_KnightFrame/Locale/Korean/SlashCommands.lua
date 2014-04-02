@@ -5,9 +5,9 @@ if not L then return end
 local E = unpack(ElvUI)
 local KF = E:GetModule('KnightFrame')
 
--- Last Code Checking Date		: 2013. 9. 25
--- Last Code Checking Version	: 2.2_04
--- Last Testing ElvUI Version	: 6.53
+-- Last Code Checking Date		: 2014. 4. 2
+-- Last Code Checking Version	: 3.0_01
+-- Last Testing ElvUI Version	: 6.995
 
 if not KF then return end
 
@@ -35,24 +35,3 @@ KF:RegisterChatCommand('rPtks', Calculater)
 KF:RegisterChatCommand('계산', Calculater)
 KF:RegisterChatCommand('ㅏㄹ_ㅑㅜㄴㅅ미ㅣ', 'Install')
 KF:RegisterChatCommand('나이트프레임설치', 'Install')
-
-
-function PrintTable(TableToCheck, row, InputTableName)
-	row = row or 0
-	if InputTableName then
-		print(((' '):rep(row*2))..'|cff2eb7e4 [ Table|r : '..InputTableName..'|cff2eb7e4 ]')
-		InputTableName = InputTableName..'-'
-	else
-		InputTableName = ''
-	end
-	for k, v in pairs(TableToCheck) do
-		if type(v) == 'table' then
-			PrintTable(v, row + 1, InputTableName..k)
-		elseif type(v) == 'function' then
-			print(((' '):rep(row*2))..' |cff828282'..(row == 0 and '■' or ' - ')..'|r|cffceff00'..k..'|r : FUNCTION')
-		elseif type(v) == 'userdata' then
-		else
-			print(((' '):rep(row*2))..' |cff828282'..(row == 0 and '■' or ' - ')..'|r|cffceff00'..k..'|r : '..(type(v) == 'boolean' and (v==true and '|cff1784d1TRUE|r' or '|cffff0000FALSE|r') or v))
-		end
-	end
-end

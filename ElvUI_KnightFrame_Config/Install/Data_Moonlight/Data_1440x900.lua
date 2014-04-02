@@ -207,7 +207,7 @@ KF_Config.Install_Profile_Data['Moonlight']['1440x900'] = function()
 	E.db.KnightFrame.Modules.Inspect = {
 		['Location'] = 'TOPLEFTElvUIParentTOPLEFT4-15',
 	}
-	E.db.KnightFrame.Modules.RaidCooldown = {
+	E.db.KnightFrame.Modules.SmartTracker = {
 		['Appearance'] = {
 			['Area_Width'] = 394,
 			['Area_Height'] = 320,

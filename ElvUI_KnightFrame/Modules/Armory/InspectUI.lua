@@ -2,7 +2,7 @@
 local KF = E:GetModule('KnightFrame')
 local AISM = _G['Armory_InspectSupportModule']
 
--- Last Code Checking Date		: 2014. 3. 26
+-- Last Code Checking Date		: 2014. 4. 2
 -- Last Code Checking Version	: 3.0_01
 -- Last Testing ElvUI Version	: 6.995
 
@@ -13,6 +13,7 @@ elseif KF.UIParent then
 	--------------------------------------------------------------------------------
 	local KI = CreateFrame('Frame', 'KnightInspect', E.UIParent)
 	local ENI = _G['EnhancedNotifyInspectFrame'] or { ['CancelInspect'] = function() end, }
+	local ButtonName = 'KnightInspect'
 	local C = KnightFrame_Armory_Constants
 	
 	local CORE_FRAME_LEVEL = 10
@@ -293,7 +294,7 @@ elseif KF.UIParent then
 				tile = false, tileSize = 0, edgeSize = E.mult,
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
-			self.Tab:SetBackdropBorderColor(unpack(E.media.bordercolor))
+			self.Tab:SetBackdropBorderColor(0, 0, 0)
 			KF:TextSetting(self.Tab, ' |cff2eb7e4Knight Inspect', { ['FontSize'] = 10, ['FontOutline'] = 'OUTLINE', }, 'LEFT', 6, 1)
 			self.Tab:SetScript('OnMouseDown', function() self:StartMoving() end)
 			self.Tab:SetScript('OnMouseUp', function() self:StopMovingOrSizing() end)
@@ -323,7 +324,7 @@ elseif KF.UIParent then
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			self.BP:SetBackdropColor(0.09, 0.3, 0.45)
-			self.BP:SetBackdropBorderColor(unpack(E.media.bordercolor))
+			self.BP:SetBackdropBorderColor(0, 0, 0)
 			self.BP:SetFrameLevel(CORE_FRAME_LEVEL + 2)
 			
 			self.MessageFrame = CreateFrame('ScrollFrame', nil, self.BP)
@@ -331,7 +332,6 @@ elseif KF.UIParent then
 			self.MessageFrame:Point('BOTTOMRIGHT', self.BP, -10, 1)
 			self.MessageFrame.UpdateInterval = 3
 			self.MessageFrame.ScrollSpeed = 1
-			self.MessageFrame:SetScript('OnEnter', function() self.MessageFrame.UpdatedTime = 0 end)
 			
 			local PageWidth
 			local VisibleWidth
@@ -397,7 +397,7 @@ elseif KF.UIParent then
 					tile = false, tileSize = 0, edgeSize = E.mult,
 					insets = { left = 0, right = 0, top = 0, bottom = 0}
 				})
-				self[buttonName]:SetBackdropBorderColor(unpack(E.media.bordercolor))
+				self[buttonName]:SetBackdropBorderColor(0, 0, 0)
 				self[buttonName]:SetFrameLevel(CORE_FRAME_LEVEL + 1)
 				KF:TextSetting(self[buttonName], _G[buttonString], { ['FontSize'] = 9, ['FontOutline'] = 'OUTLINE' })
 				self[buttonName]:SetScript('OnEnter', Button_OnEnter)
@@ -430,6 +430,7 @@ elseif KF.UIParent then
 			self.Bookmark.CheckedTexture:SetInside()
 			self.Bookmark:SetCheckedTexture(self.Bookmark.CheckedTexture)
 			self.Bookmark:Point('LEFT', self.Tab, 'BOTTOMLEFT', 7, -34)
+			self.Bookmark:Hide()
 		end
 		
 		do --<< Texts >>--
@@ -762,10 +763,10 @@ elseif KF.UIParent then
 					self.Info.Profession['Prof'..i].Bar:SetStatusBarTexture(E.media.normTex)
 					self.Info.Profession['Prof'..i].Bar:SetMinMaxValues(0, 600)
 					
-					KF:TextSetting(self.Info.Profession['Prof'..i], '257', { ['Tag'] = 'Level', ['FontSize'] = 10 }, 'TOP', self.Info.Profession['Prof'..i].Icon)
+					KF:TextSetting(self.Info.Profession['Prof'..i], nil, { ['Tag'] = 'Level', ['FontSize'] = 10 }, 'TOP', self.Info.Profession['Prof'..i].Icon)
 					self.Info.Profession['Prof'..i].Level:Point('RIGHT', self.Info.Profession['Prof'..i].Bar)
 					
-					KF:TextSetting(self.Info.Profession['Prof'..i], 'JewelCrafting', { ['Tag'] = 'Name', ['FontSize'] = 10, ['directionH'] = 'LEFT' }, 'TOP', self.Info.Profession['Prof'..i].Icon)
+					KF:TextSetting(self.Info.Profession['Prof'..i], nil, { ['Tag'] = 'Name', ['FontSize'] = 10, ['directionH'] = 'LEFT' }, 'TOP', self.Info.Profession['Prof'..i].Icon)
 					self.Info.Profession['Prof'..i].Name:Point('LEFT', self.Info.Profession['Prof'..i].Bar)
 					self.Info.Profession['Prof'..i].Name:Point('RIGHT', self.Info.Profession['Prof'..i].Level, 'LEFT', -SPACING, 0)
 				end
@@ -804,7 +805,6 @@ elseif KF.UIParent then
 				for _, Type in pairs({ '2vs2', '3vs3', '5vs5', 'RB' }) do
 					self.Info.PvP[Type] = CreateFrame('Frame', nil, self.Info.PvP.Page)
 					self.Info.PvP[Type]:SetFrameLevel(CORE_FRAME_LEVEL + 4)
-					--self.Info.PvP[Type]:Height(70)
 					
 					self.Info.PvP[Type].Rank = self.Info.PvP.Page:CreateTexture(nil, 'OVERLAY')
 					self.Info.PvP[Type].Rank:SetTexture('Interface\\ACHIEVEMENTFRAME\\UI-ACHIEVEMENT-SHIELDS')
@@ -1125,7 +1125,6 @@ elseif KF.UIParent then
 			KnightInspect_UnitPopup.Highlight:SetBlendMode('ADD')
 			KnightInspect_UnitPopup.Highlight:SetAllPoints()
 			KnightInspect_UnitPopup:SetHighlightTexture(KnightInspect_UnitPopup.Highlight)
-			KnightInspect_UnitPopup:SetText('KnightInspect')
 			
 			KnightInspect_UnitPopup:SetScript('OnEnter', function()
 				UIDropDownMenu_StopCounting(DropDownList1)
@@ -1138,27 +1137,24 @@ elseif KF.UIParent then
 					self.Anchored = nil
 					self.Data = nil
 					self:SetParent(nil)
+					self:ClearAllPoints()
 					self:Hide()
 				end
 			end)
 			KnightInspect_UnitPopup:SetScript('OnClick', function(self)
 				local SendChannel
 				
-				if AISM and AISM.GuildMemberData[self.Data.TableIndex] then
+				if AISM and AISM.AISMUserList[self.Data.TableIndex] then
 					if self.Data.Realm == E.myrealm then
 						SendChannel = 'WHISPER'
-					else
+					elseif AISM.AISMUserList[self.Data.TableIndex] == 'GUILD' then
 						SendChannel = 'GUILD'
-					end
-				elseif KF.CurrentGroupMode ~= 'NoGroup' and AISM and type(AISM.GroupMemberData[self.Data.TableIndex]) == 'table' then
-					if self.Data.Realm == E.myrealm then
-						SendChannel = 'WHISPER'
-					else
+					elseif KF.CurrentGroupMode ~= 'NoGroup' and type(AISM.GroupMemberData[self.Data.TableIndex]) == 'table' then
 						SendChannel = IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(KF.CurrentGroupMode)
 					end
 				end
 				
-				if AISM and SendChannel then
+				if SendChannel then
 					ENI.CancelInspect(self.Data.TableIndex)
 					KI:UnregisterEvent('INSPECT_READY')
 					
@@ -1189,9 +1185,11 @@ elseif KF.UIParent then
 					return
 				end
 				
-				if AISM and (type(AISM.GroupMemberData[self.Data.TableIndex]) == 'table' or AISM.GuildMemberData[self.Data.TableIndex]) or self.Data.Unit and UnitIsVisible(self.Data.Unit) and UnitIsConnected(self.Data.Unit) and not UnitIsDeadOrGhost('player') then
+				if AISM and (type(AISM.GroupMemberData[self.Data.TableIndex]) == 'table' or AISM.AISMUserList[self.Data.TableIndex]) or self.Data.Unit and UnitIsVisible(self.Data.Unit) and UnitIsConnected(self.Data.Unit) and not UnitIsDeadOrGhost('player') then
+					self:SetText(KF:Color_Value(ButtonName))
 					self:Enable()
 				else
+					self:SetText(ButtonName)
 					self:Disable()
 				end
 			end)
@@ -1217,13 +1215,14 @@ elseif KF.UIParent then
 					end
 					
 					if not Button then
-						if DataTable.Unit and (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit)) then
+						if DataTable.Unit and (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) then
 							if AISM then
+								AISM.AISMUserList[DataTable.TableIndex] = nil
 								AISM.GroupMemberData[DataTable.TableIndex] = nil
 							end
 							
 							return
-						elseif DataTable.Unit or AISM and (AISM.GuildMemberData[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
+						elseif DataTable.Unit or AISM and (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
 							Button = UIDropDownMenu_CreateInfo()
 							Button.notCheckable = 1
 							UIDropDownMenu_AddButton(Button)
@@ -1234,7 +1233,7 @@ elseif KF.UIParent then
 					
 					if Button then
 						Button.value = 'KnightInspect'
-						Button:SetText('')
+						Button:SetText((' '):rep(strlen(ButtonName)))
 						
 						KnightInspect_UnitPopup:Show()
 						KnightInspect_UnitPopup:SetParent('DropDownList1')
@@ -1245,6 +1244,10 @@ elseif KF.UIParent then
 						KnightInspect_UnitPopup:Point('BOTTOMRIGHT', Button)
 						KnightInspect_UnitPopup.Anchored = true
 						KnightInspect_UnitPopup.Data = DataTable
+						
+						if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) and AISM and DataTable.Realm == E.myrealm and not (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
+							SendAddonMessage('AISM', 'AISM_Check', 'WHISPER', DataTable.Name)
+						end
 					end
 				end
 			end)
@@ -1854,18 +1857,27 @@ elseif KF.UIParent then
 				
 				Name = nil
 				
-				if DataTable.Specialization[i].SpecializationID then
+				if DataTable.Specialization[i].SpecializationID and DataTable.Specialization[i].SpecializationID ~= 0 then
 					_, Name, _, Texture = GetSpecializationInfoByID(DataTable.Specialization[i].SpecializationID)
 					
 					if Name then
-						SpecRole = KF.Table.ClassRole[DataTable.Class][Name].Role
-						
-						if i == SpecGroup then
-							Color = KF.Table.ClassRole[DataTable.Class][Name].Color
-							self.SpecIcon:SetTexture(Texture)
+						if KF.Table.ClassRole[DataTable.Class][Name] then
+							
+							SpecRole = KF.Table.ClassRole[DataTable.Class][Name].Role
+							
+							if i == SpecGroup then
+								Color = KF.Table.ClassRole[DataTable.Class][Name].Color
+								self.SpecIcon:SetTexture(Texture)
+							end
+							
+							Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
+						else
+							print(DataTable.Class)
+							print(Name)
+							print(KF.Table.ClassRole[DataTable.Class][Name].Role)
+							
+							self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again']
 						end
-						
-						Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
 					end
 				end
 				
@@ -1893,7 +1905,7 @@ elseif KF.UIParent then
 			if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) then
 				self.Model:SetUnit(DataTable.UnitID)
 				
-				self.Character.Message = 'This is a test string. When contained string is too long then string will scrolling. If you check this scrolling ingame then erase this string part and make a nil. Like this : "self.Character.Message = nil". Congratulation your birthday Trevor :D'
+				self.Character.Message = nil
 			else
 				self.Model:SetCustomRace(self.ModelList[DataTable.RaceID].RaceID, DataTable.GenderID - 2)
 				self.Model:TryOn(HeadSlotItem)
@@ -1912,7 +1924,7 @@ elseif KF.UIParent then
 					end
 				end
 				
-				self.Character.Message = L["Character model may differ because it was constructed by the inspect data."]
+				self.Character.Message = L['Character model may differ because it was constructed by the inspect data.']
 			end
 			
 			if not (self.LastDataSetting and self.LastDataSetting == DataTable.Name..(DataTable.Realm and '-'..DataTable.Realm or '')) then
@@ -2147,8 +2159,8 @@ elseif KF.UIParent then
 	end
 	
 	
-	KF.Modules[#KF.Modules + 1] = 'Inspect'
-	KF.Modules['Inspect'] = function(RemoveOrder)
+	KF.Modules[#KF.Modules + 1] = 'KnightInspect'
+	KF.Modules['KnightInspect'] = function(RemoveOrder)
 		if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.KnightInspect.Enable ~= false and not KI.Activate then
 			Default_NotifyInspect = NotifyInspect
 			Default_InspectUnit = InspectUnit
@@ -2174,7 +2186,7 @@ elseif KF.UIParent then
 	
 	function KF:Test(args)
 		if args == 'Guild' then
-			PrintTable(AISM.GuildMemberData)
+			PrintTable(AISM.AISMUserList)
 		elseif args == 'Group' then
 			PrintTable(AISM.GroupMemberData)
 		elseif args == 'testme' then

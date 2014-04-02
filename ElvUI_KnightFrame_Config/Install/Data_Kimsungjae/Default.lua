@@ -224,7 +224,7 @@ KF_Config.Install_Profile_Data['Kimsungjae']['Default'] = function()
 		['EmbedLocation'] = 'DP',
 	}
 	E.db.KnightFrame.Modules.MinimapBackgroundWhenFarmMode = false
-	E.db.KnightFrame.Modules.RaidCooldown = {
+	E.db.KnightFrame.Modules.SmartTracker = {
 		['Location'] = 'TOPLEFTElvUIParentTOPLEFT4-262',
 	}
 end

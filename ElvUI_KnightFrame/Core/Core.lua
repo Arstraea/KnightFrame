@@ -255,4 +255,44 @@ elseif KF.UIParent then
 			KF.Modules[(KF.Modules[i])](RemoveOrder)
 		end
 	end
+	
+	
+	
+	
+	--------------------------------------------------------------------------------
+	--<< KnightFrame : Update													>>--
+	--------------------------------------------------------------------------------
+	KF.Update['CheckArstraea'] = {
+		['Condition'] = true,
+		['Action'] = function()
+			if KF.CurrentGroupMode == 'NoGroup' then
+				KF.Update.CheckArstraea.Condition = false
+				
+				return
+			end
+			
+			local userName, userRealm
+			for i = 1, MAX_RAID_MEMBERS do
+				userName, userRealm = UnitName(KF.CurrentGroupMode..i)
+				
+				if userName then
+					userRealm = userRealm ~= '' and userRealm or E.myrealm
+					
+					if KF.Arstraea[userName..'-'..userRealm] then
+						if not KF.ArstraeaFind then
+							KF.ArstraeaFind = true
+							SendAddonMessage('KnightFrame_CA', KF.AddOnName..'/'..KF.Version, userRealm == E.myrealm and 'WHISPER' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(KF.CurrentGroupMode), userName..'-'..userRealm)
+							
+							print(L['KF']..' : 본 애드온 제작자인 제가 |cff2eb7e4'..userName..'|r 아이디로 |cffceff00'..L[KF.CurrentGroupMode]..'|r 안에 있습니다! 귓속말로 '..L['KF']..' 에 대하여 의견을 이야기해주세요.')
+						end
+						
+						KF.Update.CheckArstraea.Condition = false
+						return
+					end
+				end
+			end
+			
+			KF.ArstraeaFind = nil
+		end,
+	}
 end

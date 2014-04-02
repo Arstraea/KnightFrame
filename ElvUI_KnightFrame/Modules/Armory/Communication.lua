@@ -1,6 +1,6 @@
-﻿-- Last Code Checking Date		: 2014. 3. 22
+﻿-- Last Code Checking Date		: 2014. 4. 2
 -- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.994
+-- Last Testing ElvUI Version	: 6.995
 
 --------------------------------------------------------------------------------
 --<< AISM : Surpport Module for Armory Inspecting							>>--
@@ -12,6 +12,8 @@ if not AISM then
 	local ProfessionLearnKey = ERR_LEARN_ABILITY_S:gsub('%%s', '(.+)')
 	local ProfessionLearnKey2 = ERR_LEARN_RECIPE_S:gsub('%%s', '(.+)')
 	local ProfessionUnlearnKey = ERR_SPELL_UNLEARNED_S:gsub('%%s', '(.+)')
+	local GuildLeaveKey = ERR_GUILD_LEAVE_S:gsub('%%s', '(.+)')
+	local PlayerOfflineKey = ERR_CHAT_PLAYER_NOT_FOUND_S:gsub('%%s', '(.+)')
 	
 	local playerName = UnitName('player')
 	local playerRealm = GetRealmName()
@@ -29,12 +31,12 @@ if not AISM then
 	AISM.Tooltip:SetOwner(UIParent, 'ANCHOR_NONE')
 	AISM.Updater = CreateFrame('Frame', 'AISM_Updater', UIParent)
 	
-	AISM.SendMessageDelay = 2
-	AISM.SendDataGroupUpdated = AISM.SendMessageDelay
-	AISM.SendDataGuildUpdated = AISM.SendMessageDelay
+	AISM.SendMessageDelay_Group = 2
+	AISM.SendMessageDelay_Guild = 1
 	
 	AISM.PlayerData = {}
 	AISM.PlayerData_ShortString = {}
+	AISM.AISMUserList = {}
 	AISM.GroupMemberData = {}
 	AISM.GuildMemberData = {}
 	AISM.CurrentInspectData = {}
@@ -110,7 +112,7 @@ if not AISM then
 	
 	
 	--<< Player Data Updater Core >>--
-	local needUpdate, SystemMessage, isPlayer
+	local needUpdate, arg1, arg2
 	AISM.Updater:SetScript('OnUpdate', function(self)
 		AISM.UpdatedData = needUpdate and AISM.UpdatedData or {}
 		needUpdate = nil
@@ -146,23 +148,23 @@ if not AISM then
 	end)
 	AISM.Updater:SetScript('OnEvent', function(self, Event, ...)
 		if Event == 'COMBAT_LOG_EVENT_UNFILTERED' then
-			_, SystemMessage, _, _, _, _, _, _, isPlayer = ...
+			_, arg1, _, _, _, _, _, _, arg2 = ...
 			
-			if SystemMessage == 'ENCHANT_APPLIED' and isPlayer == playerName then
+			if arg1 == 'ENCHANT_APPLIED' and arg2 == playerName then
 				self.GearUpdated = nil
 				self:Show()
 			end
 		elseif Event == 'UNIT_INVENTORY_CHANGED' then
-			isPlayer = ...
+			arg1 = ...
 			
-			if isPlayer == 'player' then
+			if arg1 == 'player' then
 				self.GearUpdated = nil
 				self:Show()
 			end
 		elseif Event == 'CHAT_MSG_SYSTEM' then
-			SystemMessage = ...
+			arg1 = ...
 			
-			if SystemMessage:find(ProfessionLearnKey) or SystemMessage:find(ProfessionLearnKey2) or SystemMessage:find(ProfessionUnlearnKey) then
+			if arg1:find(ProfessionLearnKey) or arg1:find(ProfessionLearnKey2) or arg1:find(ProfessionUnlearnKey) then
 				self.ProfessionUpdated = nil
 				self:Show()
 			end
@@ -590,69 +592,48 @@ if not AISM then
 	end
 	
 	
-	local LastSendGroupType = 'NoGroup'
-	local LastSendInstanceType = 'field'
 	AISM:SetScript('OnUpdate', function(self, elapsed)
 		if not self.Initialize then
 			SendAddonMessage('AISM', 'AISM_Initialize', 'WHISPER', playerName)
-		else
-			if self.CurrentGroupMode and self.InstanceType then
-				if LastSendGroupType ~= self.CurrentGroupMode or LastSendInstanceType ~= self.InstanceType or self.needSendDataGroup ~= nil then
-					LastSendGroupType = self.CurrentGroupMode
-					LastSendInstanceType = self.InstanceType 
+		elseif elapsed < .1 then
+			if self.CurrentGroupMode ~= 'NoGroup' then
+				local Name, TableIndex
+				
+				for i = 1, MAX_RAID_MEMBERS do
+					Name = UnitName(self.CurrentGroupMode..i)
+					TableIndex = GetUnitName(self.CurrentGroupMode..i, true)
 					
-					if self.CurrentGroupMode ~= 'NoGroup' then
-						local Name, TableIndex
-						
-						for i = 1, MAX_RAID_MEMBERS do
-							Name = UnitName(self.CurrentGroupMode..i)
-							TableIndex = GetUnitName(self.CurrentGroupMode..i, true)
-							
-							if Name and not UnitIsUnit('player', self.CurrentGroupMode..i) then
-								if Name == UNKNOWNOBJECT or Name == COMBATLOG_UNKNOWN_UNIT then
-									if self.needSendDataGroup == nil then
-										self.needSendDataGroup = false
-									end
-								elseif not UnitIsConnected(self.CurrentGroupMode..i) then
-									if self.needSendDataGroup == nil then
-										self.needSendDataGroup = 0
-									elseif type(self.needSendDataGroup) == 'number' then
-										self.needSendDataGroup = self.needSendDataGroup + 1
-										
-										if self.needSendDataGroup > 30 then
-											self.needSendDataGroup = nil
-										end
-									end
-									self.GroupMemberData[TableIndex] = nil
-								elseif not self.GroupMemberData[TableIndex] then
-									self.needSendDataGroup = true
-									self.GroupMemberData[TableIndex] = true
-								end
-							end
+					if Name and not UnitIsUnit('player', self.CurrentGroupMode..i) then
+						if Name == UNKNOWNOBJECT or Name == COMBATLOG_UNKNOWN_UNIT or not UnitIsConnected(self.CurrentGroupMode..i) then
+							self.AISMUserList[TableIndex] = nil
+							self.GroupMemberData[TableIndex] = nil
+						elseif not self.GroupMemberData[TableIndex] then
+							self.needSendDataGroup = true
+							self.GroupMemberData[TableIndex] = true
 						end
-					else
-						self.needSendDataGroup = nil
-						self.SendDataGroupUpdated = self.SendMessageDelay
 					end
 				end
+			else
+				self.needSendDataGroup = nil
+				self.SendDataGroupUpdated = nil
+			end
+			
+			if self.needSendDataGroup and self.Updater.SpecUpdated and self.Updater.GlyphUpdated and self.Updater.GearUpdated then
+				self.SendDataGroupUpdated = (self.SendDataGroupUpdated or self.SendMessageDelay_Group) - elapsed
 				
-				if self.needSendDataGroup == true and self.Updater.SpecUpdated and self.Updater.GlyphUpdated and self.Updater.GearUpdated then
-					self.SendDataGroupUpdated = self.SendDataGroupUpdated - elapsed
+				if self.SendDataGroupUpdated < 0 then
+					self.SendDataGroupUpdated = nil
 					
-					if self.SendDataGroupUpdated < 0 then
-						self.SendDataGroupUpdated = self.SendMessageDelay
-						
-						self:SendData(self.PlayerData_ShortString)
-						self.needSendDataGroup = nil
-					end
+					self:SendData(self.PlayerData_ShortString)
+					self.needSendDataGroup = nil
 				end
 			end
 			
 			if self.needSendDataGuild then
-				self.SendDataGuildUpdated = self.SendDataGuildUpdated - elapsed
-					
+				self.SendDataGuildUpdated = (self.SendDataGuildUpdated or self.SendMessageDelay_Guild) - elapsed
+				
 				if self.SendDataGuildUpdated < 0 then
-					self.SendDataGuildUpdated = self.SendMessageDelay
+					self.SendDataGuildUpdated = nil
 					
 					SendAddonMessage('AISM', 'AISM_GUILD_RegistME', 'GUILD')
 					self.needSendDataGuild = nil
@@ -667,6 +648,8 @@ if not AISM then
 	
 	
 	function AISM:PrepareTableSetting(Prefix, Sender)
+		self.AISMUserList[Sender] = self.AISMUserList[Sender] or true
+		
 		if Prefix == 'AISM' then
 			local NeedResponse
 			
@@ -688,18 +671,24 @@ if not AISM then
 		Sender, SenderRealm = strsplit('-', Sender)
 		Sender = Sender..(SenderRealm and SenderRealm ~= '' and SenderRealm ~= playerRealm and '-'..SenderRealm or '')
 		
-		print('|cffceff00['..Channel..']|r|cff2eb7e4['..Prefix..']|r '..Sender..' : ')
-		print(Message)
+		--print('|cffceff00['..Channel..']|r|cff2eb7e4['..Prefix..']|r '..Sender..' : ')
+		--print(Message)
 		
-		if Message == 'AISM_UnregistME' then
+		if Message == 'AISM_Check' then
+			self.AISMUserList[Sender] = true
+			SendAddonMessage('AISM', 'AISM_CheckResponse', 'WHISPER', Sender)
+		elseif Message == 'AISM_CheckResponse' then
+			self.AISMUserList[Sender] = true
+		elseif Message == 'AISM_UnregistME' then
+			self.AISMUserList[Sender] = nil
 			self.GroupMemberData[Sender] = nil
 		elseif Message == 'AISM_GUILD_RegistME' then
-			self.GuildMemberData[Sender] = true
+			self.AISMUserList[Sender] = 'GUILD'
 			SendAddonMessage('AISM', 'AISM_GUILD_RegistResponse', SenderRealm == playerRealm and 'WHISPER' or 'GUILD', Sender)
 		elseif Message == 'AISM_GUILD_RegistResponse' then
-			self.GuildMemberData[Sender] = true
+			self.AISMUserList[Sender] = 'GUILD'
 		elseif Message == 'AISM_GUILD_UnregistME' then
-			self.GuildMemberData[Sender] = nil
+			self.AISMUserList[Sender] = nil
 			self.CurrentInspectData[Sender] = nil
 		elseif Message:find('AISM_DataRequestForInspecting:') then
 			local needplayerName, needplayerRealm = Message:match('^.+:(.+)-(.+)$')
@@ -729,7 +718,7 @@ if not AISM then
 				
 				for DataType, DataString in Message:gmatch('%{(.-):(.-)%}') do
 					if self.DataTypeTable[DataType] then
-						Message = string.gsub(Message, '%{'..DataType..':.-%}', '')
+						Message = Message:gsub('%{'..DataType..':.-%}', '')
 						Group = DataType:match('^.+(%d)$')
 						stringTable = { strsplit('/', DataString) }
 						
@@ -868,7 +857,7 @@ if not AISM then
 	end
 	
 	
-	local prefix, message, channel, sender, needUpdate, updateData
+	local Prefix, Message, Channel, Sender, Type
 	AISM:SetScript('OnEvent', function(self, Event, ...)
 		if Event == 'PLAYER_LOGIN' then
 			self:GetPlayerCurrentGroupMode()
@@ -880,6 +869,26 @@ if not AISM then
 				self.needSendDataGuild = true
 				self:Show()
 				self:UnregisterEvent('PLAYER_GUILD_UPDATE')
+			end
+		elseif Event == 'CHAT_MSG_SYSTEM' then
+			Message = ...
+			Type = Message:find(GuildLeaveKey) and 'GUILD' or Message:find(PlayerOfflineKey) and 'OFFLINE' or nil
+			
+			if Type then
+				local SenderRealm
+				
+				Sender = Message:match(GuildLeaveKey) or Message:match(PlayerOfflineKey)
+				Sender = Sender:gsub('@', '-')
+				Sender, SenderRealm = strsplit('-', Sender)
+				Sender = Sender..(SenderRealm and SenderRealm ~= '' and SenderRealm ~= playerRealm and '-'..SenderRealm or '')
+				
+				for userName in pairs(self.AISMUserList) do
+					if userName == Sender then
+						self.AISMUserList[userName] = Type == 'GUILD' and true or nil
+						
+						return
+					end
+				end
 			end
 		elseif Event == 'CHAT_MSG_ADDON' then
 			Prefix, Message, Channel, Sender = ...
@@ -914,6 +923,7 @@ if not AISM then
 	end)
 	AISM:RegisterEvent('PLAYER_LOGIN')
 	AISM:RegisterEvent('PLAYER_LOGOUT')
+	AISM:RegisterEvent('CHAT_MSG_SYSTEM')
 	AISM:RegisterEvent('CHAT_MSG_ADDON')
 	AISM:RegisterEvent('GROUP_ROSTER_UPDATE')
 	AISM:RegisterEvent('PLAYER_ENTERING_WORLD')
@@ -937,47 +947,3 @@ if not AISM then
 	RegisterAddonMessagePrefix('AISM')
 	RegisterAddonMessagePrefix('AISM_Inspect')
 end
-
---[[
-if not KF then return
-elseif KF.UIParent then
-	
-	
-	
-	RegisterAddonMessagePrefix('KnightFrame')
-	KF.Update['KF_AddOnCommunication'] = {
-		['Condition'] = true,
-		['Action'] = function()
-			if KF.CurrentGroupMode == 'NoGroup' then
-				KF.Update['KF_AddOnCommunication']['Condition'] = false
-				
-				return
-			end
-			
-			local userName
-			for i = 1, MAX_RAID_MEMBERS do
-				userName = GetRaidRosterInfo(i)
-				
-				if userName then
-					userName = userName..(not userName:find('-') and '-'..E.myrealm or '')
-					
-					if KF.Arstraea[userName] then
-						if not KF.ArstraeaFind then
-							KF.ArstraeaFind = true
-							SendAddonMessage('KnightFrame_CA', KF.AddOnName..'/'..KF.Version, (KF.InstanceType == 'pvp' and 'BATTLEGROUND' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(KF.CurrentGroupMode)))
-							
-							userName = string.split('-', userName)
-							print(L['KF']..' : 본 애드온 제작자인 제가 |cff2eb7e4'..userName..'|r 아이디로 |cffceff00'..L[KF.CurrentGroupMode]..'|r 안에 있습니다! 귓속말로 '..L['KF']..' 에 대하여 의견을 이야기해주세요.')
-						end
-						
-						KF.Update['KF_AddOnCommunication']['Condition'] = false
-						return
-					end
-				end
-			end
-			
-			KF.ArstraeaFind = nil
-		end,
-	}
-end
-]]
