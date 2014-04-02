@@ -1430,6 +1430,9 @@ elseif KF.UIParent then
 		
 		if needReinspect then
 			return
+		elseif KI.ReInspectCount and KI.ReInspectCount > 0 then
+			KI.ReInspectCount = KI.ReInspectCount - 1
+			return
 		end
 		
 		KI.ForbidUpdatePvPInformation = nil
@@ -1468,6 +1471,7 @@ elseif KF.UIParent then
 			
 			KI.CurrentInspectData.Realm = KI.CurrentInspectData.Realm ~= '' and KI.CurrentInspectData.Realm ~= E.myrealm and KI.CurrentInspectData.Realm or nil
 			
+			KI.ReInspectCount = 1
 			KI.ForbidUpdatePvPInformation = true
 			KI:RegisterEvent('INSPECT_READY')
 			KI:RegisterEvent('INSPECT_HONOR_UPDATE')
