@@ -2,9 +2,9 @@
 local KF = E:GetModule('KnightFrame')
 local AISM = _G['Armory_InspectSupportModule']
 
--- Last Code Checking Date		: 2014. 4. 2
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
+-- Last Code Checking Date		: 2014. 4. 13
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 if not KF then return
 elseif KF.UIParent then
@@ -13,7 +13,7 @@ elseif KF.UIParent then
 	--------------------------------------------------------------------------------
 	local KI = CreateFrame('Frame', 'KnightInspect', E.UIParent)
 	local ENI = _G['EnhancedNotifyInspectFrame'] or { ['CancelInspect'] = function() end, }
-	local ButtonName = 'KnightInspect'
+	local ButtonName = L['Knight Inspect']
 	local C = KnightFrame_Armory_Constants
 	
 	local CORE_FRAME_LEVEL = 10
@@ -122,11 +122,19 @@ elseif KF.UIParent then
 	
 	
 	KI.EquipmentSlot_OnEnter = function(self)
+		if C.CanTransmogrifySlot[self.SlotName] and C.ItemBindString[CurrentLineText] and type(self.TransmogrifyLink) == 'number' and not GetItemInfo(self.TransmogrifyLink) then
+			self:SetScript('OnUpdate', function()
+				if GetItemInfo(self.TransmogrifyLink) then
+					KI.EquipmentSlot_OnEnter(self)
+					self:SetScript('OnUpdate', nil)
+				end
+			end)
+			return
+		end
+		
 		if self.Link then
 			GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 			GameTooltip:SetHyperlink(self.Link)
-			
-			--ITEM_SOULBOUND
 			
 			local CurrentLineText, SetName
 			for i = 1, GameTooltip:NumLines() do
@@ -164,6 +172,8 @@ elseif KF.UIParent then
 					end
 					
 					break
+				elseif C.CanTransmogrifySlot[self.SlotName] and C.ItemBindString[CurrentLineText] and self.TransmogrifyAnchor.Link then
+					_G['GameTooltipTextLeft'..i]:SetText(E:RGBToHex(1, .5, 1)..format(TRANSMOGRIFIED, GetItemInfo(self.TransmogrifyAnchor.Link) or self.TransmogrifyAnchor.Link)..'|r|n'..CurrentLineText)
 				end
 			end
 			
@@ -202,25 +212,6 @@ elseif KF.UIParent then
 		
 		KI:ReArrangeCategory()
 	end
-	KI.GemSocket_OnEnter = function(self)
-		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-		
-		self = self:GetParent()
-		
-		if self.GemItemID then
-			if type(self.GemItemID) == 'number' then
-				GameTooltip:SetHyperlink(select(2, GetItemInfo(self.GemItemID)))
-			else
-				GameTooltip:ClearLines()
-				GameTooltip:AddLine(self.GemItemID)
-			end
-		elseif self.GemType then
-			GameTooltip:ClearLines()
-			GameTooltip:AddLine(_G['EMPTY_SOCKET_'..self.GemType])
-		end
-		
-		GameTooltip:Show()
-	end
 	KI.GemSocket_OnClick = function(self, button)
 		self = self:GetParent()
 		
@@ -250,6 +241,7 @@ elseif KF.UIParent then
 			end
 		end
 	end
+	
 	
 	function KI:CreateInspectFrame()
 		do --<< Core >>--
@@ -613,6 +605,26 @@ elseif KF.UIParent then
 					Slot.SocketWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Warning-Small')
 					Slot.SocketWarning:SetScript('OnEnter', C.CommonScript.OnEnter)
 					Slot.SocketWarning:SetScript('OnLeave', C.CommonScript.OnLeave)
+					
+					if C.CanTransmogrifySlot[slotName] then
+						Slot.TransmogrifyAnchor = CreateFrame('Button', nil, Slot.Gradation)
+						Slot.TransmogrifyAnchor:Size(12)
+						Slot.TransmogrifyAnchor:SetFrameLevel(CORE_FRAME_LEVEL + 4)
+						Slot.TransmogrifyAnchor:Point('BOTTOM'..Slot.Direction, Slot)
+						Slot.TransmogrifyAnchor:SetScript('OnEnter', C.CommonScript.Transmogrify_OnEnter)
+						Slot.TransmogrifyAnchor:SetScript('OnLeave', C.CommonScript.Transmogrify_OnLeave)
+						
+						Slot.TransmogrifyAnchor.Texture = Slot.TransmogrifyAnchor:CreateTexture(nil, 'OVERLAY')
+						Slot.TransmogrifyAnchor.Texture:SetInside()
+						Slot.TransmogrifyAnchor.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Anchor')
+						Slot.TransmogrifyAnchor.Texture:SetVertexColor(1, .5, 1)
+						
+						if Slot.Direction == 'LEFT' then
+							Slot.TransmogrifyAnchor.Texture:SetTexCoord(0, 1, 0, 1)
+						else
+							Slot.TransmogrifyAnchor.Texture:SetTexCoord(1, 0, 0, 1)
+						end
+					end
 				end
 				
 				self[slotName] = Slot
@@ -1333,10 +1345,7 @@ elseif KF.UIParent then
 				else
 					KI.CurrentInspectData.Gear[SlotName].ItemLink = SlotLink
 					
-					KI.ScanTTForInspecting:ClearLines()
-					for i = 1, 10 do
-						_G['KnightInspectScanTT_ITexture'..i]:SetTexture(nil)
-					end
+					C.CommonScript.ClearTooltip(KI.ScanTTForInspecting)
 					KI.ScanTTForInspecting:SetInventoryItem(UnitID, Slot.ID)
 					
 					TransmogrifiedItem = nil
@@ -1362,10 +1371,12 @@ elseif KF.UIParent then
 							if SetItemCount > SetItemMax or SetItemMax == 1 then
 								needReinspect = true
 								break
-							elseif CurrentSetItem[SetName] then
-								break
 							else
-								CurrentSetItem[SetName] = {}
+								if not (CurrentSetItem[SetName] or KI.CurrentInspectData.SetItem[SetName]) then
+									needReinspect = true
+								end
+								
+								CurrentSetItem[SetName] = CurrentSetItem[SetName] or {}
 								
 								for k = 1, KI.ScanTTForInspecting:NumLines() do
 									tooltipText = _G['KnightInspectScanTT_ITextLeft'..(i+k)]:GetText()
@@ -1378,17 +1389,27 @@ elseif KF.UIParent then
 										colorR, colorG, colorB = _G['KnightInspectScanTT_ITextLeft'..(i+k)]:GetTextColor()
 										
 										if colorR > LIGHTYELLOW_FONT_COLOR.r - 0.01 and colorR < LIGHTYELLOW_FONT_COLOR.r + 0.01 and colorG > LIGHTYELLOW_FONT_COLOR.g - 0.01 and colorG < LIGHTYELLOW_FONT_COLOR.g + 0.01 and colorB > LIGHTYELLOW_FONT_COLOR.b - 0.01 and colorB < LIGHTYELLOW_FONT_COLOR.b + 0.01 then
-											CurrentSetItem[SetName][#CurrentSetItem[SetName] + 1] = LIGHTYELLOW_FONT_COLOR_CODE..tooltipText
+											tooltipText = LIGHTYELLOW_FONT_COLOR_CODE..tooltipText
 										else
-											CurrentSetItem[SetName][#CurrentSetItem[SetName] + 1] = GRAY_FONT_COLOR_CODE..tooltipText
+											tooltipText = GRAY_FONT_COLOR_CODE..tooltipText
 										end
-									elseif tooltipText:find(C.ItemSetBonusKey) then
-										CurrentSetItem[SetName]['SetOption'..SetOptionCount] = tooltipText:match("^%((%d)%)%s.+:%s.+$") or true
 										
+										if CurrentSetItem[SetName][k] and CurrentSetItem[SetName][k] ~= tooltipText then
+											needReinspect = true
+										end
+										
+										CurrentSetItem[SetName][k] = tooltipText
+									elseif tooltipText:find(C.ItemSetBonusKey) then
+										tooltipText = tooltipText:match("^%((%d)%)%s.+:%s.+$") or true
+										
+										if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= tooltipText then
+											needReinspect = true
+										end
+										
+										CurrentSetItem[SetName]['SetOption'..SetOptionCount] = tooltipText
 										SetOptionCount = SetOptionCount + 1
 									end
 								end
-								
 								KI.CurrentInspectData.SetItem[SetName] = CurrentSetItem[SetName]
 								
 								break
@@ -1430,16 +1451,17 @@ elseif KF.UIParent then
 		
 		if needReinspect then
 			return
-		elseif KI.ReInspectCount and KI.ReInspectCount > 0 then
-			KI.ReInspectCount = KI.ReInspectCount - 1
-			return
 		end
 		
-		KI.ForbidUpdatePvPInformation = nil
-		ENI.CancelInspect(TableIndex)
-		
-		KI:ShowFrame(KI.CurrentInspectData)
-		KI:UnregisterEvent('INSPECT_READY')
+		--if KI.ReinspectCount > 0 then
+		--	KI.ReinspectCount = KI.ReinspectCount - 1
+		--else
+			KI.ForbidUpdatePvPInformation = nil
+			ENI.CancelInspect(TableIndex)
+			
+			KI:ShowFrame(KI.CurrentInspectData)
+			KI:UnregisterEvent('INSPECT_READY')
+		--end
 	end
 	
 	
@@ -1471,7 +1493,7 @@ elseif KF.UIParent then
 			
 			KI.CurrentInspectData.Realm = KI.CurrentInspectData.Realm ~= '' and KI.CurrentInspectData.Realm ~= E.myrealm and KI.CurrentInspectData.Realm or nil
 			
-			KI.ReInspectCount = 1
+			--KI.ReinspectCount = 1
 			KI.ForbidUpdatePvPInformation = true
 			KI:RegisterEvent('INSPECT_READY')
 			KI:RegisterEvent('INSPECT_HONOR_UPDATE')
@@ -1480,31 +1502,19 @@ elseif KF.UIParent then
 	
 	
 	function KI:ShowFrame(DataTable)
-		local needUpdate, CheckItemInfoReceived
+		self.GET_ITEM_INFO_RECEIVED = nil
+		self:UnregisterEvent('GET_ITEM_INFO_RECEIVED')
 		
 		for _, slotName in pairs(C.GearList) do
-			if DataTable.Gear[slotName] and DataTable.Gear[slotName].ItemLink then
-				_, CheckItemInfoReceived = GetItemInfo(DataTable.Gear[slotName].ItemLink)
-				
-				if not CheckItemInfoReceived then
-					needUpdate = true
-					
-					if not self.GET_ITEM_INFO_RECEIVED then
-						self.GET_ITEM_INFO_RECEIVED = function()
-							self:ShowFrame(DataTable)
-						end
-						self:RegisterEvent('GET_ITEM_INFO_RECEIVED')
-					end
-				end
+			if DataTable.Gear[slotName] and DataTable.Gear[slotName].ItemLink and not GetItemInfo(DataTable.Gear[slotName].ItemLink) then
+				self.GET_ITEM_INFO_RECEIVED = function() self:ShowFrame(DataTable) end
 			end
 		end
 		
-		if needUpdate then
+		if self.GET_ITEM_INFO_RECEIVED then
+			self:RegisterEvent('GET_ITEM_INFO_RECEIVED')
 			return
 		end
-		
-		self.GET_ITEM_INFO_RECEIVED = nil
-		self:UnregisterEvent('GET_ITEM_INFO_RECEIVED')
 		
 		self.Updater:Show()
 		self.Updater:SetScript('OnUpdate', function()
@@ -1520,14 +1530,14 @@ elseif KF.UIParent then
 	
 	
 	function KI:InspectFrame_DataSetting(DataTable)
-		local needUpdate
+		local needUpdate, needUpdateList
 		local r, g, b
 		
 		do --<< Equipment Slot and Enchant, Gem Setting >>--
 			local ErrorDetected
 			local ItemCount, ItemTotal = 0, 0
 			local Slot, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
-			local arg1, itemID, enchantID, _, _, _, _, arg2, arg3, arg4, arg5, arg6
+			local arg1, itemID, enchantID, arg2, arg3, arg4, arg5, arg6
 			
 			-- Setting except shirt and tabard
 			for _, slotName in pairs(self.GearUpdated or C.GearList) do
@@ -1535,7 +1545,7 @@ elseif KF.UIParent then
 					Slot = self[slotName]
 					
 					do --<< Clear Setting >>--
-						ErrorDetected, TrueItemLevel, IsEnchanted, ItemUpgradeID, ItemTexture, r, g, b = nil, nil, nil, nil, nil, 0, 0, 0
+						needUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, ItemUpgradeID, ItemTexture, r, g, b = nil, nil, nil, nil, nil, nil, 0, 0, 0
 						
 						Slot.Link = nil
 						Slot.ItemLevel:SetText(nil)
@@ -1561,10 +1571,7 @@ elseif KF.UIParent then
 						do --<< Gem Parts >>--
 							arg1, itemID, enchantID, _, _, _, _, arg2, arg3, arg4, arg5, arg6 = strsplit(':', Slot.Link)
 							
-							self.ScanTT:ClearLines()
-							for i = 1, 10 do
-								_G['KnightInspectScanTTTexture'..i]:SetTexture(nil)
-							end
+							C.CommonScript.ClearTooltip(self.ScanTT)
 							self.ScanTT:SetHyperlink(format('%s:%s:%d:0:0:0:0:%s:%s:%s:%s:%s', arg1, itemID, enchantID, arg2, arg3, arg4, arg5, arg6))
 							
 							GemCount_Default, GemCount_Now, GemCount = 0, 0, 0
@@ -1588,10 +1595,7 @@ elseif KF.UIParent then
 								Slot['Socket'..GemCount_Enable].GemType = 'PRISMATIC'
 							end
 							
-							self.ScanTT:ClearLines()
-							for i = 1, 10 do
-								_G['KnightInspectScanTTTexture'..i]:SetTexture(nil)
-							end
+							C.CommonScript.ClearTooltip(self.ScanTT)
 							self.ScanTT:SetHyperlink(Slot.Link)
 							
 							-- Apply current item's gem setting
@@ -1607,30 +1611,28 @@ elseif KF.UIParent then
 									Slot['Socket'..i].Socket:SetBackdropBorderColor(1, 1, 1)
 								end
 								
-								if ItemTexture then
+								CurrentLineText = select(2, _G['KnightInspectScanTTTexture'..i]:GetPoint())
+								CurrentLineText = DataTable.Gear[slotName]['Gem'..i] or CurrentLineText ~= self.ScanTT and CurrentLineText.GetText and CurrentLineText:GetText():gsub('|cff......', ''):gsub('|r', '') or nil
+								
+								if CurrentLineText then
 									Slot['Socket'..i]:Show()
 									GemCount_Now = GemCount_Now + 1
 									Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 									
-									if DataTable.Gear[slotName]['Gem'..i] then
+									ItemTexture = ItemTexture or DataTable.Gear[slotName]['Gem'..i] and select(10, GetItemInfo(DataTable.Gear[slotName]['Gem'..i])) or nil
+									
+									if not ItemTexture then
+										needUpdate = true
+									elseif not C.EmptySocketString[CurrentLineText] then
 										GemCount = GemCount + 1
+										Slot['Socket'..i].GemItemID = CurrentLineText
 										Slot['Socket'..i].Texture:SetTexture(ItemTexture)
-										Slot['Socket'..i].GemItemID = DataTable.Gear[slotName]['Gem'..i]
-									else
-										CurrentLineText = select(2, _G['KnightInspectScanTTTexture'..i]:GetPoint()):GetText()
-										
-										if not C.EmptySocketString[CurrentLineText] then
-											GemCount = GemCount + 1
-											Slot['Socket'..i].Texture:SetTexture(ItemTexture)
-											Slot['Socket'..i].GemItemID = CurrentLineText
-										end
 									end
 								end
 							end
 							
 							if GemCount_Now < GemCount_Default then -- ItemInfo not loaded
-								needUpdate = needUpdate or {}
-								needUpdate[#needUpdate + 1] = slotName
+								needUpdate = true
 							end
 						end
 						
@@ -1748,6 +1750,16 @@ elseif KF.UIParent then
 						end
 					end
 					
+					if Slot.TransmogrifyAnchor then --<< Transmogrify Parts >>--
+						Slot.TransmogrifyAnchor.Link = DataTable.Gear[slotName].Transmogrify ~= 'NotDisplayed' and DataTable.Gear[slotName].Transmogrify
+						
+						if type(Slot.TransmogrifyAnchor.Link) == 'number' then
+							Slot.TransmogrifyAnchor:Show()
+						else
+							Slot.TransmogrifyAnchor:Hide()
+						end
+					end
+					
 					-- Change Gradation
 					if ErrorDetected then
 						if Slot.Direction == 'LEFT' then
@@ -1765,6 +1777,11 @@ elseif KF.UIParent then
 					
 					Slot.Texture:SetTexture(ItemTexture or Slot.EmptyTexture)
 					Slot:SetBackdropBorderColor(r, g, b)
+					
+					if needUpdate then
+						needUpdateList = needUpdateList or {}
+						needUpdateList[#needUpdateList + 1] = slotName
+					end
 				end
 			end
 			
@@ -1787,8 +1804,8 @@ elseif KF.UIParent then
 			self.Character.AverageItemLevel:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
 		end
 		
-		if needUpdate then
-			self.GearUpdated = needUpdate
+		if needUpdateList then
+			self.GearUpdated = needUpdateList
 			
 			return true
 		end
@@ -1876,10 +1893,6 @@ elseif KF.UIParent then
 							
 							Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
 						else
-							print(DataTable.Class)
-							print(Name)
-							print(KF.Table.ClassRole[DataTable.Class][Name].Role)
-							
 							self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again']
 						end
 					end
@@ -1911,20 +1924,19 @@ elseif KF.UIParent then
 				
 				self.Character.Message = nil
 			else
+				self.Model:SetUnit('player')
 				self.Model:SetCustomRace(self.ModelList[DataTable.RaceID].RaceID, DataTable.GenderID - 2)
 				self.Model:TryOn(HeadSlotItem)
 				self.Model:TryOn(BackSlotItem)
-				self.Model:UndressSlot(self.HeadSlot.ID)
-				self.Model:UndressSlot(self.BackSlot.ID)
 				self.Model:Undress()
 				
 				for _, slotName in pairs(C.GearList) do
-					if DataTable.Gear[slotName].ItemLink then
-						if type(DataTable.Gear[slotName].Transmogrify) == 'number' then
-							self.Model:TryOn(DataTable.Gear[slotName].Transmogrify)
-						elseif not (DataTable.Gear[slotName].Transmogrify and DataTable.Gear[slotName].Transmogrify == 'NotDisplayed') then
-							self.Model:TryOn(DataTable.Gear[slotName].ItemLink)
-						end
+					if type(DataTable.Gear[slotName].Transmogrify) == 'number' then
+						self.Model:TryOn(DataTable.Gear[slotName].Transmogrify)
+					elseif DataTable.Gear[slotName].ItemLink and not (DataTable.Gear[slotName].Transmogrify and DataTable.Gear[slotName].Transmogrify == 'NotDisplayed') then
+						self.Model:TryOn(DataTable.Gear[slotName].ItemLink)
+					else
+						self.Model:UndressSlot(self[slotName].ID)
 					end
 				end
 				
@@ -1935,7 +1947,7 @@ elseif KF.UIParent then
 				--<< Initialize Inspect Page >>--
 				self.Name:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..DataTable.Name)
 				self.LevelRace:SetText(format('|cff%02x%02x%02x%s|r '..LEVEL..'|n%s', GetQuestDifficultyColor(DataTable.Level).r * 255, GetQuestDifficultyColor(DataTable.Level).g * 255, GetQuestDifficultyColor(DataTable.Level).b * 255, DataTable.Level, DataTable.Race))
-				self.ClassIcon:SetTexture('Interface\\ICONS\\ClassIcon_'..DataTable.Class..'.blp')
+				self.ClassIcon:SetTexture('Interface\\ICONS\\ClassIcon_'..DataTable.Class)
 				
 				self.Model:SetPosition(self.ModelList[DataTable.RaceID][DataTable.GenderID] and self.ModelList[DataTable.RaceID][DataTable.GenderID].z or 0, self.ModelList[DataTable.RaceID][DataTable.GenderID] and self.ModelList[DataTable.RaceID][DataTable.GenderID].x or 0, self.ModelList[DataTable.RaceID][DataTable.GenderID] and self.ModelList[DataTable.RaceID][DataTable.GenderID].y or 0)
 				self.Model:SetFacing(-5.67)

@@ -1,6 +1,6 @@
-﻿-- Last Code Checking Date		: 2014. 4. 2
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
+﻿-- Last Code Checking Date		: 2014. 4. 13
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 --------------------------------------------------------------------------------
 --<< AISM : Surpport Module for Armory Inspecting							>>--
@@ -20,8 +20,7 @@ if not AISM then
 	local _, playerClass, playerClassID = UnitClass('player')
 	local playerRace, playerRaceID = UnitRace('player')
 	local playerSex = UnitSex('player')
-	local isHelmDisplayed = ShowingHelm() == 1
-	local isCloakDisplayed = ShowingCloak() == 1
+	local isHelmDisplayed, isCloakDisplayed
 	
 	
 	--<< Create Core >>--
@@ -32,10 +31,10 @@ if not AISM then
 	AISM.Updater = CreateFrame('Frame', 'AISM_Updater', UIParent)
 	
 	AISM.SendMessageDelay_Group = 2
-	AISM.SendMessageDelay_Guild = 1
+	AISM.SendMessageDelay_Guild = 2
 	
-	AISM.PlayerData = {}
-	AISM.PlayerData_ShortString = {}
+	AISM.PlayerData = { ['SetItem'] = {}, }
+	AISM.PlayerData_ShortString = { ['SetItem'] = {}, }
 	AISM.AISMUserList = {}
 	AISM.GroupMemberData = {}
 	AISM.GuildMemberData = {}
@@ -46,6 +45,7 @@ if not AISM then
 	
 	
 	--<< Define Key Table >>--
+	local SlotIDList = {}
 	AISM.ProfessionList = {
 		[GetSpellInfo(105206)] = 'AC', -- Alchemy
 		[GetSpellInfo(110396)] = 'BS', -- BlackSmithing
@@ -106,13 +106,14 @@ if not AISM then
 		AISM.DataTypeTable['SP'..groupNum] = 'Specialization'
 		AISM.DataTypeTable['GL'..groupNum] = 'Glyph'
 	end
-	for _, keyName in pairs(AISM.GearList) do
+	for slotName, keyName in pairs(AISM.GearList) do
 		AISM.DataTypeTable[keyName] = 'Gear'
+		SlotIDList[GetInventorySlotInfo(slotName)] = slotName
 	end
 	
 	
 	--<< Player Data Updater Core >>--
-	local needUpdate, arg1, arg2
+	local needUpdate, args
 	AISM.Updater:SetScript('OnUpdate', function(self)
 		AISM.UpdatedData = needUpdate and AISM.UpdatedData or {}
 		needUpdate = nil
@@ -129,42 +130,48 @@ if not AISM then
 			needUpdate = AISM:GetPlayerGlyphString() or needUpdate
 		end
 		
-		if not self.GearUpdated then
+		if self.GearUpdated ~= true then
 			needUpdate = AISM:GetPlayerGearString() or needUpdate
 		end
 		
 		if not needUpdate then
 			self:Hide()
 			
-			if self.Initialize then
-				for _ in pairs(AISM.UpdatedData) do
-					if AISM.CurrentGroupMode and AISM.CurrentGroupMode ~= 'NoGroup' and AISM.CurrentGroupType then
-						AISM:SendData(AISM.UpdatedData)
-					end
-					break
+			for _ in pairs(AISM.UpdatedData) do
+				if AISM.CurrentGroupMode and AISM.CurrentGroupMode ~= 'NoGroup' and AISM.CurrentGroupType then
+					AISM:SendData(AISM.UpdatedData)
 				end
+				break
 			end
 		end
 	end)
 	AISM.Updater:SetScript('OnEvent', function(self, Event, ...)
-		if Event == 'COMBAT_LOG_EVENT_UNFILTERED' then
-			_, arg1, _, _, _, _, _, _, arg2 = ...
+		if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' then
+			self.GearUpdated = nil
+			self:Show()
+		elseif Event == 'UNIT_INVENTORY_CHANGED' then
+			args = ...
 			
-			if arg1 == 'ENCHANT_APPLIED' and arg2 == playerName then
+			if args == 'player' then
 				self.GearUpdated = nil
 				self:Show()
 			end
-		elseif Event == 'UNIT_INVENTORY_CHANGED' then
-			arg1 = ...
+		elseif Event == 'PLAYER_EQUIPMENT_CHANGED' then
+			args = ...
+			self.GearUpdated = type(self.GearUpdated) == 'table' and self.GearUpdated or {}
+			self.GearUpdated[(SlotIDList[args])] = true
+			self:Show()
+		elseif Event == 'COMBAT_LOG_EVENT_UNFILTERED' then
+			_, Event, _, _, _, _, _, _, args = ...
 			
-			if arg1 == 'player' then
+			if Event == 'ENCHANT_APPLIED' and args == playerName then
 				self.GearUpdated = nil
 				self:Show()
 			end
 		elseif Event == 'CHAT_MSG_SYSTEM' then
-			arg1 = ...
+			args = ...
 			
-			if arg1:find(ProfessionLearnKey) or arg1:find(ProfessionLearnKey2) or arg1:find(ProfessionUnlearnKey) then
+			if args:find(ProfessionLearnKey) or args:find(ProfessionLearnKey2) or args:find(ProfessionUnlearnKey) then
 				self.ProfessionUpdated = nil
 				self:Show()
 			end
@@ -174,9 +181,7 @@ if not AISM then
 		elseif Event == 'GLYPH_ADDED' or Event == 'GLYPH_REMOVED' or Event == 'GLYPH_UPDATED' then
 			self.GlyphUpdated = nil
 			self:Show()
-		elseif Event == 'SOCKET_INFO_SUCCESS' or Event == 'PLAYER_EQUIPMENT_CHANGED' or Event == 'EQUIPMENT_SWAP_FINISHED' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' then
-			self.GearUpdated = nil
-			self:Show()
+		else
 		end
 	end)
 	AISM.UpdateHelmDisplaying = function(value)
@@ -317,110 +322,126 @@ if not AISM then
 	
 	--<< Gear String >>--
 	function AISM:GetPlayerGearString()
-		local ShortString, FullString
+		local ShortString, FullString, needUpdate, needUpdateList
 		local CurrentSetItem = {}
 		
-		local slotID, slotLink, isTransmogrified, transmogrifiedItemID, SetName, GeatSetCount, SetItemMax, colorR, colorG, colorB, checkSpace, SetItemOptionNum, tooltipText
-		for slotName in pairs(self.GearList) do
+		local slotID, slotLink, isTransmogrified, transmogrifiedItemID, SetName, GeatSetCount, SetItemMax, SetOptionCount, colorR, colorG, colorB, checkSpace, tooltipText
+		for slotName in pairs(self.Updater.GearUpdated or self.GearList) do
+			needUpdate = nil
+			
 			slotID = GetInventorySlotInfo(slotName)
 			slotLink = GetInventoryItemLink('player', slotID)
 			
 			if slotLink and slotLink:find('%[%]') then -- sometimes itemLink is malformed so we need to update when crashed
-				self.Updater.GearUpdated = nil
-				
-				return true
-			end
-			
-			if slotLink and self.CanTransmogrifySlot[slotName] then
-				isTransmogrified, _, _, _, _, transmogrifiedItemID = GetTransmogrifySlotInfo(slotID)
+				needUpdate = true
 			else
-				isTransmogrified = nil
-			end
-			
-			ShortString = slotLink and select(2, strsplit(':', slotLink)) or 'F'
-			FullString = (slotLink or 'F')..'/'..(slotName == 'HeadSlot' and not isHelmDisplayed and 'ND' or slotName == 'BackSlot' and not isCloakDisplayed and 'ND' or isTransmogrified and transmogrifiedItemID or '0')
-			
-			for i = 1, MAX_NUM_SOCKETS do
-				FullString = FullString..'/'..(select(i, GetInventoryItemGems(slotID)) or 0)
-			end
-			
-			if self.PlayerData[slotName] ~= FullString then
-				self.PlayerData[slotName] = FullString
-			end
-			
-			if self.PlayerData_ShortString[slotName] ~= ShortString then
-				self.PlayerData_ShortString[slotName] = ShortString
-				self.UpdatedData[slotName] = ShortString
-			end
-			
-			if slotLink then
-				self.Tooltip:ClearLines()
-				self.Tooltip:SetHyperlink(slotLink)
-				--self.Tooltip:SetInventoryItem('player', slotID)
+				if slotLink and self.CanTransmogrifySlot[slotName] then
+					isTransmogrified, _, _, _, _, transmogrifiedItemID = GetTransmogrifySlotInfo(slotID)
+				else
+					isTransmogrified = nil
+				end
 				
-				checkSpace = 2
+				ShortString = slotLink and select(2, strsplit(':', slotLink)) or 'F'
+				FullString = (slotLink or 'F')..'/'..(slotName == 'HeadSlot' and not isHelmDisplayed and 'ND' or slotName == 'BackSlot' and not isCloakDisplayed and 'ND' or isTransmogrified and transmogrifiedItemID or '0')
 				
-				for i = 1, self.Tooltip:NumLines() do
-					SetName, SetItemCount, SetItemMax = _G['AISM_TooltipTextLeft'..i]:GetText():match('^(.+) %((%d)/(%d)%)$') -- find string likes 'SetName (0/5)'
+				for i = 1, MAX_NUM_SOCKETS do
+					FullString = FullString..'/'..(select(i, GetInventoryItemGems(slotID)) or 0)
+				end
+				
+				if self.PlayerData[slotName] ~= FullString then
+					self.PlayerData[slotName] = FullString
+				end
+				
+				if self.PlayerData_ShortString[slotName] ~= ShortString then
+					self.PlayerData_ShortString[slotName] = ShortString
+					self.UpdatedData[slotName] = ShortString
+				end
+				
+				if slotLink then
+					self.Tooltip:ClearLines()
+					self.Tooltip:SetHyperlink(slotLink)
 					
-					if SetName then
-						SetItemCount = tonumber(SetItemCount)
-						SetItemMax = tonumber(SetItemMax)
+					checkSpace = 2
+					SetOptionCount = 1
+					
+					for i = 1, self.Tooltip:NumLines() do
+						SetName, SetItemCount, SetItemMax = _G['AISM_TooltipTextLeft'..i]:GetText():match('^(.+) %((%d)/(%d)%)$') -- find string likes 'SetName (0/5)'
 						
-						if SetItemCount > SetItemMax or SetItemMax == 1 then
-							self.Updater.GearUpdated = nil
+						if SetName then
+							SetItemCount = tonumber(SetItemCount)
+							SetItemMax = tonumber(SetItemMax)
 							
-							return true
-						elseif CurrentSetItem[SetName] then
-							break
-						else
-							CurrentSetItem[SetName] = true
-							ShortString = 0
-							FullString = ''
-							
-							for k = 1, self.Tooltip:NumLines() do
-								tooltipText = _G['AISM_TooltipTextLeft'..(i+k)]:GetText()
+							if SetItemCount > SetItemMax or SetItemMax == 1 then
+								needUpdate = true
+								break
+							else
+								if not (CurrentSetItem[SetName] or self.PlayerData.SetItem or self.PlayerData.SetItem[SetName]) then
+									needUpdate = true
+								end
 								
-								if tooltipText == ' ' then
-									checkSpace = checkSpace - 1
+								CurrentSetItem[SetName] = CurrentSetItem[SetName] or {}
+								
+								ShortString = 0
+								FullString = ''
+								
+								for k = 1, self.Tooltip:NumLines() do
+									tooltipText = _G['AISM_TooltipTextLeft'..(i+k)]:GetText()
 									
-									if checkSpace == 0 then break end
-								elseif checkSpace == 2 then
-									colorR, colorG, colorB = _G['AISM_TooltipTextLeft'..(i+k)]:GetTextColor()
-									
-									if colorR > LIGHTYELLOW_FONT_COLOR.r - .01 and colorR < LIGHTYELLOW_FONT_COLOR.r + .01 and colorG > LIGHTYELLOW_FONT_COLOR.g - .01 and colorG < LIGHTYELLOW_FONT_COLOR.g + .01 and colorB > LIGHTYELLOW_FONT_COLOR.b - .01 and colorB < LIGHTYELLOW_FONT_COLOR.b + .01 then
-										ShortString = ShortString + 1
-										tooltipText = LIGHTYELLOW_FONT_COLOR_CODE..tooltipText
-									else
-										tooltipText = GRAY_FONT_COLOR_CODE..tooltipText
+									if tooltipText == ' ' then
+										checkSpace = checkSpace - 1
+										
+										if checkSpace == 0 then break end
+									elseif checkSpace == 2 then
+										colorR, colorG, colorB = _G['AISM_TooltipTextLeft'..(i+k)]:GetTextColor()
+										
+										if colorR > LIGHTYELLOW_FONT_COLOR.r - .01 and colorR < LIGHTYELLOW_FONT_COLOR.r + .01 and colorG > LIGHTYELLOW_FONT_COLOR.g - .01 and colorG < LIGHTYELLOW_FONT_COLOR.g + .01 and colorB > LIGHTYELLOW_FONT_COLOR.b - .01 and colorB < LIGHTYELLOW_FONT_COLOR.b + .01 then
+											ShortString = ShortString + 1
+											tooltipText = LIGHTYELLOW_FONT_COLOR_CODE..tooltipText
+										else
+											tooltipText = GRAY_FONT_COLOR_CODE..tooltipText
+										end
+										
+										if CurrentSetItem[SetName][k] and CurrentSetItem[SetName][k] ~= tooltipText then
+											needUpdate = true
+										end
+										
+										CurrentSetItem[SetName][k] = tooltipText
+										FullString = FullString..'/'..tooltipText
+									elseif tooltipText:find(ItemSetBonusKey) then
+										tooltipText = tooltipText:match("^%((%d)%)%s.+:%s.+$") or 'T'
+										
+										if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= tooltipText then
+											needUpdate = true
+										end
+										
+										CurrentSetItem[SetName]['SetOption'..SetOptionCount] = tooltipText
+										FullString = FullString..'/'..tooltipText
+										
+										SetOptionCount = SetOptionCount + 1
 									end
-								--print(tooltipText..' / '..SetItemCount..' / '..SetItemMax)
+								end
+								
+								if self.PlayerData.SetItem[SetName] ~= FullString then
+									self.PlayerData.SetItem[SetName] = FullString
+								end
+								
+								if self.PlayerData_ShortString.SetItem[SetName] ~= ShortString then
+									self.PlayerData_ShortString.SetItem[SetName] = ShortString
 									
-									FullString = FullString..'/'..tooltipText
-								elseif tooltipText:find(ItemSetBonusKey) then
-									FullString = FullString..'/'..(tooltipText:match("^%((%d)%)%s.+:%s.+$") or 'T')
+									self.UpdatedData.SetItem = self.UpdatedData.SetItem or {}
+									self.UpdatedData.SetItem[SetName] = ShortString
 								end
 							end
-							
-							self.PlayerData.SetItem = self.PlayerData.SetItem or {}
-							if self.PlayerData.SetItem[SetName] ~= FullString then
-								self.PlayerData.SetItem[SetName] = FullString
-							end
-							
-							self.PlayerData_ShortString.SetItem = self.PlayerData_ShortString.SetItem or {}
-							if self.PlayerData_ShortString.SetItem[SetName] ~= ShortString then
-								self.PlayerData_ShortString.SetItem[SetName] = ShortString
-								
-								self.UpdatedData.SetItem = self.UpdatedData.SetItem or {}
-								self.UpdatedData.SetItem[SetName] = ShortString
-							end
-							
-							break
 						end
+						
+						if checkSpace == 0 then break end
 					end
-					
-					if checkSpace == 0 then break end
 				end
+			end
+			
+			if needUpdate then
+				needUpdateList = needUpdateList or {}
+				needUpdateList[slotName] = true
 			end
 		end
 		
@@ -437,14 +458,16 @@ if not AISM then
 			end
 		end
 		
-		self.Updater.GearUpdated = true
-		
-		return nil
+		if needUpdateList then
+			self.Updater.GearUpdated = needUpdateList
+			return true
+		else
+			self.Updater.GearUpdated = true
+		end
 	end
 	AISM.Updater:RegisterEvent('SOCKET_INFO_SUCCESS')
 	AISM.Updater:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
-	--AISM.Updater:RegisterEvent('UNIT_INVENTORY_CHANGED')
-	--AISM.Updater:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
+	AISM.Updater:RegisterEvent('UNIT_INVENTORY_CHANGED')
 	AISM.Updater:RegisterEvent('ITEM_UPGRADE_MASTER_UPDATE')
 	AISM.Updater:RegisterEvent('TRANSMOGRIFY_UPDATE')
 	AISM.Updater:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
@@ -593,9 +616,7 @@ if not AISM then
 	
 	
 	AISM:SetScript('OnUpdate', function(self, elapsed)
-		if not self.Initialize then
-			SendAddonMessage('AISM', 'AISM_Initialize', 'WHISPER', playerName)
-		elseif elapsed < .1 then
+		if elapsed < .1 then
 			if self.CurrentGroupMode ~= 'NoGroup' then
 				local Name, TableIndex
 				
@@ -633,10 +654,8 @@ if not AISM then
 				self.SendDataGuildUpdated = (self.SendDataGuildUpdated or self.SendMessageDelay_Guild) - elapsed
 				
 				if self.SendDataGuildUpdated < 0 then
-					self.SendDataGuildUpdated = nil
-					
+					self.SendDataGuildUpdated = self.SendMessageDelay_Guild
 					SendAddonMessage('AISM', 'AISM_GUILD_RegistME', 'GUILD')
-					self.needSendDataGuild = nil
 				end
 			end
 			
@@ -682,7 +701,7 @@ if not AISM then
 		elseif Message == 'AISM_UnregistME' then
 			self.AISMUserList[Sender] = nil
 			self.GroupMemberData[Sender] = nil
-		elseif Message == 'AISM_GUILD_RegistME' then
+		elseif Message == 'AISM_GUILD_RegistME' and self.AISMUserList[Sender] ~= 'GUILD' then
 			self.AISMUserList[Sender] = 'GUILD'
 			SendAddonMessage('AISM', 'AISM_GUILD_RegistResponse', SenderRealm == playerRealm and 'WHISPER' or 'GUILD', Sender)
 		elseif Message == 'AISM_GUILD_RegistResponse' then
@@ -777,12 +796,13 @@ if not AISM then
 							end
 							
 							TableToSave.Gear[DataType] = {
-								['ItemLink'] = stringTable[1] ~= 'F' and stringTable[1],
-								['Transmogrify'] = stringTable[2] == 'ND' and 'NotDisplayed' or stringTable[2] ~= 0 and stringTable[2],
-								['Gem1'] = stringTable[3] ~= 0 and stringTable[3],
-								['Gem2'] = stringTable[4] ~= 0 and stringTable[4],
-								['Gem3'] = stringTable[5] ~= 0 and stringTable[5],
+								['ItemLink'] = stringTable[1] ~= 'F' and stringTable[1] or nil,
+								['Transmogrify'] = stringTable[2] == 'ND' and 'NotDisplayed' or stringTable[2] ~= 0 and stringTable[2] or nil
 							}
+							
+							for i = 1, MAX_NUM_SOCKETS do
+								TableToSave.Gear[DataType]['Gem'..i] = stringTable[i + 2] ~= 0 and stringTable[i + 2] or nil
+							end
 						elseif self.DataTypeTable[DataType] == 'SetItemData' then
 							TableToSave.SetItem = TableToSave.SetItem or {}
 							
@@ -862,8 +882,18 @@ if not AISM then
 		if Event == 'PLAYER_LOGIN' then
 			self:GetPlayerCurrentGroupMode()
 			self:GetCurrentInstanceType()
+			
+			if IsInGuild() then
+				self.needSendDataGuild = true
+				self:Show()
+			else
+				self:RegisterEvent('PLAYER_GUILD_UPDATE')
+			end
+		elseif Event == 'VARIABLES_LOADED' then
 			isHelmDisplayed = ShowingHelm() == 1
 			isCloakDisplayed = ShowingCloak() == 1
+			
+			self:UnregisterEvent('VARIABLES_LOADED')
 		elseif Event == 'PLAYER_GUILD_UPDATE' then
 			if IsInGuild() then
 				self.needSendDataGuild = true
@@ -893,18 +923,12 @@ if not AISM then
 		elseif Event == 'CHAT_MSG_ADDON' then
 			Prefix, Message, Channel, Sender = ...
 			
-			if (Prefix == 'AISM' or Prefix == 'AISM_Inspect') and Sender ~= playerName..'-'..playerRealm then
-				self:Receiver(Prefix, Message, Channel, Sender)
-			elseif not self.Initialize and Prefix == 'AISM' and Message == 'AISM_Initialize' and Sender == playerName..'-'..playerRealm then
-				self.Initialize = true
-				
-				if IsInGuild() then
-					self.needSendDataGuild = true
-					self:Show()
-				else
-					self:RegisterEvent('PLAYER_GUILD_UPDATE')
+			if (Prefix == 'AISM' or Prefix == 'AISM_Inspect') then
+				if Sender ~= playerName..'-'..playerRealm then
+					self:Receiver(Prefix, Message, Channel, Sender)
+				elseif self.needSendDataGuild and Message == 'AISM_GUILD_RegistME' then
+					self.needSendDataGuild = nil
 				end
-			
 			end
 		elseif Event == 'PLAYER_LOGOUT' then
 			if IsInGuild() then
@@ -921,6 +945,7 @@ if not AISM then
 			self:Show()
 		end
 	end)
+	AISM:RegisterEvent('VARIABLES_LOADED')
 	AISM:RegisterEvent('PLAYER_LOGIN')
 	AISM:RegisterEvent('PLAYER_LOGOUT')
 	AISM:RegisterEvent('CHAT_MSG_SYSTEM')

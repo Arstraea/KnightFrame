@@ -1,7 +1,7 @@
 ## Interface: 50400
 ## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3.0
 ## Author: Arstraea
-## Version: 3.0_01
+## Version: 3.0_02
 ## eMail: qjr2513@naver.com
 ## RequiredDeps: ElvUI
 ## OptionalDeps: ACP, Skada, SkadaU, Recount, Omen, BlueItemInfo3, DBM-Core, Findparty, InvenCraftInfo2, Examiner

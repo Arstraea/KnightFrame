@@ -1,9 +1,9 @@
 ﻿local E, L, V, P, G, _  = unpack(ElvUI)
 local KF = E:GetModule('KnightFrame')
 
--- Last Code Checking Date		: 2014. 3. 9
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.991
+-- Last Code Checking Date		: 2014. 4. 13
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 if not KF then return
 elseif KF.UIParent then
@@ -14,7 +14,7 @@ elseif KF.UIParent then
 	local C = KnightFrame_Armory_Constants
 	
 	--<< Key Table >>--
-	KA.SlotID = {}
+	local SlotIDList = {}
 	
 	KA.GemSocket_OnClick = function(self, button)
 		self = self:GetParent()
@@ -70,13 +70,23 @@ elseif KF.UIParent then
 		--<< Updater >>--
 		local args
 		self:SetScript('OnEvent', function(self, Event, ...)
-			if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'UNIT_INVENTORY_CHANGED' or Event == 'PLAYER_ENTERING_WORLD' then
+			if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' then
+				if Event == 'TRANSMOGRIFY_UPDATE' then
+					print(...)
+				end
 				self.GearUpdated = nil
 				self:SetScript('OnUpdate', KA.ArmoryFrame_DataSetting)
+			elseif Event == 'UNIT_INVENTORY_CHANGED' then
+				args = ...
+				
+				if args == 'player' then
+					self.GearUpdated = nil
+					self:SetScript('OnUpdate', KA.ArmoryFrame_DataSetting)
+				end
 			elseif Event == 'PLAYER_EQUIPMENT_CHANGED' then
 				args = ...
 				self.GearUpdated = type(self.GearUpdated) == 'table' and self.GearUpdated or {}
-				self.GearUpdated[#self.GearUpdated + 1] = self.SlotID[args]
+				self.GearUpdated[#self.GearUpdated + 1] = SlotIDList[args]
 				self:SetScript('OnUpdate', KA.ArmoryFrame_DataSetting)
 			elseif Event == 'COMBAT_LOG_EVENT_UNFILTERED' then
 				_, Event, _, _, _, _, _, _, args = ...
@@ -197,7 +207,7 @@ elseif KF.UIParent then
 				Slot.SocketWarning:SetScript('OnLeave', C.CommonScript.OnLeave)
 			end
 			
-			self.SlotID[Slot.ID] = slotName
+			SlotIDList[Slot.ID] = slotName
 			self[slotName] = Slot
 		end
 		
@@ -246,7 +256,7 @@ elseif KF.UIParent then
 		if Prof1 and C.ProfessionList[Prof1] then KA.PlayerProfession[(C.ProfessionList[Prof1].Key)] = Prof1_Level end
 		if Prof2 and C.ProfessionList[Prof2] then KA.PlayerProfession[(C.ProfessionList[Prof2].Key)] = Prof2_Level end
 		
-		local ErrorDetected, needUpdate
+		local ErrorDetected, needUpdate, needUpdateList
 		local r, g, b
 		local Slot, ItemLink, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
 		local arg1, itemID, enchantID, _, _, _, _, arg2, arg3, arg4, arg5, arg6
@@ -257,7 +267,7 @@ elseif KF.UIParent then
 				ItemLink = GetInventoryItemLink('player', Slot.ID)
 				
 				do --<< Clear Setting >>--
-					ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemTexture = nil, nil, nil, nil, nil, nil
+					needUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemTexture = nil, nil, nil, nil, nil, nil, nil
 					
 					Slot.ItemLevel:SetText(nil)
 					Slot.ItemEnchant:SetText(nil)
@@ -280,10 +290,7 @@ elseif KF.UIParent then
 					do --<< Gem Parts >>--
 						arg1, itemID, enchantID, _, _, _, _, arg2, arg3, arg4, arg5, arg6 = strsplit(':', ItemLink)
 						
-						KA.ScanTT:ClearLines()
-						for i = 1, 10 do
-							_G['KnightArmoryScanTTTexture'..i]:SetTexture(nil)
-						end
+						C.CommonScript.ClearTooltip(KA.ScanTT)
 						KA.ScanTT:SetHyperlink(format('%s:%s:%d:0:0:0:0:%s:%s:%s:%s:%s', arg1, itemID, enchantID, arg2, arg3, arg4, arg5, arg6))
 						
 						GemCount_Default, GemCount_Now, GemCount = 0, 0, 0
@@ -307,11 +314,8 @@ elseif KF.UIParent then
 							Slot['Socket'..GemCount_Enable].GemType = 'PRISMATIC'
 						end
 						
-						KA.ScanTT:ClearLines()
-						for i = 1, 10 do
-							_G['KnightArmoryScanTTTexture'..i]:SetTexture(nil)
-						end
-						KA.ScanTT:SetHyperlink(ItemLink)
+						C.CommonScript.ClearTooltip(KA.ScanTT)
+						KA.ScanTT:SetInventoryItem('player', Slot.ID)
 						
 						-- Apply current item's gem setting
 						for i = 1, MAX_NUM_SOCKETS do
@@ -327,23 +331,29 @@ elseif KF.UIParent then
 								Slot['Socket'..i].Socket:SetBackdropBorderColor(1, 1, 1)
 							end
 							
-							if ItemTexture then
+							if ItemTexture or GemID then
 								Slot['Socket'..i]:Show()
 								GemCount_Now = GemCount_Now + 1
 								Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 								
 								if GemID then
 									GemCount = GemCount + 1
-									Slot['Socket'..i].Texture:SetTexture(ItemTexture)
 									Slot['Socket'..i].GemItemID = GemID
-									Slot['Socket'..i].Socket.Link = select(2, GetItemInfo(GemID))
+									
+									_, Slot['Socket'..i].Socket.Link, _, _, _, _, _, _, _, ItemTexture = GetItemInfo(GemID)
+									
+									if ItemTexture then
+										Slot['Socket'..i].Texture:SetTexture(ItemTexture)
+									else
+										needUpdate = true
+									end
 								end
 							end
 						end
 						
+						--print(slotName..' : ', GemCount_Default, GemCount_Enable, GemCount_Now, GemCount)
 						if GemCount_Now < GemCount_Default then -- ItemInfo not loaded
-							needUpdate = needUpdate or {}
-							needUpdate[#needUpdate + 1] = slotName
+							needUpdate = true
 						end
 					end
 					
@@ -351,12 +361,6 @@ elseif KF.UIParent then
 					r, g, b = GetItemQualityColor(ItemRarity)
 					
 					ItemUpgradeID = ItemLink:match(':(%d+)\124h%[')
-					
-					KA.ScanTT:ClearLines()
-					for i = 1, 10 do
-						_G['KnightArmoryScanTTTexture'..i]:SetTexture(nil)
-					end
-					KA.ScanTT:SetInventoryItem('player', Slot.ID)
 					
 					--<< Enchant Parts >>--
 					for i = 1, KA.ScanTT:NumLines() do
@@ -488,13 +492,18 @@ elseif KF.UIParent then
 						Slot.Gradation:SetTexCoord(.5, 1, 0, .5)
 					end
 				end
+				
+				if needUpdate then
+					needUpdateList = needUpdateList or {}
+					needUpdateList[#needUpdateList + 1] = slotName
+				end
 			end
 		end
 		
 		KA.AverageItemLevel:SetText(KF:Color_Value(STAT_AVERAGE_ITEM_LEVEL)..' : '..format('%.2f', select(2, GetAverageItemLevel())))
 		
-		if needUpdate then
-			self.GearUpdated = needUpdate
+		if needUpdateList then
+			self.GearUpdated = needUpdateList
 			return true
 		end
 		
@@ -609,12 +618,12 @@ elseif KF.UIParent then
 			-- Run KnightArmory
 			KA:RegisterEvent('SOCKET_INFO_SUCCESS')
 			KA:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
-			KA:RegisterEvent('PLAYER_ENTERING_WORLD')
-			KA:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
 			KA:RegisterEvent('UNIT_INVENTORY_CHANGED')
-			--KA:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
-			KA:RegisterEvent('UPDATE_INVENTORY_DURABILITY')
 			KA:RegisterEvent('ITEM_UPGRADE_MASTER_UPDATE')
+			KA:RegisterEvent('TRANSMOGRIFY_UPDATE')
+			KA:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
+			KA:RegisterEvent('UPDATE_INVENTORY_DURABILITY')
+			KA:RegisterEvent('PLAYER_ENTERING_WORLD')
 			
 			-- For frame resizing
 			KA.ChangeCharacterFrameWidth:SetParent(PaperDollFrame)

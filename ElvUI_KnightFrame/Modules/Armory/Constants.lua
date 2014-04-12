@@ -48,6 +48,27 @@ elseif KF.UIParent then
 			[EMPTY_SOCKET_YELLOW] = true
 		},
 		
+		['ItemBindString'] = { -- Usually transmogrify string is located upper than bind string so we need to check this string for adding a transmogrify string in tooltip.
+			[ITEM_BIND_ON_EQUIP] = true,
+			[ITEM_BIND_ON_PICKUP] = true,
+			[ITEM_BIND_TO_ACCOUNT] = true,
+			[ITEM_BIND_TO_BNETACCOUNT] = true
+		},
+		
+		['CanTransmogrifySlot'] = {
+			['HeadSlot'] = true,
+			['ShoulderSlot'] = true,
+			['BackSlot'] = true,
+			['ChestSlot'] = true,
+			['WristSlot'] = true,
+			['HandsSlot'] = true,
+			['WaistSlot'] = true,
+			['LegsSlot'] = true,
+			['FeetSlot'] = true,
+			['MainHandSlot'] = true,
+			['SecondaryHandSlot'] = true
+		},
+		
 		['ProfessionList'] = {},
 		
 		['CommonScript'] = {
@@ -79,22 +100,66 @@ elseif KF.UIParent then
 			['GemSocket_OnEnter'] = function(self)
 				GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 				
-				self = self:GetParent()
+				local Parent = self:GetParent()
 				
-				if self.GemItemID then
-					if type(self.GemItemID) == 'number' then
-						GameTooltip:SetHyperlink(select(2, GetItemInfo(self.GemItemID)))
+				if Parent.GemItemID then
+					if type(Parent.GemItemID) == 'number' then
+						if GetItemInfo(Parent.GemItemID) then
+							GameTooltip:SetHyperlink(select(2, GetItemInfo(Parent.GemItemID)))
+						else
+							self:SetScript('OnUpdate', function()
+								if GetItemInfo(Parent.GemItemID) then
+									KnightFrame_Armory_Constants.CommonScript.GemSocket_OnEnter(self)
+									self:SetScript('OnUpdate', nil)
+								end
+							end)
+							return
+						end
 					else
 						GameTooltip:ClearLines()
-						GameTooltip:AddLine(self.GemItemID)
+						GameTooltip:AddLine('|cffffffff'..Parent.GemItemID)
 					end
-				elseif self.GemType then
+				elseif Parent.GemType then
 					GameTooltip:ClearLines()
-					GameTooltip:AddLine(_G['EMPTY_SOCKET_'..self.GemType])
+					GameTooltip:AddLine('|cffffffff'.._G['EMPTY_SOCKET_'..Parent.GemType])
 				end
 				
 				GameTooltip:Show()
-			end
+			end,
+			['Transmogrify_OnEnter'] = function(self)
+				self.Texture:SetVertexColor(1, .8, 1)
+				
+				if self.Link then
+					if GetItemInfo(self.Link) then
+						GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
+						GameTooltip:SetHyperlink(select(2, GetItemInfo(self.Link)))
+						GameTooltip:Show()
+					else
+						self:SetScript('OnUpdate', function()
+							if GetItemInfo(self.Link) then
+								KnightFrame_Armory_Constants.CommonScript.Transmogrify_OnEnter(self)
+								self:SetScript('OnUpdate', nil)
+							end
+						end)
+					end
+				end
+			end,
+			['Transmogrify_OnLeave'] = function(self)
+				self:SetScript('OnUpdate', nil)
+				self.Texture:SetVertexColor(1, .5, 1)
+				
+				GameTooltip:Hide()
+			end,
+			['ClearTooltip'] = function(tooltip)
+				local tooltipName = tooltip:GetName()
+				
+				tooltip:ClearLines()
+				for i = 1, 10 do
+					_G[tooltipName..'Texture'..i]:SetTexture(nil)
+					_G[tooltipName..'Texture'..i]:ClearAllPoints()
+					_G[tooltipName..'Texture'..i]:Point('TOPLEFT', tooltip)
+				end
+			end,
 		},
 	}
 	

@@ -12,7 +12,7 @@ if not KF then return end
 --------------------------------------------------------------------------------
 if KF.UIParent then
 	KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
-		if AddOnName == 'ElvUI_Config' and IsAddOnLoadOnDemand('ElvUI_KnightFrame_Config') then
+		if AddOnName == 'ElvUI_Config' then
 			local Loaded, Reason = LoadAddOn('ElvUI_KnightFrame_Config')
 			
 			if not Loaded then
@@ -33,7 +33,7 @@ if KF.UIParent then
 	end, 'KnightFrame_AutoLoadConfigAddon')	
 else
 	KF:RegisterEvent('ADDON_LOADED', function(_, AddOnName)
-		if AddOnName == 'ElvUI_Config' and IsAddOnLoadOnDemand('ElvUI_KnightFrame_Config') then
+		if AddOnName == 'ElvUI_Config' then
 			local Loaded, Reason = LoadAddOn('ElvUI_KnightFrame_Config')
 			
 			if not Loaded then

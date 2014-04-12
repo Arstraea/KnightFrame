@@ -1,9 +1,9 @@
 ﻿local E, L, V, P, G, _ = unpack(ElvUI)
 local KF = E:GetModule('KnightFrame')
 
--- Last Code Checking Date		: 2014. 3. 25
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
+-- Last Code Checking Date		: 2014. 4. 13
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 if not KF then return
 elseif KF.UIParent then
@@ -76,25 +76,17 @@ elseif KF.UIParent then
 		
 		if not (IsInGroup() or IsInRaid()) or GetNumGroupMembers() == 1 then
 			Check = 'NoGroup'
-			
-			if KF.Update.CheckArstraea then
-				KF.Update.CheckArstraea.Condition = false
-				KF.ArstraeaFind = nil
-			end
 		else
 			if IsInRaid() then
 				Check = 'raid'
 			else
 				Check = 'party'
 			end
-			
-			if KF.Update.CheckArstraea then
-				KF.Update.CheckArstraea.Condition = true
-			end
 		end
 		
 		if KF.CurrentGroupMode ~= Check then
 			KF.CurrentGroupMode = Check
+			
 			KF:CallbackFire('GroupChanged')
 		end
 		
@@ -133,31 +125,46 @@ elseif KF.UIParent then
 	--------------------------------------------------------------------------------
 	--<< KnightFrame : Check BossBattle											>>--
 	--------------------------------------------------------------------------------
-	KF.NowInBossBattle = nil
+	local NowInBossBattle, BossIsExists, IsEncounterInProgressOn, EndType
+	local KilledBossList = {}
+	
+	local function ClearKilledBossList()
+		KilledBossList = {}
+	end
+	KF:RegisterCallback('GroupChanged', ClearKilledBossList)
+	KF:RegisterCallback('CurrentAreaChanged', ClearKilledBossList)
+	
 	KF.Table['BossBattle_Exception'] = {
 		[EJ_GetEncounterInfo(742)] = 'friendly',	-- TSULONG
 	}
 	
 	KF.BossBattleStart = function(StartingType)
-		if KF.NowInBossBattle ~= nil then return end
+		if NowInBossBattle ~= nil then return end
 		
 		if StartingType == 'pull' then
-			KF.NowInBossBattle = 'DBM'
+			NowInBossBattle = 'DBM'
 			KF.Update.CheckCombatEnd = nil
 		elseif StartingType == 'BigWigs_OnBossEngage' then
-			KF.NowInBossBattle = 'BigWigs'
+			NowInBossBattle = 'BigWigs'
 			KF.Update.CheckCombatEnd = nil
 		else
-			KF.NowInBossBattle = 'KF'
+			NowInBossBattle = 'KF'
 		end
 		
+		ClearKilledBossList()
 		KF:CallbackFire('BossBattleStart')
 	end
 	
-	function KF:BossBattleEnd()
+	KF.BossBattleEnd = function(EndingType)
+		if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
+			ClearKilledBossList()
+		end
+		
 		KF.Update.CheckCombatEnd = nil
 		
-		KF.NowInBossBattle = nil
+		NowInBossBattle = nil
+		BossIsExists = nil
+		
 		KF:CallbackFire('BossBattleEnd')
 	end
 	
@@ -176,52 +183,69 @@ elseif KF.UIParent then
 	function KF:CheckCombatEnd()
 		if UnitAffectingCombat('player') then
 			return false
-		elseif UnitIsDeadOrGhost('player') and KF.CurrentGroupMode ~= 'NoGroup' and KF.BossBattleStart == true then
-			for i = 1, KF.CurrentGroupMode == 'party' and 4 or MAX_RAID_MEMBERS do
-				if UnitExists(KF.CurrentGroupMode..i) and UnitAffectingCombat(KF.CurrentGroupMode..i) then return false end
+		elseif UnitIsDeadOrGhost('player') then
+			local checkWiped = 'wipe'
+			
+			if KF.CurrentGroupMode ~= 'NoGroup' then
+				for i = 1, KF.CurrentGroupMode == 'party' and 4 or MAX_RAID_MEMBERS do
+					if UnitExists(KF.CurrentGroupMode..i) then
+						if UnitAffectingCombat(KF.CurrentGroupMode..i) then
+							return false
+						elseif not UnitIsDeadOrGhost(KF.CurrentGroupMode..i) then
+							checkWiped = true -- true means not wipe, just group was out of combat.
+						end
+					end
+				end
 			end
+			
+			return checkWiped
 		end
 		
 		return true
 	end
 	
-	local BossIsExists, IsEncounterInProgressOn = false, nil
+	function KF:BossExists(Unit)
+		local bossName = UnitName(Unit)
+		
+		if bossName and bossName ~= UNKNOWNOBJECT and bossName ~= COMBATLOG_UNKNOWN_UNIT and not UnitIsDead(Unit) and not (KF.Table.BossBattle_Exception[bossName] and (KF.Table.BossBattle_Exception[bossName] == 'friendly' and UnitIsFriend('player', Unit) or UnitIsEnemy('player', Unit))) then
+			return bossName
+		end
+	end
+	
 	function KF:CheckBossCombat()
-		if KF.NowInBossBattle == nil then
-			local bossName
+		if NowInBossBattle == nil then
+			if IsEncounterInProgress() then
+				IsEncounterInProgressOn = true
+			end
 			
-			for i = 1, 4 do
-				if UnitExists('boss'..i) then
-					bossName = UnitName('boss'..i)
-					
-					if not (KF.Table.BossBattle_Exception[bossName] and (KF.Table.BossBattle_Exception[bossName] == 'friendly' and UnitIsFriend('player', 'boss'..i) or UnitIsEnemy('player', 'boss'..i))) then
-						if IsEncounterInProgress() then
-							IsEncounterInProgressOn = true
+			for i = 1, 5 do
+				if KF:BossExists('boss'..i) then
+					BossIsExists = true
+					break
+				end
+			end
+			
+			if BossIsExists or IsEncounterInProgressOn then
+				KF.Update.CheckCombatEnd = {
+					['Condition'] = true,
+					['Delay'] = 0,
+					['Action'] = function()
+						if BossIsExists == true and not (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
+							BossIsExists = false
+						elseif BossIsExists == false and (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
+							BossIsExists = true
 						end
 						
-						BossIsExists = true
-						
-						KF.Update.CheckCombatEnd = {
-							['Condition'] = true,
-							['Delay'] = 0.5,
-							['Action'] = function()
-								if BossIsExists == true and not (UnitExists('boss1') or UnitExists('boss2') or UnitExists('boss3') or UnitExists('boss4')) then
-									BossIsExists = false
-								elseif BossIsExists == false and (UnitExists('boss1') or UnitExists('boss2') or UnitExists('boss3') or UnitExists('boss4')) then
-									BossIsExists = true
-								end
-								
-								if (IsEncounterInProgressOn and not IsEncounterInProgress() or not IsEncounterInProgressOn and KF:CheckCombatEnd() == true) and BossIsExists == false then
-									IsEncounterInProgressOn = nil
-									KF:BossBattleEnd()
-								end
-							end,
-						}
-						
-						KF:BossBattleStart()
-						return
-					end
-				end
+						EndType = KF:CheckCombatEnd()
+						if (IsEncounterInProgressOn and not IsEncounterInProgress() or not IsEncounterInProgressOn and EndType) and (BossIsExists == false or EndType == 'wipe') then
+							IsEncounterInProgressOn = nil
+							KF.BossBattleEnd(EndType)
+						end
+					end,
+				}
+				
+				KF:BossBattleStart()
+				return
 			end
 		end
 		KF.Update.CheckCombatEnd = nil
@@ -229,19 +253,29 @@ elseif KF.UIParent then
 	
 	KF.Update.CheckCombatEnd = {
 		['Condition'] = true,
-		['Delay'] = 0.5,
+		['Delay'] = 0,
 		['Action'] = KF.CheckBossCombat,
 	}
 	KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
-		if KF.NowInBossBattle ~= nil then return end
+		local bossName
 		
-		KF.Update.CheckCombatEnd = {
-			['Condition'] = true,
-			['Delay'] = 0.5,
-			['LastUpdate'] = KF.TimeNow,
-			['Action'] = KF.CheckBossCombat,
-		}
-		KF:CheckBossCombat()
+		for i = 1, 5 do
+			bossName = KF:BossExists('boss'..i)
+			
+			if bossName then
+				if NowInBossBattle == nil and not KilledBossList[bossName] then
+					KF.Update.CheckCombatEnd = {
+						['Condition'] = true,
+						['Delay'] = 0,
+						['LastUpdate'] = KF.TimeNow,
+						['Action'] = KF.CheckBossCombat,
+					}
+					KF:CheckBossCombat()
+				end
+				
+				KilledBossList[bossName] = true
+			end
+		end
 	end)
 	
 	
@@ -262,7 +296,7 @@ elseif KF.UIParent then
 	--------------------------------------------------------------------------------
 	--<< KnightFrame : Update													>>--
 	--------------------------------------------------------------------------------
-	KF.Update['CheckArstraea'] = {
+	KF.Update.CheckArstraea = {
 		['Condition'] = true,
 		['Action'] = function()
 			if KF.CurrentGroupMode == 'NoGroup' then
@@ -295,4 +329,16 @@ elseif KF.UIParent then
 			KF.ArstraeaFind = nil
 		end,
 	}
+	KF:RegisterCallback('GroupChanged', function()
+		if KF.Update.CheckArstraea then
+			if KF.CurrentGroupMode == 'NoGroup' then
+				KF.Update.CheckArstraea.Condition = false
+				KF.ArstraeaFind = nil
+			else
+				KF.Update.CheckArstraea.Condition = true
+			end
+		else
+			KF:UnregisterCallback('GroupChanged', 'CheckArstraea')
+		end
+	end, 'CheckArstraea')
 end

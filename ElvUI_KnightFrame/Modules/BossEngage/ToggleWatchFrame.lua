@@ -1,9 +1,9 @@
 ﻿local E, L, V, P, G, _  = unpack(ElvUI)
 local KF = E:GetModule('KnightFrame')
 
--- Last Code Checking Date		: 2014. 3. 24
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
+-- Last Code Checking Date		: 2014. 4. 13
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 if not KF then return
 elseif KF.UIParent then
@@ -19,7 +19,7 @@ elseif KF.UIParent then
 	KF.Modules['ToggleWatchFrame'] = function(RemoveOrder)
 		if not RemoveAll and KF.db.Modules.ToggleWatchFrame ~= false then
 			KF:RegisterCallback('BossBattleStart', function()
-				if KF.InstanceType == 'challenge' then return end
+				if KF.InstanceType == 'challenge' or KF.InstanceType == 'scenario' then return end
 				
 				local bossName, bossLevel, playerLevel
 				for i = 1, 4 do

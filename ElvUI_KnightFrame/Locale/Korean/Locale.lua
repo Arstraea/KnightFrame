@@ -147,7 +147,7 @@ do	--Extra Function
 	L['Missing Tinkers'] = '땜질하지 않음'
 	L['This is not profession only.'] = '전문기술 전용 강화효과가 아님'
 	L['Empty Socket'] = '개의 빈 소켓'
-	L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다. 또한 프로그램의 한계로 가끔 장비가 안입혀져 있을 수도 있습니다.'
+	L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다.'
 	
 	
 	--<< Secretary >>--
