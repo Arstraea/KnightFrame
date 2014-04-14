@@ -130,6 +130,8 @@ elseif KF.UIParent then
 	
 	local function ClearKilledBossList()
 		KilledBossList = {}
+		
+		KF.Update.ClearKilledBossList = nil
 	end
 	KF:RegisterCallback('GroupChanged', ClearKilledBossList)
 	KF:RegisterCallback('CurrentAreaChanged', ClearKilledBossList)
@@ -156,9 +158,20 @@ elseif KF.UIParent then
 	end
 	
 	KF.BossBattleEnd = function(EndingType)
-		if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
-			ClearKilledBossList()
-		end
+		--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
+			KF.Update.ClearKilledBossList = {
+				['Condition'] = function()
+					if not IsEncounterInProgress() then
+						return true
+					else
+						KF.Update.ClearKilledBossList.LastUpdate = KF.TimeNow
+					end
+				end,
+				['Delay'] = 3,
+				['LastUpdate'] = KF.TimeNow,
+				['Action'] = ClearKilledBossList,
+			}
+		--end
 		
 		KF.Update.CheckCombatEnd = nil
 		

@@ -122,7 +122,7 @@ elseif KF.UIParent then
 	
 	
 	KI.EquipmentSlot_OnEnter = function(self)
-		if C.CanTransmogrifySlot[self.SlotName] and C.ItemBindString[CurrentLineText] and type(self.TransmogrifyLink) == 'number' and not GetItemInfo(self.TransmogrifyLink) then
+		if C.CanTransmogrifySlot[self.SlotName] and type(self.TransmogrifyLink) == 'number' and not GetItemInfo(self.TransmogrifyLink) then
 			self:SetScript('OnUpdate', function()
 				if GetItemInfo(self.TransmogrifyLink) then
 					KI.EquipmentSlot_OnEnter(self)
@@ -1170,6 +1170,7 @@ elseif KF.UIParent then
 					ENI.CancelInspect(self.Data.TableIndex)
 					KI:UnregisterEvent('INSPECT_READY')
 					
+					KI.NeedModelSetting = true
 					KI.CurrentInspectData = E:CopyTable({}, KI.Default_CurrentInspectData)
 					AISM.CurrentInspectData[self.Data.TableIndex] = {
 						['UnitID'] = self.Data.Unit,
@@ -1296,12 +1297,10 @@ elseif KF.UIParent then
 	
 	KI.INSPECT_READY = function(Event, InspectedUnitGUID)
 		local UnitID = KI.CurrentInspectData.Name..(KI.CurrentInspectData.Realm and '-'..KI.CurrentInspectData.Realm or '')
-		local GUIDByUnitName = UnitGUID(UnitID)
 		local Name, Realm = UnitFullName(UnitID)
 		
-		if not GUIDByUnitName then
+		if not Name then
 			UnitID = KI.CurrentInspectData.UnitID
-			GUIDByUnitName = UnitGUID(UnitID)
 			Name, Realm = UnitFullName(UnitID)
 		end
 		
@@ -1311,17 +1310,12 @@ elseif KF.UIParent then
 		
 		local TableIndex = Name..(Realm and Realm ~= '' and Realm ~= E.myrealm and '-'..Realm or '')
 		
-		if InspectedUnitGUID ~= GUIDByUnitName then
-			if GUIDByUnitName and KI.CurrentInspectData.Name == Name and KI.CurrentInspectData.Realm == Realm then
-				KI.CurrentInspectData.UnitGUID = GUIDByUnitName
-				return
-			else
-				ENI.CancelInspect(TableIndex)
-				KI:UnregisterEvent('INSPECT_READY')
-				KI:UnregisterEvent('INSPECT_HONOR_UPDATE')
-				
-				return
-			end
+		if not (KI.CurrentInspectData.Name == Name and KI.CurrentInspectData.Realm == Realm and KI.CurrentInspectData.UnitGUID == InspectedUnitGUID) then
+			ENI.CancelInspect(TableIndex)
+			KI:UnregisterEvent('INSPECT_READY')
+			KI:UnregisterEvent('INSPECT_HONOR_UPDATE')
+			
+			return
 		elseif HasInspectHonorData() then
 			KI.INSPECT_HONOR_UPDATE()
 		end
@@ -1341,7 +1335,7 @@ elseif KF.UIParent then
 				SlotLink = GetInventoryItemLink(UnitID, Slot.ID)
 				
 				if not SlotLink then
-					needReinspect = true
+					needReinspect = 'SlotLink_NotLoaded'
 				else
 					KI.CurrentInspectData.Gear[SlotName].ItemLink = SlotLink
 					
@@ -1368,11 +1362,11 @@ elseif KF.UIParent then
 							SetItemCount = tonumber(SetItemCount)
 							SetItemMax = tonumber(SetItemMax)
 							
-							if SetItemCount > SetItemMax or SetItemMax == 1 then
+							if (SetItemCount > SetItemMax or SetItemMax == 1) and not needReinspect then
 								needReinspect = true
 								break
 							else
-								if not (CurrentSetItem[SetName] or KI.CurrentInspectData.SetItem[SetName]) then
+								if not (CurrentSetItem[SetName] or KI.CurrentInspectData.SetItem[SetName]) and not needReinspect then
 									needReinspect = true
 								end
 								
@@ -1394,7 +1388,7 @@ elseif KF.UIParent then
 											tooltipText = GRAY_FONT_COLOR_CODE..tooltipText
 										end
 										
-										if CurrentSetItem[SetName][k] and CurrentSetItem[SetName][k] ~= tooltipText then
+										if CurrentSetItem[SetName][k] and CurrentSetItem[SetName][k] ~= tooltipText and not needReinspect then
 											needReinspect = true
 										end
 										
@@ -1402,7 +1396,7 @@ elseif KF.UIParent then
 									elseif tooltipText:find(C.ItemSetBonusKey) then
 										tooltipText = tooltipText:match("^%((%d)%)%s.+:%s.+$") or true
 										
-										if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= tooltipText then
+										if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= tooltipText and not needReinspect then
 											needReinspect = true
 										end
 										
@@ -1449,24 +1443,26 @@ elseif KF.UIParent then
 		KI.CurrentInspectData.guildLevel, _, KI.CurrentInspectData.guildNumMembers = GetInspectGuildInfo(UnitID)
 		KI.CurrentInspectData.guildEmblem = { GetGuildLogoInfo(UnitID) }
 		
-		if needReinspect then
+		if needReinspect and needReinspect ~= true then
 			return
 		end
 		
-		--if KI.ReinspectCount > 0 then
-		--	KI.ReinspectCount = KI.ReinspectCount - 1
-		--else
-			KI.ForbidUpdatePvPInformation = nil
+		KI.ForbidUpdatePvPInformation = nil
+		KI:ShowFrame(KI.CurrentInspectData)
+		
+		if needReinspect then
+			return
+		elseif KI.ReinspectCount > 0 then
+			KI.ReinspectCount = KI.ReinspectCount - 1
+		else
 			ENI.CancelInspect(TableIndex)
-			
-			KI:ShowFrame(KI.CurrentInspectData)
 			KI:UnregisterEvent('INSPECT_READY')
-		--end
+		end
 	end
 	
 	
 	KI.InspectUnit = function(UnitID)
-		if not UnitExists('mouseover') and UnitExists('target') then
+		if UnitID == 'mouseover' and not UnitExists('mouseover') and UnitExists('target') then
 			UnitID = 'target'
 		end
 		
@@ -1493,7 +1489,8 @@ elseif KF.UIParent then
 			
 			KI.CurrentInspectData.Realm = KI.CurrentInspectData.Realm ~= '' and KI.CurrentInspectData.Realm ~= E.myrealm and KI.CurrentInspectData.Realm or nil
 			
-			--KI.ReinspectCount = 1
+			KI.ReinspectCount = 1
+			KI.NeedModelSetting = true
 			KI.ForbidUpdatePvPInformation = true
 			KI:RegisterEvent('INSPECT_READY')
 			KI:RegisterEvent('INSPECT_HONOR_UPDATE')
@@ -1893,7 +1890,7 @@ elseif KF.UIParent then
 							
 							Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
 						else
-							self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again']
+							self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again.']
 						end
 					end
 				end
@@ -1919,11 +1916,9 @@ elseif KF.UIParent then
 		end
 		
 		do --<< Model and Frame Setting When InspectUnit Changed >>--
-			if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) then
+			if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) and KI.NeedModelSetting then
 				self.Model:SetUnit(DataTable.UnitID)
-				
-				self.Character.Message = nil
-			else
+			elseif KI.NeedModelSetting then
 				self.Model:SetUnit('player')
 				self.Model:SetCustomRace(self.ModelList[DataTable.RaceID].RaceID, DataTable.GenderID - 2)
 				self.Model:TryOn(HeadSlotItem)
@@ -1942,6 +1937,7 @@ elseif KF.UIParent then
 				
 				self.Character.Message = L['Character model may differ because it was constructed by the inspect data.']
 			end
+			KI.NeedModelSetting = nil
 			
 			if not (self.LastDataSetting and self.LastDataSetting == DataTable.Name..(DataTable.Realm and '-'..DataTable.Realm or '')) then
 				--<< Initialize Inspect Page >>--

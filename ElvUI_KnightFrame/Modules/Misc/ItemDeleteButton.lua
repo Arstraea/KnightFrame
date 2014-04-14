@@ -1,9 +1,9 @@
 ﻿local E, L, V, P, G, _  = unpack(ElvUI)
 local KF = E:GetModule('KnightFrame')
 
--- Last Code Checking Date		: 2014. 2. 6
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.94
+-- Last Code Checking Date		: 2014. 4. 14
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.999
 
 if not KF then return
 elseif KF.UIParent then
@@ -24,7 +24,7 @@ elseif KF.UIParent then
 			
 			self:Hide()
 		end)
-		DeleteConfirm_AutoTypingButton:SetScript('OnEnter', function(self) self.text:SetTextColor(unpack(E['media'].rgbvaluecolor)) end)
+		DeleteConfirm_AutoTypingButton:SetScript('OnEnter', function(self) self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end)
 		DeleteConfirm_AutoTypingButton:SetScript('OnLeave', function(self) self.text:SetTextColor(1, 1, 1) end)
 		DeleteConfirm_AutoTypingButton:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', self, 0, -2) end)
 		DeleteConfirm_AutoTypingButton:SetScript('OnMouseUp', function(self) self.text:Point('CENTER', self) end)
@@ -38,14 +38,23 @@ elseif KF.UIParent then
 			end
 		end)
 		DeleteConfirm_AutoTypingButton:SetScript('OnEvent', function(self)
+			local frame
+			
 			for i = 1, STATICPOPUP_NUMDIALOGS do
-				local frame = _G['StaticPopup'..i]
+				frame = _G['StaticPopup'..i]
 				
 				if frame.which == 'DELETE_GOOD_ITEM' then
 					self:SetParent(frame)
 					self:Point('LEFT', _G['StaticPopup'..i..'EditBox'], 'RIGHT', 6, 0)
 					
 					self:Show()
+					
+					if IsShiftKeyDown() then
+						frame = select(2, self:GetPoint())
+						
+						frame:SetText(DELETE_ITEM_CONFIRM_STRING)
+						frame:SetFocus()
+					end
 					return
 				end
 			end
