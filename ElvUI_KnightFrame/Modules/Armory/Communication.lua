@@ -31,7 +31,6 @@ if not AISM then
 	AISM.Updater = CreateFrame('Frame', 'AISM_Updater', UIParent)
 	
 	AISM.SendMessageDelay_Group = 2
-	AISM.SendMessageDelay_Guild = 2
 	
 	AISM.PlayerData = { ['SetItem'] = {}, }
 	AISM.PlayerData_ShortString = { ['SetItem'] = {}, }
@@ -615,11 +614,12 @@ if not AISM then
 	end
 	
 	
+	local needSendData, Name, TableIndex
 	AISM:SetScript('OnUpdate', function(self, elapsed)
 		if elapsed < .1 then
+			needSendData = nil
+			
 			if self.CurrentGroupMode ~= 'NoGroup' then
-				local Name, TableIndex
-				
 				for i = 1, MAX_RAID_MEMBERS do
 					Name = UnitName(self.CurrentGroupMode..i)
 					TableIndex = GetUnitName(self.CurrentGroupMode..i, true)
@@ -629,37 +629,28 @@ if not AISM then
 							self.AISMUserList[TableIndex] = nil
 							self.GroupMemberData[TableIndex] = nil
 						elseif not self.GroupMemberData[TableIndex] then
-							self.needSendDataGroup = true
+							needSendData = true
 							self.GroupMemberData[TableIndex] = true
 						end
 					end
 				end
 			else
-				self.needSendDataGroup = nil
+				needSendData = nil
 				self.SendDataGroupUpdated = nil
 			end
 			
-			if self.needSendDataGroup and self.Updater.SpecUpdated and self.Updater.GlyphUpdated and self.Updater.GearUpdated then
+			if needSendData and self.Updater.SpecUpdated and self.Updater.GlyphUpdated and self.Updater.GearUpdated then
 				self.SendDataGroupUpdated = (self.SendDataGroupUpdated or self.SendMessageDelay_Group) - elapsed
 				
 				if self.SendDataGroupUpdated < 0 then
+					needSendData = nil
 					self.SendDataGroupUpdated = nil
 					
 					self:SendData(self.PlayerData_ShortString)
-					self.needSendDataGroup = nil
 				end
 			end
 			
-			if self.needSendDataGuild then
-				self.SendDataGuildUpdated = (self.SendDataGuildUpdated or self.SendMessageDelay_Guild) - elapsed
-				
-				if self.SendDataGuildUpdated < 0 then
-					self.SendDataGuildUpdated = self.SendMessageDelay_Guild
-					SendAddonMessage('AISM', 'AISM_GUILD_RegistME', 'GUILD')
-				end
-			end
-			
-			if self.needSendDataGroup == nil and self.needSendDataGuild == nil then
+			if needSendData == nil then
 				self:Hide() -- close function
 			end
 		end
@@ -693,35 +684,37 @@ if not AISM then
 		--print('|cffceff00['..Channel..']|r|cff2eb7e4['..Prefix..']|r '..Sender..' : ')
 		--print(Message)
 		
-		if Message == 'AISM_Check' then
-			self.AISMUserList[Sender] = true
-			SendAddonMessage('AISM', 'AISM_CheckResponse', 'WHISPER', Sender)
-		elseif Message == 'AISM_CheckResponse' then
-			self.AISMUserList[Sender] = true
-		elseif Message == 'AISM_UnregistME' then
-			self.AISMUserList[Sender] = nil
-			self.GroupMemberData[Sender] = nil
-		elseif Message == 'AISM_GUILD_RegistME' and self.AISMUserList[Sender] ~= 'GUILD' then
-			self.AISMUserList[Sender] = 'GUILD'
-			SendAddonMessage('AISM', 'AISM_GUILD_RegistResponse', SenderRealm == playerRealm and 'WHISPER' or 'GUILD', Sender)
-		elseif Message == 'AISM_GUILD_RegistResponse' then
-			self.AISMUserList[Sender] = 'GUILD'
-		elseif Message == 'AISM_GUILD_UnregistME' then
-			self.AISMUserList[Sender] = nil
-			self.CurrentInspectData[Sender] = nil
-		elseif Message:find('AISM_DataRequestForInspecting:') then
-			local needplayerName, needplayerRealm = Message:match('^.+:(.+)-(.+)$')
-			
-			if needplayerName == playerName and needplayerRealm == playerRealm then
-				local TableToSend = {}
+		if Message:find('AISM_') then
+			if Message == 'AISM_Check' then
+				self.AISMUserList[Sender] = true
+				SendAddonMessage('AISM', 'AISM_CheckResponse', 'WHISPER', Sender)
+			elseif Message == 'AISM_CheckResponse' then
+				self.AISMUserList[Sender] = true
+			elseif Message == 'AISM_UnregistME' then
+				self.AISMUserList[Sender] = nil
+				self.GroupMemberData[Sender] = nil
+			elseif Message == 'AISM_GUILD_Check' then
+				self.AISMUserList[Sender] = 'GUILD'
+				SendAddonMessage('AISM', 'AISM_GUILD_CheckResponse', SenderRealm == playerRealm and 'WHISPER' or 'GUILD', Sender)
+			elseif Message == 'AISM_GUILD_CheckResponse' then
+				self.AISMUserList[Sender] = 'GUILD'
+			elseif Message == 'AISM_GUILD_UnregistME' then
+				self.AISMUserList[Sender] = nil
+				self.CurrentInspectData[Sender] = nil
+			elseif Message:find('AISM_DataRequestForInspecting:') then
+				local needplayerName, needplayerRealm = Message:match('^.+:(.+)-(.+)$')
 				
-				for Index, Data in pairs(self.PlayerData) do
-					TableToSend[Index] = Data
+				if needplayerName == playerName and needplayerRealm == playerRealm then
+					local TableToSend = {}
+					
+					for Index, Data in pairs(self.PlayerData) do
+						TableToSend[Index] = Data
+					end
+					
+					self:SettingInspectData(TableToSend)
+					
+					self:SendData(TableToSend, Prefix, Channel, Sender)
 				end
-				
-				self:SettingInspectData(TableToSend)
-				
-				self:SendData(TableToSend, Prefix, Channel, Sender)
 			end
 		else
 			local TableToSave, NeedResponse, Group, stringTable
@@ -879,26 +872,20 @@ if not AISM then
 	
 	local Prefix, Message, Channel, Sender, Type
 	AISM:SetScript('OnEvent', function(self, Event, ...)
-		if Event == 'PLAYER_LOGIN' then
-			self:GetPlayerCurrentGroupMode()
-			self:GetCurrentInstanceType()
-			
-			if IsInGuild() then
-				self.needSendDataGuild = true
-				self:Show()
-			else
-				self:RegisterEvent('PLAYER_GUILD_UPDATE')
-			end
-		elseif Event == 'VARIABLES_LOADED' then
+		if Event == 'VARIABLES_LOADED' then
 			isHelmDisplayed = ShowingHelm() == 1
 			isCloakDisplayed = ShowingCloak() == 1
 			
 			self:UnregisterEvent('VARIABLES_LOADED')
-		elseif Event == 'PLAYER_GUILD_UPDATE' then
+		elseif Event == 'PLAYER_LOGIN' then
+			self:GetPlayerCurrentGroupMode()
+			self:GetCurrentInstanceType()
+		elseif Event == 'PLAYER_LOGOUT' then
 			if IsInGuild() then
-				self.needSendDataGuild = true
-				self:Show()
-				self:UnregisterEvent('PLAYER_GUILD_UPDATE')
+				SendAddonMessage('AISM', 'AISM_GUILD_UnregistME', 'GUILD')
+			end
+			if self.CurrentGroupMode ~= 'NoGroup' then
+				SendAddonMessage('AISM', 'AISM_UnregistME', IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(self.CurrentGroupMode))
 			end
 		elseif Event == 'CHAT_MSG_SYSTEM' then
 			Message = ...
@@ -923,19 +910,8 @@ if not AISM then
 		elseif Event == 'CHAT_MSG_ADDON' then
 			Prefix, Message, Channel, Sender = ...
 			
-			if (Prefix == 'AISM' or Prefix == 'AISM_Inspect') then
-				if Sender ~= playerName..'-'..playerRealm then
-					self:Receiver(Prefix, Message, Channel, Sender)
-				elseif self.needSendDataGuild and Message == 'AISM_GUILD_RegistME' then
-					self.needSendDataGuild = nil
-				end
-			end
-		elseif Event == 'PLAYER_LOGOUT' then
-			if IsInGuild() then
-				SendAddonMessage('AISM', 'AISM_GUILD_UnregistME', 'GUILD')
-			end
-			if self.CurrentGroupMode ~= 'NoGroup' then
-				SendAddonMessage('AISM', 'AISM_UnregistME', IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(self.CurrentGroupMode))
+			if (Prefix == 'AISM' or Prefix == 'AISM_Inspect') and Sender ~= playerName..'-'..playerRealm then
+				self:Receiver(Prefix, Message, Channel, Sender)
 			end
 		elseif Event == 'GROUP_ROSTER_UPDATE' then
 			self:GetPlayerCurrentGroupMode()
@@ -943,7 +919,6 @@ if not AISM then
 		elseif Event == 'PLAYER_ENTERING_WORLD' or Event == 'ZONE_CHANGED_NEW_AREA' then
 			self:GetCurrentInstanceType()
 			self:Show()
-		end
 	end)
 	AISM:RegisterEvent('VARIABLES_LOADED')
 	AISM:RegisterEvent('PLAYER_LOGIN')

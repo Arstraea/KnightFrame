@@ -1235,7 +1235,7 @@ elseif KF.UIParent then
 							end
 							
 							return
-						elseif DataTable.Unit or AISM and (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
+						elseif DataTable.Unit or AISM and (Menu.which == 'GUILD' or AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
 							Button = UIDropDownMenu_CreateInfo()
 							Button.notCheckable = 1
 							UIDropDownMenu_AddButton(Button)
@@ -1258,8 +1258,12 @@ elseif KF.UIParent then
 						KnightInspect_UnitPopup.Anchored = true
 						KnightInspect_UnitPopup.Data = DataTable
 						
-						if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) and AISM and DataTable.Realm == E.myrealm and not (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
-							SendAddonMessage('AISM', 'AISM_Check', 'WHISPER', DataTable.Name)
+						if AISM and not (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
+							if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) and DataTable.Realm == E.myrealm then
+								SendAddonMessage('AISM', 'AISM_Check', 'WHISPER', DataTable.Name)
+							elseif Menu.which == 'GUILD' then
+								SendAddonMessage('AISM', 'AISM_GUILD_Check', DataTable.Realm == E.myrealm and 'WHISPER' or 'GUILD', DataTable.Name)
+							end
 						end
 					end
 				end
@@ -1296,7 +1300,8 @@ elseif KF.UIParent then
 	
 	
 	KI.INSPECT_READY = function(Event, InspectedUnitGUID)
-		local UnitID = KI.CurrentInspectData.Name..(KI.CurrentInspectData.Realm and '-'..KI.CurrentInspectData.Realm or '')
+		local TableIndex = KI.CurrentInspectData.Name..(KI.CurrentInspectData.Realm and '-'..KI.CurrentInspectData.Realm or '')
+		local UnitID = TableIndex
 		local Name, Realm = UnitFullName(UnitID)
 		
 		if not Name then
@@ -1308,13 +1313,12 @@ elseif KF.UIParent then
 			_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
 		end
 		
-		local TableIndex = Name..(Realm and Realm ~= '' and Realm ~= E.myrealm and '-'..Realm or '')
-		
 		if not (KI.CurrentInspectData.Name == Name and KI.CurrentInspectData.Realm == Realm and KI.CurrentInspectData.UnitGUID == InspectedUnitGUID) then
-			ENI.CancelInspect(TableIndex)
-			KI:UnregisterEvent('INSPECT_READY')
-			KI:UnregisterEvent('INSPECT_HONOR_UPDATE')
-			
+			if UnitGUID(UnitID) ~= KI.CurrentInspectData.UnitGUID then
+				ENI.CancelInspect(TableIndex)
+				KI:UnregisterEvent('INSPECT_READY')
+				KI:UnregisterEvent('INSPECT_HONOR_UPDATE')
+			end
 			return
 		elseif HasInspectHonorData() then
 			KI.INSPECT_HONOR_UPDATE()
@@ -1335,7 +1339,7 @@ elseif KF.UIParent then
 				SlotLink = GetInventoryItemLink(UnitID, Slot.ID)
 				
 				if not SlotLink then
-					needReinspect = 'SlotLink_NotLoaded'
+					needReinspect = 'SlotLink_NotLoaded' -- this will stop setting inspect frame
 				else
 					KI.CurrentInspectData.Gear[SlotName].ItemLink = SlotLink
 					
@@ -2192,36 +2196,6 @@ elseif KF.UIParent then
 			Default_InspectUnit = nil
 			
 			KI.Activate = nil
-		end
-	end
-	
-	
-	function KF:Test(args)
-		if args == 'Guild' then
-			PrintTable(AISM.AISMUserList)
-		elseif args == 'Group' then
-			PrintTable(AISM.GroupMemberData)
-		elseif args == 'testme' then
-			AISM.CurrentInspectData[UnitName('player')] = {}
-			AISM:SendData(AISM.PlayerData, 'AISM_Inspect', 'WHISPER', UnitName('player'))
-		elseif args == 'testgroup' then
-			AISM:SendData(AISM.PlayerData)
-		elseif args == 'inspect' then
-			KnightInspect.CurrentInspectData = E:CopyTable({}, KnightInspect.Default_CurrentInspectData)
-			E:CopyTable(KnightInspect.CurrentInspectData, AISM.CurrentInspectData)
-			
-			KnightInspect:InspectFrame_DataSetting(KnightInspect.CurrentInspectData)
-		elseif args == 'short' then
-			PrintTable(AISM.PlayerData_ShortString)
-		elseif args == 'checkmenu' then
-			print('<< 현재 열린 메뉴 정보 >>')
-			print('- 종류 : '..(UIDROPDOWNMENU_INIT_MENU.which or 'nil'))
-			print('- 유닛 : '..(UIDROPDOWNMENU_INIT_MENU.unit or 'nil'))
-			print('- 이름 : '..(UIDROPDOWNMENU_INIT_MENU.name or '없음.. 이런경우가 있나?'))
-			print('- 서버 : '..(UIDROPDOWNMENU_INIT_MENU.server or '없음??'))
-			--
-		else
-			PrintTable(AISM.PlayerData)
 		end
 	end
 end
