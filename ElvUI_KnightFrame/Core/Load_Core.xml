@@ -1,8 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Include file="Database\Load_Database.xml"/>
 	
-	<Script file="AnchorMode.lua"/>
-	<Script file="ClassRole.lua"/>
 	<Script file="Core.lua"/>
 	<Script file="UpgradeBlizzardUI.lua"/>
 </Ui>

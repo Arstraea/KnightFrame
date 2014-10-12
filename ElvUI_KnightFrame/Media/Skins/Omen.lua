@@ -1,12 +1,11 @@
-local E, L, V, P, G, _  = unpack(ElvUI)
-local KF = E:GetModule('KnightFrame')
+-- Last Code Checking Date		: 2014. 6. 14
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.9997
 
--- Last Code Checking Date		: 2013. 9. 25
--- Last Code Checking Version	: 2.2_04
--- Last Testing ElvUI Version	: 6.53
+local E, L, V, P, G, _ = unpack(ElvUI)
+local KF, DB, Info, Update = unpack(select(2, ...))
 
-if not KF then return
-elseif KF.UIParent and IsAddOnLoaded('Omen') and KF.db.Skins.Omen ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
+if IsAddOnLoaded('Omen') and DB.Skins.Omen ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
 --------------------------------------------------------------------------------
 --<< KnightFrame : Omen Skin												>>--
 --------------------------------------------------------------------------------

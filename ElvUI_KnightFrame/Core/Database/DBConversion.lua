@@ -1,34 +1,32 @@
-﻿local E, L, V, P, G, _ = unpack(ElvUI)
-local KF = E:GetModule('KnightFrame')
+﻿-- Last Code Checking Date		: 2014. 6. 16
+-- Last Code Checking Version	: 3.0_02
+-- Last Testing ElvUI Version	: 6.9997
 
--- Last Code Checking Date		: 2014. 4. 2
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
+local E, L, V, P, G = unpack(ElvUI)
+local KF, DB, Info, Timer = unpack(select(2, ...))
 
-if not KF then return end
-
-function KF:DBConversions(DB)
-	if DB.Layout then
-		DB.Modules = DB.Modules or {}
-		E:CopyTable(DB.Modules, DB.Layout)
-		DB.Layout = nil
+function KF:DBConversions(Data)
+	if Data.Layout then
+		Data.Modules = Data.Modules or {}
+		E:CopyTable(Data.Modules, Data.Layout)
+		Data.Layout = nil
 	end
 	
-	if DB.Extra_Functions then
-		DB.Modules = DB.Modules or {}
-		E:CopyTable(DB.Modules, DB.Extra_Functions)
-		DB.Extra_Functions = nil
+	if Data.Extra_Functions then
+		Data.Modules = Data.Modules or {}
+		E:CopyTable(Data.Modules, Data.Extra_Functions)
+		Data.Extra_Functions = nil
 	end
 	
-	if DB.Modules then
-		if DB.Modules.AuraTracker ~= nil then
-			DB.Modules.SynergyTracker = DB.Modules.AuraTracker
-			DB.Modules.AuraTracker = nil
+	if Data.Modules then
+		if Data.Modules.AuraTracker ~= nil then
+			Data.Modules.SynergyTracker = Data.Modules.AuraTracker
+			Data.Modules.AuraTracker = nil
 		end
 		
-		if DB.Modules.RaidCooldown ~= nil then
-			DB.Modules.SmartTracker = DB.Modules.RaidCooldown
-			DB.Modules.RaidCooldown = nil
+		if Data.Modules.RaidCooldown ~= nil then
+			Data.Modules.SmartTracker = Data.Modules.RaidCooldown
+			Data.Modules.RaidCooldown = nil
 		end
 	end
 end

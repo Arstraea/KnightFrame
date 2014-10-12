@@ -1,6 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="Default.lua"/>
-	<Script file="Data_1440x900.lua"/>
-	<Script file="Data_1680x1050.lua"/>
-	<Script file="Data_1920x1080.lua"/>
-</Ui>
