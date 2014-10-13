@@ -134,6 +134,10 @@ do --<< Button Script >>--
 					if type(IA.SetItem[SetName]) == 'table' then
 						for dataType, Data in pairs(IA.SetItem[SetName]) do
 							if type(dataType) == 'string' then -- Means SetOption Data
+								
+								
+								_G['GameTooltipTextLeft'..(i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$'))]:SetText(Data)
+								--[[
 								local CurrentLineNum = i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$')
 								local CurrentText = _G['GameTooltipTextLeft'..CurrentLineNum]:GetText()
 								local CurrentTextType = CurrentText:match("^%((%d)%)%s.+:%s.+$") or true
@@ -145,6 +149,7 @@ do --<< Button Script >>--
 										_G['GameTooltipTextLeft'..CurrentLineNum]:SetText(GRAY_FONT_COLOR_CODE..'('..Data..') '..CurrentText)
 									end
 								end
+								]]
 							else
 								if Data:find(LIGHTYELLOW_FONT_COLOR_CODE) then
 									SetCount = SetCount + 1
@@ -1337,9 +1342,9 @@ function IA:CreateInspectFrame()
 					local isSending
 					print('전송준비')
 					if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) then
-						if DataTable.Realm == Info.myrealm or KF.CurrentGroupMode ~= 'NoGroup' then
+						if DataTable.Realm == Info.myrealm or Info.CurrentGroupMode ~= 'NoGroup' then
 							isSending = 'AISM_CheckResponse'
-							SendAddonMessage('AISM', 'AISM_Check', DataTable.Realm == Info.myrealm and 'WHISPER' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(KF.CurrentGroupMode), DataTable.Name)
+							SendAddonMessage('AISM', 'AISM_Check', DataTable.Realm == Info.myrealm and 'WHISPER' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(Info.CurrentGroupMode), DataTable.Name)
 						end
 					elseif Menu.which == 'GUILD' then
 						isSending = 'AISM_GUILD_CheckResponse'
@@ -1495,7 +1500,7 @@ IA.INSPECT_READY = function(Event, InspectedUnitGUID)
 								elseif checkSpace == 2 then
 									colorR, colorG, colorB = _G['InspectArmoryScanTT_ITextLeft'..(i+k)]:GetTextColor()
 									
-									if colorR > LIGHTYELLOW_FONT_COLOR.r - 0.01 and colorR < LIGHTYELLOW_FONT_COLOR.r + 0.01 and colorG > LIGHTYELLOW_FONT_COLOR.g - 0.01 and colorG < LIGHTYELLOW_FONT_COLOR.g + 0.01 and colorB > LIGHTYELLOW_FONT_COLOR.b - 0.01 and colorB < LIGHTYELLOW_FONT_COLOR.b + 0.01 then
+									if colorR > LIGHTYELLOW_FONT_COLOR.r - .01 and colorR < LIGHTYELLOW_FONT_COLOR.r + .01 and colorG > LIGHTYELLOW_FONT_COLOR.g - .01 and colorG < LIGHTYELLOW_FONT_COLOR.g + .01 and colorB > LIGHTYELLOW_FONT_COLOR.b - .01 and colorB < LIGHTYELLOW_FONT_COLOR.b + .01 then
 										tooltipText = LIGHTYELLOW_FONT_COLOR_CODE..tooltipText
 									else
 										tooltipText = GRAY_FONT_COLOR_CODE..tooltipText
@@ -1507,7 +1512,8 @@ IA.INSPECT_READY = function(Event, InspectedUnitGUID)
 									
 									CurrentSetItem[SetName][k] = tooltipText
 								elseif tooltipText:find(Info.Armory_Constants.ItemSetBonusKey) then
-									tooltipText = tooltipText:match("^%((%d)%)%s.+:%s.+$") or true
+									tooltipText = (E:RGBToHex(_G['InspectArmoryScanTT_ITextLeft'..(i+k)]:GetTextColor()))..tooltipText..'|r'
+									--tooltipText = tooltipText:match("^%((%d)%)%s.+:%s.+$") or true
 									
 									if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= tooltipText then
 										needReinspect = true

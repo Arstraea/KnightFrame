@@ -27,11 +27,12 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	
 	
 	--<< Create Core >>--
-	AISM.Tooltip = CreateFrame('GameTooltip', 'AISM_Tooltip', nil, 'GameTooltipTemplate')
+	AISM.Tooltip = _G['AISM_Tooltip'] or AISM.Tooltip or CreateFrame('GameTooltip', 'AISM_Tooltip', nil, 'GameTooltipTemplate')
 	AISM.Tooltip:SetOwner(UIParent, 'ANCHOR_NONE')
-	AISM.Updater = CreateFrame('Frame', 'AISM_Updater', UIParent)
+	AISM.Updater = _G['AISM_Updater'] or AISM.Updater or CreateFrame('Frame', 'AISM_Updater', UIParent)
 	
-	AISM.SendMessageDelay_Group = 2
+	AISM.Delay_SendMessage = 2
+	AISM.Delay_Updater = .5
 	
 	AISM.PlayerData = { SetItem = {} }
 	AISM.PlayerData_ShortString = { SetItem = {} }
@@ -195,22 +196,24 @@ if not AISM.Revision or AISM.Revision <= Revision then
 			end
 		end
 	end)
+	
 	if playerNumSpecGroup ~= MAX_TALENT_GROUPS then
 		AISM.Updater:RegisterEvent('PLAYER_TALENT_UPDATE')
 	end
-	AISM.Updater:RegisterEvent('PLAYER_TALENT_UPDATE')
-	AISM.UpdateHelmDisplaying = function(value)
+	
+	function AISM:UpdateHelmDisplaying(value)
 		isHelmDisplayed = value == '1'
 		AISM.Updater.GearUpdated = nil
 		AISM.Updater:Show()
 	end
-	hooksecurefunc('ShowHelm', AISM.UpdateHelmDisplaying)
-	AISM.UpdateCloakDisplaying = function(value)
+	hooksecurefunc('ShowHelm', function(value) AISM:UpdateHelmDisplaying(value) end)
+	
+	function AISM:UpdateCloakDisplaying(value)
 		isCloakDisplayed = value == '1'
 		AISM.Updater.GearUpdated = nil
 		AISM.Updater:Show()
 	end
-	hooksecurefunc('ShowCloak', AISM.UpdateCloakDisplaying)
+	hooksecurefunc('ShowCloak', function(value) AISM:UpdateCloakDisplaying(value) end)
 	
 	
 	--<< Profession String >>--
@@ -272,13 +275,13 @@ if not AISM.Revision or AISM.Revision <= Revision then
 				for k = 1, NUM_TALENT_COLUMNS do
 					Talent, _, _, isSelected = GetTalentInfo(i, k, groupNum)
 					
-					Talent = Talent..(isSelected == true and '_1' or '')
+					Talent = ((i - 1) * NUM_TALENT_COLUMNS + k)..'_'..Talent..(isSelected == true and '_1' or '')
 					
 					Spec = Spec..'/'..Talent
 					
 					if not SpecTable['Spec'..groupNum..'_Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] or SpecTable['Spec'..groupNum..'_Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] ~= Talent then
 						SpecTable['Spec'..groupNum..'_Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] = Talent
-						DataString = (DataString and DataString..'/' or '')..((i - 1) * NUM_TALENT_COLUMNS + k)..'_'..Talent
+						DataString = (DataString and DataString..'/' or '')..Talent
 					end
 				end
 			end
@@ -494,7 +497,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 		TableToSave.PlayerInfo = playerName..'_'..UnitPVPName('player')..'/'..playerRealm..'/'..UnitLevel('player')..'/'..playerClass..'/'..playerClassID..'/'..playerRace..'/'..playerRaceID..'/'..playerSex..(guildName and '/'..guildName..'/'..guildRankName or '')
 		
 		if IsInGuild() then
-			TableToSave.GuildInfo = GetGuildLevel()..'/'..GetNumGuildMembers()
+			TableToSave.GuildInfo = GetTotalAchievementPoints(true)..'/'..GetNumGuildMembers()
 			
 			for _, DataString in ipairs({ GetGuildLogoInfo('player') }) do
 				TableToSave.GuildInfo = TableToSave.GuildInfo..'/'..DataString
@@ -650,7 +653,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 		end
 		
 		if needSendData and self.Updater.SpecUpdated and self.Updater.GlyphUpdated and self.Updater.GearUpdated then
-			self.SendDataGroupUpdated = (self.SendDataGroupUpdated or self.SendMessageDelay_Group) - elapsed
+			self.SendDataGroupUpdated = (self.SendDataGroupUpdated or self.Delay_SendMessage) - elapsed
 			
 			if self.SendDataGroupUpdated < 0 then
 				needSendData = nil
@@ -688,7 +691,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	local SenderRealm
 	function AISM:Receiver(Prefix, Message, Channel, Sender)
 		Sender, SenderRealm = strsplit('-', Sender)
-		SenderRealm = gsub(SenderRealm,'[%s%-]','')
+		SenderRealm = SenderRealm and gsub(SenderRealm,'[%s%-]','') or nil
 		Sender = Sender..(SenderRealm and SenderRealm ~= '' and SenderRealm ~= playerRealm and '-'..SenderRealm or '')
 		
 		--print('|cffceff00['..Channel..']|r|cff2eb7e4['..Prefix..']|r '..Sender..' : ')
@@ -849,7 +852,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 							TableToSave.guildName = stringTable[9]
 							TableToSave.guildRankName = stringTable[10]
 						elseif self.DataTypeTable[DataType] == 'GuildInfo' then
-							TableToSave.guildLevel = stringTable[1]
+							TableToSave.guildPoint = stringTable[1]
 							TableToSave.guildNumMembers = stringTable[2]
 							
 							for i = 3, #stringTable do

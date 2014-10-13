@@ -153,7 +153,7 @@ function CA:Setup_CharacterArmory()
 			self:SetScript('OnUpdate', self.CharacterArmory_DataSetting)
 		end
 	end)
-	hooksecurefunc('CharacterFrame_Collapse', function() if Info.CharacterArmory_Activate then CharacterFrame:SetWidth(448) end end)
+	hooksecurefunc('CharacterFrame_Collapse', function() if Info.CharacterArmory_Activate then CharacterFrame:SetWidth(PaperDollFrame:IsShown() and 448 or PANEL_DEFAULT_WIDTH) end end)
 	hooksecurefunc('CharacterFrame_Expand', function() if Info.CharacterArmory_Activate then CharacterFrame:SetWidth(650) end end)
 	hooksecurefunc('PaperDollFrame_SetLevel', function()
 		if Info.CharacterArmory_Activate then 
