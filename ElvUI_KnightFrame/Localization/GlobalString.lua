@@ -23,7 +23,7 @@ for ClassName, SpecializationIDTable in pairs({
 	},
 	Hunter = {
 		Beast = 253,
-		Markmanship = 254,
+		Marksmanship = 254,
 		Survival = 255
 	},
 	Shaman = {
@@ -69,7 +69,7 @@ for ClassName, SpecializationIDTable in pairs({
 	},
 	Warlock = {
 		Affliction = 265,
-		Demonlogy = 266,
+		Demonology = 266,
 		Destruction = 267
 	}
 }) do

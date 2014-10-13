@@ -301,14 +301,14 @@ function IA:ChangePage(Type)
 		for _, slotName in pairs(Info.Armory_Constants.GearList) do
 			self[slotName].ItemLevel:Hide()
 		end
-		self.Model:Point('TOPRIGHT', self.HandsSlot)
+		
 		self.MainHandSlot:Point('BOTTOMRIGHT', self.BP, 'TOP', -2, SPACING)
 		self.SecondaryHandSlot:Point('BOTTOMLEFT', self.BP, 'TOP', 2, SPACING)
 	else
 		for _, slotName in pairs(Info.Armory_Constants.GearList) do
 			self[slotName].ItemLevel:Show()
 		end
-		self.Model:Point('TOPRIGHT', UIParent, 'BOTTOMLEFT')
+		
 		self.MainHandSlot:Point('BOTTOMLEFT', self.BP, 'TOPLEFT', 1, SPACING)
 		self.SecondaryHandSlot:Point('BOTTOMRIGHT', self.BP, 'TOPRIGHT', -1, SPACING)
 	end
@@ -740,16 +740,17 @@ function IA:CreateInspectFrame()
 	end
 	
 	self.Model:Point('TOPLEFT', self.HeadSlot)
+	self.Model:Point('TOPRIGHT', self.HandsSlot)
 	self.Model:Point('BOTTOM', self.BP, 'TOP', 0, SPACING)
 	
 	do --<< Information Page >>--
 		self.Info = CreateFrame('ScrollFrame', nil, self)
-		self.Info:SetFrameLevel(CORE_FRAME_LEVEL + 5)
+		self.Info:SetFrameLevel(CORE_FRAME_LEVEL + 6)
 		self.Info:EnableMouseWheel(1)
 		self.Info:SetScript('OnMouseWheel', self.ScrollFrame_OnMouseWheel)
 		
 		self.Info.BG = CreateFrame('Frame', nil, self.Info)
-		self.Info.BG:SetFrameLevel(CORE_FRAME_LEVEL + 1)
+		self.Info.BG:SetFrameLevel(CORE_FRAME_LEVEL + 2)
 		self.Info.BG:Point('TOPLEFT', self.HeadSlot, 'TOPRIGHT', SPACING, 0)
 		self.Info.BG:Point('RIGHT', self.Trinket1Slot, 'BOTTOMLEFT', -SPACING, 0)
 		self.Info.BG:Point('BOTTOM', self.BP, 'TOP', 0, SPACING)
@@ -761,14 +762,14 @@ function IA:CreateInspectFrame()
 		})
 		self.Info.BG:SetBackdropColor(0, 0, 0, .7)
 		
-		self.Info:Point('TOPLEFT', self.Info.BG, 4, -7)
+		self.Info:Point('TOPLEFT', self.Info.BG, 4, -4)
 		self.Info:Point('BOTTOMRIGHT', self.Info.BG, -4, 7)
 		
 		self.Info.Page = CreateFrame('Frame', nil, self.Info)
 		self.Info:SetScrollChild(self.Info.Page)
-		self.Info.Page:SetFrameLevel(CORE_FRAME_LEVEL + 2)
-		self.Info.Page:Point('TOPLEFT', self.Info)
-		self.Info.Page:Point('TOPRIGHT', self.Info, -1, 0)
+		self.Info.Page:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+		self.Info.Page:Point('TOPLEFT', self.Info, 0, 2)
+		self.Info.Page:Point('TOPRIGHT', self.Info, 0, 2)
 		
 		for _, CategoryType in pairs(IA.InfoPageCategoryList) do
 			self.Info[CategoryType] = CreateFrame('ScrollFrame', nil, self.Info.Page)
@@ -810,14 +811,14 @@ function IA:CreateInspectFrame()
 			self.Info[CategoryType].Tooltip = CreateFrame('Button', nil, self.Info[CategoryType])
 			self.Info[CategoryType].Tooltip:Point('TOPLEFT', self.Info[CategoryType].Icon)
 			self.Info[CategoryType].Tooltip:Point('BOTTOMRIGHT', self.Info[CategoryType].Tab)
-			self.Info[CategoryType].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 4)
+			self.Info[CategoryType].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 5)
 			self.Info[CategoryType].Tooltip:SetScript('OnClick', IA.Category_OnClick)
 			
 			KF:TextSetting(self.Info[CategoryType].Tab, CategoryType, { FontSize = 10 }, 'LEFT', 6, 1)
 			
 			self.Info[CategoryType].Page = CreateFrame('Frame', nil, self.Info[CategoryType])
 			self.Info[CategoryType]:SetScrollChild(self.Info[CategoryType].Page)
-			self.Info[CategoryType].Page:SetFrameLevel(CORE_FRAME_LEVEL + 2)
+			self.Info[CategoryType].Page:SetFrameLevel(CORE_FRAME_LEVEL + 3)
 			self.Info[CategoryType].Page:Point('TOPLEFT', self.Info[CategoryType].IconSlot, 'BOTTOMLEFT', 0, -SPACING)
 			self.Info[CategoryType].Page:Point('BOTTOMRIGHT', self.Info[CategoryType], -SPACING, SPACING)
 		end
@@ -878,12 +879,12 @@ function IA:CreateInspectFrame()
 			self.Info.PvP.PageLeft:Point('TOP', self.Info.PvP.Page)
 			self.Info.PvP.PageLeft:Point('LEFT', self.Info.PvP.Page)
 			self.Info.PvP.PageLeft:Point('BOTTOMRIGHT', self.Info.PvP.Page, 'BOTTOM')
-			self.Info.PvP.PageLeft:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+			self.Info.PvP.PageLeft:SetFrameLevel(CORE_FRAME_LEVEL + 4)
 			self.Info.PvP.PageRight = CreateFrame('Frame', nil, self.Info.PvP.Page)
 			self.Info.PvP.PageRight:Point('TOP', self.Info.PvP.Page)
 			self.Info.PvP.PageRight:Point('RIGHT', self.Info.PvP.Page)
 			self.Info.PvP.PageRight:Point('BOTTOMLEFT', self.Info.PvP.Page, 'BOTTOM')
-			self.Info.PvP.PageRight:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+			self.Info.PvP.PageRight:SetFrameLevel(CORE_FRAME_LEVEL + 4)
 			
 			for i = 1, 3 do
 				self.Info.PvP['Bar'..i] = self.Info.PvP.Page:CreateTexture(nil, 'OVERLAY')
@@ -899,7 +900,7 @@ function IA:CreateInspectFrame()
 			
 			for _, Type in pairs({ '2vs2', '3vs3', '5vs5', 'RB' }) do
 				self.Info.PvP[Type] = CreateFrame('Frame', nil, self.Info.PvP.Page)
-				self.Info.PvP[Type]:SetFrameLevel(CORE_FRAME_LEVEL + 4)
+				self.Info.PvP[Type]:SetFrameLevel(CORE_FRAME_LEVEL + 5)
 				
 				self.Info.PvP[Type].Rank = self.Info.PvP.Page:CreateTexture(nil, 'OVERLAY')
 				self.Info.PvP[Type].Rank:SetTexture('Interface\\ACHIEVEMENTFRAME\\UI-ACHIEVEMENT-SHIELDS')
@@ -952,7 +953,7 @@ function IA:CreateInspectFrame()
 			
 			self.Info.Guild.Banner = CreateFrame('Frame', nil, self.Info.Guild.Page)
 			self.Info.Guild.Banner:SetInside()
-			self.Info.Guild.Banner:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+			self.Info.Guild.Banner:SetFrameLevel(CORE_FRAME_LEVEL + 4)
 			
 			self.Info.Guild.BG = self.Info.Guild.Banner:CreateTexture(nil, 'BACKGROUND')
 			self.Info.Guild.BG:Size(33, 44)
@@ -978,28 +979,28 @@ function IA:CreateInspectFrame()
 	
 	do --<< Specialization Page >>--
 		self.Spec = CreateFrame('ScrollFrame', nil, self)
-		self.Spec:SetFrameLevel(CORE_FRAME_LEVEL + 5)
+		self.Spec:SetFrameLevel(CORE_FRAME_LEVEL + 6)
 		self.Spec:EnableMouseWheel(1)
 		self.Spec:SetScript('OnMouseWheel', self.ScrollFrame_OnMouseWheel)
 		
 		self.Spec.BGFrame = CreateFrame('Frame', nil, self.Spec)
-		self.Spec.BGFrame:SetFrameLevel(CORE_FRAME_LEVEL + 1)
+		self.Spec.BGFrame:SetFrameLevel(CORE_FRAME_LEVEL + 2)
 		self.Spec.BG = self.Spec.BGFrame:CreateTexture(nil, 'BACKGROUND')
-		self.Spec.BG:Point('TOP', self.HeadSlot, 'TOPRIGHT', 0, -30)
+		self.Spec.BG:Point('TOP', self.HeadSlot, 'TOPRIGHT', 0, -28)
 		self.Spec.BG:Point('LEFT', self.WristSlot, 'TOPRIGHT', SPACING, 0)
 		self.Spec.BG:Point('RIGHT', self.Trinket1Slot, 'BOTTOMLEFT', -SPACING, 0)
 		self.Spec.BG:Point('BOTTOM', self.BP, 'TOP', 0, SPACING)
 		self.Spec.BG:SetTexture(0, 0, 0, .7)
 		
-		self.Spec:Point('TOPLEFT', self.Spec.BG, 4, -7)
+		self.Spec:Point('TOPLEFT', self.Spec.BG, 4, -4)
 		self.Spec:Point('BOTTOMRIGHT', self.Spec.BG, -4, 7)
 		
 		self.Spec.Page = CreateFrame('Frame', nil, self.Spec)
 		self.Spec:SetScrollChild(self.Spec.Page)
-		self.Spec.Page:SetFrameLevel(CORE_FRAME_LEVEL + 2)
+		self.Spec.Page:SetFrameLevel(CORE_FRAME_LEVEL + 3)
 		self.Spec.Page:Point('TOPLEFT', self.Spec)
 		self.Spec.Page:Point('TOPRIGHT', self.Spec)
-		self.Spec.Page:Height((TALENT_SLOT_SIZE + SPACING * 3) * MAX_TALENT_TIERS + (SPACING + GLYPH_SLOT_HEIGHT) * 3 + 22)
+		self.Spec.Page:Height((TALENT_SLOT_SIZE + SPACING * 3) * MAX_TALENT_TIERS + (SPACING + GLYPH_SLOT_HEIGHT) * 3 + 18)
 		
 		self.Spec.BottomBorder = self.Spec:CreateTexture(nil, 'OVERLAY')
 		self.Spec.BottomBorder:Point('TOPLEFT', self.Spec.BG, 'BOTTOMLEFT', 0, E.mult)
@@ -1016,11 +1017,11 @@ function IA:CreateInspectFrame()
 		do -- Specialization Tab
 			for i = 1, MAX_TALENT_GROUPS do
 				self.Spec['Spec'..i] = CreateFrame('Button', nil, self.Spec)
-				self.Spec['Spec'..i]:Size(150, 30)
+				self.Spec['Spec'..i]:Size(150, 28)
 				self.Spec['Spec'..i]:SetScript('OnClick', function() self:ToggleSpecializationTab(i, self.CurrentInspectData) end)
 				
 				self.Spec['Spec'..i].Tab = CreateFrame('Frame', nil, self.Spec['Spec'..i])
-				self.Spec['Spec'..i].Tab:Size(120, 30)
+				self.Spec['Spec'..i].Tab:Size(120, 28)
 				self.Spec['Spec'..i].Tab:SetBackdrop({
 					bgFile = E.media.blankTex,
 					edgeFile = E.media.blankTex,
@@ -1034,7 +1035,7 @@ function IA:CreateInspectFrame()
 				self.Spec['Spec'..i].Tab.text:Point('BOTTOMRIGHT', 0, -4)
 				
 				self.Spec['Spec'..i].Icon = CreateFrame('Frame', nil, self.Spec['Spec'..i].Tab)
-				self.Spec['Spec'..i].Icon:Size(27, 26)
+				self.Spec['Spec'..i].Icon:Size(27, 24)
 				self.Spec['Spec'..i].Icon:SetBackdrop({
 					bgFile = E.media.blankTex,
 					edgeFile = E.media.blankTex,
@@ -1045,7 +1046,7 @@ function IA:CreateInspectFrame()
 				self.Spec['Spec'..i].Icon:Point('TOPLEFT', self.Spec['Spec'..i])
 				
 				self.Spec['Spec'..i].Texture = self.Spec['Spec'..i].Icon:CreateTexture(nil, 'OVERLAY')
-				self.Spec['Spec'..i].Texture:SetTexCoord(unpack(E.TexCoords))
+				self.Spec['Spec'..i].Texture:SetTexCoord(.08, .92, .16, .84)
 				self.Spec['Spec'..i].Texture:SetInside()
 				
 				self.Spec['Spec'..i].TopBorder = self.Spec['Spec'..i].Tab:CreateTexture(nil, 'OVERLAY')
@@ -1082,7 +1083,7 @@ function IA:CreateInspectFrame()
 			})
 			self.Spec['TalentTier'..i]:SetBackdropColor(.08, .08, .08)
 			self.Spec['TalentTier'..i]:SetBackdropBorderColor(0, 0, 0)
-			self.Spec['TalentTier'..i]:SetFrameLevel(CORE_FRAME_LEVEL + 2)
+			self.Spec['TalentTier'..i]:SetFrameLevel(CORE_FRAME_LEVEL + 3)
 			self.Spec['TalentTier'..i]:Size(352, TALENT_SLOT_SIZE + SPACING * 2)
 			
 			for k = 1, NUM_TALENT_COLUMNS do
@@ -1093,7 +1094,7 @@ function IA:CreateInspectFrame()
 					tile = false, tileSize = 0, edgeSize = E.mult,
 					insets = { left = 0, right = 0, top = 0, bottom = 0}
 				})
-				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)]:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)]:SetFrameLevel(CORE_FRAME_LEVEL + 4)
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)]:Size(114, TALENT_SLOT_SIZE)
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon = CreateFrame('Frame', nil, self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)])
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon:Size(20)
@@ -1112,7 +1113,7 @@ function IA:CreateInspectFrame()
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].text:Point('RIGHT', -SPACING, 0)
 				
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip = CreateFrame('Button', nil, self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)])
-				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 4)
+				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 5)
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip:SetInside()
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip:SetScript('OnClick', self.OnClick)
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip:SetScript('OnEnter', self.OnEnter)
@@ -1128,7 +1129,7 @@ function IA:CreateInspectFrame()
 			end
 		end
 		
-		self.Spec.TalentTier1:Point('TOP', self.Spec.Page, 0, -2)
+		self.Spec.TalentTier1:Point('TOP', self.Spec.Page)
 		
 		for _, groupName in pairs({ 'MAJOR_GLYPH', 'MINOR_GLYPH' }) do
 			self.Spec['GLYPH_'..groupName] = CreateFrame('Frame', nil, self.Spec.Page)
@@ -1140,8 +1141,8 @@ function IA:CreateInspectFrame()
 			})
 			self.Spec['GLYPH_'..groupName]:SetBackdropColor(.08, .08, .08)
 			self.Spec['GLYPH_'..groupName]:SetBackdropBorderColor(0, 0, 0)
-			self.Spec['GLYPH_'..groupName]:Height(GLYPH_SLOT_HEIGHT * 3 + SPACING * 3 + 22)
-			KF:TextSetting(self.Spec['GLYPH_'..groupName], '|cffceff00<|r '.._G[groupName]..' |cffceff00>|r', { FontSize = 10 }, 'TOP', self.Spec['GLYPH_'..groupName], 0, -5)
+			self.Spec['GLYPH_'..groupName]:Height(GLYPH_SLOT_HEIGHT * 3 + SPACING * 3 + 18)
+			KF:TextSetting(self.Spec['GLYPH_'..groupName], '|cffceff00<|r '.._G[groupName]..' |cffceff00>|r', { FontSize = 10 }, 'BOTTOM', self.Spec['GLYPH_'..groupName], 0, 4)
 		end
 		
 		for i = 1, NUM_GLYPH_SLOTS do
@@ -1152,7 +1153,7 @@ function IA:CreateInspectFrame()
 				tile = false, tileSize = 0, edgeSize = E.mult,
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
-			self.Spec['Glyph'..i]:SetFrameLevel(CORE_FRAME_LEVEL + 3)
+			self.Spec['Glyph'..i]:SetFrameLevel(CORE_FRAME_LEVEL + 4)
 			self.Spec['Glyph'..i]:Height(GLYPH_SLOT_HEIGHT)
 			
 			self.Spec['Glyph'..i].NeedLevel = (i == 1 or i == 2) and 25 or (i == 3 or i == 4) and 50 or 75
@@ -1166,14 +1167,14 @@ function IA:CreateInspectFrame()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			self.Spec['Glyph'..i].Icon:SetBackdropColor(.15, .15, .15)
-			self.Spec['Glyph'..i].Icon:SetFrameLevel(CORE_FRAME_LEVEL + 4)
+			self.Spec['Glyph'..i].Icon:SetFrameLevel(CORE_FRAME_LEVEL + 5)
 			self.Spec['Glyph'..i].Icon.Texture = self.Spec['Glyph'..i].Icon:CreateTexture(nil, 'OVERLAY')
 			self.Spec['Glyph'..i].Icon.Texture:SetTexCoord(unpack(E.TexCoords))
 			self.Spec['Glyph'..i].Icon.Texture:SetInside()
 			self.Spec['Glyph'..i].Icon:Point('LEFT', self.Spec['Glyph'..i], SPACING, 0)
 			
 			self.Spec['Glyph'..i].Tooltip = CreateFrame('Button', nil, self.Spec['Glyph'..i])
-			self.Spec['Glyph'..i].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 5)
+			self.Spec['Glyph'..i].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 6)
 			self.Spec['Glyph'..i].Tooltip:SetInside()
 			self.Spec['Glyph'..i].Tooltip:SetScript('OnClick', self.OnClick)
 			self.Spec['Glyph'..i].Tooltip:SetScript('OnEnter', self.OnEnter)
@@ -1184,7 +1185,7 @@ function IA:CreateInspectFrame()
 			self.Spec['Glyph'..i].text:Point('RIGHT', self.Spec['Glyph'..i], -SPACING, 0)
 		end
 		
-		self.Spec.Glyph2:Point('TOP', self.Spec.GLYPH_MAJOR_GLYPH.text, 'BOTTOM', 0, -7)
+		self.Spec.Glyph2:Point('TOP', self.Spec.GLYPH_MAJOR_GLYPH, 0, -SPACING)
 		self.Spec.Glyph2:Point('LEFT', self.Spec.GLYPH_MAJOR_GLYPH, SPACING, 0)
 		self.Spec.Glyph2:Point('RIGHT', self.Spec.GLYPH_MAJOR_GLYPH, -SPACING, 0)
 		self.Spec.Glyph4:Point('TOPLEFT', self.Spec.Glyph2, 'BOTTOMLEFT', 0, -SPACING)
@@ -1192,7 +1193,7 @@ function IA:CreateInspectFrame()
 		self.Spec.Glyph6:Point('TOPLEFT', self.Spec.Glyph4, 'BOTTOMLEFT', 0, -SPACING)
 		self.Spec.Glyph6:Point('TOPRIGHT', self.Spec.Glyph4, 'BOTTOMRIGHT', 0, -SPACING)
 		
-		self.Spec.Glyph1:Point('TOP', self.Spec.GLYPH_MINOR_GLYPH.text, 'BOTTOM', 0, -7)
+		self.Spec.Glyph1:Point('TOP', self.Spec.GLYPH_MINOR_GLYPH, 0, -SPACING)
 		self.Spec.Glyph1:Point('LEFT', self.Spec.GLYPH_MINOR_GLYPH, SPACING, 0)
 		self.Spec.Glyph1:Point('RIGHT', self.Spec.GLYPH_MINOR_GLYPH, -SPACING, 0)
 		self.Spec.Glyph3:Point('TOPLEFT', self.Spec.Glyph1, 'BOTTOMLEFT', 0, -SPACING)
@@ -1340,7 +1341,7 @@ function IA:CreateInspectFrame()
 				
 				if AISM and not (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
 					local isSending
-					print('전송준비')
+					--print('전송준비')
 					if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) then
 						if DataTable.Realm == Info.myrealm or Info.CurrentGroupMode ~= 'NoGroup' then
 							isSending = 'AISM_CheckResponse'
@@ -1351,7 +1352,7 @@ function IA:CreateInspectFrame()
 						SendAddonMessage('AISM', 'AISM_GUILD_Check', DataTable.Realm == Info.myrealm and 'WHISPER' or 'GUILD', DataTable.Name)
 					end
 					
-					print(isSending)
+					--print(isSending)
 					if isSending then
 						AISM:RegisterInspectDataRequest(function(User, Message)
 							if User == DataTable.TableIndex and Message == isSending then
