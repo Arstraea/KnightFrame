@@ -8,7 +8,7 @@ KF_Config.OptionsCategoryCount = KF_Config.OptionsCategoryCount + 1
 local OptionIndex = KF_Config.OptionsCategoryCount
 KF_Config.Options.args.Armory = {
 	type = 'group',
-	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Custom Panel']) end,
+	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Armory']) end,
 	order = 100 + OptionIndex,
 	args = {
 		
