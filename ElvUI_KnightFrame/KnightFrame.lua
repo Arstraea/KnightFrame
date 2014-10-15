@@ -34,7 +34,6 @@ end, 'KnightFrame_AutoLoadConfigAddon')
 --<< KnightFrame : Install	 												>>--
 --------------------------------------------------------------------------------
 function KF:Install()
-	--[[
 	local Loaded, Reason = LoadAddOn('ElvUI_KnightFrame_Config')
 	
 	if not Loaded then
@@ -48,13 +47,11 @@ function KF:Install()
 	end
 	
 	KF:InstallWindow_StartInstallProcess()
-	]]
 end
 KF:RegisterChatCommand('kf_install', 'Install')
 
 
 -- Run KF Install instead of ElvUI Install 
---[[
 if not E.private.install_complete then
 	if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
 		E.private.install_complete = E.version
@@ -66,7 +63,7 @@ if not E.private.install_complete then
 		end
 	end
 end
-]]
+
 
 
 

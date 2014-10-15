@@ -1,13 +1,12 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(select(2, ...))
 
+--[[
 --------------------------------------------------------------------------------
 --<< KnightFrame : Create Panel, Button										>>--
 --------------------------------------------------------------------------------
 local M = E:GetModule('Misc')
 local PANEL_HEIGHT = 22
-
-Info.ExpRepDisplay_Activate = false
 
 function KF:ExpRepDisplay_ToggleExpRepTooltip(ToggleType)
 	local needUpdate
@@ -308,7 +307,7 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 	end
 	
 	if Info.ExpRepDisplay_Activate then
-		Info.ExpRepDisplay_Activate = false
+		Info.ExpRepDisplay_Activate = nil
 		
 		ElvUI_ExperienceBar:Enable()
 		ElvUI_ReputationBar:Enable()
@@ -387,3 +386,4 @@ local function Update_Color()
 	end
 end
 E.valueColorUpdateFuncs[Update_Color] = true
+]]

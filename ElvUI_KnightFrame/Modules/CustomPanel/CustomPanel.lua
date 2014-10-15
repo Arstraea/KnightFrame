@@ -365,7 +365,7 @@ end
 --<< KnightFrame : ChatFrame Docking										>>--
 --------------------------------------------------------------------------------
 local MouseOveredPanel, MouseOveredPanelName, DockingLocation, ChatID
-
+--[[
 hooksecurefunc('FCFTab_OnUpdate', function(self)
 	if Info.CustomPanel_Activate and not self.ForbidDockingToCustomPanel then
 		if MouseOveredPanel and not MouseOveredPanel:IsMouseOver() then
@@ -451,7 +451,7 @@ function KF:DockingChatFrameToCustomPanel(Tab, Panel, Menual)
 	Chat:Point('BOTTOMLEFT', Panel, SPACING + 2, PANEL_HEIGHT + SPACING * 2)
 	
 end
-
+]]
 
 
 
@@ -477,7 +477,7 @@ KF.Modules.CustomPanel = function(RemoveOrder)
 				KF:CustomPanel_Create(panelName)
 				
 				for i = 1, #IsPanelData.Chat do
-					KF:DockingChatFrameToCustomPanel(_G[format('ChatFrame%dTab', IsPanelData.Chat[i])], KF.UIParent.Frame[panelName])
+					--KF:DockingChatFrameToCustomPanel(_G[format('ChatFrame%dTab', IsPanelData.Chat[i])], KF.UIParent.Frame[panelName])
 				end
 			end
 		end

@@ -26,7 +26,7 @@ local function Create_ButtonConfig(frame, direction, number)
 		values = function()
 			local list = { [''] = '|cff712633'..L['Disable'], }
 			
-			for buttonType in pairs(KF.Button) do
+			for buttonType in pairs(KF.UIParent.Button) do
 				if buttonType ~= 'AreaToHide' then
 					list[buttonType] = buttonType
 				end
@@ -44,7 +44,7 @@ local OptionIndex = KF_Config.OptionsCategoryCount
 KF_Config.Options.args.CustomPanel = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Custom Panel']) end,
-	order = 100,
+	order = 100 + OptionIndex,
 	disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false end,
 	args = {
 		Enable = {
@@ -76,8 +76,10 @@ KF_Config.Options.args.CustomPanel = {
 				PanelInfo = E:CopyTable({}, Info.CustomPanel_Default)
 				
 				if value ~= '0' then
-					KF:Delete_CustomPanel(0)
-					KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+					KF:CustomPanel_Delete(0)
+					if KF.UIParent.Frame[0] then
+						KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+					end
 					
 					E:CopyTable(PanelInfo, DB.Modules.CustomPanel[value])
 					PanelInfo.Name = value
@@ -201,9 +203,9 @@ KF_Config.Options.args.CustomPanel = {
 							Message = L['Custom Panel that named same is already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?']
 							return
 						elseif DB.Modules.CustomPanel[CurrentPanelName] then
-							KF:Delete_CustomPanel(CurrentPanelName)
+							KF:CustomPanel_Delete(CurrentPanelName)
 						elseif SelectedPanel ~= '0' and PanelInfo.Name ~= SelectedPanel then
-							KF:Delete_CustomPanel(SelectedPanel, true)
+							KF:CustomPanel_Delete(SelectedPanel, true)
 							E.db.movers[CurrentPanelName] = E.db.movers[SelectedPanel]
 							E.db.movers[SelectedPanel] = nil
 							
@@ -213,11 +215,13 @@ KF_Config.Options.args.CustomPanel = {
 						end
 						
 						if SelectedPanel == '0' then
-							KF:Delete_CustomPanel(0, true)
+							KF:CustomPanel_Delete(0, true)
 							E.db.movers[CurrentPanelName] = E.db.movers[0]
 							E.db.movers[0] = nil
 							
-							KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+							if KF.UIParent.Frame[0] then
+								KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+							end
 						end
 						
 						local SaveData = E:CopyTable({}, PanelInfo)
@@ -255,8 +259,10 @@ KF_Config.Options.args.CustomPanel = {
 						if SelectedPanel ~= '0' then
 							PanelInfo = E:CopyTable({}, Info.CustomPanel_Default)
 							
-							KF:Delete_CustomPanel(0)
-							KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+							KF:CustomPanel_Delete(0)
+							if KF.UIParent.Frame[0] then
+								KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
+							end
 							
 							E:CopyTable(PanelInfo, DB.Modules.CustomPanel[SelectedPanel])
 							PanelInfo.Name = SelectedPanel
@@ -286,8 +292,8 @@ KF_Config.Options.args.CustomPanel = {
 						else
 							DB.Modules.CustomPanel[SelectedPanel] = nil
 							
-							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedPanel)..' '..L['Panel'])
-							KF:Delete_CustomPanel(SelectedPanel)
+							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedPanel))
+							KF:CustomPanel_Delete(SelectedPanel)
 							
 							KF:CallbackFire('CustomPanel_Delete', SelectedPanel)
 							
@@ -592,7 +598,7 @@ KF_Config.Options.args.CustomPanel = {
 									values = function()
 										local list = { [''] = '|cff712633'..L['Disable'], }
 										
-										for buttonType in pairs(KF.Button) do
+										for buttonType in pairs(KF.UIParent.Button) do
 											if buttonType ~= 'AreaToHide' then
 												list[buttonType] = buttonType
 											end
@@ -657,7 +663,7 @@ KF_Config.Options.args.CustomPanel = {
 									values = function()
 										local list = { [''] = '|cff712633'..L['Disable'], }
 										
-										for buttonType in pairs(KF.Button) do
+										for buttonType in pairs(KF.UIParent.Button) do
 											if buttonType ~= 'AreaToHide' then
 												list[buttonType] = buttonType
 											end
@@ -778,7 +784,7 @@ KF_Config.Options.args.CustomPanel = {
 									values = function()
 										local list = { [''] = '|cff712633'..L['Disable'], }
 										
-										for buttonType in pairs(KF.Button) do
+										for buttonType in pairs(KF.UIParent.Button) do
 											if buttonType ~= 'AreaToHide' then
 												list[buttonType] = buttonType
 											end
@@ -843,7 +849,7 @@ KF_Config.Options.args.CustomPanel = {
 									values = function()
 										local list = { [''] = '|cff712633'..L['Disable'], }
 										
-										for buttonType in pairs(KF.Button) do
+										for buttonType in pairs(KF.UIParent.Button) do
 											if buttonType ~= 'AreaToHide' then
 												list[buttonType] = buttonType
 											end

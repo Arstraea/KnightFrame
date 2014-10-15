@@ -415,7 +415,7 @@ function KF_Config:InstallWindow_SetPage(Page)
 	end
 	
 	if Page == 1 then
-		KnightFrame_InstallWindow.SubTitle:SetText('Welcome to ElvUI - |cff1784d1Knight Frame|r |cffffdc3cv'..IN.Version)
+		KnightFrame_InstallWindow.SubTitle:SetText('Welcome to ElvUI - |cff1784d1Knight Frame|r |cffffdc3cv'..Info.Version)
 		KnightFrame_InstallWindow.text:SetText('|n'..L['KnightFrame is an external addon of ElvUI|nto change layout setting and add some of extra functions.'])
 		KnightFrame_InstallWindow.State:SetText(L['This page will be closed by clicking [Skip Process] button or closs button and you can see again by typing /kf_install command or clicking Install button in ElvUI Config - KnightFrame menu.']..'|n|n|n|n'..L['Please press the next button to go onto the next step.'])
 		

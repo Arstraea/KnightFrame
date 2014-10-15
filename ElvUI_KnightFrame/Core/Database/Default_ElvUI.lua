@@ -264,37 +264,21 @@ if E.db.KnightFrame and E.db.KnightFrame.UseProfile == true then
 	P.unitframe.units.party.targetsGroup.yOffset = -26
 	
 	-- UnitFrame : Raid10
-	P.unitframe.units.raid10.growthDirection = 'RIGHT_UP'
-	P.unitframe.units.raid10.horizontalSpacing = 5
-	P.unitframe.units.raid10.verticalSpacing = 5
-	P.unitframe.units.raid10.numGroups = 5
-	P.unitframe.units.raid10.healPrediction = true
-	P.unitframe.units.raid10.height = 56
-	P.unitframe.units.raid10.health.text_format = '[healthcolor][health:current]'
+	P.unitframe.units.raid.growthDirection = 'RIGHT_UP'
+	P.unitframe.units.raid.horizontalSpacing = 5
+	P.unitframe.units.raid.verticalSpacing = 5
+	P.unitframe.units.raid.numGroups = 5
+	P.unitframe.units.raid.healPrediction = true
+	P.unitframe.units.raid.height = 56
+	P.unitframe.units.raid.health.text_format = '[healthcolor][health:current]'
 	--P.unitframe.units.raid10.health.text_format = '[healthcolor][health:KF-current]'
-	P.unitframe.units.raid10.health.yOffset = 3
-	P.unitframe.units.raid10.power.height = 6
-	P.unitframe.units.raid10.buffIndicator.size = 10
-	P.unitframe.units.raid10.buffIndicator.fontSize = 15
-	P.unitframe.units.raid10.rdebuffs.fontSize = 12
-	P.unitframe.units.raid10.rdebuffs.size = 35
-	P.unitframe.units.raid10.roleIcon.position = 'CENTER'
-	
-	-- UnitFrame : Raid25
-	P.unitframe.units.raid25.growthDirection = 'RIGHT_UP'
-	P.unitframe.units.raid25.horizontalSpacing = 5
-	P.unitframe.units.raid25.verticalSpacing = 5
-	P.unitframe.units.raid25.healPrediction = true
-	P.unitframe.units.raid25.height = 56
-	P.unitframe.units.raid25.health.text_format = '[healthcolor][health:current]'
-	--P.unitframe.units.raid25.health.text_format = '[healthcolor][health:KF-current]'
-	P.unitframe.units.raid25.health.yOffset = 3
-	P.unitframe.units.raid25.power.height = 6
-	P.unitframe.units.raid25.buffIndicator.size = 10
-	P.unitframe.units.raid25.buffIndicator.fontSize = 15
-	P.unitframe.units.raid25.rdebuffs.fontSize = 12
-	P.unitframe.units.raid25.rdebuffs.size = 35
-	P.unitframe.units.raid25.roleIcon.position = 'CENTER'
+	P.unitframe.units.raid.health.yOffset = 3
+	P.unitframe.units.raid.power.height = 6
+	P.unitframe.units.raid.buffIndicator.size = 10
+	P.unitframe.units.raid.buffIndicator.fontSize = 15
+	P.unitframe.units.raid.rdebuffs.fontSize = 12
+	P.unitframe.units.raid.rdebuffs.size = 35
+	P.unitframe.units.raid.roleIcon.position = 'CENTER'
 	
 	-- UnitFrame : Raid40
 	P.unitframe.units.raid40.growthDirection = 'RIGHT_UP'

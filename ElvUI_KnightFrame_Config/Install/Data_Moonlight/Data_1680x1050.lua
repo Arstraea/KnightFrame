@@ -1,5 +1,5 @@
-﻿local E, L, V, P, G, _ = unpack(ElvUI)
-local KF, DB, Info, Update = unpack(ElvUI_KnightFrame)
+﻿local E, L, V, P, G = unpack(ElvUI)
+local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 --------------------------------------------------------------------------------
@@ -51,7 +51,8 @@ KF_Config.Install_Layout_Data.Moonlight['1680x1050'] = {
 
 
 KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
-	SetCVar('mapQuestDifficulty', 1)
+	SetCVar('alternateResourceText', 1)
+	SetCVar('statusTextDisplay', 'BOTH')
 	SetCVar('ShowClassColorInNameplate', 1)
 	SetCVar('screenshotQuality', 10)
 	SetCVar('chatMouseScroll', 1)
@@ -64,8 +65,6 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 	SetCVar('alwaysShowActionBars', 1)
 	SetCVar('lockActionBars', 1)
 	SetCVar('SpamFilter', 0)
-	SetCVar('Sound_EnableSoundWhenGameIsInBG', 1)
-	SetCVar('cameraSmoothTrackingStyle', 0)
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetValue('SHIFT')
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:RefreshValue()
 	
