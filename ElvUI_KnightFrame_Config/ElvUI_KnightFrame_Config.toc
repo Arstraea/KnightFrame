@@ -1,0 +1,16 @@
+## Interface: 60200
+## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cConfig|r
+## Author: Arstraea
+## Version: 3.1_01
+## eMail: qjr2513@naver.com
+## DefaultState: Disabled
+## Notes: Setup Informations and Options for ElvUI_KnightFrame.
+## RequiredDeps: ElvUI_KnightFrame
+## LoadOnDemand: 1
+
+Core.lua
+Localization\Load_Localization.xml
+Media\Load_Media.xml
+Install\Load_Install.xml
+Config\Load_Config.xml
+Initialize.lua

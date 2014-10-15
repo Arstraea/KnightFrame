@@ -1,5 +1,5 @@
-## Interface: 60000
-## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3.0
+## Interface: 60200
+## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3
 ## Author: Arstraea
 ## Version: 3.1_01
 ## eMail: qjr2513@naver.com

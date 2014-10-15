@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="GlobalString.lua"/>
+	<Script file="Localization_enUS.lua"/>
+	<Script file="Localization_koKR.lua"/>
+</Ui>

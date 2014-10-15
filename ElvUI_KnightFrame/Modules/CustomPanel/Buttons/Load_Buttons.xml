@@ -1,0 +1,7 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Config.lua"/>
+	<Script file="MicroMenu.lua"/>
+	<Script file="Create_LDB_Button.lua"/>
+	<Script file="FindParty.lua"/>
+	<Script file="InvenCraftInfo2.lua"/>
+</Ui>

@@ -14,6 +14,11 @@ do	-- General
 	BINDING_NAME_InspectMouseover = '|cffffffff- 마우스오버 살펴보기'
 	BINDING_NAME_SpecSwitch = '|cffffffff- 특성 스왑'
 	
+	L['Tank'] = '탱커'
+	L['Caster'] = '캐스터'
+	L['Melee'] = '밀리'
+	L['No Spec'] = '전문화X'
+	
 	L['raid'] = '레이드 파티'
 	L['party'] = '파티'
 	L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'] = '본 애드온 제작자인 제가 %s 아이디로 %s 안에 있습니다! 귓속말로 %s 에 대하여 의견을 이야기해주세요.' 
@@ -27,15 +32,22 @@ end
 
 
 do	-- Modules
-	do	-- Calculator
-		L['Input formula is incorrect.'] = '식이 잘못되었습니다.'
-		L['Formula'] = '식'
-		L['Anshwer'] = '답'
+	do	-- SwitchEquipment
+		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
 	
-	do	-- ExpRepDisplay
-		L['Lock ExpRep Tooltip.'] = '|cff2eb7e4경험치&평판|r 상세 정보패널을 |cffceff00고정|r합니다.'
-		L['Unlock ExpRep Tooltip.'] = '|cff2eb7e4경험치&평판|r 상세 정보패널의 고정을 |cffff5353해제|r합니다.'
+	do	-- in MISC
+		do	-- Calculator
+			L['Command_Calculator'] = { 'rPtks', '계산' }
+			L['Input formula is incorrect.'] = '입력한 식이 잘못되었습니다.'
+			L['Formula'] = '식'
+			L['Anshwer'] = '답'
+		end
+		
+		do	-- ExpRepDisplay
+			L['Lock ExpRep Tooltip.'] = '|cff2eb7e4경험치&평판|r 상세 정보패널을 |cffceff00고정|r합니다.'
+			L['Unlock ExpRep Tooltip.'] = '|cff2eb7e4경험치&평판|r 상세 정보패널의 고정을 |cffff5353해제|r합니다.'
+		end
 	end
 end
 
@@ -198,8 +210,6 @@ E:RegisterChatCommand('파탈', LeaveParty)
 
 KF:RegisterChatCommand('test', 'Test')
 KF:RegisterChatCommand('ㅅㄷㄴㅅ', 'Test')
-KF:RegisterChatCommand('rPtks', 'Calculator')
-KF:RegisterChatCommand('계산', 'Calculator')
 KF:RegisterChatCommand('ㅏㄹ_ㅑㅜㄴㅅ미ㅣ', 'Install')
 KF:RegisterChatCommand('skdlxmvmfpdlatjfcl', 'Install')
 KF:RegisterChatCommand('나이트프레임설치', 'Install')

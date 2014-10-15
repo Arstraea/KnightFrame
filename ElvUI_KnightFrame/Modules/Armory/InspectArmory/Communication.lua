@@ -115,34 +115,38 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	
 	--<< Player Data Updater Core >>--
 	local needUpdate, args
-	AISM.Updater:SetScript('OnUpdate', function(self)
-		AISM.UpdatedData = needUpdate and AISM.UpdatedData or {}
-		needUpdate = nil
-		
-		if not self.ProfessionUpdated then
-			needUpdate = AISM:GetPlayerProfessionSetting() or needUpdate
-		end
-		
-		if not self.SpecUpdated then
-			needUpdate = AISM:GetPlayerSpecSetting() or needUpdate
-		end
-		
-		if not self.GlyphUpdated then
-			needUpdate = AISM:GetPlayerGlyphString() or needUpdate
-		end
-		
-		if self.GearUpdated ~= true then
-			needUpdate = AISM:GetPlayerGearString() or needUpdate
-		end
-		
-		if not needUpdate then
-			self:Hide()
+	AISM.Updater:SetScript('OnUpdate', function(self, elapsed)
+		if not self.elapsed or self.elapsed > 0 then
+			self.elapsed = (self.elapsed or -AISM.Delay_Updater) + elapsed
 			
-			for _ in pairs(AISM.UpdatedData) do
-				if AISM.CurrentGroupMode and AISM.CurrentGroupMode ~= 'NoGroup' and AISM.CurrentGroupType then
-					AISM:SendData(AISM.UpdatedData)
+			AISM.UpdatedData = needUpdate and AISM.UpdatedData or {}
+			needUpdate = nil
+			
+			if not self.ProfessionUpdated then
+				needUpdate = AISM:GetPlayerProfessionSetting() or needUpdate
+			end
+			
+			if not self.SpecUpdated then
+				needUpdate = AISM:GetPlayerSpecSetting() or needUpdate
+			end
+			
+			if not self.GlyphUpdated then
+				needUpdate = AISM:GetPlayerGlyphString() or needUpdate
+			end
+			
+			if self.GearUpdated ~= true then
+				needUpdate = AISM:GetPlayerGearString() or needUpdate
+			end
+			
+			if not needUpdate then
+				self:Hide()
+				
+				for _ in pairs(AISM.UpdatedData) do
+					if AISM.CurrentGroupMode and AISM.CurrentGroupMode ~= 'NoGroup' and AISM.CurrentGroupType then
+						AISM:SendData(AISM.UpdatedData)
+					end
+					break
 				end
-				break
 			end
 		end
 	end)
@@ -341,7 +345,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	--<< Gear String >>--
 	function AISM:GetPlayerGearString()
 		local ShortString, FullString, needUpdate, needUpdateList
-		local CurrentSetItem = {}
+		local CurrentSetItem, GearSetIDList = {}, {}
 		
 		local slotID, slotLink, isTransmogrified, transmogrifiedItemID, SetName, GeatSetCount, SetItemMax, SetOptionCount, colorR, colorG, colorB, checkSpace, tooltipText
 		for slotName in pairs(self.Updater.GearUpdated or self.GearList) do
