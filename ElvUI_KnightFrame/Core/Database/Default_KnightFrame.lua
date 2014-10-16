@@ -19,7 +19,7 @@ DB.Skins = {
 DB.Modules = {
 	TopPanel = {
 		Enable = true,
-		Height = 12
+		Height = 14
 	},
 	
 	ExpRepDisplay = {

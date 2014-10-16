@@ -46,7 +46,7 @@ function KF:ExpRepDisplay_ToggleExpRepTooltip(ToggleType)
 	end
 	
 	if needUpdate then
-		--M:UpdateExpRepAnchors()
+		KF:ExpRepDisplay_EmbedToPanel()
 	end
 end
 
@@ -106,6 +106,10 @@ M.UpdateExpRepDimensions_ = M.UpdateExpRepDimensions
 function M:UpdateExpRepDimensions()
 	if not Info.ExpRepDisplay_Activate then
 		M:UpdateExpRepDimensions_()
+	else
+		M.expBar.statusBar:SetOrientation(E.db.general.experience.orientation)
+		M.repBar.statusBar:SetOrientation(E.db.general.reputation.orientation)
+		M.expBar.rested:SetOrientation(E.db.general.experience.orientation)
 	end
 end
 

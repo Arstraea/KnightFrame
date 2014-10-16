@@ -288,7 +288,7 @@ local function CheckRole()
 	
 	if Info.Role ~= Check then
 		Info.Role = Check
-		--print('현재 역할 : ', Info.Role)
+		
 		KF:CallbackFire('SpecChanged')
 	end
 	
@@ -322,7 +322,7 @@ local function CheckGroupMode()
 	
 	if Info.CurrentGroupMode ~= Check then
 		Info.CurrentGroupMode = Check
-		--print('현재 그룹모드 : ', Info.CurrentGroupMode)
+		
 		KF:CallbackFire('GroupChanged')
 	end
 	
@@ -350,7 +350,7 @@ local function CheckCurrentArea()
 	
 	if Info.InstanceType ~= Check then
 		Info.InstanceType = Check
-		--print('현재 인스타입 : ', Check)
+		
 		KF:CallbackFire('CurrentAreaChanged')
 	end
 	
@@ -456,7 +456,7 @@ KF.BossBattleStart = function(StartingType)
 	else
 		NowInBossBattle = 'KF'
 	end
-	--print('보스전 시작, 감지타입 : ', NowInBossBattle)
+	
 	ClearKilledBossList(true)
 	KF:CallbackFire('BossBattleStart')
 end
@@ -473,7 +473,7 @@ KF.BossBattleEnd = function(EndingType)
 	
 	NowInBossBattle = nil
 	BossIsExists = nil
-	--print('보스전 끝')
+	
 	KF:CallbackFire('BossBattleEnd')
 end
 
@@ -538,7 +538,6 @@ function KF:CheckBossCombat()
 		end
 		
 		if BossIsExists or IsEncounterInProgressOn then
-			--print("보스전 감지")
 			Timer.CheckCombatEnd:Cancel()
 			Timer.CheckCombatEnd = C_Timer.NewTicker(.1, function()
 				if BossIsExists == true and not (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
@@ -575,7 +574,7 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 				Timer.CheckCombatEnd = C_Timer.NewTicker(.1, KF.CheckBossCombat)
 				KF:CheckBossCombat()
 			end
-			--print('보스이름 감지됨 : ', bossName)
+			
 			Info.KilledBossList[bossName] = true
 		end
 	end

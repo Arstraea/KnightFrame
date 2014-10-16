@@ -1,7 +1,3 @@
--- Last Code Checking Date		: 2014. 6. 16
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
 local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(select(2, ...))
 
@@ -19,6 +15,8 @@ if E.db.KnightFrame and E.db.KnightFrame.UseProfile == true then
 	P.general.valuecolor = { r = 46/255, g = 183/255, b = 227/255 }
 	P.general.minimap.size = 157
 	P.general.minimap.locationText = 'SHOW'
+	P.general.experience.orientation = 'HORIZONTAL'
+	P.general.reputation.orientation = 'HORIZONTAL'
 	P.general.threat.enable = false
 	P.general.totems.growthDirection = 'HORIZONTAL'
 

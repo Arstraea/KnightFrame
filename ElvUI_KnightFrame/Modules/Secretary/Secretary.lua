@@ -39,7 +39,7 @@ local function NoticeProposal(EventName, ...)
 			
 			if BattleField_Status == 'confirm' and not Value.BattleField_Status then
 				Value.BattleField_Stauts = BattleField_Status
-				NoticeProposal_TurnOnSound('PVPTHROUGHQUEUE')	
+				NoticeProposal_TurnOnSound('PVPTHROUGHQUEUE')
 			elseif BattleField_Status == 'none' or BattleField_Status == 'active' then
 				Value.BattleField_Status = nil
 				NoticeProposal_TurnOffSound()
