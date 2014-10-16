@@ -37,22 +37,31 @@ function KF:TextSetting(self, Text, Style, ...)
 end
 
 
-function PrintTable(TableToCheck, row, InputTableName)
-	row = row or 0
-	if InputTableName then
-		print(((' '):rep(row*2))..'|cff2eb7e4 [ Table|r : '..InputTableName..'|cff2eb7e4 ]')
-		InputTableName = InputTableName..'-'
-	else
-		InputTableName = ''
-	end
-	for k, v in pairs(TableToCheck) do
-		if type(v) == 'table' then
-			PrintTable(v, row + 1, InputTableName..k)
-		elseif type(v) == 'function' then
-			print(((' '):rep(row*2))..' |cff828282'..(row == 0 and '■' or ' - ')..'|r|cffceff00'..k..'|r : FUNCTION')
-		elseif type(v) == 'userdata' then
+function KF:GetPanelData(key)
+	local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled
+	
+	if (key == 'LeftChatPanel' and (E.db.chat.panelBackdrop == 'SHOWBOTH' or E.db.chat.panelBackdrop == 'LEFT') or key == 'RightChatPanel' and (E.db.chat.panelBackdrop == 'SHOWBOTH' or E.db.chat.panelBackdrop == 'RIGHT')) and _G[key] then
+		Panel = _G[key]
+		panelType = 'ElvUI'
+		IsTabEnabled = E.db.chat.panelTabBackdrop
+		
+		if key == 'LeftChatPanel' then
+			panelTab = LeftChatTab
+			panelDP = LeftChatDataPanel
+			IsDPEnabled = E.db.datatexts.leftChatPanel
 		else
-			print(((' '):rep(row*2))..' |cff828282'..(row == 0 and '■' or ' - ')..'|r|cffceff00'..k..'|r : '..(type(v) == 'boolean' and (v==true and '|cff1784d1TRUE|r' or '|cffff0000FALSE|r') or v))
+			panelTab = RightChatTab
+			panelDP = RightChatDataPanel
+			IsDPEnabled = E.db.datatexts.rightChatPanel
 		end
+	elseif KF.UIParent.Frame and KF.UIParent.Frame[key] and DB.Modules.CustomPanel.Enable ~= false and DB.Modules.CustomPanel[key] and DB.Modules.CustomPanel[key].Enable == true then
+		Panel = KF.UIParent.Frame[key]
+		panelType = 'KF'
+		panelTab = KF.UIParent.Frame[key].Tab
+		IsTabEnabled = DB.Modules.CustomPanel[key].Tab.Enable
+		panelDP = KF.UIParent.Frame[key].DP
+		IsDPEnabled = DB.Modules.CustomPanel[key].DP.Enable
 	end
+	
+	return Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled
 end

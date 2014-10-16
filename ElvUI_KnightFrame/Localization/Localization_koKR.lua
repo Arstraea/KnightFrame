@@ -1,8 +1,4 @@
-﻿-- Last Code Checking Date		: 2014. 6. 14
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
-if GetLocale() ~= 'koKR' then return end
+﻿if GetLocale() ~= 'koKR' then return end
 
 local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(select(2, ...))
@@ -24,6 +20,10 @@ do	-- General
 	
 	L['raid'] = '레이드 파티'
 	L['party'] = '파티'
+	
+	CRIT_ABBR = '크리'
+	MANA_REGEN = '마젠'
+	
 	L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'] = '본 애드온 제작자인 제가 %s 아이디로 %s 안에 있습니다! 귓속말로 %s 에 대하여 의견을 이야기해주세요.' 
 	L['You canceled KnightFrame install ago. If you wants to run KnightFrame install process again, please type /kf_install command.'] = '과거에 |cff1784d1KnightFrame|r 설치를 하지 않고 설치창을 닫았습니다. 다시 설치를 하고 싶으시면 |cff1784d1/kf_install|r 명령어를 입력하세요.'
 end
@@ -53,6 +53,10 @@ do	-- Modules
 		L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
 	end
 	
+	do	-- Secretary
+		L['Notice'] = '알림'
+	end
+	
 	do	-- SwitchEquipment
 		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
@@ -63,6 +67,10 @@ do	-- Modules
 			L['Input formula is incorrect.'] = '입력한 식이 잘못되었습니다.'
 			L['Formula'] = '식'
 			L['Anshwer'] = '답'
+		end
+		
+		do	
+		
 		end
 		
 		do	-- ExpRepDisplay
@@ -117,8 +125,7 @@ end
 
 do	--Datatexts
 	L['Friends'] = '친구'
-	CRIT_ABBR = '크리'
-	MANA_REGEN = '마젠'
+	
 	
 	
 end

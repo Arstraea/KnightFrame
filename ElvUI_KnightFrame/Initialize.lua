@@ -1,8 +1,4 @@
-﻿-- Last Code Checking Date		: 2014. 6. 13
--- Last Code Checking Version	: 3.1_01
--- Last Testing ElvUI Version	: 6.9997
-
-local AddOnName, Engine = ...
+﻿local AddOnName, Engine = ...
 local E, L, V, P, G  = unpack(ElvUI)
 
 local Information = {

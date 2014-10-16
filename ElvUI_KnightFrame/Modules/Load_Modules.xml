@@ -5,7 +5,7 @@
 	
 	<!--<Include file="SmartTracker\Load_SmartTracker.xml"/>-->
 	
-	<!--<Include file="Secretary\Load_Secretary.xml"/>-->
+	<Include file="Secretary\Load_Secretary.xml"/>
 	<!--<Include file="SynergyTracker\Load_SynergyTracker.xml"/>-->
 	
 	<Include file="SwitchEquipment\Load_SwitchEquipment.xml"/>

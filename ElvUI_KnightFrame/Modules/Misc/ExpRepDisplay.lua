@@ -1,7 +1,6 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(select(2, ...))
 
---[[
 --------------------------------------------------------------------------------
 --<< KnightFrame : Create Panel, Button										>>--
 --------------------------------------------------------------------------------
@@ -386,4 +385,3 @@ local function Update_Color()
 	end
 end
 E.valueColorUpdateFuncs[Update_Color] = true
-]]

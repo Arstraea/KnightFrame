@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 60000
 ## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3
 ## Author: Arstraea
 ## Version: 3.1_01
