@@ -410,6 +410,8 @@ hooksecurefunc(E, 'CreateMoverPopup', function()
 			info.text = KF:Color_Value(DropdownCount..'. ')..Text
 			info.value = MoverType
 			UIDropDownMenu_AddButton(info)
+			
+			DropdownCount = DropdownCount + 1
 		end
 		
 		UIDropDownMenu_SetSelectedValue(ElvUIMoverPopupWindowDropDown, selectedValue)

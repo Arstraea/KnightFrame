@@ -19,6 +19,9 @@ do	-- General
 	L['Melee'] = '밀리'
 	L['No Spec'] = '전문화X'
 	
+	L['LeftClick'] = '좌클릭'
+	L['RightClick'] = '우클릭'
+	
 	L['raid'] = '레이드 파티'
 	L['party'] = '파티'
 	L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'] = '본 애드온 제작자인 제가 %s 아이디로 %s 안에 있습니다! 귓속말로 %s 에 대하여 의견을 이야기해주세요.' 
@@ -32,6 +35,24 @@ end
 
 
 do	-- Modules
+	do	-- CustomPanel
+		L['MiddleChatPanel'] = '중앙 채팅창 패널'
+		L['MeterAddonPanel'] = '미터기 애드온 패널'
+		L['ActionBarPanel'] = '액션바 패널'
+		
+		L['Panel Tab'] = '상단 탭'
+		L['Data Panel'] = '하단 탭'
+	end
+	
+	do	-- FloatingDatatext
+		L['Floating Datatext'] = '독립형 정보문자'
+		L['Current Spec'] = '현재 전문화'
+		L['Equipped Set'] = '장착중인 장비세트'
+		L['Change Specialization group.'] = '전문화를 서로 교체합니다.'
+		L['Toggle Talent frame.'] = '특성창을 엽니다.'
+		L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
+	end
+	
 	do	-- SwitchEquipment
 		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
@@ -63,24 +84,16 @@ do	--General
 	L['Not Implemented'] = '미구현'
 	L['DataTexts'] = '정보문자'
 	
-	L['LeftClick'] = '좌클릭'
-	L['RightClick'] = '우클릭'
+	
 end
 
 
 do	--Frame Name
-	L['MiddleChatPanel'] = '중앙 채팅창 패널'
-	L['MeterAddonPanel'] = '미터기 애드온 패널'
-	L['ActionBarPanel'] = '액션바 패널'
+	
 	L['KnightInspectFrame'] = '살펴보기 창'
-	L['Panel Tab'] = '상단 탭'
-	L['Data Panel'] = '하단 탭'
+	
 end
 
-
-do	--Inspect
-	L[" Server's "] = ' 서버의 '
-end
 
 
 do	--Print Message
@@ -92,8 +105,6 @@ do	--Print Message
 	L['Mouseover Inspect needs to freeze mouse moving until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
 	L['Mouseover Inspect is canceled because cursor left user to inspect.'] = '마우스가 살펴보던 마우스오버 대상에게서 이탈하여 |cffff5675살펴보기가 취소되었습니다|r.'
 	L['Inspect is canceled because target was lost or changed.'] = '타겟을 전환했거나 살펴보던 대상이 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
-	
-	L['You have equipped equipment set:'] = '다음의 장비세트로 교체했습니다:'
 	
 	L['Hide Watchframe because of entering boss battle.'] = '보스와의 전투를 감지하여 퀘스트프레임을 숨깁니다.'
 	L['Lock Display Area.'] = '표시 창을 |cffceff00고정|r합니다.'
@@ -109,19 +120,7 @@ do	--Datatexts
 	CRIT_ABBR = '크리'
 	MANA_REGEN = '마젠'
 	
-	L['Current Spec'] = '현재 전문화'
-	L['Equipment Set'] = '장착중인 장비세트'
-	L['Change Specialization group.'] = '전문화를 서로 교체합니다.'
-	L['Toggle Talent frame.'] = '특성창을 엽니다.'
-	L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
-end
-
-
-do	--Specialization and Role
-	L['Tank'] = '탱커'
-	L['Caster'] = '캐스터'
-	L['Melee'] = '밀리'
-	L['No Spec'] = '전문화X'
+	
 end
 
 

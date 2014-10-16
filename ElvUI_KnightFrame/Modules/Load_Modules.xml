@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Include file="CustomPanel\Load_CustomPanel.xml"/>
-	<!--<Include file="FloatingDatatext\Load_FloatingDatatext.xml"/>-->
+	<Include file="FloatingDatatext\Load_FloatingDatatext.xml"/>
 	<Include file="Armory\Load_Armory.xml"/>
 	
 	<!--<Include file="SmartTracker\Load_SmartTracker.xml"/>-->

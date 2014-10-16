@@ -15,6 +15,8 @@ local DeletedFrame = {}
 local DeletedButton = {}
 local frameCount = 0
 
+KF.UIParent.Frame = {}
+KF.UIParent.Button = {}
 
 function KF:CustomPanel_Create(PanelName, PanelInfo)
 	PanelInfo = PanelInfo or DB.Modules.CustomPanel[PanelName] or {}
@@ -190,6 +192,8 @@ function KF:CustomPanel_Delete(PanelName, SaveProfile)
 	local frame = KF.UIParent.Frame[PanelName]
 	
 	if frame then
+		frame:SetAlpha(1)
+		frame:SetScript('OnUpdate', nil)
 		frame:Hide()
 		frame.mover:Hide()
 		

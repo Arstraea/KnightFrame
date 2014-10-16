@@ -54,8 +54,8 @@ KF.DBFunction.CustomPanel = {
 			end
 		end
 		
-		if E.db.movers then
-			for panelName, frame in pairs(KF.Frame) do
+		if E.db.movers and KF.UIParent.Frame then
+			for panelName, frame in pairs(KF.UIParent.Frame) do
 				if panelName ~= 0 and E.db.movers and E.db.movers[frame.mover.name] then
 					E.db.movers[panelName] = E.db.movers[frame.mover.name]
 				end

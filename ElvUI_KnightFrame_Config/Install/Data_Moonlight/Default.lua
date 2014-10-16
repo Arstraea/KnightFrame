@@ -32,8 +32,7 @@ KF_Config.Install_Layout_Data.Moonlight.Default = {
 	ArenaHeaderMover = 'BOTTOMRIGHTUIParentRIGHT-68-188',
 	BossHeaderMover = 'BOTTOMRIGHTUIParentRIGHT-68-188',
 	ElvUF_PartyMover = 'BOTTOMLEFTUIParentBOTTOMLEFT4198',
-	ElvUF_Raid10Mover = 'BOTTOMLEFTUIParentBOTTOMLEFT4189',
-	ElvUF_Raid25Mover = 'BOTTOMLEFTUIParentBOTTOMLEFT4189',
+	ElvUF_RaidMover = 'BOTTOMLEFTUIParentBOTTOMLEFT4189',
 	ElvUF_Raid40Mover = 'BOTTOMLEFTUIParentBOTTOMLEFT4189',
 	
 	--Actionbar
@@ -142,31 +141,17 @@ KF_Config.Install_Profile_Data.Moonlight.Default = function()
 		},
 		KnightText2 = {
 			Display = {
-				Mode = '0',
-				PvPMode = 'PvP Resilience',
-				Tank = 'Expertise',
-				Melee = 'Crit Chance',
-				Caster = 'Crit Chance',
-				Healer = 'Mastery'
+				Mode = 'Crit Chance',
+				PvPMode = 'PvP Resilience'
 			},
 			Location = 'BOTTOMElvUIParentBOTTOM3408'
 		},
 		KnightText3 = {
 			Display = {
-				Mode = '0',
-				Tank = 'Hit Rating',
-				Melee = 'Hit Rating',
-				Caster = 'Hit Rating',
-				Healer = 'Mana Regen'
+				Mode = 'Mastery'
 			},
 			Location = 'BOTTOMElvUIParentBOTTOM4468'
-		},
-		['Banner & Stormlash'] = {
-			Display = {
-				Mode = 'DPS Utility |cff2eb7e4(KF)'
-			},
-			Location = 'BOTTOMElvUIParentBOTTOM0435'
-		},
+		}
 	}
 	E.db.KnightFrame.Modules.ExpRepDisplay = {
 		EmbedPanel = L['MiddleChatPanel'],

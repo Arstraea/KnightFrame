@@ -28,5 +28,27 @@ function KF:DBConversions(Data)
 			Data.Modules.SmartTracker = Data.Modules.RaidCooldown
 			Data.Modules.RaidCooldown = nil
 		end
+		
+		if Data.Modules.FloatingDatatext then
+			for datatextName in pairs(Data.Modules.FloatingDatatext) do
+				if Data.Modules.FloatingDatatext[datatextName].Display then
+					local needErase = 0
+					
+					for Mode, datatextType in pairs(Data.Modules.FloatingDatatext[datatextName].Display) do
+						if datatextType == 'DPS Utility |cff2eb7e4(KF)' then
+							needErase = needErase + 1
+							
+							Data.Modules.FloatingDatatext[datatextName].Display[Mode] = ''
+						elseif datatextType ~= '0' and datatextType ~= '' then
+							needErase = needErase - 1
+						end
+					end
+					
+					if needErase > 0 then
+						Data.Modules.FloatingDatatext[datatextName] = nil
+					end
+				end
+			end
+		end
 	end
 end

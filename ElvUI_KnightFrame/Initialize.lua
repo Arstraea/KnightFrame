@@ -32,8 +32,6 @@ Core.Modules = {}
 
 Core.UIParent = CreateFrame('Frame', Information.Name..'UIParent', E.UIParent)
 Core.UIParent:SetAllPoints(E.UIParent)
-Core.UIParent.Frame = {}
-Core.UIParent.Button = {}
 Core.UIParent.MoverType = {}
 
 local DB = {}

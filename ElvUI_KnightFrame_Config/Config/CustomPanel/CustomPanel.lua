@@ -77,9 +77,6 @@ KF_Config.Options.args.CustomPanel = {
 				
 				if value ~= '0' then
 					KF:CustomPanel_Delete(0)
-					if KF.UIParent.Frame[0] then
-						KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
-					end
 					
 					E:CopyTable(PanelInfo, DB.Modules.CustomPanel[value])
 					PanelInfo.Name = value
@@ -124,15 +121,15 @@ KF_Config.Options.args.CustomPanel = {
 					else
 						PanelInfo.Name = value
 						
-						KF:Create_CustomPanel(0, PanelInfo)
+						KF:CustomPanel_Create(0, PanelInfo)
 						
 						local ACD = LibStub('AceConfigDialog-3.0')
 						
 						KF.UIParent.Frame[0]:SetScript('OnUpdate', function(self)
-							if (not ACD.OpenFrames['ElvUI'] or not ACD.OpenFrames['ElvUI']:IsShown()) and self:IsShown() then
-								self:Hide()
-							elseif ACD.OpenFrames['ElvUI'] and not self:IsShown() then
-								self:Show()
+							if (not ACD.OpenFrames.ElvUI or not ACD.OpenFrames.ElvUI:IsShown()) then
+								self:SetAlpha(0)
+							else
+								self:SetAlpha(1)
 							end
 						end)
 					end
@@ -155,7 +152,7 @@ KF_Config.Options.args.CustomPanel = {
 				
 				PanelInfo[(info[#info])] = value
 				
-				KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+				KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 			end,
 			hidden = function() return SelectedPanel == '' or PanelInfo.Name == '' or not PanelInfo.Name end,
 			args = {
@@ -218,10 +215,6 @@ KF_Config.Options.args.CustomPanel = {
 							KF:CustomPanel_Delete(0, true)
 							E.db.movers[CurrentPanelName] = E.db.movers[0]
 							E.db.movers[0] = nil
-							
-							if KF.UIParent.Frame[0] then
-								KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
-							end
 						end
 						
 						local SaveData = E:CopyTable({}, PanelInfo)
@@ -240,7 +233,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						SelectedPanel = CurrentPanelName
 						
-						KF:Create_CustomPanel(SelectedPanel)
+						KF:CustomPanel_Create(SelectedPanel)
 						KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel)
 					end,
 					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or (SelectedPanel ~= '0' and not IsModified) or not PanelInfo.Name or PanelInfo.Name == '' end
@@ -260,21 +253,18 @@ KF_Config.Options.args.CustomPanel = {
 							PanelInfo = E:CopyTable({}, Info.CustomPanel_Default)
 							
 							KF:CustomPanel_Delete(0)
-							if KF.UIParent.Frame[0] then
-								KF.UIParent.Frame[0]:SetScript('OnUpdate', nil)
-							end
 							
 							E:CopyTable(PanelInfo, DB.Modules.CustomPanel[SelectedPanel])
 							PanelInfo.Name = SelectedPanel
 							
-							KF:Create_CustomPanel(SelectedPanel, PanelInfo)
+							KF:CustomPanel_Create(SelectedPanel, PanelInfo)
 							KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel)
 						else
 							local SavedName = PanelInfo.Name
 							PanelInfo = E:CopyTable({}, Info.CustomPanel_Default)
 							PanelInfo.Name = SavedName
 							
-							KF:Create_CustomPanel(0, PanelInfo)
+							KF:CustomPanel_Create(0, PanelInfo)
 						end
 					end,
 					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or not IsModified end
@@ -327,7 +317,7 @@ KF_Config.Options.args.CustomPanel = {
 							
 							PanelInfo.Enable = value
 							
-							KF:Create_CustomPanel(SelectedPanel, PanelInfo)
+							KF:CustomPanel_Create(SelectedPanel, PanelInfo)
 							
 							if not value then
 								KF:CallbackFire('CustomPanel_Delete', SelectedPanel)
@@ -375,7 +365,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						PanelInfo[(info[#info])] = value
 						
-						KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+						KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 						
 						if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 					end,
@@ -422,7 +412,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						PanelInfo.Texture[(info[#info])] = value
 						
-						KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+						KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 					end,
 					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end,
 					args = {
@@ -442,7 +432,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								PanelInfo.panelBackdrop = value
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 							end
 						},
 						Enable = {
@@ -475,7 +465,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								PanelInfo.Texture.Alpha = value
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 							end,
 							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false or PanelInfo.Texture.Path == '' end
 						},
@@ -483,8 +473,7 @@ KF_Config.Options.args.CustomPanel = {
 							type = 'input',
 							name = function() return ' '..(PanelInfo.Enable ~= false and PanelInfo.Texture.Enable ~= false and NameColor() or '')..L['Texture Path'] end,
 							order = 4,
-							desc = '',
-							descStyle = 'inline',
+							desc = L['Specify a filename located inside the World of Warcraft directory. Textures folder that you wish to have set as a panel background.\n\nPlease Note:\n-The image size recommended is 256x128\n-You must do a complete game restart after adding a file to the folder.\n-The file type must be tga format.\n\nExample: Interface\\AddOns\\ElvUI\\media\\textures\\copy\n\nOr for most users it would be easier to simply put a tga file into your WoW folder, then type the name of the file here.'],
 							width = 'full',
 							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false end
 						},
@@ -510,7 +499,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						PanelInfo.Tab[(info[#info])] = value
 						
-						KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+						KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 						
 						if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 					end,
@@ -531,7 +520,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								PanelInfo.Tab[(info[#info])] = value
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
@@ -563,12 +552,7 @@ KF_Config.Options.args.CustomPanel = {
 								end
 								
 								if value == '' then
-									local endNumber = #PanelInfo[(info[#info - 2])][(info[#info - 1])]
-									
-									for i = tonumber((info[#info])) + 1, endNumber do
-										PanelInfo[(info[#info - 2])][(info[#info - 1])][i - 1] = PanelInfo[(info[#info - 2])][(info[#info - 1])][i]
-									end
-									PanelInfo[(info[#info - 2])][(info[#info - 1])][endNumber] = nil
+									tremove(PanelInfo[(info[#info - 2])][(info[#info - 1])], tonumber((info[#info])))
 								else
 									PanelInfo[(info[#info - 2])][(info[#info - 1])][tonumber((info[#info]))] = value
 									
@@ -577,7 +561,7 @@ KF_Config.Options.args.CustomPanel = {
 									end
 								end
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
@@ -628,12 +612,7 @@ KF_Config.Options.args.CustomPanel = {
 								end
 								
 								if value == '' then
-									local endNumber = #PanelInfo[(info[#info - 2])][(info[#info - 1])]
-									
-									for i = tonumber((info[#info])) + 1, endNumber do
-										PanelInfo[(info[#info - 2])][(info[#info - 1])][i - 1] = PanelInfo[(info[#info - 2])][(info[#info - 1])][i]
-									end
-									PanelInfo[(info[#info - 2])][(info[#info - 1])][endNumber] = nil
+									tremove(PanelInfo[(info[#info - 2])][(info[#info - 1])], tonumber((info[#info])))
 								else
 									PanelInfo[(info[#info - 2])][(info[#info - 1])][tonumber((info[#info]))] = value
 									
@@ -642,7 +621,7 @@ KF_Config.Options.args.CustomPanel = {
 									end
 								end
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
@@ -696,7 +675,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						PanelInfo.DP[(info[#info])] = value
 						
-						KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+						KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 						
 						if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 					end,
@@ -717,7 +696,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								PanelInfo.DP[(info[#info])] = value
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
@@ -749,12 +728,7 @@ KF_Config.Options.args.CustomPanel = {
 								end
 								
 								if value == '' then
-									local endNumber = #PanelInfo[(info[#info - 2])][(info[#info - 1])]
-									
-									for i = tonumber((info[#info])) + 1, endNumber do
-										PanelInfo[(info[#info - 2])][(info[#info - 1])][i - 1] = PanelInfo[(info[#info - 2])][(info[#info - 1])][i]
-									end
-									PanelInfo[(info[#info - 2])][(info[#info - 1])][endNumber] = nil
+									tremove(PanelInfo[(info[#info - 2])][(info[#info - 1])], tonumber((info[#info])))
 								else
 									PanelInfo[(info[#info - 2])][(info[#info - 1])][tonumber((info[#info]))] = value
 									
@@ -763,7 +737,7 @@ KF_Config.Options.args.CustomPanel = {
 									end
 								end
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
@@ -814,12 +788,7 @@ KF_Config.Options.args.CustomPanel = {
 								end
 								
 								if value == '' then
-									local endNumber = #PanelInfo[(info[#info - 2])][(info[#info - 1])]
-									
-									for i = tonumber((info[#info])) + 1, endNumber do
-										PanelInfo[(info[#info - 2])][(info[#info - 1])][i - 1] = PanelInfo[(info[#info - 2])][(info[#info - 1])][i]
-									end
-									PanelInfo[(info[#info - 2])][(info[#info - 1])][endNumber] = nil
+									tremove(PanelInfo[(info[#info - 2])][(info[#info - 1])], tonumber((info[#info])))
 								else
 									PanelInfo[(info[#info - 2])][(info[#info - 1])][tonumber((info[#info]))] = value
 									
@@ -828,7 +797,7 @@ KF_Config.Options.args.CustomPanel = {
 									end
 								end
 								
-								KF:Create_CustomPanel(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
+								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,

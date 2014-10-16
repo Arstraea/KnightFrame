@@ -1,8 +1,4 @@
-﻿-- Last Code Checking Date		: 2014. 6. 14
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
-if GetLocale() ~= 'koKR' then return end
+﻿if GetLocale() ~= 'koKR' then return end
 
 local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
@@ -88,7 +84,7 @@ do	-- Modules
 		L['Left Button'] = '좌측에서부터 버튼 삽입'
 		L['Right Button'] = '우측에서부터 버튼 삽입'
 	
-	L['Floating Datatext'] = '독립형 정보문자'
+	
 		L['Datatext Name'] = '정보문자 이름'
 		L['Ignore Cursor'] = '커서반응 끄기'
 		L['Datatext Module'] = '사용할 정보문자'
@@ -106,8 +102,8 @@ do	-- Modules
 	
 	L['Frame that named same is already exists. Please enter a another name.'] = '이미 같은 이름을 사용하는 프레임이 있습니다. 다른 이름을 입력하세요.'
 	L['Custom Panel that named same is already exists.'] = '이미 같은 이름을 사용하는 커스텀 패널의 데이터가 있습니다.'
-	L['New data has been saved successfully and %s was created.'] = '새로운 데이터가 저장되었고 %s 패널이 생성되었습니다.'
-	L['All changes have been saved to %s data.'] = '변경된 데이터가 %s 패널 데이터에 덮어씌워졌습니다.'
+	L['New data has been saved successfully and %s was created.'] = '새로운 데이터가 저장되었고 %s 가 생성되었습니다.'
+	L['All changes have been saved to %s data.'] = '변경된 데이터가 %s 데이터에 덮어씌워졌습니다.'
 	
 	L['Misc'] = '기타'
 	L['Minimap Backdrop When FarmMode'] = '채집모드 사용 시 미니맵 배경 표시'

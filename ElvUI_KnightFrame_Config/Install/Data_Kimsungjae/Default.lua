@@ -36,8 +36,7 @@ KF_Config.Install_Layout_Data.Kimsungjae.Default = {
 	ArenaHeaderMover = 'TOPRIGHTElvUIParentTOPRIGHT-40-340',
 	BossHeaderMover = 'BOTTOMRIGHTElvUIParentBOTTOMRIGHT-40355',
 	ElvUF_PartyMover = 'BOTTOMLEFTElvUIParentBOTTOMLEFT4188',
-	ElvUF_Raid10Mover = 'BOTTOMLEFTElvUIParentBOTTOMLEFT4188',
-	ElvUF_Raid25Mover = 'BOTTOMLEFTElvUIParentBOTTOMLEFT4188',
+	ElvUF_RaidMover = 'BOTTOMLEFTElvUIParentBOTTOMLEFT4188',
 	ElvUF_Raid40Mover = 'BOTTOMLEFTElvUIParentBOTTOMLEFT4188',
 	
 	ElvUF_PlayerCastbarMover = 'BOTTOMElvUIParentBOTTOM-266218',
@@ -58,17 +57,17 @@ KF_Config.Install_Layout_Data.Kimsungjae.Default = {
 
 
 KF_Config.Install_Profile_Data.Kimsungjae.Default = function()
-	SetCVar("alternateResourceText", 1)
-	SetCVar("statusTextDisplay", "BOTH")
-	SetCVar("ShowClassColorInNameplate", 1)
-	SetCVar("screenshotQuality", 10)
-	SetCVar("chatMouseScroll", 1)
-	SetCVar("chatStyle", "classic")
-	SetCVar("WholeChatWindowClickable", 0)
-	SetCVar("ConversationMode", "inline")
-	SetCVar("showTutorials", 0)
-	SetCVar("UberTooltips", 1)
-	SetCVar("threatWarning", 3)
+	SetCVar('alternateResourceText', 1)
+	SetCVar('statusTextDisplay', 'BOTH')
+	SetCVar('ShowClassColorInNameplate', 1)
+	SetCVar('screenshotQuality', 10)
+	SetCVar('chatMouseScroll', 1)
+	SetCVar('chatStyle', 'classic')
+	SetCVar('WholeChatWindowClickable', 0)
+	SetCVar('ConversationMode', 'inline')
+	SetCVar('showTutorials', 0)
+	SetCVar('UberTooltips', 1)
+	SetCVar('threatWarning', 3)
 	SetCVar('alwaysShowActionBars', 1)
 	SetCVar('lockActionBars', 1)
 	SetCVar('SpamFilter', 0)
@@ -185,31 +184,16 @@ KF_Config.Install_Profile_Data.Kimsungjae.Default = function()
 		},
 		KnightText2 = {
 			Display = {
-				Mode = '0',
-				PvPMode = 'PvP Resilience',
-				Tank = 'Expertise',
-				Melee = 'Crit Chance',
-				Caster = 'Crit Chance',
-				Healer = 'Mastery'
+				Mode = 'Crit Chance',
+				PvPMode = 'PvP Resilience'
 			},
 			Location = 'BOTTOMRIGHTElvUIParentBOTTOMRIGHT-5548'
 		},
 		KnightText3 = {
 			Display = {
-				Mode = '0',
-				PvPMode = '',
-				Tank = 'Hit Rating',
-				Melee = 'Hit Rating',
-				Caster = 'Hit Rating',
-				Healer = 'Mana Regen'
+				Mode = 'Mastery'
 			},
 			Location = 'BOTTOMRIGHTElvUIParentBOTTOMRIGHT-4468'
-		},
-		['Banner & Stormlash'] = {
-			Display = {
-				Mode = 'DPS Utility |cff2eb7e4(KF)'
-			},
-			Location = 'BOTTOMElvUIParentBOTTOM0435'
 		}
 	}
 	E.db.KnightFrame.Modules.ExpRepDisplay = {
