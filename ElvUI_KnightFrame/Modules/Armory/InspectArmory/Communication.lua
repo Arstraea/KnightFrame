@@ -30,6 +30,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	AISM.Tooltip = _G['AISM_Tooltip'] or AISM.Tooltip or CreateFrame('GameTooltip', 'AISM_Tooltip', nil, 'GameTooltipTemplate')
 	AISM.Tooltip:SetOwner(UIParent, 'ANCHOR_NONE')
 	AISM.Updater = _G['AISM_Updater'] or AISM.Updater or CreateFrame('Frame', 'AISM_Updater', UIParent)
+	AISM.Updater.elapsed = 0
 	
 	AISM.Delay_SendMessage = 2
 	AISM.Delay_Updater = .5
@@ -116,8 +117,10 @@ if not AISM.Revision or AISM.Revision <= Revision then
 	--<< Player Data Updater Core >>--
 	local needUpdate, args
 	AISM.Updater:SetScript('OnUpdate', function(self, elapsed)
-		if not self.elapsed or self.elapsed > 0 then
-			self.elapsed = (self.elapsed or -AISM.Delay_Updater) + elapsed
+		self.elapsed = self.elapsed + elapsed
+		
+		if self.elapsed > 0 then
+			self.elapsed = -AISM.Delay_Updater
 			
 			AISM.UpdatedData = needUpdate and AISM.UpdatedData or {}
 			needUpdate = nil
@@ -139,6 +142,7 @@ if not AISM.Revision or AISM.Revision <= Revision then
 			end
 			
 			if not needUpdate then
+				self.elapsed = 0
 				self:Hide()
 				
 				for _ in pairs(AISM.UpdatedData) do

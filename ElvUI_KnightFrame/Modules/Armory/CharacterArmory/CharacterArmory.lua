@@ -124,7 +124,7 @@ function CA:Setup_CharacterArmory()
 	self:SetScript('OnEvent', function(self, Event, ...)
 		if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' then
 			if Event == 'TRANSMOGRIFY_UPDATE' then
-				print(...)
+				--print(...)
 			end
 			self.GearUpdated = nil
 			self:SetScript('OnUpdate', self.CharacterArmory_DataSetting)
@@ -294,8 +294,6 @@ end
 
 local needUpdate
 function CA:CharacterArmory_DataSetting()
-	if not self:IsVisible() then return end
-	
 	needUpdate = nil
 	
 	if not self.DurabilityUpdated then
@@ -306,8 +304,10 @@ function CA:CharacterArmory_DataSetting()
 		needUpdate = self:Update_Gear() or needUpdate
 	end
 	
-	if not needUpdate then
+	if not needUpdate and self:IsShown() then
 		self:SetScript('OnUpdate', nil)
+	elseif needUpdate then
+		self:SetScript('OnUpdate', self.CharacterArmory_DataSetting)
 	end
 end
 

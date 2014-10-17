@@ -3,6 +3,15 @@ local KF, DB, Info, Timer = unpack(select(2, ...))
 
 local OpenAllBagsInBank
 
+local function Open_AllBags()
+	OpenAllBags()
+end
+
+local function Cloase_AllBags()
+	CloseAllBags()
+end
+
+
 KF.InitializeFunction.BankOpen = function()
 	if E.private.bags.enable == false and not IsAddOnLoaded('AdiBags') then
 		OpenAllBagsInBank = function()
@@ -20,8 +29,8 @@ KF.Modules.BankOpen = function(RemoveOrder)
 			KF:RegisterEventList('BANKFRAME_OPENED', OpenAllBagsInBank, 'BankOpen')
 		end
 		
-		KF:RegisterEventList('GUILDBANKFRAME_OPENED', OpenAllBags, 'BankOpen')
-		KF:RegisterEventList('GUILDBANKFRAME_CLOSED', CloseAllBags, 'BankOpen')
+		KF:RegisterEventList('GUILDBANKFRAME_OPENED', Open_AllBags, 'BankOpen')
+		KF:RegisterEventList('GUILDBANKFRAME_CLOSED', Cloase_AllBags, 'BankOpen')
 	else
 		KF:UnregisterEventList('BANKFRAME_OPENED', 'BankOpen')
 		KF:UnregisterEventList('GUILDBANKFRAME_OPENED', 'BankOpen')

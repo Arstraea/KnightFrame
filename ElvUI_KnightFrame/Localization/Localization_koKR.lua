@@ -57,6 +57,10 @@ do	-- Modules
 		L['Notice'] = '알림'
 	end
 	
+	do	-- SynergyTracker
+		
+	end
+	
 	do	-- SwitchEquipment
 		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
