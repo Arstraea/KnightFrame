@@ -35,7 +35,7 @@ KF_Config.Options.args.FloatingDatatext = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Floating Datatext']) end,
 	order = 100 + OptionIndex,
-	disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false end,
+	disabled = function() return DB.Enable == false end,
 	args = {
 		Enable = {
 			type = 'toggle',
@@ -50,7 +50,6 @@ KF_Config.Options.args.FloatingDatatext = {
 				KF.Modules.FloatingDatatext()
 			end,
 			width = 'full',
-			disabled = function() return DB.Enable == false end
 		},
 		SelectDatatext = {
 			type = 'select',
@@ -82,7 +81,8 @@ KF_Config.Options.args.FloatingDatatext = {
 				end
 				
 				return list
-			end
+			end,
+			hidden = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false end
 		},
 		Space = {
 			type = 'description',
@@ -121,7 +121,7 @@ KF_Config.Options.args.FloatingDatatext = {
 					end)
 				end
 			end,
-			hidden = function() return SelectedDatatext == '' or (DatatextInfo.Name and DatatextInfo.Name ~= '') end
+			hidden = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '' or (DatatextInfo.Name and DatatextInfo.Name ~= '') end,
 		},
 		ConfigSpace = {
 			type = 'group',
@@ -140,8 +140,7 @@ KF_Config.Options.args.FloatingDatatext = {
 				
 				KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 			end,
-			hidden = function() return SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
-			disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end,
+			hidden = function() return  DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
 			args = {
 				Name = {
 					type = 'input',

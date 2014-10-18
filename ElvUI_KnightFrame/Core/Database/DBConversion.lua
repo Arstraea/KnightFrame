@@ -27,7 +27,7 @@ function KF:DBConversions(Data)
 		
 		if Data.Modules.FloatingDatatext then
 			for datatextName in pairs(Data.Modules.FloatingDatatext) do
-				if Data.Modules.FloatingDatatext[datatextName].Display then
+				if type(Data.Modules.FloatingDatatext[datatextName]) == 'table' and Data.Modules.FloatingDatatext[datatextName].Display then
 					local needErase = 0
 					
 					for Mode, datatextType in pairs(Data.Modules.FloatingDatatext[datatextName].Display) do

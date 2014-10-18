@@ -45,7 +45,7 @@ KF_Config.Options.args.CustomPanel = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Custom Panel']) end,
 	order = 100 + OptionIndex,
-	disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false end,
+	disabled = function() return DB.Enable == false end,
 	args = {
 		Enable = {
 			type = 'toggle',
@@ -61,7 +61,6 @@ KF_Config.Options.args.CustomPanel = {
 				KF:CallbackFire('CustomPanel_Toggle')
 			end,
 			width = 'full',
-			disabled = function() return DB.Enable == false end
 		},
 		SelectPanel = {
 			type = 'select',
@@ -92,7 +91,8 @@ KF_Config.Options.args.CustomPanel = {
 				end
 				
 				return list
-			end
+			end,
+			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false end
 		},
 		Space = {
 			type = 'description',
@@ -135,7 +135,7 @@ KF_Config.Options.args.CustomPanel = {
 					end
 				end
 			end,
-			hidden = function() return SelectedPanel == '' or (PanelInfo.Name and PanelInfo.Name ~= '') end
+			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or SelectedPanel == '' or (PanelInfo.Name and PanelInfo.Name ~= '') end
 		},
 		ConfigSpace = {
 			type = 'group',
@@ -154,7 +154,7 @@ KF_Config.Options.args.CustomPanel = {
 				
 				KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 			end,
-			hidden = function() return SelectedPanel == '' or PanelInfo.Name == '' or not PanelInfo.Name end,
+			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or SelectedPanel == '' or PanelInfo.Name == '' or not PanelInfo.Name end,
 			args = {
 				Name = {
 					type = 'input',
