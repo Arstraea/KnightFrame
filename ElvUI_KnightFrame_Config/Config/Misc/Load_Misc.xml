@@ -1,6 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Misc.lua"/>
-	<Script file="TopPanel.lua"/>
 	<Script file="ExpRepDisplay.lua"/>
 	<Script file="Minimap.lua"/>
 	<Script file="LocalizedTimeFormats.lua"/>

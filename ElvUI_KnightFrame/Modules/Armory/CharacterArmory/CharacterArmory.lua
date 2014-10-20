@@ -4,8 +4,10 @@ local KF, DB, Info, Timer = unpack(select(2, ...))
 --------------------------------------------------------------------------------
 --<< KnightFrame : Upgrade Character Frame's Item Info like Wow-Armory		>>--
 --------------------------------------------------------------------------------
-local CA = CreateFrame('Frame', 'CharacterArmory', PaperDollFrame)
+local CA = CharacterArmory or CreateFrame('Frame', 'CharacterArmory', PaperDollFrame)
 local SlotIDList = {}
+local InsetDefaultPoint = { CharacterFrameInsetRight:GetPoint() }
+local ExpandButtonDefaultPoint = { CharacterFrameExpandButton:GetPoint() }
 
 CA.elapsed = 0
 CA.Delay_Updater = .5
@@ -155,9 +157,19 @@ function CA:Setup_CharacterArmory()
 			self:SetScript('OnUpdate', self.CharacterArmory_DataSetting)
 		end
 	end)
-	hooksecurefunc('CharacterFrame_Collapse', function() if Info.CharacterArmory_Activate then CharacterFrame:SetWidth(PaperDollFrame:IsShown() and 448 or PANEL_DEFAULT_WIDTH) end end)
-	hooksecurefunc('CharacterFrame_Expand', function() if Info.CharacterArmory_Activate then CharacterFrame:SetWidth(650) end end)
-	hooksecurefunc('ToggleCharacter', function(frameType) if frameType ~= 'PaperDollFrame' then CharacterFrame:SetWidth(PANEL_DEFAULT_WIDTH) end end)
+	hooksecurefunc('CharacterFrame_Collapse', function() if Info.CharacterArmory_Activate and PaperDollFrame:IsShown() then CharacterFrame:SetWidth(448) end end)
+	hooksecurefunc('CharacterFrame_Expand', function() if Info.CharacterArmory_Activate and PaperDollFrame:IsShown() then CharacterFrame:SetWidth(650) end end)
+	hooksecurefunc('ToggleCharacter', function(frameType)
+		if frameType ~= 'PaperDollFrame' and frameType ~= 'PetPaperDollFrame' then
+			CharacterFrame:SetWidth(PANEL_DEFAULT_WIDTH)
+		elseif Info.CharacterArmory_Activate and frameType == 'PaperDollFrame' then
+			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
+			CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
+		else
+			CharacterFrameInsetRight:SetPoint(unpack(InsetDefaultPoint))
+			CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
+		end
+	end)
 	hooksecurefunc('PaperDollFrame_SetLevel', function()
 		if Info.CharacterArmory_Activate then 
 			CharacterLevelText:SetText('|c'..RAID_CLASS_COLORS[E.myclass].colorStr..CharacterLevelText:GetText())
@@ -637,8 +649,6 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		
 		-- Setting frame
 		CharacterFrame:SetHeight(444)
-		CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
-		CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
 		
 		-- Move right equipment slots
 		CharacterHandsSlot:SetPoint('TOPRIGHT', CharacterFrameInsetRight, 'TOPLEFT', -4, -2)
@@ -682,8 +692,6 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		
 		-- Setting frame to default
 		CharacterFrame:SetHeight(424)
-		CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHt', 1, 0)
-		CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInset, 'BOTTOMRIGHT', -2, -1)
 		
 		-- Move rightside equipment slots to default position
 		CharacterHandsSlot:SetPoint('TOPRIGHT', CharacterFrameInset, 'TOPRIGHT', -4, -2)

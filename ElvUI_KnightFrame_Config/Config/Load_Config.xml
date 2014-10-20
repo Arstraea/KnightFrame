@@ -4,12 +4,14 @@
 	<Include file="CustomPanel\Load_CustomPanel.xml"/>
 	<Include file="FloatingDatatext\Load_FloatingDatatext.xml"/>
 	<Include file="Armory\Load_Armory.xml"/>
-	
-	<Include file="SmartTracker\Load_SmartTracker.xml"/>
-	
-	
 	<Include file="SwitchEquipment\Load_SwitchEquipment.xml"/>
-	<Include file="EmbedMeter\Load_EmbedMeter.xml"/>
+	<Include file="SynergyIndicator\Load_SynergyIndicator.xml"/>
 	
+	<!--<Include file="SmartTracker\Load_SmartTracker.xml"/>-->
+	
+	<Include file="Secretary\Load_Secretary.xml"/>
+	<!--<Include file="EmbedMeter\Load_EmbedMeter.xml"/>-->
+	
+	<!--<Include file="BossEngage\Load_BossEngage.xml"/>-->
 	<Include file="Misc\Load_Misc.xml"/>
 </Ui>

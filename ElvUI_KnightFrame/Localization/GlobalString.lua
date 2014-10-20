@@ -1,8 +1,4 @@
-﻿-- Last Code Checking Date		: 2014. 6. 15
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
-local E, L, V, P, G = unpack(ElvUI)
+﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, DB, Info, Timer = unpack(select(2, ...))
 
 --General
@@ -73,7 +69,7 @@ for ClassName, SpecializationIDTable in pairs({
 		Destruction = 267
 	}
 }) do
-	L[ClassName] = KF:Color_Class('WARRIOR', LOCALIZED_CLASS_NAMES_MALE[string.upper(ClassName)])
+	L[ClassName] = KF:Color_Class(string.upper(ClassName), LOCALIZED_CLASS_NAMES_MALE[string.upper(ClassName)])
 	
 	for Name, ID in pairs(SpecializationIDTable) do
 		_, L['Spec_'..ClassName..'_'..Name] = GetSpecializationInfoByID(ID)

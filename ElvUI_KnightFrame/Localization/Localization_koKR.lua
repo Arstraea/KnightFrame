@@ -57,8 +57,42 @@ do	-- Modules
 		L['Notice'] = '알림'
 	end
 	
-	do	-- SynergyTracker
+	do	-- SynergyIndicator
+		L['Applied'] = '적용중'
+		L['Non-applied'] = '비적용중'
+		L['Elixirs'] = '영약 도핑'
+		L['Foods'] = '음식 도핑'
+		L['Bloodlust Debuff'] = '블러드 디버프'
+		L['Resurrection Debuff'] = '부활 디버프'
 		
+		L['Bears'] = '곰'
+		L['Birds of Prey'] = '맹금'
+		L['Boars'] = '멧돼지'
+		L['Cats'] = '살쾡이'
+		L['Clefthooves'] = '갈래발굽'
+		L['Goats'] = '염소'
+		L['Gorillas'] = '고릴라'
+		L['Hyenas'] = '하이에나'
+		L['Raptors'] = '랩터'
+		L['Ravagers'] = '칼날발톱'
+		L['Serpents'] = '뱀'
+		L['Sporebats'] = '포자날개'
+		L['Stags'] = '순록'
+		L['Tallstriders'] = '타조'
+		L['Wasp'] = '말벌'
+		L['Wind Serpents'] = '천둥매'
+		L['Wolves'] = '늑대'
+		
+		local Exotic = '|cff1784d1(특수)|r'
+		L['Chimaeras'] = '키메라'..Exotic
+		L['Core Hounds'] = '심장부사냥개'..Exotic
+		L['Devilsaurs'] = '데빌사우루스'..Exotic
+		L['Hydras'] = '히드라'..Exotic
+		L['Quilen'] = '기렌'..Exotic
+		L['Silithids'] = '실리시드'..Exotic
+		L['Spirit Beasts'] = '야수정령'..Exotic
+		L['Water Striders'] = '소금쟁이'..Exotic
+		L['Worms'] = '벌레'..Exotic
 	end
 	
 	do	-- SwitchEquipment
@@ -88,30 +122,17 @@ end
 
 --[[
 do	--General
-	
-	
-	
 	L['instance'] = '무작 파티'
 	L['battleground'] = '전장'
 	L['Not Implemented'] = '미구현'
 	L['DataTexts'] = '정보문자'
-	
-	
 end
-
 
 do	--Frame Name
-	
 	L['KnightInspectFrame'] = '살펴보기 창'
-	
 end
 
-
-
 do	--Print Message
-	
-	
-	
 	L["You can't inspect while dead."] = '죽은 상태에선 살펴보기를 할 수 없습니다.'
 	L[" Inspect. Sometimes this work will take few second by waiting server's response."] = ' 유저를 살펴봅니다. 서버의 응답을 기다리느라 시간이 조금 걸릴 수도 있습니다.'
 	L['Mouseover Inspect needs to freeze mouse moving until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
@@ -129,9 +150,6 @@ end
 
 do	--Datatexts
 	L['Friends'] = '친구'
-	
-	
-	
 end
 
 
@@ -139,13 +157,9 @@ do	--Extra Function
 	L['Extra Functions'] = '추가 기능'
 
 	--<< Tracker >>--
-	L['Applied'] = '적용중'
-	L['Non-applied'] = '비적용중'
 	
-	L['Elixirs'] = '영약 도핑'
-	L['Foods'] = '음식 도핑'
-	L['Bloodlust Debuff'] = '블러드 디버프'
-	L['Resurrection Debuff'] = '부활 디버프'
+	
+	
 	L['Increase Magic Damage Taken'] = '마법피해 증가'
 	L['Weakened Armor'] = '방어도 감소'
 	L['Physical Vulnerability'] = '물리피해 증가'
@@ -153,30 +167,26 @@ do	--Extra Function
 	L['Slow Spell Casting'] = '시전시간 증가'
 	L['Mortal Wonds'] = '받는치유량 감소'
 	
-	local Exotic = '|cff1784d1(특수)|r'
-	L['Wolves'] = '늑대'
-	L['Cats'] = '살쾡이'
-	L['Hyenas'] = '하이에나'
-	L['Serpents'] = '뱀'
-	L['Quilen'] = '기렌'..Exotic
-	L['Silithids'] = '실리시드'..Exotic
-	L['Water Striders'] = '소금쟁이'..Exotic
-	L['Spirit Beasts'] = '야수정령'..Exotic
+	
+	
+	
+	
+	
+	
 	L['Shale Spiders'] = '혈암거미'..Exotic
-	L['Devilsaurs'] = '데빌사우루스'..Exotic
+	
 	L['Dragonhawks'] = '용매'
-	L['Wind Serpents'] = '천둥매'
-	L['Tallstriders'] = '타조'
-	L['Raptors'] = '랩터'
-	L['Boars'] = '멧돼지'
-	L['Ravagers'] = '칼날발톱'
-	L['Worms'] = '벌레'..Exotic
+	
+	
+	
+	
 	L['Rhinos'] = '코뿔소'..Exotic
-	L['Bears'] = '곰'
+	
 	L['Foxes'] = '여우'
-	L['Sporebats'] = '포자날개'
-	L['Goats'] = '염소'
-	L['Core Hounds'] = '심장부사냥개'..Exotic
+	
+	
+	
+	
 	
 	
 	--<< Knight Armory >>--

@@ -76,15 +76,23 @@ end
 
 
 do	-- Modules
-	L['Custom Panel'] = '커스텀 패널'
+	do -- CustomPanel
+		L['Custom Panel'] = '커스텀 패널'
 		L['Panel Name'] = '대화창 이름'
 		L['Enable Texture'] = '배경그림 사용'
 		L['Texture Alpha'] = '배경그림 투명도'
 		L['Texture Path'] = '배경그림 파일위치'
 		L['Left Button'] = '좌측에서부터 버튼 삽입'
 		L['Right Button'] = '우측에서부터 버튼 삽입'
+		
+		-- need fixing
+		L['Frame that named same is already exists. Please enter a another name.'] = '이미 같은 이름을 사용하는 프레임이 있습니다. 다른 이름을 입력하세요.'
+		L['Custom Panel that named same is already exists.'] = '이미 같은 이름을 사용하는 커스텀 패널의 데이터가 있습니다.'
+		L['New data has been saved successfully and %s was created.'] = '새로운 데이터가 저장되었고 %s 가 생성되었습니다.'
+		L['All changes have been saved to %s data.'] = '변경된 데이터가 %s 데이터에 덮어씌워졌습니다.'
+	end
 	
-	
+	do -- FloatingDatatext
 		L['Datatext Name'] = '정보문자 이름'
 		L['Ignore Cursor'] = '커서반응 끄기'
 		L['Datatext Module'] = '사용할 정보문자'
@@ -92,18 +100,23 @@ do	-- Modules
 		L['PvP Mode'] = 'PvP 시 변경'
 		L['Texture'] = '텍스쳐'
 		L['Use Custom FontStyle'] = '이 정보문자만 글꼴스타일 따로설정'
-		
-	L['Top Panel'] = '상단 패널'
+	end
+	
+	do -- Secretary
+	
+	end
+	
+	do -- SynergyIndicator
+		L['Synergy Indicator'] = '시너지 표시기'
+	end
+	
 	
 	L['ExpRep Display'] = '경험치 평판 표시기'
 		L['Frame To Embed'] = '고정할 프레임'
 		L['Embed Location'] = '고정할 위치'
 		L['Lock ExpRep Display'] = '디스플레이 고정'
 	
-	L['Frame that named same is already exists. Please enter a another name.'] = '이미 같은 이름을 사용하는 프레임이 있습니다. 다른 이름을 입력하세요.'
-	L['Custom Panel that named same is already exists.'] = '이미 같은 이름을 사용하는 커스텀 패널의 데이터가 있습니다.'
-	L['New data has been saved successfully and %s was created.'] = '새로운 데이터가 저장되었고 %s 가 생성되었습니다.'
-	L['All changes have been saved to %s data.'] = '변경된 데이터가 %s 데이터에 덮어씌워졌습니다.'
+	
 	
 	L['Misc'] = '기타'
 	L['Minimap Backdrop When FarmMode'] = '채집모드 사용 시 미니맵 배경 표시'
@@ -127,7 +140,7 @@ do	-- Modules
 	L['Tooltip Talent'] = '툴팁에 특성표시'
 	L['Show Chat Tab'] = '채팅창 탭 항상보기'
 	L['Toggle WatchFrame'] = '퀘스트창 자동숨김'
-	L['Synergy Tracker'] = '시너지 추적기'
+	
 	L['Bank Open'] = '은행에서 가방 자동열기'
 	
 	L['RaidCooldown'] = '레이드쿨다운'
