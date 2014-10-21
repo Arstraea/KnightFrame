@@ -8,8 +8,9 @@
 	<!--<Include file="SmartTracker\Load_SmartTracker.xml"/>-->
 	
 	<Include file="Secretary\Load_Secretary.xml"/>
-	<!--<Include file="EmbedMeter\Load_EmbedMeter.xml"/>-->
+	<Include file="EmbedMeter\Load_EmbedMeter.xml"/>
 	
 	<Include file="BossEngage\Load_BossEngage.xml"/>
 	<Include file="Misc\Load_Misc.xml"/>
+	<!-- 주석처리 -->>
 </Ui>

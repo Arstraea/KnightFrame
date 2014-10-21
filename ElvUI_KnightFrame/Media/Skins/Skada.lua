@@ -1,9 +1,5 @@
--- Last Code Checking Date		: 2014. 6. 14
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
-local E, L, V, P, G, _ = unpack(ElvUI)
-local KF, DB, Info, Update = unpack(select(2, ...))
+local E, L, V, P, G = unpack(ElvUI)
+local KF, DB, Info, Timer = unpack(select(2, ...))
 
 local SkadaLoaded = IsAddOnLoaded('Skada') and 'Skada' or IsAddOnLoaded('SkadaU') and 'SkadaU'
 

@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Update = unpack(ElvUI_KnightFrame)
+local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
---[[
+
 if not (KF and KF.Modules and KF.Modules.EmbedMeter and KF_Config) then return end
 --------------------------------------------------------------------------------
 --<< KnightFrame : Embed Meter												>>--
@@ -13,30 +13,30 @@ local PanelNumber
 
 
 local function NameColor(Color)
-	return KF.db.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
+	return DB.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
 end
 
 
-local function GetPanelList(key)
-	local List = { [''] = (KF.db.Enable and '|cffceff00' or '')..L['Please Select'], }
+local function GetPanelList(Key)
+	local List = { [''] = (DB.Enable and '|cffceff00' or '')..L['Please Select'], }
 	
-	if PanelNumber['LeftChatPanel'] > 1 or (PanelNumber['LeftChatPanel'] == 1 and key ~= 'LeftChatPanel') then
+	if PanelNumber.LeftChatPanel > 1 or (PanelNumber.LeftChatPanel == 1 and Key ~= 'LeftChatPanel') then
 		List['LeftChatPanelLEFT'] = NameColor()..'Left|r : '..L['Left Chat']
 		List['LeftChatPanelRIGHT'] = NameColor()..'Right|r : '..L['Left Chat']
 	else
-		List['LeftChatPanel'] = L['Left Chat']
+		List.LeftChatPanel = L['Left Chat']
 	end
 	
-	if PanelNumber['RightChatPanel'] > 1 or (PanelNumber['RightChatPanel'] == 1 and key ~= 'RightChatPanel') then
+	if PanelNumber.RightChatPanel > 1 or (PanelNumber.RightChatPanel == 1 and Key ~= 'RightChatPanel') then
 		List['RightChatPanelLEFT'] = NameColor()..'Left|r : '..L['Right Chat']
 		List['RightChatPanelRIGHT'] = NameColor()..'Right|r : '..L['Right Chat']
 	else
-		List['RightChatPanel'] = L['Right Chat']
+		List.RightChatPanel = L['Right Chat']
 	end
 	
-	for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
+	for panelName, IsPanelData in pairs(DB.Modules.CustomPanel) do
 		if type(IsPanelData) == 'table' and IsPanelData.Enable ~= false then
-			if PanelNumber[panelName] and (PanelNumber[panelName] > 1 or (PanelNumber[panelName] == 1 and key ~= panelName)) then
+			if PanelNumber[panelName] and (PanelNumber[panelName] > 1 or (PanelNumber[panelName] == 1 and Key ~= panelName)) then
 				List[panelName..'LEFT'] = NameColor()..'Left|r : '..panelName
 				List[panelName..'RIGHT'] = NameColor()..'Right|r : '..panelName
 			else
@@ -49,13 +49,13 @@ local function GetPanelList(key)
 end
 
 
-local function CheckDuplication(key, direction)
+local function CheckDuplication(Key, Direction)
 	local isDuplicated, anotherDB
 	
 	if SkadaLoaded then
 		for k, win in ipairs(Skada:GetWindows()) do
-			if win.db.KnightFrame_Embed and win.db.KnightFrame_Embed.key == key then
-				if win.db.KnightFrame_Embed.direction == direction then
+			if win.db.KnightFrame_Embed and win.db.KnightFrame_Embed.Key == Key then
+				if win.db.KnightFrame_Embed.Direction == Direction then
 					isDuplicated = k
 				else
 					anotherDB = k
@@ -64,16 +64,16 @@ local function CheckDuplication(key, direction)
 		end
 	end
 	
-	if RecountLoaded and Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.key == key then
-		if Recount.db.profile.KnightFrame_Embed.direction == direction then
+	if RecountLoaded and Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.Key == Key then
+		if Recount.db.profile.KnightFrame_Embed.Direction == Direction then
 			isDuplicated = 'Recount'
 		else
 			anotherDB = 'Recount'
 		end
 	end
 	
-	if OmenLoaded and Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.key == key then
-		if Omen.db.profile.KnightFrame_Embed.direction == direction then
+	if OmenLoaded and Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.Key == Key then
+		if Omen.db.profile.KnightFrame_Embed.Direction == Direction then
 			isDuplicated = 'Omen'
 		else
 			anotherDB = 'Omen'
@@ -93,15 +93,15 @@ local function SettingSkada()
 				order = i + 3,
 				desc = '',
 				descStyle = 'inline',
-				get = function() return window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.key..(PanelNumber[window.db.KnightFrame_Embed.key] > 1 and ''..window.db.KnightFrame_Embed.direction or '') or '' end,
+				get = function() return window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.Key..(PanelNumber[window.db.KnightFrame_Embed.Key] > 1 and ''..window.db.KnightFrame_Embed.Direction or '') or '' end,
 				set = function(_, value)
 					window.db.KnightFrame_Embed = nil
 					
 					if value ~= '' then
-						local key, direction = strsplit('', value)
-						direction = direction or 'LEFT'
+						local Key, Direction = strsplit('', value)
+						Direction = Direction or 'LEFT'
 						
-						local isDuplicated, anotherDB = CheckDuplication(key, direction)
+						local isDuplicated, anotherDB = CheckDuplication(Key, Direction)
 						
 						if isDuplicated then
 							if anotherDB and anotherDB ~= i then
@@ -112,16 +112,16 @@ local function SettingSkada()
 								end
 							else
 								if type(isDuplicated) == 'string' then
-									_G[isDuplicated].db.profile.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+									_G[isDuplicated].db.profile.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 								else
-									Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+									Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 								end
 							end
 						end
 						
 						window.db.KnightFrame_Embed = {
-							['key'] = key,
-							['direction'] = direction,
+							Key = Key,
+							Direction = Direction,
 						}
 						
 						if KF:EmbedMeter_CheckNeedEmbeding() then
@@ -135,9 +135,9 @@ local function SettingSkada()
 						end
 					end
 				end,
-				values = function() return GetPanelList(window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.key or nil) end,
-				hidden = function() return KF.db.Modules.EmbedMeter.Enable == false or not Skada:GetWindows()[i] end,
-				disabled = function() return KF.db.Enable == false end,
+				values = function() return GetPanelList(window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.Key or nil) end,
+				hidden = function() return DB.Modules.EmbedMeter.Enable == false or not Skada:GetWindows()[i] end,
+				disabled = function() return DB.Enable == false end
 			}
 		end
 	end
@@ -149,25 +149,25 @@ KF_Config.OptionsCategoryCount = KF_Config.OptionsCategoryCount + 1
 local OptionIndex = KF_Config.OptionsCategoryCount
 KF_Config.Options.args.EmbedMeter = {
 	type = 'group',
-	order = 800,
+	order = 100 + OptionIndex,
 	name = function()
 		-- Count embeded panel
-		PanelNumber = { ['LeftChatPanel'] = 0, ['RightChatPanel'] = 0, }
+		PanelNumber = { LeftChatPanel = 0, RightChatPanel = 0, }
 		
 		if SkadaLoaded then
 			for _, window in ipairs(Skada:GetWindows()) do
 				if window.db.KnightFrame_Embed then
-					PanelNumber[window.db.KnightFrame_Embed.key] = (PanelNumber[window.db.KnightFrame_Embed.key] or 0) + 1
+					PanelNumber[window.db.KnightFrame_Embed.Key] = (PanelNumber[window.db.KnightFrame_Embed.Key] or 0) + 1
 				end
 			end
 		end
 		
 		if RecountLoaded and Recount.db.profile.KnightFrame_Embed then
-			PanelNumber[Recount.db.profile.KnightFrame_Embed.key] = (PanelNumber[Recount.db.profile.KnightFrame_Embed.key] or 0) + 1
+			PanelNumber[Recount.db.profile.KnightFrame_Embed.Key] = (PanelNumber[Recount.db.profile.KnightFrame_Embed.Key] or 0) + 1
 		end
 		
 		if OmenLoaded and Omen.db.profile.KnightFrame_Embed then
-			PanelNumber[Omen.db.profile.KnightFrame_Embed.key] = (PanelNumber[Omen.db.profile.KnightFrame_Embed.key] or 0) + 1
+			PanelNumber[Omen.db.profile.KnightFrame_Embed.Key] = (PanelNumber[Omen.db.profile.KnightFrame_Embed.Key] or 0) + 1
 		end
 		
 		-- Create Skada window config
@@ -178,31 +178,26 @@ KF_Config.Options.args.EmbedMeter = {
 	args = {
 		Enable = {
 			type = 'toggle',
-			name = function() return ' '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Enable'] end,
+			name = function() return ' '..(DB.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Embed Meter'] end,
 			order = 1,
-			desc = '',
+			desc = L["Embed MeterAddon to ElvUI's Chat Panel or KnightFrame's Custom Panel."],
 			descStyle = 'inline',
-			get = function() return KF.db.Modules.EmbedMeter.Enable end,
+			get = function() return DB.Modules.EmbedMeter.Enable end,
 			set = function(_, value)
-				KF.db.Modules.EmbedMeter.Enable = value
+				DB.Modules.EmbedMeter.Enable = value
 				
 				KF.Modules.EmbedMeter()
 			end,
-			disabled = function() return KF.db.Enable == false end,
-		},
-		Description = {
-			type = 'description',
-			name = L["Embed MeterAddon to ElvUI's Chat Panel or KnightFrame's Custom Panel."],
-			order = 2,
-			width = 'double',
+			disabled = function() return DB.Enable == false end,
+			width = 'full'
 		},
 		Space = {
 			type = 'description',
 			name = ' ',
-			order = 3,
-			hidden = function() return KF.db.Modules.EmbedMeter.Enable == false end,
-		},
-	},
+			order = 2,
+			hidden = function() return DB.Modules.EmbedMeter.Enable == false end
+		}
+	}
 }
 
 
@@ -213,15 +208,15 @@ if RecountLoaded then
 		order = -1,
 		desc = '',
 		descStyle = 'inline',
-		get = function() return Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.key..(PanelNumber[Recount.db.profile.KnightFrame_Embed.key] > 1 and ''..Recount.db.profile.KnightFrame_Embed.direction or '') or '' end,
+		get = function() return Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.Key..(PanelNumber[Recount.db.profile.KnightFrame_Embed.Key] > 1 and ''..Recount.db.profile.KnightFrame_Embed.Direction or '') or '' end,
 		set = function(_, value)
 			Recount.db.profile.KnightFrame_Embed = nil
 			
 			if value ~= '' then
-				local key, direction = strsplit('', value)
-				direction = direction or 'LEFT'
+				local Key, Direction = strsplit('', value)
+				Direction = Direction or 'LEFT'
 				
-				local isDuplicated, anotherDB = CheckDuplication(key, direction)
+				local isDuplicated, anotherDB = CheckDuplication(Key, Direction)
 				
 				if isDuplicated then
 					if anotherDB and anotherDB ~= 'Recount' then
@@ -232,16 +227,16 @@ if RecountLoaded then
 						end
 					else
 						if type(isDuplicated) == 'string' then
-							_G[isDuplicated].db.profile.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+							_G[isDuplicated].db.profile.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 						else
-							Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+							Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 						end
 					end
 				end
 				
 				Recount.db.profile.KnightFrame_Embed = {
-					['key'] = key,
-					['direction'] = direction,
+					Key = Key,
+					Direction = Direction,
 				}
 			else
 				KF:EmbedMeter_ClearSetting_Recount()
@@ -251,9 +246,9 @@ if RecountLoaded then
 				KF:EmbedMeter()
 			end
 		end,
-		values = function() return GetPanelList(Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.key or nil) end,
-		hidden = function() return KF.db.Modules.EmbedMeter.Enable == false end,
-		disabled = function() return KF.db.Enable == false end,
+		values = function() return GetPanelList(Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.Key or nil) end,
+		hidden = function() return DB.Modules.EmbedMeter.Enable == false end,
+		disabled = function() return DB.Enable == false end
 	}
 end
 
@@ -265,15 +260,15 @@ if OmenLoaded then
 		order = -2,
 		desc = '',
 		descStyle = 'inline',
-		get = function() return Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.key..(PanelNumber[Omen.db.profile.KnightFrame_Embed.key] > 1 and ''..Omen.db.profile.KnightFrame_Embed.direction or '') or '' end,
+		get = function() return Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.Key..(PanelNumber[Omen.db.profile.KnightFrame_Embed.Key] > 1 and ''..Omen.db.profile.KnightFrame_Embed.Direction or '') or '' end,
 		set = function(_, value)
 			Omen.db.profile.KnightFrame_Embed = nil
 			
 			if value ~= '' then
-				local key, direction = strsplit('', value)
-				direction = direction or 'LEFT'
+				local Key, Direction = strsplit('', value)
+				Direction = Direction or 'LEFT'
 				
-				local isDuplicated, anotherDB = CheckDuplication(key, direction)
+				local isDuplicated, anotherDB = CheckDuplication(Key, Direction)
 				
 				if isDuplicated then
 					if anotherDB and anotherDB ~= 'Omen' then
@@ -284,16 +279,16 @@ if OmenLoaded then
 						end
 					else
 						if type(isDuplicated) == 'string' then
-							_G[isDuplicated].db.profile.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+							_G[isDuplicated].db.profile.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 						else
-							Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.direction = direction == 'LEFT' and 'RIGHT' or 'LEFT'
+							Skada:GetWindows()[isDuplicated].db.KnightFrame_Embed.Direction = Direction == 'LEFT' and 'RIGHT' or 'LEFT'
 						end
 					end
 				end
 				
 				Omen.db.profile.KnightFrame_Embed = {
-					['key'] = key,
-					['direction'] = direction,
+					Key = Key,
+					Direction = Direction,
 				}
 			else
 				KF:EmbedMeter_ClearSetting_Omen()
@@ -303,18 +298,15 @@ if OmenLoaded then
 				KF:EmbedMeter()
 			end
 		end,
-		values = function() return GetPanelList(Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.key or nil) end,
-		hidden = function() return KF.db.Modules.EmbedMeter.Enable == false end,
-		disabled = function() return KF.db.Enable == false end,
+		values = function() return GetPanelList(Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.Key or nil) end,
+		hidden = function() return DB.Modules.EmbedMeter.Enable == false end,
+		disabled = function() return DB.Enable == false end
 	}
 end
 
 
-
-
--- Callbacks
-if KF.UIParent then
-	local function UpdateEmbedMeter()
+do	-- Callbacks
+	local function UpdateEmbedMeter(...)
 		if KF:EmbedMeter_CheckNeedEmbeding() then
 			KF:EmbedMeter()
 		end
@@ -323,27 +315,27 @@ if KF.UIParent then
 	-- Toggle by custom panel's enable
 	KF:RegisterCallback('CustomPanel_Toggle', UpdateEmbedMeter, 'EmbedMeter_DisabledCustomPanel')
 	
-	-- Replace embeded panel key
+	-- Replace embeded panel Key
 	KF:RegisterCallback('CustomPanel_RewritePanelName', function(_, OldName, NewName)
 		if SkadaLoaded then
 			for _, window in ipairs(Skada:GetWindows()) do
-				if window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.key == OldName then
-					window.db.KnightFrame_Embed.key = NewName
+				if window.db.KnightFrame_Embed and window.db.KnightFrame_Embed.Key == OldName then
+					window.db.KnightFrame_Embed.Key = NewName
 				end
 			end
 		end
 		
-		if RecountLoaded and Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.key == OldName then
-			Recount.db.profile.KnightFrame_Embed.key = NewName
+		if RecountLoaded and Recount.db.profile.KnightFrame_Embed and Recount.db.profile.KnightFrame_Embed.Key == OldName then
+			Recount.db.profile.KnightFrame_Embed.Key = NewName
 		end
 		
-		if OmenLoaded and Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.key == OldName then
-			Omen.db.profile.KnightFrame_Embed.key = NewName
+		if OmenLoaded and Omen.db.profile.KnightFrame_Embed and Omen.db.profile.KnightFrame_Embed.Key == OldName then
+			Omen.db.profile.KnightFrame_Embed.Key = NewName
 		end
 		
-		if KF.db.Modules.EmbedMeter.SplitRatio and KF.db.Modules.EmbedMeter.SplitRatio[OldName] then
-			KF.db.Modules.EmbedMeter.SplitRatio[NewName] = KF.db.Modules.EmbedMeter.SplitRatio[OldName]
-			KF.db.Modules.EmbedMeter.SplitRatio[OldName] = nil
+		if DB.Modules.EmbedMeter.SplitRatio and DB.Modules.EmbedMeter.SplitRatio[OldName] then
+			DB.Modules.EmbedMeter.SplitRatio[NewName] = DB.Modules.EmbedMeter.SplitRatio[OldName]
+			DB.Modules.EmbedMeter.SplitRatio[OldName] = nil
 		end
 	end, 'EmbedMeter_ReplacePanelName')
 	
@@ -357,4 +349,3 @@ if KF.UIParent then
 	-- Clear setting when embeded panel was deleted
 	KF:RegisterCallback('CustomPanel_Delete', KF.EmbedMeter_ClearSettingByPanel, 'EmbedMeter_ClearEmbedSetting')
 end
-]]

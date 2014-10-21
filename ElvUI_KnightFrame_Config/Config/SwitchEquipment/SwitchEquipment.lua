@@ -41,9 +41,9 @@ KF_Config.Options.args.SwitchEquipment = {
 	args = {
 		Enable = {
 			type = 'toggle',
-			name = function() return ' '..NameColor()..L['Enable'] end,
+			name = function() return ' '..(DB.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Switch Equipment'] end,
 			order = 1,
-			desc = '',
+			desc = L['Change equipment set when changing specialization or entering a pvp area(battleground or arena).'],
 			descStyle = 'inline',
 			get = function(info) return E.private.KnightFrame.SwitchEquipment.Enable end,
 			set = function(_, value)
@@ -51,13 +51,8 @@ KF_Config.Options.args.SwitchEquipment = {
 				
 				KF.Modules.SwitchEquipment(not value)
 			end,
-			disabled = function() return DB.Enable == false end
-		},
-		Description = {
-			type = 'description',
-			name = L['Change equipment set when changing specialization or entering a pvp area(battleground or arena).'],
-			order = 2,
-			width = 'double'
+			disabled = function() return DB.Enable == false end,
+			width = 'full'
 		},
 		ConfigSpace = {
 			type = 'group',
