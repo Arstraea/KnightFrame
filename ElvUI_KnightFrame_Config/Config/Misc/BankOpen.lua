@@ -4,11 +4,11 @@ local KF_Config = E:GetModule('KnightFrame_Config')
 
 if KF.Modules.BankOpen and not IsAddOnLoaded('AdiBags') then
 	KF_Config.MiscCategoryCount = KF_Config.MiscCategoryCount + 1
-	
+	local OptionIndex = KF_Config.MiscCategoryCount
 	KF_Config.Options.args.Misc.args.BankOpen = {
 		type = 'toggle',
 		name = function() return ' '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Bank Open'] end,
-		order = KF_Config.MiscCategoryCount,
+		order = OptionIndex,
 		desc = '',
 		descStyle = 'inline',
 		get = function() return DB.Modules.BankOpen end,

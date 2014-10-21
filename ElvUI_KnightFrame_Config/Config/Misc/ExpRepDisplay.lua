@@ -3,8 +3,6 @@ local KF, DB, Info, Update = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if KF.Modules.ExpRepDisplay then
-	KF_Config.MiscCategoryCount = KF_Config.MiscCategoryCount + 1
-	
 	local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled
 	
 	
@@ -13,10 +11,12 @@ if KF.Modules.ExpRepDisplay then
 	end
 	
 	
+	KF_Config.MiscCategoryCount = KF_Config.MiscCategoryCount + 1
+	local OptionIndex = KF_Config.MiscCategoryCount
 	KF_Config.Options.args.Misc.args.ExpRepDisplay = {
 		type = 'group',
 		name = function() return ' '..(DB.Enable ~= false and KF:Color_Value() or '')..L['ExpRep Display'] end,
-		order = KF_Config.MiscCategoryCount,
+		order = OptionIndex,
 		guiInline = true,
 		disabled = function() return DB.Enable == false or DB.Modules.ExpRepDisplay.Enable == false end,
 		args = {

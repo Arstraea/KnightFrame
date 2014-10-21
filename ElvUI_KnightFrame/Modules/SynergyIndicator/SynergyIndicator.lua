@@ -178,6 +178,10 @@ function SI:UpdateIndicator()
 			if self[IconName].SpellName then
 				self.needUpdate = true
 			end
+			if Info.SynergyIndicator_Filters[self[IconName].FilterName].ShownWhenHasAura then
+				self[IconName]:Hide()
+			end
+			
 			self[IconName].SpellName = nil
 			self[IconName].Duration = nil
 			self[IconName].Expiration = nil
@@ -191,6 +195,8 @@ function SI:UpdateIndicator()
 			
 			self[IconName]:Size(self[IconName].IconWidth, self[IconName].IconHeight)
 		elseif not self[IconName].SpellName or (self[IconName].Expiration and self[IconName].Expiration ~= Expiration) then
+			self[IconName]:Show()
+			
 			self[IconName].SpellName = SpellName
 			self[IconName].Duration = Duration
 			self[IconName].Expiration = Expiration
@@ -231,67 +237,64 @@ function SI:TargetIndicatorSetting()
 		SI.Target:Hide()
 		SI:UpdateLocation()
 		
-		return
+		return false
 	else
 		SI.Target:Show()
 		
-		local unitColor
+		local unitColor, TargetType
 		if UnitCanAttack('player', 'target') then
 			SI.Target:Hide()
 			
 			if UnitIsPlayer('target') then
-				--SI.Target.CurrentTarget = 'Enemy'
+				TargetType = 'Enemy'
 				unitColor = KF:Color_Class(select(2, UnitClass('target')), nil)
 			else
-				--SI.Target.CurrentTarget = 'Monster'
+				TargetType = 'Monster'
 				unitColor = '|cffcd4c37'
 			end
 		else
-			SI.Target:Show()
-			
-			SI.Target.Slot10.Tag = L['Bloodlust Debuff']
-			SI.Target.Slot10.FilterName = 'BloodLustDebuff'
-			
-			SI.Target.Slot1.Tag = RAID_BUFF_6
-			SI.Target.Slot1.FilterName = 'Critical'
-			
-			SI.Target.Slot2.Tag = RAID_BUFF_4
-			SI.Target.Slot2.FilterName = 'Haste'
-			
-			SI.Target.Slot3.Tag = RAID_BUFF_8
-			SI.Target.Slot3.FilterName = 'MultiStrike'
-			
-			SI.Target.Slot4.Tag = RAID_BUFF_9
-			SI.Target.Slot4.FilterName = 'Versatility'
-			
-			SI.Target.Slot5.Tag = RAID_BUFF_1
-			SI.Target.Slot5.FilterName = 'AllStats'
-			
-			SI.Target.Slot6.Tag = RAID_BUFF_3
-			SI.Target.Slot6.FilterName = 'AttackPower'
-			
-			SI.Target.Slot7.Tag = RAID_BUFF_5
-			SI.Target.Slot7.FilterName = 'SpellPower'
-			
-			SI.Target.Slot8.Tag = RAID_BUFF_7
-			SI.Target.Slot8.FilterName = 'Mastery'
-			
-			SI.Target.Slot9.Tag = RAID_BUFF_2
-			SI.Target.Slot9.FilterName = 'Stamina'
-			
-			SI.Target.Slot11.Tag = L['Resurrection Debuff']
-			SI.Target.Slot11.FilterName = 'ResurrectionDebuff'
-			
 			if UnitIsPlayer('target') then
-				--SI.Target.CurrentTarget = 'Ally'
+				SI.Target:Show()
+				
+				SI.Target.Slot10.Tag = L['Bloodlust Debuff']
+				SI.Target.Slot10.FilterName = 'BloodLustDebuff'
+				
+				SI.Target.Slot1.Tag = RAID_BUFF_6
+				SI.Target.Slot1.FilterName = 'Critical'
+				SI.Target.Slot2.Tag = RAID_BUFF_4
+				SI.Target.Slot2.FilterName = 'Haste'
+				SI.Target.Slot3.Tag = RAID_BUFF_8
+				SI.Target.Slot3.FilterName = 'MultiStrike'
+				SI.Target.Slot4.Tag = RAID_BUFF_9
+				SI.Target.Slot4.FilterName = 'Versatility'
+				
+				SI.Target.Slot5.Tag = RAID_BUFF_1
+				SI.Target.Slot5.FilterName = 'AllStats'
+				
+				SI.Target.Slot6.Tag = RAID_BUFF_3
+				SI.Target.Slot6.FilterName = 'AttackPower'
+				SI.Target.Slot7.Tag = RAID_BUFF_5
+				SI.Target.Slot7.FilterName = 'SpellPower'
+				SI.Target.Slot8.Tag = RAID_BUFF_7
+				SI.Target.Slot8.FilterName = 'Mastery'
+				SI.Target.Slot9.Tag = RAID_BUFF_2
+				SI.Target.Slot9.FilterName = 'Stamina'
+				
+				SI.Target.Slot11.Tag = L['Resurrection Debuff']
+				SI.Target.Slot11.FilterName = 'ResurrectionDebuff'
+				
+				TargetType = 'Ally'
 				unitColor = KF:Color_Class(select(2, UnitClass('target')), nil)
 			else
-				--SI.Target.CurrentTarget = 'NPC'
+				SI.Target:Hide()
+				
+				TargetType = 'NPC'
 				unitColor = '|cff20ff20'
 			end
 			
 			SI.UpdateIndicator(SI.Target)
 			SI.Target:RegisterUnitEvent('UNIT_AURA', 'target')
+			SI.Target:RegisterUnitEvent('UNIT_FACTION', 'target')
 		end
 		
 		SI.LocationName.text:SetText(unitColor..UnitName('target'))
@@ -312,6 +315,11 @@ function SI:TargetIndicatorSetting()
 			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and 0 or unitColor.g) * 255,
 			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and 0 or unitColor.b) * 255, unitLevel > 0 and unitLevel or '??', ' '..(Classifi == 'WB' and '|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:0|t' or Classifi)))
 		SI.LocationY.text:SetText(nil)
+		
+		if SI.Target.TargetType ~= TargetType then
+			SI.Target.TargetType = TargetType
+			return true
+		end
 	end
 end
 
@@ -436,9 +444,11 @@ function SI:Setup_SynergyIndicator()
 	
 	do -- Indicator(Target) --
 		self.Target = CreateFrame('Frame', 'KF_SynergyIndicator_Target', KF.UIParent)
-		self.Target:Size(250, 20)
-		self.Target:Point('TOP', self.LocationName, 'BOTTOM', 0, 2)
-		self.Target:SetScript('OnEvent', self.UpdateIndicator)
+		self.Target:SetScript('OnEvent', function(self, Event)
+			if Event == 'UNIT_FACTION' and SI:TargetIndicatorSetting() or EventTag == 'UNIT_AURA' then
+				SI.UpdateIndicator(self)
+			end
+		end)
 		self.Target.Unit = 'target'
 		self.Target.Tag = KF:Color_Value('Aura')
 		self.Target.FilterList = {}
@@ -447,21 +457,22 @@ function SI:Setup_SynergyIndicator()
 			self.Target.FilterList['Slot'..i] = true
 			self.Target['Slot'..i] = self:CreateButton(CreateFrame('Button', nil, self.Target), 20)
 		end
-		self.Target.Slot10:Point('TOPRIGHT', self.Target.Slot1, 'TOPLEFT', -13, 0)
+		
+		self.Target.Slot10:Point('TOP', self.LocationX, 'BOTTOM', 0, -2)
 		
 		self.Target.Slot1:Point('TOPRIGHT', self.Target.Slot2, 'TOPLEFT', -3, 0)
 		self.Target.Slot2:Point('TOPRIGHT', self.Target.Slot3, 'TOPLEFT', -3, 0)
 		self.Target.Slot3:Point('TOPRIGHT', self.Target.Slot4, 'TOPLEFT', -3, 0)
 		self.Target.Slot4:Point('TOPRIGHT', self.Target.Slot5, 'TOPLEFT', -13, 0)
 
-		self.Target.Slot5:Point('TOP', self.Target, 'BOTTOM', 0, 16)
+		self.Target.Slot5:Point('TOP', self.LocationName, 'BOTTOM', 0, -2)
 
 		self.Target.Slot6:Point('TOPLEFT', self.Target.Slot5, 'TOPRIGHT', 13, 0)
 		self.Target.Slot7:Point('TOPLEFT', self.Target.Slot6, 'TOPRIGHT', 3, 0)
 		self.Target.Slot8:Point('TOPLEFT', self.Target.Slot7, 'TOPRIGHT', 3, 0)
 		self.Target.Slot9:Point('TOPLEFT', self.Target.Slot8, 'TOPRIGHT', 3, 0)
 		
-		self.Target.Slot11:Point('TOPLEFT', self.Target.Slot9, 'TOPRIGHT', 13, 0)
+		self.Target.Slot11:Point('TOP', self.LocationY, 'BOTTOM', 0, -2)
 		
 		self.Target.Group1 = CreateFrame('Frame', nil, self.Target)
 		self.Target.Group1:Point('TOPLEFT', self.Target.Slot1.Icon, -3, 4)
@@ -484,14 +495,14 @@ function SI:Setup_SynergyIndicator()
 		self.Target.Group3:SetFrameStrata('BACKGROUND')
 		self.Target.Group3:SetTemplate('Default', true)
 		
-		self.Target.Group4 = CreateFrame('Frame', nil, self.Target)
+		self.Target.Group4 = CreateFrame('Frame', nil, self.Target.Slot10)
 		self.Target.Group4:Point('TOPLEFT', self.Target.Slot10.Icon, -3, 4)
 		self.Target.Group4:Point('BOTTOMRIGHT', self.Target.Slot10.Icon, 'RIGHT', 3, 0)
 		self.Target.Group4:SetFrameLevel(7)
 		self.Target.Group4:SetFrameStrata('BACKGROUND')
 		self.Target.Group4:SetTemplate('Default', true)
 		
-		self.Target.Group5 = CreateFrame('Frame', nil, self.Target)
+		self.Target.Group5 = CreateFrame('Frame', nil, self.Target.Slot11)
 		self.Target.Group5:Point('TOPLEFT', self.Target.Slot11.Icon, -3, 4)
 		self.Target.Group5:Point('BOTTOMRIGHT', self.Target.Slot11.Icon, 'RIGHT', 3, 0)
 		self.Target.Group5:SetFrameLevel(7)

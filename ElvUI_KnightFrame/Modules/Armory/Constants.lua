@@ -6,7 +6,7 @@ Info.Armory_Constants = {
 	ItemLevelKey_Alt = ITEM_LEVEL_ALT:gsub('%%d', '.+'):gsub('%(.+%)', '%%((.+)%%)'),
 	EnchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)'),
 	ItemSetBonusKey = ITEM_SET_BONUS:gsub('%%s', '(.+)'),
-	TransmogrifiedKey = TRANSMOGRIFIED:gsub('%%s', '(.+)'),
+	--TransmogrifiedKey = TRANSMOGRIFIED:gsub('%%s', '(.+)'),
 	
 	GearList = {
 		'HeadSlot', 'HandsSlot', 'NeckSlot', 'WaistSlot', 'ShoulderSlot', 'LegsSlot', 'BackSlot', 'FeetSlot', 'ChestSlot', 'Finger0Slot',

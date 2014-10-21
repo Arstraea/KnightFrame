@@ -164,7 +164,7 @@ do --<< Button Script >>--
 					
 					break
 				elseif Info.Armory_Constants.CanTransmogrifySlot[self.SlotName] and Info.Armory_Constants.ItemBindString[CurrentLineText] and self.TransmogrifyAnchor.Link then
-					_G['GameTooltipTextLeft'..i]:SetText(E:RGBToHex(1, .5, 1)..format(TRANSMOGRIFIED, GetItemInfo(self.TransmogrifyAnchor.Link) or self.TransmogrifyAnchor.Link)..'|r|n'..CurrentLineText)
+					_G['GameTooltipTextLeft'..i]:SetText(E:RGBToHex(1, .5, 1)..TRANSMOGRIFIED_HEADER..'|n'..(GetItemInfo(self.TransmogrifyAnchor.Link) or self.TransmogrifyAnchor.Link)..'|r|n'..CurrentLineText)
 				end
 			end
 			
@@ -1467,9 +1467,9 @@ IA.INSPECT_READY = function(Event, InspectedUnitGUID)
 				for i = 1, IA.ScanTTForInspecting:NumLines() do
 					tooltipText = _G['InspectArmoryScanTT_ITextLeft'..i]:GetText()
 					
-					if not TransmogrifiedItem and tooltipText:match(Info.Armory_Constants.TransmogrifiedKey) then
+					if not TransmogrifiedItem and tooltipText:match(TRANSMOGRIFIED_HEADER) then -- tooltipText:match(Info.Armory_Constants.TransmogrifiedKey)
 						if type(IA.CurrentInspectData.Gear[SlotName].Transmogrify) ~= 'number' then
-							IA.CurrentInspectData.Gear[SlotName].Transmogrify = tooltipText:match(Info.Armory_Constants.TransmogrifiedKey)
+							IA.CurrentInspectData.Gear[SlotName].Transmogrify = _G['InspectArmoryScanTT_ITextLeft'..(i + 1)]:GetText() --tooltipText:match(Info.Armory_Constants.TransmogrifiedKey)
 						end
 						
 						TransmogrifiedItem = true

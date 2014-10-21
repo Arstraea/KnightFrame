@@ -99,6 +99,10 @@ do	-- Modules
 		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
 	
+	do	-- BossEngage
+		L['Hide Objectiveframe because of entering boss battle.'] = '보스와의 전투를 감지하여 임무창을 숨깁니다.'
+	end
+	
 	do	-- in MISC
 		do	-- Calculator
 			L['Command_Calculator'] = { 'rPtks', '계산' }
@@ -139,7 +143,6 @@ do	--Print Message
 	L['Mouseover Inspect is canceled because cursor left user to inspect.'] = '마우스가 살펴보던 마우스오버 대상에게서 이탈하여 |cffff5675살펴보기가 취소되었습니다|r.'
 	L['Inspect is canceled because target was lost or changed.'] = '타겟을 전환했거나 살펴보던 대상이 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
 	
-	L['Hide Watchframe because of entering boss battle.'] = '보스와의 전투를 감지하여 퀘스트프레임을 숨깁니다.'
 	L['Lock Display Area.'] = '표시 창을 |cffceff00고정|r합니다.'
 	L['Unlock Display Area.'] = '표시 창을 |cffff5353고정 해제|r합니다.'
 	L['Reset skills that have a cool time more than 5 minutes'] = '5분 이상 쿨타임을 가진 스킬의 쿨타임바를 리셋합니다.'

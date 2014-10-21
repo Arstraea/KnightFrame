@@ -464,9 +464,8 @@ end
 
 KF.BossBattleEnd = function(EndingType)
 	--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
-		if not Timer.ClearKilledBossList or Timer.ClearKilledBossList._cancelled then
-			Timer.ClearKilledBossList = C_Timer.NewTimer(5, ClearKilledBossList)
-		end
+		Timer.ClearKilledBossList:Cancel()
+		Timer.ClearKilledBossList = C_Timer.NewTimer(5, ClearKilledBossList)
 	--end
 	
 	Timer.CheckCombatEnd:Cancel()

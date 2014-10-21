@@ -3,7 +3,6 @@
 	<Script file="ExpRepDisplay.lua"/>
 	<Script file="Minimap.lua"/>
 	<Script file="LocalizedTimeFormats.lua"/>
-	<Script file="SynergyTracker.lua"/>
 	<Script file="FullValues.lua"/>
 	<Script file="ToggleWatchFrame.lua"/>
 	<Script file="BankOpen.lua"/>
