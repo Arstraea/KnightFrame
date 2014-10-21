@@ -178,6 +178,7 @@ function SI:UpdateIndicator()
 			if self[IconName].SpellName then
 				self.needUpdate = true
 			end
+			
 			if Info.SynergyIndicator_Filters[self[IconName].FilterName].ShownWhenHasAura then
 				self[IconName]:Hide()
 			end
@@ -232,8 +233,9 @@ end
 
 
 function SI:TargetIndicatorSetting()
+	SI.Target:UnregisterAllEvents()
+	
 	if not UnitExists('target') then
-		SI.Target:UnregisterAllEvents()
 		SI.Target:Hide()
 		SI:UpdateLocation()
 		
@@ -283,6 +285,10 @@ function SI:TargetIndicatorSetting()
 				SI.Target.Slot11.Tag = L['Resurrection Debuff']
 				SI.Target.Slot11.FilterName = 'ResurrectionDebuff'
 				
+				SI.UpdateIndicator(SI.Target)
+				SI.Target:RegisterUnitEvent('UNIT_AURA', 'target')
+				SI.Target:RegisterUnitEvent('UNIT_FACTION', 'target')
+				
 				TargetType = 'Ally'
 				unitColor = KF:Color_Class(select(2, UnitClass('target')), nil)
 			else
@@ -291,10 +297,6 @@ function SI:TargetIndicatorSetting()
 				TargetType = 'NPC'
 				unitColor = '|cff20ff20'
 			end
-			
-			SI.UpdateIndicator(SI.Target)
-			SI.Target:RegisterUnitEvent('UNIT_AURA', 'target')
-			SI.Target:RegisterUnitEvent('UNIT_FACTION', 'target')
 		end
 		
 		SI.LocationName.text:SetText(unitColor..UnitName('target'))
@@ -311,7 +313,7 @@ function SI:TargetIndicatorSetting()
 		else Classifi = '' end
 		
 		SI.LocationX.text:SetText(format('|cff%02x%02x%02x%s%s|r',
-			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and 0.6 or unitColor.r) * 255,
+			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and .6 or unitColor.r) * 255,
 			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and 0 or unitColor.g) * 255,
 			((CanAttack and (Classifi == 'WB' or unitLevel == -1)) and 0 or unitColor.b) * 255, unitLevel > 0 and unitLevel or '??', ' '..(Classifi == 'WB' and '|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:0|t' or Classifi)))
 		SI.LocationY.text:SetText(nil)
