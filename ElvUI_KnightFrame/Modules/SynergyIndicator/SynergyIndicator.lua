@@ -444,9 +444,9 @@ function SI:Setup_SynergyIndicator()
 	
 	do -- Indicator(Target) --
 		self.Target = CreateFrame('Frame', 'KF_SynergyIndicator_Target', KF.UIParent)
-		self.Target:SetScript('OnEvent', function(self, Event)
-			if Event == 'UNIT_FACTION' and SI:TargetIndicatorSetting() or EventTag == 'UNIT_AURA' then
-				SI.UpdateIndicator(self)
+		self.Target:SetScript('OnEvent', function(_, Event)
+			if Event == 'UNIT_FACTION' and SI:TargetIndicatorSetting() or Event == 'UNIT_AURA' then
+				self.UpdateIndicator(self.Target)
 			end
 		end)
 		self.Target.Unit = 'target'
