@@ -2174,15 +2174,12 @@ elseif KF.UIParent and KF.db.Modules.SmartTracker.Enable ~= false then
 	
 	KF.Modules[#KF.Modules + 1] = 'SmartCooldown'
 	KF.Modules['SmartCooldown'] = function(RemoveOrder)
-		local MinimumHeight = (KF.db.Modules.SmartTracker.Appearance.Bar_Height - 1) * 5 + Default['MainFrame_Tab_Height']
-		if KF.db.Modules.SmartTracker.Appearance.Area_Height < MinimumHeight then KF.db.Modules.SmartTracker.Appearance.Area_Height = MinimumHeight end
-		KnightRaidCooldown:Size(KF.db.Modules.SmartTracker.Appearance.Area_Width, KF.db.Modules.SmartTracker.Appearance.Area_Height)
-		KnightRaidCooldown:SetMinResize(200, MinimumHeight)
+		
 		if KF.db.Modules.SmartTracker.General.HideWhenSolo ~= false then
 			KnightRaidCooldown:SetAlpha(0)
 			KnightRaidCooldown:Hide()
 		end
-		KnightRaidCooldown.Tab:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Appearance.Color_MainFrame))
+		
 		if KF.db.Modules.SmartTracker.Appearance.Area_Visible == false then
 			KnightRaidCooldown.DisplayArea:SetAlpha(0)
 			KnightRaidCooldown.ToggleDisplay.Texture:SetTexCoord(0, 0.25, 0, 1)
@@ -2190,31 +2187,8 @@ elseif KF.UIParent and KF.db.Modules.SmartTracker.Enable ~= false then
 		KnightRaidCooldown.BrezNum:FontTemplate(nil, KF.db.Modules.SmartTracker.Appearance.RaidIcon_Fontsize, 'OUTLINE')
 		
 		
-		KnightRaidCooldown:SetPoint(unpack({string.split('\031', KF.db.Modules.SmartTracker.Location)}))
-		E:CreateMover(KnightRaidCooldown, 'KnightRaidCooldownMover', L['FrameTag']..L['KnightRaidCooldown'])
-		
 		_, Value['CurrentInstance_Type'] = IsInInstance()
 		
-		-- forbid DisplayArea width : ScreenWidth / 2, height : ScreenHeight * 2/3
-		KnightRaidCooldown:SetMaxResize(floor(UIParent:GetWidth() / 2), floor(UIParent:GetHeight() * 2/3))
 		
-		KnightRaidCooldown:SetScript('OnSizeChanged', function(self)
-			KF.db.Modules.SmartTracker.Appearance.Area_Width = tonumber(E:Round(self:GetWidth()))
-			KF.db.Modules.SmartTracker.Appearance.Area_Height = tonumber(E:Round(self:GetHeight()))
-			
-			self:Size(KF.db.Modules.SmartTracker.Appearance.Area_Width, KF.db.Modules.SmartTracker.Appearance.Area_Height)
-			KnightRaidCooldownMover:Size(self:GetSize())
-			
-			KF:RaidCooldown_RefreshCooldownBarData()
-		end)
-		
-		
-		for i = 1, #KF.Modules do
-			if KF.Modules[i] == 'SmartCooldown' then
-				KF.Modules[i] = nil
-				KF.Modules.SmartCooldown = nil
-				return
-			end
-		end
 	end
 end

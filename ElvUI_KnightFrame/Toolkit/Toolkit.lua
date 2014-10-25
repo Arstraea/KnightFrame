@@ -54,12 +54,12 @@ function KF:GetPanelData(key)
 			panelDP = RightChatDataPanel
 			IsDPEnabled = E.db.datatexts.rightChatPanel
 		end
-	elseif KF.UIParent.Frame and KF.UIParent.Frame[key] and DB.Modules.CustomPanel.Enable ~= false and DB.Modules.CustomPanel[key] and DB.Modules.CustomPanel[key].Enable == true then
-		Panel = KF.UIParent.Frame[key]
+	elseif KF.UIParent.Panel and KF.UIParent.Panel[key] and DB.Modules.CustomPanel.Enable ~= false and DB.Modules.CustomPanel[key] and DB.Modules.CustomPanel[key].Enable == true then
+		Panel = KF.UIParent.Panel[key]
 		panelType = 'KF'
-		panelTab = KF.UIParent.Frame[key].Tab
+		panelTab = KF.UIParent.Panel[key].Tab
 		IsTabEnabled = DB.Modules.CustomPanel[key].Tab.Enable
-		panelDP = KF.UIParent.Frame[key].DP
+		panelDP = KF.UIParent.Panel[key].DP
 		IsDPEnabled = DB.Modules.CustomPanel[key].DP.Enable
 	end
 	

@@ -5,7 +5,7 @@ local CH = E:GetModule('Chat')
 local PANEL_HEIGHT = 22
 local SIDE_BUTTON_WIDTH = 16
 local SPACING = E.PixelMode and 3 or 5
-local frameTag = 'KF_CustomPanel'
+local PanelTag = 'KF_CustomPanel'
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Create Panel, Button										>>--
@@ -13,9 +13,9 @@ local frameTag = 'KF_CustomPanel'
 local FrameLinkByID = {}
 local DeletedFrame = {}
 local DeletedButton = {}
-local frameCount = 0
+local FrameCount = 0
 
-KF.UIParent.Frame = {}
+KF.UIParent.Panel = {}
 KF.UIParent.Button = {}
 
 function KF:CustomPanel_Create(PanelName, PanelInfo)
@@ -26,30 +26,30 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 		return
 	end
 	
-	local frame = KF.UIParent.Frame[PanelName]
+	local Panel = KF.UIParent.Panel[PanelName]
 	
-	-- Recycle frame if there is a deleted frame
-	if not frame then
+	-- Recycle Panel if there is a deleted Panel
+	if not Panel then
 		if #DeletedFrame > 0 then
-			KF.UIParent.Frame[PanelName] = DeletedFrame[#DeletedFrame]
+			KF.UIParent.Panel[PanelName] = DeletedFrame[#DeletedFrame]
 			
-			frame = KF.UIParent.Frame[PanelName]
+			Panel = KF.UIParent.Panel[PanelName]
 			
-			local moverData = frame.MoverData
-			E.CreatedMovers[frame.mover.name] = moverData
-			frame.MoverData = nil
-			E.CreatedMovers[frame.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTERElvUIParent'
+			local moverData = Panel.MoverData
+			E.CreatedMovers[Panel.mover.name] = moverData
+			Panel.MoverData = nil
+			E.CreatedMovers[Panel.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTERElvUIParent'
 			
-			frame.mover:ClearAllPoints()
-			frame.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[frame.mover.name].point)}))
+			Panel.mover:ClearAllPoints()
+			Panel.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Panel.mover.name].point)}))
 			
-			frame:Show()
+			Panel:Show()
 			
 			DeletedFrame[#DeletedFrame] = nil
 		else
-			frameCount = frameCount + 1
+			FrameCount = FrameCount + 1
 			
-			local f = CreateFrame('Frame', frameTag..'_'..frameCount, KF.UIParent)
+			local f = CreateFrame('Frame', PanelTag..'_'..FrameCount, KF.UIParent)
 			f:CreateBackdrop('Transparent')
 			f.backdrop:SetAllPoints()
 			
@@ -64,155 +64,154 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			f.DP:Point('TOPLEFT', f, 'BOTTOMLEFT', SPACING, SPACING + PANEL_HEIGHT)
 			f.DP:Point('BOTTOMRIGHT', f, -SPACING, SPACING)
 			
-			f.Count = frameCount
-			KF.UIParent.Frame[PanelName] = f
+			f.Count = FrameCount
+			KF.UIParent.Panel[PanelName] = f
 			
-			frame = KF.UIParent.Frame[PanelName]
+			Panel = KF.UIParent.Panel[PanelName]
 		end
 		
-		FrameLinkByID[frame.Count] = PanelName
+		FrameLinkByID[Panel.Count] = PanelName
 	end
 	
 	
 	-- Parent
-	frame:SetParent(PanelInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
-	frame:SetFrameStrata('BACKGROUND')
-	frame:SetFrameLevel(2)
+	Panel:SetParent(PanelInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
+	Panel:SetFrameStrata('BACKGROUND')
+	Panel:SetFrameLevel(2)
 	
 	-- Size
-	frame:Size(PanelInfo.Width, PanelInfo.Height)
+	Panel:Size(PanelInfo.Width, PanelInfo.Height)
 	
 	-- Backdrop
 	if PanelInfo.panelBackdrop then
-		frame.backdrop:Show()
+		Panel.backdrop:Show()
 	else
-		frame.backdrop:Hide()
+		Panel.backdrop:Hide()
 	end
 	
 	
 	-- Clear All Buttons before each panel's button setting
-	KF:CustomPanel_Button_ClearAll(frame)
+	KF:CustomPanel_Button_ClearAll(Panel)
 	
 	-- Tab panel and button setting
 	if PanelInfo.Tab.Enable then
-		frame.Tab:Show()
-		frame.Tab:SetTemplate(PanelInfo.Tab.Transparency == true and 'Transparent' or 'Default', true)
-		frame.Tab:Point('TOPLEFT', frame, SPACING + (#PanelInfo.Tab.ButtonLeft * SIDE_BUTTON_WIDTH), -SPACING)
-		frame.Tab:Point('BOTTOMRIGHT', frame, 'TOPRIGHT', -(SPACING + (#PanelInfo.Tab.ButtonRight * SIDE_BUTTON_WIDTH)), -(SPACING + PANEL_HEIGHT))
+		Panel.Tab:Show()
+		Panel.Tab:SetTemplate(PanelInfo.Tab.Transparency == true and 'Transparent' or 'Default', true)
+		Panel.Tab:Point('TOPLEFT', Panel, SPACING + (#PanelInfo.Tab.ButtonLeft * SIDE_BUTTON_WIDTH), -SPACING)
+		Panel.Tab:Point('BOTTOMRIGHT', Panel, 'TOPRIGHT', -(SPACING + (#PanelInfo.Tab.ButtonRight * SIDE_BUTTON_WIDTH)), -(SPACING + PANEL_HEIGHT))
 		
 		if #PanelInfo.Tab.ButtonLeft > 0 then
 			for i = 1, #PanelInfo.Tab.ButtonLeft do
-				frame.Button.Tab_Left = frame.Button.Tab_Left or {}
-				frame.Button.Tab_Left[i] = KF:CustomPanel_Button_Create(frame.Button.Tab_Left[i], PanelInfo.Tab.ButtonLeft[i], PanelInfo.Tab.Transparency)
-				frame.Button.Tab_Left[i]:SetParent(frame)
-				frame.Button.Tab_Left[i]:Point('TOPLEFT', frame, SPACING + ((i - 1) * SIDE_BUTTON_WIDTH), -SPACING)
+				Panel.Button.Tab_Left = Panel.Button.Tab_Left or {}
+				Panel.Button.Tab_Left[i] = KF:CustomPanel_Button_Create(Panel.Button.Tab_Left[i], PanelInfo.Tab.ButtonLeft[i], PanelInfo.Tab.Transparency)
+				Panel.Button.Tab_Left[i]:SetParent(Panel)
+				Panel.Button.Tab_Left[i]:Point('TOPLEFT', Panel, SPACING + ((i - 1) * SIDE_BUTTON_WIDTH), -SPACING)
 			end
 		end
 		
 		if #PanelInfo.Tab.ButtonRight > 0 then
 			for i = 1, #PanelInfo.Tab.ButtonRight do
-				frame.Button.Tab_Right = frame.Button.Tab_Right or {}
-				frame.Button.Tab_Right[i] = KF:CustomPanel_Button_Create(frame.Button.Tab_Right[i], PanelInfo.Tab.ButtonRight[i], PanelInfo.Tab.Transparency)
-				frame.Button.Tab_Right[i]:SetParent(frame)
-				frame.Button.Tab_Right[i]:Point('TOPRIGHT', frame, -(SPACING + ((i - 1) * SIDE_BUTTON_WIDTH)), -SPACING)
+				Panel.Button.Tab_Right = Panel.Button.Tab_Right or {}
+				Panel.Button.Tab_Right[i] = KF:CustomPanel_Button_Create(Panel.Button.Tab_Right[i], PanelInfo.Tab.ButtonRight[i], PanelInfo.Tab.Transparency)
+				Panel.Button.Tab_Right[i]:SetParent(Panel)
+				Panel.Button.Tab_Right[i]:Point('TOPRIGHT', Panel, -(SPACING + ((i - 1) * SIDE_BUTTON_WIDTH)), -SPACING)
 			end
 		end
 	else
-		frame.Tab:Hide()
+		Panel.Tab:Hide()
 	end
 	
 	-- Data Panel and button setting
 	if PanelInfo.DP.Enable then
-		frame.DP:Show()
-		frame.DP:SetTemplate(PanelInfo.DP.Transparency == true and 'Transparent' or 'Default', true)
-		frame.DP:Point('TOPLEFT', frame, 'BOTTOMLEFT', SPACING + (#PanelInfo.DP.ButtonLeft * SIDE_BUTTON_WIDTH), SPACING + PANEL_HEIGHT)
-		frame.DP:Point('BOTTOMRIGHT', frame, -(SPACING + (#PanelInfo.DP.ButtonRight * SIDE_BUTTON_WIDTH)), SPACING)
+		Panel.DP:Show()
+		Panel.DP:SetTemplate(PanelInfo.DP.Transparency == true and 'Transparent' or 'Default', true)
+		Panel.DP:Point('TOPLEFT', Panel, 'BOTTOMLEFT', SPACING + (#PanelInfo.DP.ButtonLeft * SIDE_BUTTON_WIDTH), SPACING + PANEL_HEIGHT)
+		Panel.DP:Point('BOTTOMRIGHT', Panel, -(SPACING + (#PanelInfo.DP.ButtonRight * SIDE_BUTTON_WIDTH)), SPACING)
 		
 		if #PanelInfo.DP.ButtonLeft > 0 then
 			for i = 1, #PanelInfo.DP.ButtonLeft do
-				frame.Button.DP_Left = frame.Button.DP_Left or {}
-				frame.Button.DP_Left[i] = KF:CustomPanel_Button_Create(frame.Button.DP_Left[i], PanelInfo.DP.ButtonLeft[i], PanelInfo.DP.Transparency)
-				frame.Button.DP_Left[i]:SetParent(frame)
-				frame.Button.DP_Left[i]:Point('BOTTOMLEFT', frame, SPACING + ((i - 1) * SIDE_BUTTON_WIDTH), SPACING)
+				Panel.Button.DP_Left = Panel.Button.DP_Left or {}
+				Panel.Button.DP_Left[i] = KF:CustomPanel_Button_Create(Panel.Button.DP_Left[i], PanelInfo.DP.ButtonLeft[i], PanelInfo.DP.Transparency)
+				Panel.Button.DP_Left[i]:SetParent(Panel)
+				Panel.Button.DP_Left[i]:Point('BOTTOMLEFT', Panel, SPACING + ((i - 1) * SIDE_BUTTON_WIDTH), SPACING)
 			end
 		end
 		
 		if #PanelInfo.DP.ButtonRight > 0 then
 			for i = 1, #PanelInfo.DP.ButtonRight do
-				frame.Button.DP_Right = frame.Button.DP_Right or {}
-				frame.Button.DP_Right[i] = KF:CustomPanel_Button_Create(frame.Button.DP_Right[i], PanelInfo.DP.ButtonRight[i], PanelInfo.DP.Transparency)
-				frame.Button.DP_Right[i]:SetParent(frame)
-				frame.Button.DP_Right[i]:Point('BOTTOMRIGHT', frame, -(SPACING + ((i - 1) * SIDE_BUTTON_WIDTH)), SPACING)
+				Panel.Button.DP_Right = Panel.Button.DP_Right or {}
+				Panel.Button.DP_Right[i] = KF:CustomPanel_Button_Create(Panel.Button.DP_Right[i], PanelInfo.DP.ButtonRight[i], PanelInfo.DP.Transparency)
+				Panel.Button.DP_Right[i]:SetParent(Panel)
+				Panel.Button.DP_Right[i]:Point('BOTTOMRIGHT', Panel, -(SPACING + ((i - 1) * SIDE_BUTTON_WIDTH)), SPACING)
 			end
 		end
 	else
-		frame.DP:Hide()
+		Panel.DP:Hide()
 	end
 	
 	
 	-- Texture
 	if PanelInfo.Texture.Enable then
-		frame.Texture:Show()
-		frame.Texture:SetTexture(PanelInfo.Texture.Path)
-		frame.Texture:SetAlpha(PanelInfo.Texture.Alpha)
+		Panel.Texture:Show()
+		Panel.Texture:SetTexture(PanelInfo.Texture.Path)
+		Panel.Texture:SetAlpha(PanelInfo.Texture.Alpha)
 	else
-		frame.Texture:Hide()
+		Panel.Texture:Hide()
 	end
 	
 	
-	-- Create Mover after frame locating
-	if not frame.mover then
+	-- Create Mover after Panel locating
+	if not Panel.mover then
 		if PanelInfo.Location then
-			frame:SetPoint(unpack({string.split('\031', PanelInfo.Location)}))
+			Panel:SetPoint(unpack({string.split('\031', PanelInfo.Location)}))
 			--PanelInfo['Location'] = nil
 		else
-			frame:Point('CENTER')
+			Panel:Point('CENTER')
 		end
 		
-		E:CreateMover(frame, frameTag..'_'..frame.Count..'_Mover', L['FrameTag']..(PanelInfo.Name or PanelName)..(DB.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']), nil, nil, nil, 'ALL,KF')
+		E:CreateMover(Panel, PanelTag..'_'..Panel.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF')
 		
 		if E:HasMoverBeenMoved(PanelName) then
-			frame.mover:ClearAllPoints()
-			frame.mover:SetPoint(unpack({string.split('\031', E.db.movers[PanelName])}))
-			E.CreatedMovers[frameTag..'_'..frame.Count..'_Mover'].point = E.db.movers[PanelName]
+			Panel.mover:ClearAllPoints()
+			Panel.mover:SetPoint(unpack({string.split('\031', E.db.movers[PanelName])}))
+			E.CreatedMovers[PanelTag..'_'..Panel.Count..'_Mover'].point = E.db.movers[PanelName]
 		end
-	else
-		-- Update Mover's Tag
-		frame.mover.text:SetText(L['FrameTag']..(PanelInfo.Name or PanelName)..(DB.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']))
 	end
+	-- Update Mover's Tag
+	Panel.mover.text:SetText(L['PanelTag']..'|n'..(PanelInfo.Name or PanelName)..(DB.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']))
 	
 	
 	if E.ConfigurationMode then
-		frame.mover:Show()
+		Panel.mover:Show()
 	end
 end
 
 
 function KF:CustomPanel_Delete(PanelName, SaveProfile)
-	local frame = KF.UIParent.Frame[PanelName]
+	local Panel = KF.UIParent.Panel[PanelName]
 	
-	if frame then
-		frame:SetAlpha(1)
-		frame:SetScript('OnUpdate', nil)
-		frame:Hide()
-		frame.mover:Hide()
+	if Panel then
+		Panel:SetAlpha(1)
+		Panel:SetScript('OnUpdate', nil)
+		Panel:Hide()
+		Panel.mover:Hide()
 		
-		KF:CustomPanel_Button_ClearAll(frame)
+		KF:CustomPanel_Button_ClearAll(Panel)
 		
-		local moverData = E.CreatedMovers[frame.mover.name]
-		frame.MoverData = moverData
-		E.CreatedMovers[frame.mover.name] = nil
+		local moverData = E.CreatedMovers[Panel.mover.name]
+		Panel.MoverData = moverData
+		E.CreatedMovers[Panel.mover.name] = nil
 		
 		if SaveProfile then
-			E:SaveMoverPosition(frame.mover.name)
-			E.db.movers[PanelName] = E.db.movers[frame.mover.name]
+			E:SaveMoverPosition(Panel.mover.name)
+			E.db.movers[PanelName] = E.db.movers[Panel.mover.name]
 		else
 			E.db.movers[PanelName] = nil
 		end
-		E.db.movers[frame.mover.name] = nil
+		E.db.movers[Panel.mover.name] = nil
 		
-		DeletedFrame[#DeletedFrame + 1] = KF.UIParent.Frame[PanelName]
-		KF.UIParent.Frame[PanelName] = nil
+		DeletedFrame[#DeletedFrame + 1] = KF.UIParent.Panel[PanelName]
+		KF.UIParent.Panel[PanelName] = nil
 	end
 end
 
@@ -349,10 +348,10 @@ function KF:CustomPanel_Button_Create(ButtonFrame, buttonType, buttonTransparenc
 end
 
 
-function KF:CustomPanel_Button_ClearAll(frame)
-	if frame.Button then
-		for buttonLocation in pairs(frame.Button) do
-			for _, b in pairs(frame.Button[buttonLocation]) do
+function KF:CustomPanel_Button_ClearAll(Panel)
+	if Panel.Button then
+		for buttonLocation in pairs(Panel.Button) do
+			for _, b in pairs(Panel.Button[buttonLocation]) do
 				b:ClearAllPoints()
 				b:SetParent(nil)
 				b:Hide()
@@ -361,7 +360,7 @@ function KF:CustomPanel_Button_ClearAll(frame)
 		end
 	end
 	
-	frame.Button = {}
+	Panel.Button = {}
 end
 
 
@@ -378,7 +377,7 @@ hooksecurefunc('FCFTab_OnUpdate', function(self)
 		end
 		
 		if not MouseOveredPanel then
-			for PanelName, Panel in pairs(KF.UIParent.Frame) do
+			for PanelName, Panel in pairs(KF.UIParent.Panel) do
 				if Panel:IsMouseOver() then
 					MouseOveredPanel = Panel
 					MouseOveredPanelName = PanelName
@@ -391,7 +390,7 @@ hooksecurefunc('FCFTab_OnUpdate', function(self)
 		
 		if IsMouseButtonDown(self.dragButton) then
 			if not MouseOveredPanel then
-				for PanelName, Panel in pairs(KF.UIParent.Frame) do
+				for PanelName, Panel in pairs(KF.UIParent.Panel) do
 					if Panel:IsMouseOver() then
 						MouseOveredPanel = Panel
 						MouseOveredPanelName = PanelName
@@ -469,7 +468,7 @@ KF.Modules.CustomPanel = function(RemoveOrder)
 	KF:CustomPanel_Button_RegisterLDB()
 	
 	-- Update Panel Setting
-	for panelName in pairs(KF.UIParent.Frame) do
+	for panelName in pairs(KF.UIParent.Panel) do
 		KF:CustomPanel_Delete(panelName, true)
 	end
 	
@@ -481,7 +480,7 @@ KF.Modules.CustomPanel = function(RemoveOrder)
 				KF:CustomPanel_Create(panelName)
 				
 				for i = 1, #IsPanelData.Chat do
-					--KF:DockingChatFrameToCustomPanel(_G[format('ChatFrame%dTab', IsPanelData.Chat[i])], KF.UIParent.Frame[panelName])
+					--KF:DockingChatFrameToCustomPanel(_G[format('ChatFrame%dTab', IsPanelData.Chat[i])], KF.UIParent.Panel[panelName])
 				end
 			end
 		end

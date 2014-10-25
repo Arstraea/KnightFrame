@@ -1,16 +1,27 @@
-﻿local E, L, V, P, G, _ = unpack(ElvUI)
-local KF = E:GetModule('KnightFrame')
+﻿local E, L, V, P, G = unpack(ElvUI)
+local KF, DB, Info, Timer = unpack(select(2, ...))
 
--- Last Code Checking Date		: 2014. 3. 26
--- Last Code Checking Version	: 3.0_01
--- Last Testing ElvUI Version	: 6.995
-
-if not KF then return end
-
-KF.db.Modules['SmartTracker'] = {
-	['Enable'] = true,
-	['Location'] = 'TOPLEFTElvUIParentTOPLEFT11-258',
+DB.Modules.SmartTracker = {
+	Enable = true,
 	
+	Window = {
+		[1] = {
+			Location = 'TOPLEFTElvUIParentTOPLEFT11-258',
+			
+			Area_Width = 395,
+			Area_Height = 277,
+			Area_Show = true,
+			
+			Bar_Direction = 'DOWN',
+			Bar_Height = 16,
+			Bar_FontSize = 10,
+			
+			Color_WindowTab = { 1, 1, 1 },
+			Color_BehindBar = { 1, 1, 1, 0.2 },
+			Color_Charged = { .38, .82, 1 },
+		}
+	}
+	--[[
 	['General'] = {
 		['HideWhenSolo'] = true,
 		['EraseWhenUserLeftGroup'] = true,
@@ -26,24 +37,12 @@ KF.db.Modules['SmartTracker'] = {
 	},
 	
 	['Appearance'] = {
-		['Area_Width'] = 395,
-		['Area_Height'] = 277,
-		['Area_Visible'] = true,
-		
-		['Bar_Direction'] = 2,
-		['Bar_Height'] = 16,
-		['Bar_Fontsize'] = 10,
-		
 		['RaidIcon_Size'] = 35,
 		['RaidIcon_Spacing'] = 5,
 		['RaidIcon_Fontsize'] = 13,
 		['RaidIcon_StartPoint'] = 1,	-- 1 : LEFTSIDE of MainFrame, 2 : RIGHTSIDE of MainFrame
 		['RaidIcon_Direction'] = 3,		-- 1 : UP, 2 : DOWN, 3 : UPPER, 4 : BELOW
 		['RaidIcon_DisplayMax'] = true,
-		
-		['Color_MainFrame'] = { 1, 1, 1 },
-		['Color_BarBackground'] = { 1, 1, 1, 0.2, },
-		['Color_ChargedBar'] = { 0.38, 0.82, 1, },
 	},
 	
 	['WARRIOR'] = {
@@ -166,4 +165,59 @@ KF.db.Modules['SmartTracker'] = {
 			['Spec'] = L['Spec_Priest_Shadow'],
 		},
 	},
+	]]
+}
+
+
+Info.SmartTracker_Default = {
+	Enable = true,
+	
+	Area_Width = 395,
+	Area_Height = 277,
+	Area_Show = true,
+	
+	Bar_Direction = 'DOWN',
+	Bar_Height = 16,
+	Bar_FontSize = 10,
+	
+	Color_WindowTab = { 1, 1, 1 },
+	Color_BehindBar = { 1, 1, 1, 0.2 },
+	Color_Charged = { .38, .82, 1 },
+}
+
+
+KF.DBFunction.SmartTracker = {
+	Load = function(TableToSave, TableToLoad)
+		if TableToLoad.Modules and TableToLoad.Modules.SmartTracker and type(TableToLoad.Modules.SmartTracker.Window) == 'table' then
+			for WindowName, IsWindowData in pairs(TableToLoad.Modules.SmartTracker.Window) do
+				if type(IsWindowData) == 'table' then
+					if WindowName == 1 then
+						E:CopyTable(TableToSave.Modules.SmartTracker.Window[WindowName], IsWindowData)
+					else
+						TableToSave.Modules.SmartTracker.Window[WindowName] = E:CopyTable({}, Info.SmartTracker_Default)
+					end
+				end
+			end
+		end
+	end,
+	Save = function()
+		for WindowName, IsWindowData in pairs(DB.Modules.SmartTracker.Window) do
+			if type(IsWindowData) == 'table' then
+				DB.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default)
+				
+				if DB.Modules.SmartTracker.Window[WindowName] == nil then
+					DB.Modules.SmartTracker.Window[WindowName] = {}
+				end
+			end
+		end
+		
+		if E.db.movers and KF.UIParent.Window then
+			for WindowName, Window in pairs(KF.UIParent.Window) do
+				if WindowName ~= 1 and E.db.movers and E.db.movers[Window.mover.name] then
+					E.db.movers[WindowName] = E.db.movers[Window.mover.name]
+					E.db.movers[Window.mover.name] = nil
+				end
+			end
+		end
+	end
 }

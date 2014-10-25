@@ -37,7 +37,6 @@ end
 if SkadaLoaded then
 	local libwindow = LibStub('LibWindow-1.1')
 	
-	
 	function KF:EmbedMeter_Skada_ChangedApplySettings(window)
 		libwindow.SavePosition_ = libwindow.SavePosition
 		libwindow.SavePosition = function() end
@@ -45,8 +44,6 @@ if SkadaLoaded then
 		libwindow.SavePosition = libwindow.SavePosition_
 		libwindow.SavePosition_ = nil
 	end
-	
-	
 	
 	function KF:EmbedMeter_EmbedSetting_Skada(HoldEmbeding)
 		if not Info.EmbedMeter_Activate then return end
@@ -602,8 +599,6 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'EmbedMeter'
 KF.Modules.EmbedMeter = function(RemoveOrder)
-	Info.EmbedMeter_Activate = false
-	
 	if SkadaLoaded then
 		KF:EmbedMeter_ClearSetting_Skada(RemoveOrder)
 	end
@@ -616,7 +611,7 @@ KF.Modules.EmbedMeter = function(RemoveOrder)
 		KF:EmbedMeter_ClearSetting_Omen(RemoveOrder)
 	end
 	
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.EmbedMeter.Enale ~= false then
+	if not RemoveOrder and DB.Enable ~= false and DB.Modules.EmbedMeter.Enable ~= false then
 		Info.EmbedMeter_Activate = true
 		
 		if KF:EmbedMeter_CheckNeedEmbeding() then

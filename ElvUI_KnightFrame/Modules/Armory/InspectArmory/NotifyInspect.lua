@@ -1,23 +1,19 @@
-﻿local tinsert, tremove = tinsert, tremove
-local ENI = _G['EnhancedNotifyInspect']
-local Revision = 1.1
+﻿local Revision = 1.1
+local ENI = _G['EnhancedNotifyInspect'] or CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
 
-if not ENI then
-	ENI = CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
+if not ENI.Revision or ENI.Revision < Revision then
 	ENI.InspectList = {}
 	ENI.Revision = Revision
+	ENI.Original_BlizzardNotifyInspect = ENI.Original_BlizzardNotifyInspect or _G['NotifyInspect']
+	ENI.UpdateInterval = 1
+	
 	ENI:SetScript('OnEvent', function(self, Event, ...)
 		if self[Event] then
 			self[Event](...)
 		end
 	end)
 	ENI:Hide()
-end	
-
-if not ENI.Revision or ENI.Revision <= Revision then
-	ENI.UpdateInterval = 1
 	
-	local BlizzardNotifyInspect = _G['NotifyInspect']
 	local playerRealm = GetRealmName()
 	
 	local UnitID
@@ -29,7 +25,7 @@ if not ENI.Revision or ENI.Revision <= Revision then
 				if UnitID and UnitIsConnected(UnitID) and CanInspect(UnitID) then
 					ENI.CurrentInspectUnitGUID = UnitGUID(UnitID)
 					
-					BlizzardNotifyInspect(UnitID)
+					ENI.Original_BlizzardNotifyInspect(UnitID)
 					
 					if ENI.InspectList[(ENI.InspectList[i])].CancelInspectByManual then
 						RequestInspectHonorData()

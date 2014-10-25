@@ -86,7 +86,7 @@ do	-- Modules
 		L['Right Button'] = '우측에서부터 버튼 삽입'
 		
 		-- need fixing
-		L['Frame that named same is already exists. Please enter a another name.'] = '이미 같은 이름을 사용하는 프레임이 있습니다. 다른 이름을 입력하세요.'
+		L['Panel that named same is already exists. Please enter a another name.'] = '이미 같은 이름을 사용하는 프레임이 있습니다. 다른 이름을 입력하세요.'
 		L['Custom Panel that named same is already exists.'] = '이미 같은 이름을 사용하는 커스텀 패널의 데이터가 있습니다.'
 		L['New data has been saved successfully and %s was created.'] = '새로운 데이터가 저장되었고 %s 가 생성되었습니다.'
 		L['All changes have been saved to %s data.'] = '변경된 데이터가 %s 데이터에 덮어씌워졌습니다.'

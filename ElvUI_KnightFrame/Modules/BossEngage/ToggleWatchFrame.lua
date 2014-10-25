@@ -27,16 +27,16 @@ KF.Modules['ToggleWatchFrame'] = function(RemoveOrder)
 				end
 			end
 			
-			if ObjectiveTrackerFrame and not ObjectiveTrackerFrame.collapsed and Toggled == false then
+			if ObjectiveTrackerFrame and not ObjectiveTrackerFrame.collapsed and Toggled == false and not ObjectiveTrackerFrame.collapsed then
 				Toggled = true
-				ObjectiveTracker_MinimizeButton_OnClick()
+				ObjectiveTracker_Collapse()
 				print(L['KF']..' : '..L['Hide Objectiveframe because of entering boss battle.'])
 			end
 		end, 'ToggleWatchFrame')
 		
 		KF:RegisterCallback('BossBattleEnd', function()
 			if ObjectiveTrackerFrame and ObjectiveTrackerFrame.collapsed and Toggled == true then
-				ObjectiveTracker_MinimizeButton_OnClick()
+				ObjectiveTracker_Expand()
 				Toggled = false
 			end
 		end, 'ToggleWatchFrame')

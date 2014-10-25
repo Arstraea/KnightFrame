@@ -16,8 +16,8 @@ local function NameColor(Color)
 end
 
 
-local function Create_ButtonConfig(frame, direction, number)
-	E.Options.args.KnightFrame.args.CustomPanel.args.ConfigSpace.args[frame].args[direction].args[tostring(number)] = {
+local function Create_ButtonConfig(Panel, direction, number)
+	E.Options.args.KnightFrame.args.CustomPanel.args.ConfigSpace.args[Panel].args[direction].args[tostring(number)] = {
 		type = 'select',
 		name = '',
 		order = number,
@@ -117,7 +117,7 @@ KF_Config.Options.args.CustomPanel = {
 			set = function(_, value)
 				if value ~= '' and value ~= nil then
 					if _G[value] then
-						Message = L['Frame that named same is already exists. Please enter a another name.']
+						Message = L['Panel that named same is already exists. Please enter a another name.']
 					else
 						PanelInfo.Name = value
 						
@@ -125,7 +125,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						local ACD = LibStub('AceConfigDialog-3.0')
 						
-						KF.UIParent.Frame[0]:SetScript('OnUpdate', function(self)
+						KF.UIParent.Panel[0]:SetScript('OnUpdate', function(self)
 							if (not ACD.OpenFrames.ElvUI or not ACD.OpenFrames.ElvUI:IsShown()) then
 								self:SetAlpha(0)
 							else
@@ -165,7 +165,7 @@ KF_Config.Options.args.CustomPanel = {
 					set = function(_, value)
 						if value ~= '' and value ~= nil then
 							if _G[value] then
-								Message = L['Frame that named same is already exists. Please enter a another name.']
+								Message = L['Panel that named same is already exists. Please enter a another name.']
 							else
 								Message = nil
 								

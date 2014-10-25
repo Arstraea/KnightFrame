@@ -1,6 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Profile.lua"/>
-	<Script file="Constants.lua"/>
+	<Script file="SpellData.lua"/>
+	
+	<Script file="Communication.lua"/>
+	
 	<Script file="SmartTracker.lua"/>
-	<Script file="OLD_RaidCooldown.lua"/>
 </Ui>
