@@ -333,7 +333,6 @@ function ST:Setup_MainWindow()
 	self.Setup_MainWindow = nil
 end
 
-
 --[[
 KF.Modules[#KF.Modules + 1] = 'SmartTracker'
 KF.Modules.SmartTracker = function(RemoveOrder)
@@ -356,5 +355,4 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 	else
 		Info.SmartTracker_Activate = nil
 	end
-end
-]]
+end]]

@@ -599,6 +599,8 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'EmbedMeter'
 KF.Modules.EmbedMeter = function(RemoveOrder)
+	Info.EmbedMeter_Activate = nil
+	
 	if SkadaLoaded then
 		KF:EmbedMeter_ClearSetting_Skada(RemoveOrder)
 	end

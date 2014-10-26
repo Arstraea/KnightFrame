@@ -160,17 +160,6 @@ elseif KF.UIParent and KF.db.Modules.SmartTracker.Enable ~= false then
 	-- [ Knight : Toolkit									]--
 	-----------------------------------------------------------
 	do
-		Func['DisplayableBarNumber'] = function()
-			local Height = KF.db.Modules.SmartTracker.Appearance.Area_Height - Default['MainFrame_Tab_Height']
-			
-			if Value['IsRaidIconShow'] == true and (KF.db.Modules.SmartTracker.Appearance.Bar_Direction == 1 and KF.db.Modules.SmartTracker.Appearance.RaidIcon_Direction == 3) or (KF.db.Modules.SmartTracker.Appearance.Bar_Direction == 2 and KF.db.Modules.SmartTracker.Appearance.RaidIcon_Direction == 4) then
-				Height = Height - KF.db.Modules.SmartTracker.Appearance.RaidIcon_Size - KF.db.Modules.SmartTracker.Appearance.RaidIcon_Spacing * 2
-			end
-			
-			return floor(Height / (KF.db.Modules.SmartTracker.Appearance.Bar_Height - 1))
-		end
-	
-	
 		Func['TimeFormat'] = function(InputTime)
 			if InputTime > 60 then
 				return string.format('%d:%.2d', InputTime / 60, InputTime % 60)
@@ -1865,32 +1854,6 @@ elseif KF.UIParent and KF.db.Modules.SmartTracker.Enable ~= false then
 	KnightRaidCooldown.InspectMembers.Number:Point('CENTER', KnightRaidCooldown.InspectMembers, 0, 1)
 	
 	
-	
-	
-	function KF:RaidCooldown_ChangeBarDirection()
-		KnightRaidCooldown.Tab:ClearAllPoints()
-		KnightRaidCooldown.Tab:Point('LEFT', KnightRaidCooldown)
-		KnightRaidCooldown.Tab:Point('RIGHT', KnightRaidCooldown)
-		
-		KnightRaidCooldown.ResizeGrip:ClearAllPoints()
-		KnightRaidCooldown.DisplayArea.text:ClearAllPoints()
-		if KF.db.Modules.SmartTracker.Appearance.Bar_Direction == 1 then -- 1 : Up / 2 : Down
-			KnightRaidCooldown.Tab:Point('BOTTOM', KnightRaidCooldown)
-			KnightRaidCooldown.DisplayArea:Point('TOPLEFT', KnightRaidCooldown)
-			KnightRaidCooldown.DisplayArea:Point('BOTTOMRIGHT', KnightRaidCooldown.Tab, 'TOPRIGHT', 0, -1)
-			KnightRaidCooldown.ResizeGrip:Point('TOPRIGHT', KnightRaidCooldown.DisplayArea)
-			KnightRaidCooldown.DisplayArea.texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\ResizeGripRightTop.tga')
-			KnightRaidCooldown.DisplayArea.text:Point('TOPRIGHT', KnightRaidCooldown.ResizeGrip, 'TOPLEFT', -2, -4)
-		else
-			KnightRaidCooldown.Tab:Point('TOP', KnightRaidCooldown)
-			KnightRaidCooldown.DisplayArea:Point('TOPLEFT', KnightRaidCooldown.Tab, 'BOTTOMLEFT', 0, 1)
-			KnightRaidCooldown.DisplayArea:Point('BOTTOMRIGHT', KnightRaidCooldown)
-			KnightRaidCooldown.ResizeGrip:Point('BOTTOMRIGHT', KnightRaidCooldown.DisplayArea)
-			KnightRaidCooldown.DisplayArea.texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\ResizeGripRight.tga')
-			KnightRaidCooldown.DisplayArea.text:Point('BOTTOMRIGHT', KnightRaidCooldown.ResizeGrip, 'BOTTOMLEFT', -2, 4)
-		end
-	end
-	KF:RaidCooldown_ChangeBarDirection()
 	
 	
 	
