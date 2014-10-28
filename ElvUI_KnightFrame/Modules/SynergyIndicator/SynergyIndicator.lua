@@ -244,7 +244,7 @@ function SI:TargetIndicatorSetting()
 		SI.Target:Show()
 		
 		local unitColor, TargetType
-		if UnitCanAttack('player', 'target') then
+		if UnitCanAttack('player', 'target') or UnitIsEnemy('player', 'target') then
 			SI.Target:Hide()
 			
 			if UnitIsPlayer('target') then

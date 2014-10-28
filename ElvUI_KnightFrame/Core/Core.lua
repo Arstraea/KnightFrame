@@ -631,11 +631,10 @@ end
 
 
 KF:RegisterCallback('GroupChanged', function()
+	Timer.CheckDeveloper:Cancel()
 	if Info.CurrentGroupMode == 'NoGroup' then
-		Timer.CheckDeveloper:Cancel()
-		
 		Info.DeveloperFind = nil
-	elseif not Timer.CheckDeveloper or Timer.CheckDeveloper._cancelled then
+	else
 		KF:CheckDeveloper()
 		Timer.CheckDeveloper = C_Timer.NewTicker(1, KF.CheckDeveloper)
 	end

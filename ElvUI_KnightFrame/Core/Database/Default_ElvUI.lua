@@ -10,6 +10,7 @@ if E.db.KnightFrame and E.db.KnightFrame.UseProfile == true then
 	
 	-- Core
 	P.general.loginmessage = false
+	P.general.afk = false
 	P.general.autoRepair = "GUILD"
 	P.general.vendorGrays = true
 	P.general.valuecolor = { r = 46/255, g = 183/255, b = 227/255 }
