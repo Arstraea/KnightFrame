@@ -5,9 +5,40 @@ local KF, DB, Info, Timer = unpack(select(2, ...))
 -- [ Knight : Spell Data								]--
 -----------------------------------------------------------
 Info.SmartTracker_Data = {}
+Info.SmartTracker_ConvertSpell = {}
+Info.SmartTracker_SPELL_CAST_SUCCESS_Spell = {}
+
+--[[  << Table Format >>
+
+	[SpellID] = {
+		Time	= Cooltime (Number)
+		Reset	= Spell that reset when boss combat is end (Boolean)
+		Target	= Target type spell (Boolean)
+		Charge	= Spell that chargable (Boolean)
+		
+		Spec = {
+			[Global string of Spec in L table] = ChangedCooltime(Number)
+			
+			#NOTE: Global string of Spec in L table = L['Spec_'..ClassName..'_'..SpecName] (ex: L['Spec_Paladin_Holy']).
+		}
+		
+		Talent = {
+			[TalentID(Number)] = ChangedCooltime(Number)
+			...
+		}
+		
+		Glyph = {
+			[GlyphID(Number)] = ChangedCooltime(Number)
+			...
+			
+			#NOTE: I use GlyphID that 4th returning parameter of GetGlyphSocketInfo(SocketID).
+		}
+	}
+	
+]]
 
 --[[
-	-- [SpellID] = { Cooltime, Boolean(Spell that reset when boss combat is end), Boolean(Target type spell), Boolean(Spell that chargable) }
+	
 	['WARRIOR'] = {
 		
 	},
@@ -42,11 +73,9 @@ Info.SmartTracker_Data = {}
 do	-- WARLOCK DATA
 	Info.SmartTracker_Data.WARLOCK = {
 		[18540] = { Time = 600, Reset = true },								-- 파멸의 수호병 소환
-		[112927] = { Convert = 18540 },										--  ㄴ공포수호병 소환
 		[120451] = { Time = 60 },											-- 소로스의 불길
 		[698] = { Time = 120 },												-- 소환 의식
 		[1122] = { Time = 600, Reset = true },								-- 지옥불정령 소환
-		[112921] = { Convert = 1122 },										--  ㄴ심연불정령 소환
 		[30283] = { Time = 30 },											-- 어둠의 격노
 		[108359] = { Time = 120 },											-- 어둠의 재생력
 		[29858] = { Time = 120 },											-- 영혼 붕괴
@@ -59,10 +88,6 @@ do	-- WARLOCK DATA
 		[111397] = { Time = 60 },											-- 핏빛 두려움
 		[108482] = { Time = 120 },											-- 해방된 의지
 		[108501] = { Time = 120 },											-- 흑마법서: 봉사
-		[111859] = { Convert = 108501 },									--  ㄴ흑마법서: 봉사 (임프)
-		[111895] = { Convert = 108501 },									--  ㄴ흑마법서: 봉사 (공허방랑자)
-		[111896] = { Convert = 108501 },									--  ㄴ흑마법서: 봉사 (서큐버스)
-		[111897] = { Convert = 108501 },									--  ㄴ흑마법서: 봉사 (지옥사냥개)
 		[137587] = { Time = 60 },											-- 킬제덴의 교활함
 		[108508] = { Time = 60 },											-- 만노로스의 분노
 		[119899] = { Time = 30 },											-- 임프: 상처지지기
@@ -83,9 +108,6 @@ do	-- WARLOCK DATA
 				[159665] = -60
 			}
 		},
-		[113858] = { Convert = 77801 },										--  ㄴ악마의 영혼: 불안정
-		[113861] = { Convert = 77801 },										--	ㄴ악마의 영혼: 지식
-		[113860] = { Convert = 77801 },										--  ㄴ악마의 영혼: 불행
 		
 		
 		[48020] = { Time = 30,												-- 악마의 마법진: 순간이동
@@ -117,4 +139,14 @@ do	-- WARLOCK DATA
 			}
 		}
 	}
+	
+	Info.SmartTracker_ConvertSpell[112927] = 18540							-- 공포수호병 소환
+	Info.SmartTracker_ConvertSpell[112921] = 1122							-- 심연불정령 소환
+	Info.SmartTracker_ConvertSpell[111859] = 108501							-- 흑마법서: 봉사 (임프)
+	Info.SmartTracker_ConvertSpell[111895] = 108501							-- 흑마법서: 봉사 (공허방랑자)
+	Info.SmartTracker_ConvertSpell[111896] = 108501							-- 흑마법서: 봉사 (서큐버스)
+	Info.SmartTracker_ConvertSpell[111897] = 108501							-- 흑마법서: 봉사 (지옥사냥개)
+	Info.SmartTracker_ConvertSpell[113858] = 77801							-- 악마의 영혼: 불안정
+	Info.SmartTracker_ConvertSpell[113861] = 77801							-- 악마의 영혼: 지식
+	Info.SmartTracker_ConvertSpell[113860] = 77801							-- 악마의 영혼: 불행
 end

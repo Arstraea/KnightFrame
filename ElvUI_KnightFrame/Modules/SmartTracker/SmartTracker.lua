@@ -10,6 +10,7 @@ local WindowTag = 'KF_SmartTracker'
 local ST = _G['KF_SmartTracker'] or CreateFrame('Frame', 'KF_SmartTracker', KF.UIParent)
 ST.DeletedWindow = {}
 ST.DeletedBar = {}
+ST.TrackingSpell = {}
 ST.InspectCache = {}
 ST.CooldownCache = {}
 ST.TAB_HEIGHT = 22
@@ -368,11 +369,11 @@ do	--<< About Bar's Layout and Appearance >>--
 				if IsShiftKeyDown() then
 					KF.db.Modules.SmartTracker[ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID.Class][Table['Cooldown_BarList'][BarNumber].Data.SpellID] = 0
 					KF:RaidCooldown_RefreshCooldownBarData()
-				elseif not ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade or ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade['FadeType'] == 'IN' then
+				elseif not ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade or ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].FadeFadeType == 'IN' then
 					if ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['Chargy'] then
 						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['ActivateTime'] = 0
 					else
-						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade = { ['FadeType'] = KF.TimeNow, ['NoAnnounce'] = true, }
+						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade = { FadeType = TimeNow, .NoAnnounce = true, }
 					end
 				end
 			end
@@ -673,9 +674,233 @@ do	--<< System >>--
 		
 		return Cooldown, true
 	end
+	
+	
+	local TempTable
+	function ST:BuildTrackingSpellList()
+		wipe(TempTable)
+		
+		for WindowName in pairs(DB.Modules.SmartTracker.Window) do
+			for ClassName in pairs(DB.Modules.SmartTracker.Window[WindowName].SpellList) do
+				for SpellID, Enable in pairs(DB.Modules.SmartTracker.Window[WindowName].SpellList[ClassName]) do
+					if Enable ~= '0' then
+						TempTable[SpellID] = (TempTable[SpellID] or 0) + 1
+					end
+				end
+			end
+		end
+		
+		self.TrackingSpell = TempTable
+	end
+	
+	
+	function ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
+		local TimeNow = GetTime()
+		
+		--[[
+		if ST.CooldownCache[UserGUID] then
+			if SpellID == 11958 then --매서운 한파
+				if ST.CooldownCache[UserGUID].List[45438] then ST.CooldownCache[UserGUID].List[45438].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[122] then ST.CooldownCache[UserGUID].List[122].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[120] then ST.CooldownCache[UserGUID].List[120].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+			elseif SpellID == 23989 then --만반의 준비
+				for spell in pairs(ST.CooldownCache[UserGUID]['List']) do
+					if KF.Table['RaidCooldownSpell'][UserClass][spell][1] < 300 then ST.CooldownCache[UserGUID].List[spell].Fade = { FadeType = TimeNow, .NoAnnounce = true, } end
+				end
+			elseif SpellID == 14185 then --마음가짐
+				if ST.CooldownCache[UserGUID].List[2983] then ST.CooldownCache[UserGUID].List[2983].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[1856] then ST.CooldownCache[UserGUID].List[1856].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[180] then ST.CooldownCache[UserGUID].List[180].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[51722] then ST.CooldownCache[UserGUID].List[51722].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+			elseif SpellID == 108285 then --원소의 부름
+				if ST.CooldownCache[UserGUID].List[8143] then ST.CooldownCache[UserGUID].List[8143].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[51485] then ST.CooldownCache[UserGUID].List[51485].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[108273] then ST.CooldownCache[UserGUID].List[108273].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[2484] then ST.CooldownCache[UserGUID].List[2484].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[108269] then ST.CooldownCache[UserGUID].List[108269].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[108279] then ST.CooldownCache[UserGUID].List[108279].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[8177] then ST.CooldownCache[UserGUID].List[8177].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+				if ST.CooldownCache[UserGUID].List[108270] then ST.CooldownCache[UserGUID].List[108270].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
+			end
+		end
+		]]
+		
+		
+		--[[
+		if Event == 'SPELL_RESURRECT' and NowBossBattle then
+			Table['BattleResurrection_CastMember'][#Table['BattleResurrection_CastMember'] + 1] = { ['UserGUID'] = UserGUID, ['UserClass'] = UserClass, ['UserName'] = UserName, ['DestGUID'] = DestGUID, ['DestColor'] = DestColor, ['DestName'] = DestName, }
+		end
+		]]
+		
+		if ST.TrackingSpell[SpellID] then
+			ST.CooldownCache[UserGUID] = ST.CooldownCache[UserGUID] or {
+				Name = UserName,
+				Class = UserClass,
+				List = {}
+			}
+			
+			if not ST.CooldownCache[UserGUID].List[SpellID] then
+				ST.CooldownCache[UserGUID].List[SpellID] = {
+					['Display'] = function()
+						if KF.db.Modules.SmartTracker[UserClass] and KF.db.Modules.SmartTracker[UserClass][SpellID] == 1 then
+							return NowBossBattle and 'InCombat' or true
+						elseif KF.db.Modules.SmartTracker[UserClass] and KF.db.Modules.SmartTracker[UserClass][SpellID] and KF.db.Modules.SmartTracker[UserClass][SpellID] ~= 0 then
+							return true
+						elseif KF.db.Modules.SmartTracker.RaidIcon[SpellID] then
+							return 'RaidIcon'
+						end
+					end,
+					.Fade = { FadeType = 'IN', },
+				}
+			elseif ST.CooldownCache[UserGUID].List[SpellID].ActivateTime + 0.5 > TimeNow then -- because combat log check more than 1 time, so it needs to forbid just one.
+				return
+			elseif ST.CooldownCache[UserGUID].List[SpellID].Fade then
+				ST.CooldownCache[UserGUID].List[SpellID].Fade = { FadeType = 'IN' }
+			end
+			
+			ST.CooldownCache[UserGUID].List[SpellID].Cooltime, ST.CooldownCache[UserGUID].List[SpellID].NeedCalculating = ST:CalculateCooldown(Event, UserGUID, UserName, UserClass, SpellID, DestName)
+			if Event == 'SPELL_INTERRUPT' then ST.CooldownCache[UserGUID].List[SpellID]['Event'] = Event end
+			
+			if (ST.CooldownCache[UserGUID]['Class'] == 'PALADIN' and (SpellID == 1022 or SpellID == 6940 or SpellID == 1044 or SpellID == 1038) and (Table['Inspect_Cache'][UserGUID] and Table['Inspect_Cache'][UserGUID]['Talent'][12] == true)) or (ST.CooldownCache[UserGUID]['Class'] == 'HUNTER' and SpellID == 148467) then
+				if ST.CooldownCache[UserGUID].List[SpellID]['DestName'] then
+					ST.CooldownCache[UserGUID].List[SpellID]['ActivateTime2'] = ST.CooldownCache[UserGUID].List[SpellID]['ActivateTime']
+					ST.CooldownCache[UserGUID].List[SpellID]['DestColor2'] = DestColor
+					ST.CooldownCache[UserGUID].List[SpellID]['DestName2'] = DestName
+					ST.CooldownCache[UserGUID].List[SpellID]['Chargy'] = true
+				else
+					ST.CooldownCache[UserGUID].List[SpellID]['DestColor'] = DestColor
+					ST.CooldownCache[UserGUID].List[SpellID]['DestName'] = DestName
+					ST.CooldownCache[UserGUID].List[SpellID]['ActivateTime'] = TimeNow
+				end
+			elseif KF.Table['RaidCooldownSpell'][UserClass][SpellID][2] == true then
+				-- Save target name if system can display destname
+				ST.CooldownCache[UserGUID].List[SpellID]['DestColor'] = DestColor
+				ST.CooldownCache[UserGUID].List[SpellID]['DestName'] = DestName
+				ST.CooldownCache[UserGUID].List[SpellID]['ActivateTime'] = TimeNow
+			else
+				ST.CooldownCache[UserGUID].List[SpellID]['ActivateTime'] = TimeNow
+			end
+			
+			Value['RefreshCooldown'] = true
+			--KF:RaidCooldown_RefreshCooldownBarData()
+		end
+	end
+	
+	
+	do
+		local UnitType, SpellID, UserName, UserGUID, UserClass
+		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', function(...)
+			_, UnitType, _, _, _, SpellID = ...
+			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
+			
+			if not (SpellID and ST.TrackingSpell[SpellID] and Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID]) then return end
+			
+			UserName = string.split('-', UnitName(UnitType))
+			UserGUID = UnitGUID(UnitType)
+			
+			if not UnitIsPlayer(UnitType) then -- find pet master
+				if UnitName('pet') == UserName then
+					UserName = E.myname
+					UserGUID = E.myguid or UnitGUID('player')
+				elseif Info.CurrentGroupMode ~= 'NoGroup' then
+					if IsInRaid() and not UnitPlayerOrPetInRaid(UserName) then return
+					elseif IsInGroup() and not UnitPlayerOrPetInParty(UserName) then return	end
+					for i = 1, MAX_RAID_MEMBERS do
+						if UnitExists(Info.CurrentGroupMode..i..'pet') and UnitIsUnit(UserName, Info.CurrentGroupMode..i..'pet') then
+							UserName = UnitName(Info.CurrentGroupMode..i)
+							UserGUID = UnitGUID(Info.CurrentGroupMode..i)
+							break
+						end
+					end
+				end
+			end
+			if not UnitIsPlayer(UserName) then return end
+			_, UserClass = UnitClass(UserName)
+			
+			
+			if not UnitIsPlayer(UnitType) or UnitIsEnemy('player', UnitType) then
+				return
+			end
+			--[[
+			elseif KF.db.Modules.SmartTracker.Scan.CheckChanging == true and (SpellID == 63644 or SpellID == 63645 or SpellID == 113873 or SpellID == 111621) then
+				--Change Specialization or talent or glyph
+				Table['Inspect_InspectOrder'][UserName] = nil
+				Table['Inspect_InspectDelayed'][UserName] = nil
+				
+				if not KF.Update['RaidCooldownInspect']['Condition']() then
+					Value['Inspect_ScanByChanging'] = true
+					KF.Update['CheckGroupMembersNumber']['Condition'] = true
+				end
+			end
+			]]
+			
+			
+			
+			ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID)
+		end)
+	end
+	
+	
+	do
+		local Event, UserGUID, UserName, UserFlag, DestGUID, DestName, DestFlag, SpellID, UserClass, DestColor
+		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', function(...)
+			_, _, Event, _, UserGUID, UserName, UserFlag, _, DestGUID, DestName, DestFlag, _, SpellID = ...
+			
+			if bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 or
+				(Event ~= 'SPELL_RESURRECT' and Event ~= 'SPELL_AURA_APPLIED' and Event ~= 'SPELL_AURA_REFRESH' and Event ~= 'SPELL_CAST_SUCCESS' and Event ~= 'SPELL_INTERRUPT' and Event ~= 'SPELL_SUMMON') then return end
+			
+			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
+			
+			if not (SpellID and ST.TrackingSpell[SpellID]) then return end
+			
+			ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
+			
+			if UserName then
+				if not UnitIsPlayer(UserName) then -- find pet master
+					if UnitName('pet') == UserName then
+						UserName = E.myname
+						UserGUID = E.myguid or UnitGUID('player')
+					elseif Info.CurrentGroupMode ~= 'NoGroup' then
+						if IsInRaid() and not UnitPlayerOrPetInRaid(UserName) then return
+						elseif IsInGroup() and not UnitPlayerOrPetInParty(UserName) then return	end
+						for i = 1, MAX_RAID_MEMBERS do
+							if UnitExists(Info.CurrentGroupMode..i..'pet') and UnitIsUnit(UserName, Info.CurrentGroupMode..i..'pet') then
+								UserName = UnitName(Info.CurrentGroupMode..i)
+								UserGUID = UnitGUID(Info.CurrentGroupMode..i)
+								break
+							end
+						end
+					end
+				end
+				if not UnitIsPlayer(UserName) then return end
+				_, UserClass = UnitClass(UserName)
+			end
+			
+			UserName = string.split('-', UserName)
+			
+			if UserClass and Info.SmartTracker_Data[UserClass] and UserName and UserGUID then
+				if DestName then
+					if GetPlayerInfoByGUID(DestGUID) then
+						DestName = strsplit('-', DestName)
+						DestColor = KF:Color_Class(select(2, GetPlayerInfoByGUID(DestGUID)), nil)
+					else
+						DestFlag = bit.band(DestFlag, COMBATLOG_OBJECT_REACTION_MASK)
+						
+						if DestFlag == 16 then
+							DestColor = '|cff20ff20' --friendly
+						else
+							DestColor = '|cffcd4c37' --hostile
+						end
+					end
+				end
+				
+				
+			end
+		end)
+	end
 end
 
---[[
+
 KF.Modules[#KF.Modules + 1] = 'SmartTracker'
 KF.Modules.SmartTracker = function(RemoveOrder)
 	for WindowName in pairs(KF.UIParent.Window) do
@@ -687,6 +912,7 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		
 		if ST.Setup_MainWindow then
 			ST:Setup_MainWindow()
+			ST:BuildTrackingSpellList()
 		end
 		
 		for WindowName, IsWindowData in pairs(DB.Modules.SmartTracker.Window) do
@@ -697,4 +923,4 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 	else
 		Info.SmartTracker_Activate = nil
 	end
-end]]
+end

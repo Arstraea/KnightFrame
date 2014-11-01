@@ -6,19 +6,74 @@ DB.Modules.SmartTracker = {
 	
 	Window = {
 		[1] = {
-			Location = 'TOPLEFTElvUIParentTOPLEFT11-258',
+			Appearance = {
+				Location = 'TOPLEFTElvUIParentTOPLEFT11-258',
+				
+				Area_Width = 395,
+				Area_Height = 277,
+				Area_Show = true,
+				
+				Bar_Direction = 'DOWN',
+				Bar_Height = 16,
+				Bar_FontSize = 10,
+				
+				Color_WindowTab = { 1, 1, 1 },
+				Color_BehindBar = { 1, 1, 1, 0.2 },
+				Color_Charged = { .38, .82, 1 }
+			},
 			
-			Area_Width = 395,
-			Area_Height = 277,
-			Area_Show = true,
+			Display = {
+				Situation = {
+					Solo = false,
+					Group = false,
+					Instance = false,
+					RaidDungeon = false,
+					PvPGround = false
+				},
+				
+				Filter = {
+					Tanker = false,
+					Healer = false,
+					Caster = false,
+					Melee = false
+				}
+			},
 			
-			Bar_Direction = 'DOWN',
-			Bar_Height = 16,
-			Bar_FontSize = 10,
-			
-			Color_WindowTab = { 1, 1, 1 },
-			Color_BehindBar = { 1, 1, 1, 0.2 },
-			Color_Charged = { .38, .82, 1 },
+			SpellList = {
+				WARRIOR = {
+					
+				},
+				HUNTER = {
+					
+				},
+				SHAMAN = {
+					
+				},
+				MONK = {
+					
+				},
+				ROGUE = {
+					
+				},
+				DEATHKNIGHT = {
+					
+				},
+				MAGE = {
+					
+				},
+				DRUID = {
+					
+				},
+				PALADIN = {
+					
+				},
+				PRIEST = {
+					
+				},
+				WARLOCK = {
+				
+				}
+			}
 		}
 	}
 	--[[
@@ -172,17 +227,72 @@ DB.Modules.SmartTracker = {
 Info.SmartTracker_Default = {
 	Enable = true,
 	
-	Area_Width = 395,
-	Area_Height = 277,
-	Area_Show = true,
+	Appearance = {
+		Area_Width = 395,
+		Area_Height = 277,
+		Area_Show = true,
+		
+		Bar_Direction = 'DOWN',
+		Bar_Height = 16,
+		Bar_FontSize = 10,
+		
+		Color_WindowTab = { 1, 1, 1 },
+		Color_BehindBar = { 1, 1, 1, 0.2 },
+		Color_Charged = { .38, .82, 1 }
+	},
 	
-	Bar_Direction = 'DOWN',
-	Bar_Height = 16,
-	Bar_FontSize = 10,
+	Display = {
+		Situation = {
+			Solo = false,
+			Group = false,
+			Instance = false,
+			RaidDungeon = false,
+			PvPGround = false
+		},
+		
+		Filter = {
+			Tanker = false,
+			Healer = false,
+			Caster = false,
+			Melee = false
+		}
+	},
 	
-	Color_WindowTab = { 1, 1, 1 },
-	Color_BehindBar = { 1, 1, 1, 0.2 },
-	Color_Charged = { .38, .82, 1 },
+	SpellList = {
+		WARRIOR = {
+			
+		},
+		HUNTER = {
+			
+		},
+		SHAMAN = {
+			
+		},
+		MONK = {
+			
+		},
+		ROGUE = {
+			
+		},
+		DEATHKNIGHT = {
+			
+		},
+		MAGE = {
+			
+		},
+		DRUID = {
+			
+		},
+		PALADIN = {
+			
+		},
+		PRIEST = {
+			
+		},
+		WARLOCK = {
+		
+		}
+	}
 }
 
 
