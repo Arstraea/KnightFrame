@@ -1,9 +1,9 @@
 local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 local SkadaLoaded = IsAddOnLoaded('Skada') and 'Skada' or IsAddOnLoaded('SkadaU') and 'SkadaU'
 
-if SkadaLoaded and DB.Skins.Skada ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
+if SkadaLoaded and KF.db.Skins.Skada ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
 	--------------------------------------------------------------------------------
 	--<< KnightFrame : Skada Skin												>>--
 	--------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 function KF:DBConversions(Data)
 	if Data.Layout then
@@ -26,22 +26,23 @@ function KF:DBConversions(Data)
 		end
 		
 		if Data.Modules.FloatingDatatext then
-			for datatextName in pairs(Data.Modules.FloatingDatatext) do
-				if type(Data.Modules.FloatingDatatext[datatextName]) == 'table' and Data.Modules.FloatingDatatext[datatextName].Display then
-					local needErase = 0
+			local NeedErase
+			for DatatextName in pairs(Data.Modules.FloatingDatatext) do
+				if type(Data.Modules.FloatingDatatext[DatatextName]) == 'table' and Data.Modules.FloatingDatatext[DatatextName].Display then
+					NeedErase = 0
 					
-					for Mode, datatextType in pairs(Data.Modules.FloatingDatatext[datatextName].Display) do
+					for Mode, datatextType in pairs(Data.Modules.FloatingDatatext[DatatextName].Display) do
 						if datatextType == 'DPS Utility |cff2eb7e4(KF)' then
-							needErase = needErase + 1
+							NeedErase = NeedErase + 1
 							
-							Data.Modules.FloatingDatatext[datatextName].Display[Mode] = ''
+							Data.Modules.FloatingDatatext[DatatextName].Display[Mode] = ''
 						elseif datatextType ~= '0' and datatextType ~= '' then
-							needErase = needErase - 1
+							NeedErase = NeedErase - 1
 						end
 					end
 					
-					if needErase > 0 then
-						Data.Modules.FloatingDatatext[datatextName] = nil
+					if NeedErase > 0 then
+						Data.Modules.FloatingDatatext[DatatextName] = nil
 					end
 				end
 			end

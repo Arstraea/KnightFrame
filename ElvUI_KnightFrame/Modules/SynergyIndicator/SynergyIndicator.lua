@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 local A = E:GetModule('Auras')
 local M = E:GetModule('Minimap')
 
@@ -7,7 +7,7 @@ local M = E:GetModule('Minimap')
 --<< KnightFrame : Synergy Indicator										>>--
 --------------------------------------------------------------------------------
 local SI = _G['KF_SynergyIndicator'] or CreateFrame('Frame', 'KF_SynergyIndicator', KF.UIParent)
-local x, y
+local X, Y
 
 
 SI.BorderColor = {
@@ -163,9 +163,7 @@ end
 
 
 function SI:UpdateIndicator()
-	self.needUpdate = nil
-	
-	local SpellName, Icon, Duration, Expiration, Caster
+	local NeedUpdate, SpellName, Icon, Duration, Expiration, Caster
 	
 	for IconName in pairs(self.FilterList) do
 		if self[IconName].SpellName then
@@ -176,7 +174,7 @@ function SI:UpdateIndicator()
 		
 		if not SpellName then
 			if self[IconName].SpellName then
-				self.needUpdate = true
+				NeedUpdate = true
 			end
 			
 			if Info.SynergyIndicator_Filters[self[IconName].FilterName].ShownWhenHasAura then
@@ -223,7 +221,7 @@ function SI:UpdateIndicator()
 		end
 	end
 	
-	if self.needUpdate then
+	if NeedUpdate then
 		self:SetScript('OnUpdate', function()
 			self:SetScript('OnUpdate', nil)
 			SI.UpdateIndicator(self)
@@ -328,14 +326,14 @@ end
 
 function SI:UpdateLocation()
 	if not UnitExists('target') and SI:IsShown() then
-		x, y = GetPlayerMapPosition('player')
-		x = math.floor(100 * x)
-		y = math.floor(100 * y)
+		X, Y = GetPlayerMapPosition('player')
+		X = math.floor(100 * X)
+		Y = math.floor(100 * Y)
 		SI.LocationName.text:SetText(strsub(GetMinimapZoneText(), 1))
 		SI.LocationName.text:SetTextColor(M:GetLocTextColor())
 		
-		SI.LocationX.text:SetText(x == 0 and '...' or KF:Color_Value(x))
-		SI.LocationY.text:SetText(y == 0 and '...' or KF:Color_Value(y))
+		SI.LocationX.text:SetText(X == 0 and '...' or KF:Color_Value(X))
+		SI.LocationY.text:SetText(Y == 0 and '...' or KF:Color_Value(Y))
 	end
 end
 
@@ -518,14 +516,14 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'SynergyIndicator'
 KF.Modules.SynergyIndicator = function(RemoveOrder)
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.SynergyIndicator.Enable ~= false then
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.SynergyIndicator.Enable ~= false then
 		Info.SynergyIndicator_Activate = true
 		
-		DB.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs = E.db.auras.consolidatedBuffs.enable
+		KF.db.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs = E.db.auras.consolidatedBuffs.enable
 		E.db.auras.consolidatedBuffs.enable = true
 		M:UpdateSettings()
 		
-		DB.Modules.SynergyIndicator.BackUp.Use_TopPanel = E.db.general.topPanel
+		KF.db.Modules.SynergyIndicator.BackUp.Use_TopPanel = E.db.general.topPanel
 		E.db.general.topPanel = false
 		E.Layout:TopPanelVisibility()
 		
@@ -552,7 +550,7 @@ KF.Modules.SynergyIndicator = function(RemoveOrder)
 			SI.Player:Show()
 		end
 		
-		SI:Point('BOTTOMRIGHT', KF.UIParent, 'TOPRIGHT', -6, -(2 + DB.Modules.SynergyIndicator.TopPanel_Height))
+		SI:Point('BOTTOMRIGHT', KF.UIParent, 'TOPRIGHT', -6, -(2 + KF.db.Modules.SynergyIndicator.TopPanel_Height))
 		
 		KF:RegisterEventList('PLAYER_STARTED_MOVING', function() Timer.SI_UpdateLocation = C_Timer.NewTicker(.25, SI.UpdateLocation) end, 'SI_UpdateLocation')
 		KF:RegisterEventList('PLAYER_STOPPED_MOVING', Timer.SI_UpdateLocation.Cancel, 'SI_UpdateLocation')
@@ -592,12 +590,12 @@ KF.Modules.SynergyIndicator = function(RemoveOrder)
 		SI.Target:Hide()
 		
 		if RemoveOrder ~= 'SwitchProfile' then
-			E.db.auras.consolidatedBuffs.enable = DB.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs
-			DB.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs = true
+			E.db.auras.consolidatedBuffs.enable = KF.db.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs
+			KF.db.Modules.SynergyIndicator.BackUp.Use_ConsolidatedBuffs = true
 			M:UpdateSettings()
 			
-			E.db.general.topPanel = DB.Modules.SynergyIndicator.BackUp.Use_TopPanel
-			DB.Modules.SynergyIndicator.BackUp.Use_TopPanel = false
+			E.db.general.topPanel = KF.db.Modules.SynergyIndicator.BackUp.Use_TopPanel
+			KF.db.Modules.SynergyIndicator.BackUp.Use_TopPanel = false
 			E.Layout:TopPanelVisibility()
 		end
 	end

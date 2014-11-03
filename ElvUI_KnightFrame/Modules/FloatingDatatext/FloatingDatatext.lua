@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 local DT = E:GetModule('DataTexts')
 local LSM = LibStub('LibSharedMedia-3.0')
 
@@ -10,214 +10,208 @@ local PANEL_HEIGHT = 22
 --------------------------------------------------------------------------------
 local Activate = false
 local DeletedDatatext = {}
-local frameCount = 0
+local FloatingDatatextCount = 0
 
 KF.UIParent.Datatext = {}
 KF.UIParent.MoverType.KF_Datatext = L['Floating Datatext']
 
-local function RefreshDatatext(datatextName, DatatextInfo)
-	local frame = KF.UIParent.Datatext[datatextName]
+local function RefreshDatatext(DatatextName, DatatextInfo)
+	local FD = KF.UIParent.Datatext[DatatextName]
 	
-	frame.Datatext:UnregisterAllEvents()
-	frame.Datatext:SetScript('OnEvent', nil)
-	frame.Datatext:SetScript('OnUpdate', nil)
-	frame.Datatext:SetScript('OnEnter', nil)
-	frame.Datatext:SetScript('OnLeave', nil)
-	frame.Datatext:SetScript('OnClick', nil)
-	frame.Datatext.text:SetText(nil)
+	FD.Datatext:UnregisterAllEvents()
+	FD.Datatext:SetScript('OnEvent', nil)
+	FD.Datatext:SetScript('OnUpdate', nil)
+	FD.Datatext:SetScript('OnEnter', nil)
+	FD.Datatext:SetScript('OnLeave', nil)
+	FD.Datatext:SetScript('OnClick', nil)
+	FD.Datatext.text:SetText(nil)
 	
 	if DatatextInfo.Display.PvPMode ~= '' and DT.RegisteredDataTexts[(DatatextInfo.Display.PvPMode)] and (Info.InstanceType == 'arena' or Info.InstanceType =='pvp') then
-		DT:AssignPanelToDataText(frame.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display.PvPMode)])
+		DT:AssignPanelToDataText(FD.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display.PvPMode)])
 	elseif DatatextInfo.Display.Mode == '0' and DatatextInfo.Display[Info.Role] ~= '' and DT.RegisteredDataTexts[(DatatextInfo.Display[Info.Role])] then
-		DT:AssignPanelToDataText(frame.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display[Info.Role])])
+		DT:AssignPanelToDataText(FD.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display[Info.Role])])
 	elseif DatatextInfo.Display.Mode ~= '' and DT.RegisteredDataTexts[(DatatextInfo.Display.Mode)] then
-		DT:AssignPanelToDataText(frame.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display.Mode)])
+		DT:AssignPanelToDataText(FD.Datatext, DT.RegisteredDataTexts[(DatatextInfo.Display.Mode)])
 	end
 end
 
 
-function KF:FloatingDatatext_Create(datatextName, DatatextInfo)
-	DatatextInfo = DatatextInfo or DB.Modules.FloatingDatatext[datatextName] or {}
+function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
+	DatatextInfo = DatatextInfo or KF.db.Modules.FloatingDatatext[DatatextName] or {}
 	
-	if not (DB.Modules.FloatingDatatext.Enable and DatatextInfo.Enable) then
-		KF:FloatingDatatext_Delete(datatextName, true)
+	if not (KF.db.Modules.FloatingDatatext.Enable and DatatextInfo.Enable) then
+		KF:FloatingDatatext_Delete(DatatextName, true)
 		return
 	end
 	
-	local frame = KF.UIParent.Datatext[datatextName]
+	local FD = KF.UIParent.Datatext[DatatextName]
 	
-	if not frame then
+	if not FD then
 		if #DeletedDatatext > 0 then
-			KF.UIParent.Datatext[datatextName] = DeletedDatatext[#DeletedDatatext]
+			KF.UIParent.Datatext[DatatextName] = DeletedDatatext[#DeletedDatatext]
 			
-			frame = KF.UIParent.Datatext[datatextName]
+			FD = KF.UIParent.Datatext[DatatextName]
 			
-			local moverData = frame.MoverData
-			E.CreatedMovers[frame.mover.name] = moverData
-			frame.MoverData = nil
-			E.CreatedMovers[frame.mover.name].point = E:HasMoverBeenMoved(datatextName) and E.db.movers[datatextName] or DatatextInfo.Location or 'CENTERElvUIParent'
+			local moverData = FD.MoverData
+			E.CreatedMovers[FD.mover.name] = moverData
+			E.CreatedMovers[FD.mover.name].point = E:HasMoverBeenMoved(DatatextName) and E.db.movers[DatatextName] or DatatextInfo.Location or 'CENTERElvUIParent'
 			
-			frame.mover:ClearAllPoints()
-			frame.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[frame.mover.name].point)}))
+			FD.MoverData = nil
+			FD.mover:ClearAllPoints()
+			FD.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[FD.mover.name].point)}))
 			
-			frame:Show()
+			FD:Show()
 			
 			DeletedDatatext[#DeletedDatatext] = nil
 		else
-			frameCount = frameCount + 1
+			FloatingDatatextCount = FloatingDatatextCount + 1
 			
-			local f = CreateFrame('Frame', nil, KF.UIParent)
-			f.xOff = 0
-			f.yOff = 2
-			f.anchor = 'ANCHOR_TOP'
-			f:Size(100, PANEL_HEIGHT)
+			FD = CreateFrame('Frame', nil, KF.UIParent)
+			FD.xOff = 0
+			FD.yOff = 2
+			FD.anchor = 'ANCHOR_TOP'
+			FD.Count = FloatingDatatextCount
+			FD:Size(100, PANEL_HEIGHT)
 			
-			f.BG = CreateFrame('Frame', nil, f)
-			f.BG:SetInside()
+			FD.BG = CreateFrame('Frame', nil, FD)
+			FD.BG:SetInside()
 			
-			f.Datatext = CreateFrame('Button', nil, f)
-			f.Datatext:RegisterForClicks('AnyUp')
-			f.Datatext:SetInside()
-			KF:TextSetting(f.Datatext, nil, nil, 'CENTER', f.Datatext)
+			FD.Datatext = CreateFrame('Button', nil, FD)
+			FD.Datatext:RegisterForClicks('AnyUp')
+			FD.Datatext:SetInside()
+			KF:TextSetting(FD.Datatext, nil, nil, 'CENTER', FD.Datatext)
 			
-			f.Count = frameCount
-			KF.UIParent.Datatext[datatextName] = f
-			
-			frame = KF.UIParent.Datatext[datatextName]
+			KF.UIParent.Datatext[DatatextName] = FD
 		end
 	end
 	
 	-- Parent
-	frame:SetParent(DatatextInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
-	frame:SetFrameStrata('BACKGROUND')
-	frame:SetFrameLevel(11)
+	FD:SetParent(DatatextInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
+	FD:SetFrameStrata('BACKGROUND')
+	FD:SetFrameLevel(11)
 	
 	-- Size
-	frame:Size(DatatextInfo.Backdrop.Width, DatatextInfo.Backdrop.Height)
+	FD:Size(DatatextInfo.Backdrop.Width, DatatextInfo.Backdrop.Height)
 	
 	-- Backdrop
 	if DatatextInfo.Backdrop.Enable then
-		frame.BG:Show()
-		frame.BG:SetTemplate(DatatextInfo.Backdrop.Transparency == true and 'Transparent' or 'Default', true)
+		FD.BG:Show()
+		FD.BG:SetTemplate(DatatextInfo.Backdrop.Transparency == true and 'Transparent' or 'Default', true)
 		
 		-- Texture
-		if DatatextInfo.Backdrop.Texture ~= '' and frame.BG.backdropTexture then
-			frame.BG.backdropTexture:SetTexture(LibStub('LibSharedMedia-3.0'):Fetch('statusbar', DatatextInfo.Backdrop.Texture))
+		if DatatextInfo.Backdrop.Texture ~= '' and FD.BG.backdropTexture then
+			FD.BG.backdropTexture:SetTexture(LibStub('LibSharedMedia-3.0'):Fetch('statusbar', DatatextInfo.Backdrop.Texture))
 		end
 		
 		if DatatextInfo.Backdrop.CustomColor then
-			E.frames[frame.BG] = nil
+			E.frames[FD.BG] = nil
 			
 			if DatatextInfo.Backdrop.Transparency then
-				frame.BG:SetBackdropColor(DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.r, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.g, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.b, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.a)
-			elseif frame.BG.backdropTexture then
-				frame.BG:SetBackdropColor(0, 0, 0, DatatextInfo.Backdrop.CustomColor_Backdrop.a)
-				frame.BG.backdropTexture:SetVertexColor(DatatextInfo.Backdrop.CustomColor_Backdrop.r, DatatextInfo.Backdrop.CustomColor_Backdrop.g, DatatextInfo.Backdrop.CustomColor_Backdrop.b)
-				frame.BG.backdropTexture:SetAlpha(DatatextInfo.Backdrop.CustomColor_Backdrop.a)
+				FD.BG:SetBackdropColor(DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.r, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.g, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.b, DatatextInfo.Backdrop.CustomColor_Backdrop_Transparency.a)
+			elseif FD.BG.backdropTexture then
+				FD.BG:SetBackdropColor(0, 0, 0, DatatextInfo.Backdrop.CustomColor_Backdrop.a)
+				FD.BG.backdropTexture:SetVertexColor(DatatextInfo.Backdrop.CustomColor_Backdrop.r, DatatextInfo.Backdrop.CustomColor_Backdrop.g, DatatextInfo.Backdrop.CustomColor_Backdrop.b)
+				FD.BG.backdropTexture:SetAlpha(DatatextInfo.Backdrop.CustomColor_Backdrop.a)
 			end
 			
-			frame.BG:SetBackdropBorderColor(DatatextInfo.Backdrop.CustomColor_Border.r, DatatextInfo.Backdrop.CustomColor_Border.g, DatatextInfo.Backdrop.CustomColor_Border.b)
+			FD.BG:SetBackdropBorderColor(DatatextInfo.Backdrop.CustomColor_Border.r, DatatextInfo.Backdrop.CustomColor_Border.g, DatatextInfo.Backdrop.CustomColor_Border.b)
 		end
 	else
-		frame.BG:Hide()
+		FD.BG:Hide()
 	end
 	
 	-- Font
 	if DatatextInfo.Font.UseCustomFontStyle == false then
-		frame.Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
 	else
-		frame.Datatext.text:FontTemplate(LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontOutline)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontOutline)
 	end
 	
 	-- Display Mode
-	KF:UnregisterCallback('SpecChanged', 'FloatingDatatext_'..frame.Count)
-	KF:UnregisterCallback('CurrentAreaChanged', 'FloatingDatatext_'..frame.Count)
+	KF:UnregisterCallback('SpecChanged', 'FloatingDatatext_'..FD.Count)
+	KF:UnregisterCallback('CurrentAreaChanged', 'FloatingDatatext_'..FD.Count)
 	
 	
 	local function RefreshDatatextByCallback()
-		RefreshDatatext(datatextName, DatatextInfo)
+		RefreshDatatext(DatatextName, DatatextInfo)
 	end
 	
 	if DatatextInfo.Display.PvPMode ~= '' then
-		KF:RegisterCallback('SpecChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..frame.Count)
-		KF:RegisterCallback('CurrentAreaChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..frame.Count)
+		KF:RegisterCallback('SpecChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..FD.Count)
+		KF:RegisterCallback('CurrentAreaChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..FD.Count)
 	elseif DatatextInfo.Display.Mode == '0' then
-		KF:RegisterCallback('SpecChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..frame.Count)
+		KF:RegisterCallback('SpecChanged', RefreshDatatextByCallback, 'FloatingDatatext_'..FD.Count)
 	end
 	
-	RefreshDatatext(datatextName, DatatextInfo)
+	RefreshDatatext(DatatextName, DatatextInfo)
 	
 	
 	-- Create Mover after frame locating
-	if not frame.mover then
+	if not FD.mover then
 		if DatatextInfo.Location then
-			frame:SetPoint(unpack({string.split('\031', DatatextInfo.Location)}))
+			FD:SetPoint(unpack({string.split('\031', DatatextInfo.Location)}))
 			--DatatextInfo['Location'] = nil
 		else
-			frame:Point('CENTER')
+			FD:Point('CENTER')
 		end
 		
-		E:CreateMover(frame, 'KF_Datatext_'..frame.Count, DatatextInfo.Name or datatextName, nil, nil, nil, 'ALL,KF,KF_Datatext')
+		E:CreateMover(FD, 'KF_Datatext_'..FD.Count, DatatextInfo.Name or DatatextName, nil, nil, nil, 'ALL,KF,KF_Datatext')
 		
-		if E:HasMoverBeenMoved(datatextName) then
-			frame.mover:ClearAllPoints()
-			frame.mover:SetPoint(unpack({string.split('\031', E.db.movers[datatextName])}))
-			E.CreatedMovers['KF_Datatext_'..frame.Count].point = E.db.movers[datatextName]
+		if E:HasMoverBeenMoved(DatatextName) then
+			FD.mover:ClearAllPoints()
+			FD.mover:SetPoint(unpack({string.split('\031', E.db.movers[DatatextName])}))
+			E.CreatedMovers['KF_Datatext_'..FD.Count].point = E.db.movers[DatatextName]
 		end
 	else
 		-- Update Mover's Tag
-		frame.mover.text:SetText(DatatextInfo.Name or datatextName)
+		FD.mover.text:SetText(DatatextInfo.Name or DatatextName)
 	end
 	
 	
 	-- Ignore Cursor
-	if DatatextInfo.IgnoreCursor then
-		frame.Datatext:EnableMouse(false)
-	else
-		frame.Datatext:EnableMouse(true)
-	end
+	FD.Datatext:EnableMouse(not DatatextInfo.IgnoreCursor)
 	
 	
 	if E.ConfigurationMode then
-		frame.mover:Show()
+		FD.mover:Show()
 	end
 end
 
 
-function KF:FloatingDatatext_Delete(datatextName, SaveProfile)
-	local frame = KF.UIParent.Datatext[datatextName]
+function KF:FloatingDatatext_Delete(DatatextName, SaveProfile)
+	local FD = KF.UIParent.Datatext[DatatextName]
 	
-	if frame then
-		frame:SetAlpha(1)
-		frame:SetScript('OnUpdate', nil)
-		frame:Hide()
+	if FD then
+		FD:SetAlpha(1)
+		FD:SetScript('OnUpdate', nil)
+		FD:Hide()
 		
-		frame.Datatext:UnregisterAllEvents()
-		frame.Datatext:SetScript('OnEvent', nil)
-		frame.Datatext:SetScript('OnUpdate', nil)
-		frame.Datatext:SetScript('OnEnter', nil)
-		frame.Datatext:SetScript('OnLeave', nil)
-		frame.Datatext:SetScript('OnClick', nil)
-		frame.Datatext.text:SetText(nil)
+		FD.Datatext:UnregisterAllEvents()
+		FD.Datatext:SetScript('OnEvent', nil)
+		FD.Datatext:SetScript('OnUpdate', nil)
+		FD.Datatext:SetScript('OnEnter', nil)
+		FD.Datatext:SetScript('OnLeave', nil)
+		FD.Datatext:SetScript('OnClick', nil)
+		FD.Datatext.text:SetText(nil)
 		
-		frame.mover:Hide()
+		FD.mover:Hide()
 		
-		local moverData = E.CreatedMovers[frame.mover.name]
-		frame.MoverData = moverData
-		E.CreatedMovers[frame.mover.name] = nil
-		KF:UnregisterCallback('SpecChanged', 'FloatingDatatext_'..frame.Count)
-		KF:UnregisterCallback('CurrentAreaChanged', 'FloatingDatatext_'..frame.Count)
+		local moverData = E.CreatedMovers[FD.mover.name]
+		FD.MoverData = moverData
+		E.CreatedMovers[FD.mover.name] = nil
+		KF:UnregisterCallback('SpecChanged', 'FloatingDatatext_'..FD.Count)
+		KF:UnregisterCallback('CurrentAreaChanged', 'FloatingDatatext_'..FD.Count)
 		
 		if SaveProfile then
-			E:SaveMoverPosition(frame.mover.name)
-			E.db.movers[datatextName] = E.db.movers[frame.mover.name]
+			E:SaveMoverPosition(FD.mover.name)
+			E.db.movers[DatatextName] = E.db.movers[FD.mover.name]
 		else
-			E.db.movers[datatextName] = nil
+			E.db.movers[DatatextName] = nil
 		end
-		E.db.movers[frame.mover.name] = nil
+		E.db.movers[FD.mover.name] = nil
 		
-		DeletedDatatext[#DeletedDatatext + 1] = KF.UIParent.Datatext[datatextName]
-		KF.UIParent.Datatext[datatextName] = nil
+		DeletedDatatext[#DeletedDatatext + 1] = KF.UIParent.Datatext[DatatextName]
+		KF.UIParent.Datatext[DatatextName] = nil
 	end
 end
 
@@ -228,9 +222,9 @@ KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
 			if frameCount == 0 then return end
 			
 			if Info.FloatingDatatext_Activate then
-				for datatextName, IsDatatextData in pairs(DB.Modules.FloatingDatatext) do
-					if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[datatextName] and IsDatatextData.Font.UseCustomFontStyle == false then
-						KF.UIParent.Datatext[datatextName].Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
+				for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
+					if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[DatatextName] and IsDatatextData.Font.UseCustomFontStyle == false then
+						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
 					end
 				end
 			end
@@ -247,16 +241,16 @@ end, 'FloatingDatatext')
 KF.Modules[#KF.Modules + 1] = 'FloatingDatatext'
 KF.Modules.FloatingDatatext = function(RemoveOrder)
 	-- Update Floating Datatext
-	for datatextName in pairs(KF.UIParent.Datatext) do
-		KF:FloatingDatatext_Delete(datatextName, true)
+	for DatatextName in pairs(KF.UIParent.Datatext) do
+		KF:FloatingDatatext_Delete(DatatextName, true)
 	end
 	
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.FloatingDatatext.Enable ~= false then
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.FloatingDatatext.Enable ~= false then
 		Info.FloatingDatatext_Activate = true
 		
-		for datatextName, IsDatatextData in pairs(DB.Modules.FloatingDatatext) do
+		for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 			if type(IsDatatextData) == 'table' then
-				KF:FloatingDatatext_Create(datatextName)
+				KF:FloatingDatatext_Create(DatatextName)
 			end
 		end
 	else

@@ -1,13 +1,13 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Default Structure										>>--
 --------------------------------------------------------------------------------
-DB.Enable = true
+KF.db.Enable = true
 
 
-DB.Skins = {
+KF.db.Skins = {
 	Enable = true,
 	['DBM-Core'] = false,
 	Skada = true,
@@ -16,7 +16,7 @@ DB.Skins = {
 }
 
 
-DB.Modules = {
+KF.db.Modules = {
 	ExpRepDisplay = {
 		Enable = true,
 		EmbedPanel = nil,

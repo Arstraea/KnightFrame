@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ KF_Config.Options.args.Misc = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Misc']) end,
 	order = 900,
-	disabled = function() return DB.Enable == false end,
+	disabled = function() return KF.db.Enable == false end,
 	args = {
 		CreditSpace = {
 			type = 'description',

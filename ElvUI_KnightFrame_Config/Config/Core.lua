@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (E.private.install_complete and E.db.KnightFrame and E.db.KnightFrame.Install_Complete) then
@@ -50,14 +50,14 @@ KF_Config.Options = {
 			descStyle = 'inline',
 			get = function()
 				if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
-					return DB.Enable
+					return KF.db.Enable
 				else
 					return E.db.KnightFrame.Enable
 				end
 			end,
 			set = function(_, value)
 				if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
-					DB.Enable = value
+					KF.db.Enable = value
 				else
 					E.db.KnightFrame.Enable = value
 				end

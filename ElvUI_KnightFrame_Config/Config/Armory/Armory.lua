@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (KF and KF.Modules and (KF.Modules.CharacterArmory or KF.Modules.InspectArmory) and KF_Config) then return end

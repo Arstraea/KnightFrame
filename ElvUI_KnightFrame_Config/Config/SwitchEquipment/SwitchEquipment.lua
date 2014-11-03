@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (KF and KF.Modules and KF.Modules.SwitchEquipment and KF_Config) then return end
@@ -28,7 +28,7 @@ end
 
 
 local function NameColor(Color)
-	return DB.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
+	return KF.db.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
 end
 
 
@@ -41,7 +41,7 @@ KF_Config.Options.args.SwitchEquipment = {
 	args = {
 		Enable = {
 			type = 'toggle',
-			name = function() return ' '..(DB.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Switch Equipment'] end,
+			name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Switch Equipment'] end,
 			order = 1,
 			desc = L['Change equipment set when changing specialization or entering a pvp area(battleground or arena).'],
 			descStyle = 'inline',
@@ -51,7 +51,7 @@ KF_Config.Options.args.SwitchEquipment = {
 				
 				KF.Modules.SwitchEquipment(not value)
 			end,
-			disabled = function() return DB.Enable == false end,
+			disabled = function() return KF.db.Enable == false end,
 			width = 'full'
 		},
 		ConfigSpace = {
@@ -89,7 +89,7 @@ KF_Config.Options.args.SwitchEquipment = {
 					end
 				end
 			end,
-			hidden = function() return DB.Enable == false or E.private.KnightFrame.SwitchEquipment.Enable == false end,
+			hidden = function() return KF.db.Enable == false or E.private.KnightFrame.SwitchEquipment.Enable == false end,
 			args = {
 				Primary = {
 					type = 'select',
@@ -101,7 +101,7 @@ KF_Config.Options.args.SwitchEquipment = {
 							_, Spec, _, _, _, SpecRole = GetSpecializationInfo(Spec)
 						end
 						
-						return ' '..(E.private.KnightFrame.SwitchEquipment.Enable ~= false and NameColor()..L['Primary']..':|r '..(DB.Enable ~= false and E.private.KnightFrame.SwitchEquipment.Enable ~= false and Spec and Info.ClassRole[E.myclass][Spec] and Info.ClassRole[E.myclass][Spec].Color or '') or L['Primary']..':|r ')..(Spec and Spec..(SpecRole == 'TANK' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:13:13:1:0|t ' or SpecRole == 'HEALER' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:13:13:1:0|t ' or ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:13:13:1:0|t') or L['No Spec'])
+						return ' '..(E.private.KnightFrame.SwitchEquipment.Enable ~= false and NameColor()..L['Primary']..':|r '..(KF.db.Enable ~= false and E.private.KnightFrame.SwitchEquipment.Enable ~= false and Spec and Info.ClassRole[E.myclass][Spec] and Info.ClassRole[E.myclass][Spec].Color or '') or L['Primary']..':|r ')..(Spec and Spec..(SpecRole == 'TANK' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:13:13:1:0|t ' or SpecRole == 'HEALER' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:13:13:1:0|t ' or ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:13:13:1:0|t') or L['No Spec'])
 					end,
 					order = 1,
 					desc = '',
@@ -118,7 +118,7 @@ KF_Config.Options.args.SwitchEquipment = {
 							_, Spec, _, _, _, SpecRole = GetSpecializationInfo(Spec)
 						end
 						
-						return ' '..(E.private.KnightFrame.SwitchEquipment.Enable ~= false and NameColor()..L['Secondary']..':|r '..(DB.Enable ~= false and E.private.KnightFrame.SwitchEquipment.Enable ~= false and Spec and Info.ClassRole[E.myclass][Spec] and Info.ClassRole[E.myclass][Spec].Color or '') or L['Secondary']..':|r ')..(Spec and Spec..(SpecRole == 'TANK' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:13:13:1:0|t ' or SpecRole == 'HEALER' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:13:13:1:0|t ' or ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:13:13:1:0|t') or L['No Spec'])
+						return ' '..(E.private.KnightFrame.SwitchEquipment.Enable ~= false and NameColor()..L['Secondary']..':|r '..(KF.db.Enable ~= false and E.private.KnightFrame.SwitchEquipment.Enable ~= false and Spec and Info.ClassRole[E.myclass][Spec] and Info.ClassRole[E.myclass][Spec].Color or '') or L['Secondary']..':|r ')..(Spec and Spec..(SpecRole == 'TANK' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:13:13:1:0|t ' or SpecRole == 'HEALER' and ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:13:13:1:0|t ' or ' |TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:13:13:1:0|t') or L['No Spec'])
 					end,
 					order = 2,
 					desc = '',

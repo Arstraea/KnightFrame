@@ -1,7 +1,7 @@
 ﻿if GetLocale() ~= 'koKR' then return end
 
 local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 
 do	--General
 	L['Install'] = '설치'

@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Toolkit		 											>>--
@@ -54,13 +54,13 @@ function KF:GetPanelData(key)
 			panelDP = RightChatDataPanel
 			IsDPEnabled = E.db.datatexts.rightChatPanel
 		end
-	elseif KF.UIParent.Panel and KF.UIParent.Panel[key] and DB.Modules.CustomPanel.Enable ~= false and DB.Modules.CustomPanel[key] and DB.Modules.CustomPanel[key].Enable == true then
+	elseif KF.UIParent.Panel and KF.UIParent.Panel[key] and KF.db.Modules.CustomPanel.Enable ~= false and KF.db.Modules.CustomPanel[key] and KF.db.Modules.CustomPanel[key].Enable == true then
 		Panel = KF.UIParent.Panel[key]
 		panelType = 'KF'
 		panelTab = KF.UIParent.Panel[key].Tab
-		IsTabEnabled = DB.Modules.CustomPanel[key].Tab.Enable
+		IsTabEnabled = KF.db.Modules.CustomPanel[key].Tab.Enable
 		panelDP = KF.UIParent.Panel[key].DP
-		IsDPEnabled = DB.Modules.CustomPanel[key].DP.Enable
+		IsDPEnabled = KF.db.Modules.CustomPanel[key].DP.Enable
 	end
 	
 	return Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled

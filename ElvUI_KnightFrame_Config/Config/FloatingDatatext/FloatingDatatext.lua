@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (KF and KF.Modules and KF.Modules.FloatingDatatext and KF_Config) then return end
@@ -13,7 +13,7 @@ local IsModified, Message
 
 
 local function NameColor(Color)
-	return DB.Enable ~= false and DB.Modules.FloatingDatatext.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
+	return KF.db.Enable ~= false and KF.db.Modules.FloatingDatatext.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
 end
 
 
@@ -35,17 +35,17 @@ KF_Config.Options.args.FloatingDatatext = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Floating Datatext']) end,
 	order = 100 + OptionIndex,
-	disabled = function() return DB.Enable == false end,
+	disabled = function() return KF.db.Enable == false end,
 	args = {
 		Enable = {
 			type = 'toggle',
-			name = function() return ' '..(DB.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Floating Datatext'] end,
+			name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Floating Datatext'] end,
 			order = 1,
 			desc = '',
 			descStyle = 'inline',
-			get = function() return DB.Modules.FloatingDatatext.Enable end,
+			get = function() return KF.db.Modules.FloatingDatatext.Enable end,
 			set = function(_, value)
-				DB.Modules.FloatingDatatext.Enable = value
+				KF.db.Modules.FloatingDatatext.Enable = value
 				
 				KF.Modules.FloatingDatatext()
 			end,
@@ -67,14 +67,14 @@ KF_Config.Options.args.FloatingDatatext = {
 				if value ~= '0' then
 					KF:FloatingDatatext_Delete(0)
 					
-					E:CopyTable(DatatextInfo, DB.Modules.FloatingDatatext[value])
+					E:CopyTable(DatatextInfo, KF.db.Modules.FloatingDatatext[value])
 					DatatextInfo.Name = value
 				end
 			end,
 			values = function()
 				local list = { [''] = NameColor('ceff00')..L['Please Select'], ['0'] = NameColor()..L['Create new one'] }
 				
-				for datatextName, IsDatatextData in pairs(DB.Modules.FloatingDatatext) do
+				for datatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 					if type(IsDatatextData) == 'table' then
 						list[datatextName] = (IsDatatextData.Enable == false and '|cff712633' or '')..datatextName
 					end
@@ -82,7 +82,7 @@ KF_Config.Options.args.FloatingDatatext = {
 				
 				return list
 			end,
-			hidden = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false end
+			hidden = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false end
 		},
 		Space = {
 			type = 'description',
@@ -121,7 +121,7 @@ KF_Config.Options.args.FloatingDatatext = {
 					end)
 				end
 			end,
-			hidden = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '' or (DatatextInfo.Name and DatatextInfo.Name ~= '') end,
+			hidden = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '' or (DatatextInfo.Name and DatatextInfo.Name ~= '') end,
 		},
 		ConfigSpace = {
 			type = 'group',
@@ -140,7 +140,7 @@ KF_Config.Options.args.FloatingDatatext = {
 				
 				KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 			end,
-			hidden = function() return  DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
+			hidden = function() return  KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
 			args = {
 				Name = {
 					type = 'input',
@@ -168,7 +168,7 @@ KF_Config.Options.args.FloatingDatatext = {
 				},
 				Save = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.FloatingDatatext.Enable ~= false and not (SelectedDatatext ~= '0' and not IsModified) and DatatextInfo.Name and DatatextInfo.Name ~= '' and KF:Color_Value() or '|cff808080')..L['Save'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.FloatingDatatext.Enable ~= false and not (SelectedDatatext ~= '0' and not IsModified) and DatatextInfo.Name and DatatextInfo.Name ~= '' and KF:Color_Value() or '|cff808080')..L['Save'] end,
 					order = 3,
 					desc = '',
 					descStyle = 'inline',
@@ -176,19 +176,19 @@ KF_Config.Options.args.FloatingDatatext = {
 					func = function()
 						local CurrentDatatextName = (SelectedDatatext == '0' or (DatatextInfo.Name ~= SelectedDatatext)) and DatatextInfo.Name or SelectedDatatext
 						
-						if not (SelectedDatatext ~= '0' and DatatextInfo.Name == SelectedDatatext) and DB.Modules.FloatingDatatext[CurrentDatatextName] and
+						if not (SelectedDatatext ~= '0' and DatatextInfo.Name == SelectedDatatext) and KF.db.Modules.FloatingDatatext[CurrentDatatextName] and
 							Message ~= L['The data of datatext that uses the same name already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?'] then
 							
 							Message = L['The data of datatext that uses the same name already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?']
 							return
-						elseif DB.Modules.FloatingDatatext[CurrentDatatextName] then
+						elseif KF.db.Modules.FloatingDatatext[CurrentDatatextName] then
 							KF:FloatingDatatext_Delete(CurrentDatatextName)
 						elseif SelectedDatatext ~= '0' and DatatextInfo.Name ~= SelectedDatatext then
 							KF:FloatingDatatext_Delete(SelectedDatatext, true)
 							E.db.movers[CurrentDatatextName] = E.db.movers[SelectedDatatext]
 							E.db.movers[SelectedDatatext] = nil
 							
-							DB.Modules.FloatingDatatext[SelectedDatatext] = nil
+							KF.db.Modules.FloatingDatatext[SelectedDatatext] = nil
 						end
 						
 						if SelectedDatatext == '0' then
@@ -199,7 +199,7 @@ KF_Config.Options.args.FloatingDatatext = {
 						
 						local SaveData = E:CopyTable({}, DatatextInfo)
 						SaveData.Name = nil
-						DB.Modules.FloatingDatatext[CurrentDatatextName] = SaveData
+						KF.db.Modules.FloatingDatatext[CurrentDatatextName] = SaveData
 						
 						IsModified = nil
 						
@@ -215,11 +215,11 @@ KF_Config.Options.args.FloatingDatatext = {
 						
 						KF:FloatingDatatext_Create(SelectedDatatext)
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or (SelectedDatatext ~= '0' and not IsModified) or not DatatextInfo.Name or DatatextInfo.Name == '' end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or (SelectedDatatext ~= '0' and not IsModified) or not DatatextInfo.Name or DatatextInfo.Name == '' end
 				},
 				Reset = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.FloatingDatatext.Enable ~= false and IsModified == true and KF:Color_Value() or '|cff808080')..L['Reset'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.FloatingDatatext.Enable ~= false and IsModified == true and KF:Color_Value() or '|cff808080')..L['Reset'] end,
 					order = 4,
 					desc = '',
 					descStyle = 'inline',
@@ -233,7 +233,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							
 							KF:FloatingDatatext_Delete(0)
 							
-							E:CopyTable(DatatextInfo, DB.Modules.FloatingDatatext[SelectedDatatext])
+							E:CopyTable(DatatextInfo, KF.db.Modules.FloatingDatatext[SelectedDatatext])
 							DatatextInfo.Name = SelectedDatatext
 							
 							KF:FloatingDatatext_Create(SelectedDatatext, DatatextInfo)
@@ -245,11 +245,11 @@ KF_Config.Options.args.FloatingDatatext = {
 							KF:FloatingDatatext_Create(0, DatatextInfo)
 						end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or not IsModified end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or not IsModified end
 				},
 				Delete = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.FloatingDatatext.Enable ~= false and SelectedDatatext ~= '0' and '|cffff5675' or '|cff808080')..L['Delete'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.FloatingDatatext.Enable ~= false and SelectedDatatext ~= '0' and '|cffff5675' or '|cff808080')..L['Delete'] end,
 					order = 5,
 					desc = '',
 					descStyle = 'inline',
@@ -258,7 +258,7 @@ KF_Config.Options.args.FloatingDatatext = {
 						if Message ~= format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedDatatext)..' '..L['Datatext']) then
 							Message = format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedDatatext)..' '..L['Datatext'])
 						else
-							DB.Modules.FloatingDatatext[SelectedDatatext] = nil
+							KF.db.Modules.FloatingDatatext[SelectedDatatext] = nil
 							
 							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedDatatext))
 							KF:FloatingDatatext_Delete(SelectedDatatext)
@@ -267,7 +267,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							IsModified = nil
 						end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '0' end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '0' end
 				},
 				Space2 = {
 					type = 'description',
@@ -296,7 +296,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							KF:FloatingDatatext_Create(SelectedDatatext, DatatextInfo)
 						end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false end
 				},
 				IgnoreCursor = {
 					type = 'toggle',
@@ -471,7 +471,7 @@ KF_Config.Options.args.FloatingDatatext = {
 						
 						KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or DatatextInfo.Backdrop.Enable == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or DatatextInfo.Backdrop.Enable == false end,
 					args = {
 						Enable = {
 							type = 'toggle',
@@ -479,7 +479,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							order = 1,
 							desc = '',
 							descStyle = 'inline',
-							disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
 						},
 						Transparency = {
 							type = 'toggle',
@@ -635,7 +635,7 @@ KF_Config.Options.args.FloatingDatatext = {
 						
 						KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or DatatextInfo.Font.UseCustomFontStyle == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or DatatextInfo.Font.UseCustomFontStyle == false end,
 					args = {
 						UseCustomFontStyle = {
 							type = 'toggle',
@@ -644,7 +644,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							desc = '',
 							descStyle = 'inline',
 							width = 'full',
-							disabled = function() return DB.Enable == false or DB.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
 						},
 						Space = {
 							type = 'description',

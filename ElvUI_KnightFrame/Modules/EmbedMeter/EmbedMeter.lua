@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Embed Meter												>>--
@@ -12,35 +12,33 @@ local RecoundLoaded = IsAddOnLoaded('Recount')
 local OmenLoaded = IsAddOnLoaded('Omen')
 
 local PanelLink = {}
-local DeletedDivider = {}
+local DeletedSlider = {}
 local Omen_Embed
 
 
-local function ClearDivider(key, deleteSplitRatio)
-	if PanelLink[key].Divider then
-		if deleteSplitRatio and DB.Modules.EmbedMeter.SplitRatio and DB.Modules.EmbedMeter.SplitRatio[key] then
-			DB.Modules.EmbedMeter.SplitRatio[key] = nil
+local function ClearSlider(key, deleteSplitRatio)
+	if PanelLink[key].Slider then
+		if deleteSplitRatio and KF.db.Modules.EmbedMeter.SplitRatio and KF.db.Modules.EmbedMeter.SplitRatio[key] then
+			KF.db.Modules.EmbedMeter.SplitRatio[key] = nil
 		end
 		
-		PanelLink[key].Divider:SetParent(nil)
-		PanelLink[key].Divider:ClearAllPoints()
-		PanelLink[key].Divider:Hide()
+		PanelLink[key].Slider:SetParent(nil)
+		PanelLink[key].Slider:ClearAllPoints()
+		PanelLink[key].Slider:Hide()
 		
-		DeletedDivider[#DeletedDivider + 1] = PanelLink[key].Divider
-		PanelLink[key].Divider = nil
+		DeletedSlider[#DeletedSlider + 1] = PanelLink[key].Slider
+		PanelLink[key].Slider = nil
 	end
 end
-
-
 
 
 if SkadaLoaded then
 	local libwindow = LibStub('LibWindow-1.1')
 	
-	function KF:EmbedMeter_Skada_ChangedApplySettings(window)
+	function KF:EmbedMeter_Skada_ChangedApplySettings(Window)
 		libwindow.SavePosition_ = libwindow.SavePosition
 		libwindow.SavePosition = function() end
-		window.display:ApplySettings(window)
+		Window.display:ApplySettings(Window)
 		libwindow.SavePosition = libwindow.SavePosition_
 		libwindow.SavePosition_ = nil
 	end
@@ -48,26 +46,26 @@ if SkadaLoaded then
 	function KF:EmbedMeter_EmbedSetting_Skada(HoldEmbeding)
 		if not Info.EmbedMeter_Activate then return end
 		
-		local needUpdate
+		local NeedUpdate
 		
-		for i, window in ipairs(Skada:GetWindows()) do
-			local embedData = window.db.KnightFrame_Embed
+		for WindowNumber, Window in ipairs(Skada:GetWindows()) do
+			local EmbedData = KF.db.Modules.EmbedMeter.Skada[WindowNumber]
 			
-			if embedData then
-				needUpdate = true
+			if EmbedData then
+				NeedUpdate = true
 				
-				if KF:GetPanelData(embedData.Key) then
-					PanelLink[(embedData.Key)] = PanelLink[(embedData.Key)] or {}
-					PanelLink[(embedData.Key)][(embedData.Direction or 'LEFT')] = { AddOn = 'Skada', Window = window, }
+				if KF:GetPanelData(EmbedData.Key) then
+					PanelLink[EmbedData.Key] = PanelLink[EmbedData.Key] or {}
+					PanelLink[EmbedData.Key][EmbedData.Direction or 'LEFT'] = { AddOn = 'Skada', Window = Window, WindowNumber = WindowNumber }
 				else
-					KF:EmbedMeter_ClearSetting_Skada(nil, i)
+					KF:EmbedMeter_ClearSetting_Skada(nil, WindowNumber)
 				end
 			else
-				KF:EmbedMeter_ClearSetting_Skada(nil, i)
+				KF:EmbedMeter_ClearSetting_Skada(nil, WindowNumber)
 			end
 		end
 		
-		if needUpdate then
+		if NeedUpdate then
 			if not HoldEmbeding then
 				KF:EmbedMeter()
 			else
@@ -76,13 +74,13 @@ if SkadaLoaded then
 		end
 	end
 	
-	local function ClearWindow(Window, PreserveSetting)
+	local function ClearWindow(Window, WindowNumber, PreserveSetting)
 		if Window.bargroup:GetParent() ~= UIParent then
 			Window.bargroup:SetParent(UIParent)
 			LibStub('LibWindow-1.1').RestorePosition(Window.bargroup)
 			
 			if PreserveSetting ~= 'SwitchProfile' then
-				Window.db.KnightFrame_Embed = nil
+				KF.db.Modules.EmbedMeter.Skada[WindowNumber] = nil
 			end
 		end
 	end
@@ -91,10 +89,10 @@ if SkadaLoaded then
 		local windowTable = Skada:GetWindows()
 		
 		if WindowNumber then
-			ClearWindow(windowTable[WindowNumber], PreserveSetting)
+			ClearWindow(windowTable[WindowNumber], WindowNumber, PreserveSetting)
 		else
 			for i, window in ipairs(windowTable) do
-				ClearWindow(window, PreserveSetting)
+				ClearWindow(window, i, PreserveSetting)
 			end
 		end
 	end
@@ -228,8 +226,6 @@ if OmenLoaded then
 end
 
 
-
-
 function KF:EmbedMeter()
 	if not Info.EmbedMeter_Activate then return end
 	
@@ -253,7 +249,7 @@ function KF:EmbedMeter()
 		IsDPEnabled = panelDP:IsShown()
 		
 		if directionCount == 1 and Panel then
-			ClearDivider(Key, true)
+			ClearSlider(Key, true)
 			
 			if EmbedAddOn == 'Skada' then
 				local width, height
@@ -262,8 +258,8 @@ function KF:EmbedMeter()
 					width = E.db.chat.panelWidth - SPACING * 2 - 4
 					height = E.db.chat.panelHeight - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
 				elseif panelType == 'KF' then
-					width = DB.Modules.CustomPanel[Key].Width - SPACING * 2 - 4
-					height = DB.Modules.CustomPanel[Key].Height - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
+					width = KF.db.Modules.CustomPanel[Key].Width - SPACING * 2 - 4
+					height = KF.db.Modules.CustomPanel[Key].Height - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
 				end
 				
 				if width and height then
@@ -282,9 +278,9 @@ function KF:EmbedMeter()
 					window:UpdateDisplay()
 					
 					window.bargroup.RegisterCallback(Skada.displays.bar, 'AnchorMoved', function(cbk, group, x, y)
-						if window.bargroup:GetParent() ~= UIParent and window.db.KnightFrame_Embed then
+						if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] then
 							window.bargroup:SetParent(UIParent)
-							window.db.KnightFrame_Embed = nil
+							KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] = nil
 							
 							if KF:EmbedMeter_CheckNeedEmbeding() then
 								KF:EmbedMeter()
@@ -294,9 +290,9 @@ function KF:EmbedMeter()
 						LibStub('LibWindow-1.1').SavePosition(group)
 					end)
 					window.bargroup.RegisterCallback(Skada.displays.bar, 'WindowResized', function(cbk, group)
-						if window.bargroup:GetParent() ~= UIParent and window.db.KnightFrame_Embed then
+						if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] then
 							window.bargroup:SetParent(UIParent)
-							window.db.KnightFrame_Embed = nil
+							KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] = nil
 							
 							if KF:EmbedMeter_CheckNeedEmbeding() then
 								KF:EmbedMeter()
@@ -358,74 +354,73 @@ function KF:EmbedMeter()
 				end
 			end
 		elseif directionCount == 2 and Panel then
-			local divider = PanelLink[Key].Divider
+			local Slider = PanelLink[Key].Slider
 			
-			if not divider then
-				if #DeletedDivider > 0 then
-					PanelLink[Key].Divider = DeletedDivider[#DeletedDivider]
-					divider = PanelLink[Key].Divider
+			if not Slider then
+				if #DeletedSlider > 0 then
+					PanelLink[Key].Slider = DeletedSlider[#DeletedSlider]
+					Slider = PanelLink[Key].Slider
 					
-					divider:Show()
+					Slider:Show()
 					
-					DeletedDivider[#DeletedDivider] = nil
+					DeletedSlider[#DeletedSlider] = nil
 				else
-					local f = CreateFrame('Frame')
-					f:SetMinResize(50, 100)
+					Slider = CreateFrame('Frame')
+					Slider:SetMinResize(50, 100)
 					
-					f.Bar = CreateFrame('Frame', nil, f)
-					f.Bar:SetTemplate('Default', true, true)
-					f.Bar:SetWidth(1)
-					f.Bar:Point('TOPRIGHT', f)
-					f.Bar:Point('BOTTOMRIGHT', f)
+					Slider.Bar = CreateFrame('Frame', nil, Slider)
+					Slider.Bar:SetTemplate('Default', true, true)
+					Slider.Bar:SetWidth(1)
+					Slider.Bar:Point('TOPRIGHT', Slider)
+					Slider.Bar:Point('BOTTOMRIGHT', Slider)
 					
-					f.Sensor = CreateFrame('Button', nil, f)
-					f.Sensor:SetWidth(1 + SPACING * 2)
-					f.Sensor:Point('TOP', f.Bar, 0, SPACING)
-					f.Sensor:Point('BOTTOM', f.Bar, 0, -SPACING)
-					f.Sensor:SetScript('OnEnter', function() f.Bar:SetBackdropBorderColor(unpack(E.media.rgbvaluecolor)) end)
-					f.Sensor:SetScript('OnLeave', function() f.Bar:SetBackdropBorderColor(unpack(E.media.bordercolor)) end)
-					f.Sensor:SetScript('OnMouseUp', function(self)
-						f:SetResizable(false)
-						f:StopMovingOrSizing()
-						f:SetScript('OnSizeChanged', nil)
+					Slider.Sensor = CreateFrame('Button', nil, Slider)
+					Slider.Sensor:SetWidth(1 + SPACING * 2)
+					Slider.Sensor:Point('TOP', Slider.Bar, 0, SPACING)
+					Slider.Sensor:Point('BOTTOM', Slider.Bar, 0, -SPACING)
+					Slider.Sensor:SetScript('OnEnter', function() Slider.Bar:SetBackdropBorderColor(unpack(E.media.rgbvaluecolor)) end)
+					Slider.Sensor:SetScript('OnLeave', function() Slider.Bar:SetBackdropBorderColor(unpack(E.media.bordercolor)) end)
+					Slider.Sensor:SetScript('OnMouseUp', function(self)
+						Slider:SetResizable(false)
+						Slider:StopMovingOrSizing()
+						Slider:SetScript('OnSizeChanged', nil)
 					end)
 					
-					PanelLink[Key].Divider = f
-					divider = PanelLink[Key].Divider
+					PanelLink[Key].Slider = Slider
 				end
 			end
 			
-			divider:SetParent(Panel)
-			divider:SetMaxResize(Panel:GetWidth() - SPACING * 2 - 50, 600)
-			divider.Sensor:SetScript('OnMouseDown', function(self)
-				divider:SetResizable(true)
-				divider:StartSizing('RIGHT')
-				divider:SetScript('OnSizeChanged', function(self, width)
-					DB.Modules.EmbedMeter.SplitRatio = DB.Modules.EmbedMeter.SplitRatio or {}
-					DB.Modules.EmbedMeter.SplitRatio[Key] = tonumber(format('%.3f', width / (self:GetParent():GetWidth() - SPACING * 2)))
+			Slider:SetParent(Panel)
+			Slider:SetMaxResize(Panel:GetWidth() - SPACING * 2 - 50, 600)
+			Slider.Sensor:SetScript('OnMouseDown', function(self)
+				Slider:SetResizable(true)
+				Slider:StartSizing('RIGHT')
+				Slider:SetScript('OnSizeChanged', function(self, width)
+					KF.db.Modules.EmbedMeter.SplitRatio = KF.db.Modules.EmbedMeter.SplitRatio or {}
+					KF.db.Modules.EmbedMeter.SplitRatio[Key] = tonumber(format('%.3f', width / (self:GetParent():GetWidth() - SPACING * 2)))
 					
 					KF:EmbedMeter()
 				end)
 			end)
 			
 			if IsTabEnabled then
-				divider:Point('TOP', panelTab, 'BOTTOM', 0, - SPACING * 2)
+				Slider:Point('TOP', panelTab, 'BOTTOM', 0, - SPACING * 2)
 			else
-				divider:Point('TOP', Panel, 0, - SPACING * 2)
+				Slider:Point('TOP', Panel, 0, - SPACING * 2)
 			end
 			
 			if IsDPEnabled then
-				divider:Point('BOTTOM', panelDP, 'TOP', 0, SPACING * 2)
+				Slider:Point('BOTTOM', panelDP, 'TOP', 0, SPACING * 2)
 			else
-				divider:Point('BOTTOM', Panel, 0, SPACING * 2)
+				Slider:Point('BOTTOM', Panel, 0, SPACING * 2)
 			end
 			
-			divider:Point('LEFT', Panel, SPACING, 0)
+			Slider:Point('LEFT', Panel, SPACING, 0)
 			
-			if DB.Modules.EmbedMeter.SplitRatio and DB.Modules.EmbedMeter.SplitRatio[Key] then
-				divider:Point('RIGHT', Panel, 'LEFT', SPACING + DB.Modules.EmbedMeter.SplitRatio[Key] * (Panel:GetWidth() - SPACING * 2), 0)
+			if KF.db.Modules.EmbedMeter.SplitRatio and KF.db.Modules.EmbedMeter.SplitRatio[Key] then
+				Slider:Point('RIGHT', Panel, 'LEFT', SPACING + KF.db.Modules.EmbedMeter.SplitRatio[Key] * (Panel:GetWidth() - SPACING * 2), 0)
 			else
-				divider:Point('RIGHT', Panel, 'CENTER', 0, 0)
+				Slider:Point('RIGHT', Panel, 'CENTER', 0, 0)
 			end
 			
 			for _, Direction in pairs({ 'LEFT', 'RIGHT', }) do
@@ -434,11 +429,11 @@ function KF:EmbedMeter()
 				if EmbedAddOn == 'Skada' then
 					local width, height
 					
-					width = Direction == 'LEFT' and divider:GetWidth() - SPACING - 5 or Panel:GetWidth() - divider:GetWidth() - SPACING * 3 - 4
+					width = Direction == 'LEFT' and Slider:GetWidth() - SPACING - 5 or Panel:GetWidth() - Slider:GetWidth() - SPACING * 3 - 4
 					if panelType == 'ElvUI' then
 						height = E.db.chat.panelHeight - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
 					elseif panelType == 'KF' then
-						height = DB.Modules.CustomPanel[Key].Height - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
+						height = KF.db.Modules.CustomPanel[Key].Height - SPACING * 2 - (IsTabEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - (IsDPEnabled and PANEL_HEIGHT + SPACING - (E.PixelMode and 1 or 0) or 0) - 4
 					end
 					
 					if width and height then
@@ -457,9 +452,9 @@ function KF:EmbedMeter()
 						window:UpdateDisplay()
 						
 						window.bargroup.RegisterCallback(Skada.displays.bar, 'AnchorMoved', function(cbk, group, x, y)
-							if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and window.db.KnightFrame_Embed then
+							if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] then
 								window.bargroup:SetParent(UIParent)
-								window.db.KnightFrame_Embed = nil
+								KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] = nil
 								
 								if KF:EmbedMeter_CheckNeedEmbeding() then
 									KF:EmbedMeter()
@@ -469,9 +464,9 @@ function KF:EmbedMeter()
 							LibStub('LibWindow-1.1').SavePosition(group)
 						end)
 						window.bargroup.RegisterCallback(Skada.displays.bar, 'WindowResized', function(cbk, group)
-							if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and window.db.KnightFrame_Embed then
+							if Info.EmbedMeter_Activate and window.bargroup:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] then
 								window.bargroup:SetParent(UIParent)
-								window.db.KnightFrame_Embed = nil
+								KF.db.Modules.EmbedMeter.Skada[Data[Direction].WindowNumber] = nil
 								
 								if KF:EmbedMeter_CheckNeedEmbeding() then
 									KF:EmbedMeter()
@@ -494,9 +489,9 @@ function KF:EmbedMeter()
 					
 					if Direction == 'LEFT' then
 						Recount_MainWindow:SetPoint('LEFT', Panel, SPACING, 0)
-						Recount_MainWindow:SetPoint('RIGHT', divider, -SPACING - 1, 0)
+						Recount_MainWindow:SetPoint('RIGHT', Slider, -SPACING - 1, 0)
 					else
-						Recount_MainWindow:SetPoint('LEFT', divider, 'RIGHT', SPACING, 0)
+						Recount_MainWindow:SetPoint('LEFT', Slider, 'RIGHT', SPACING, 0)
 						Recount_MainWindow:SetPoint('RIGHT', Panel, -SPACING, 0)
 					end
 					
@@ -526,9 +521,9 @@ function KF:EmbedMeter()
 					
 					if Direction == 'LEFT' then
 						OmenAnchor:SetPoint('LEFT', Panel, SPACING, 0)
-						OmenAnchor:SetPoint('RIGHT', divider, -SPACING - 1, 0)
+						OmenAnchor:SetPoint('RIGHT', Slider, -SPACING - 1, 0)
 					else
-						OmenAnchor:SetPoint('LEFT', divider, 'RIGHT', SPACING, 0)
+						OmenAnchor:SetPoint('LEFT', Slider, 'RIGHT', SPACING, 0)
 						OmenAnchor:SetPoint('RIGHT', Panel, -SPACING, 0)
 					end
 					
@@ -546,7 +541,7 @@ function KF:EmbedMeter()
 				end
 			end
 		else
-			ClearDivider(Key, true)
+			ClearSlider(Key, true)
 			
 			PanelLink[Key] = nil
 		end
@@ -556,25 +551,30 @@ end
 
 function KF:EmbedMeter_CheckNeedEmbeding()
 	for Key, Data in pairs(PanelLink) do
-		ClearDivider(Key)
+		ClearSlider(Key)
 	end
 	PanelLink = {}
 	
-	local needEmbed
+	if not Info.EmbedMeter_Activate then return end
 	
-	if SkadaLoaded then
-		needEmbed = KF:EmbedMeter_EmbedSetting_Skada(true)
+	local NeedEmbeding
+	
+	if SkadaLoaded and KF:EmbedMeter_EmbedSetting_Skada(true) then
+		Info.EmbedMeter_Activate.Skada = true
+		NeedEmbeding = true
 	end
 	
-	if RecoundLoaded then
-		needEmbed = KF:EmbedMeter_EmbedSetting_Recount(true) or needEmbed
+	if RecoundLoaded and KF:EmbedMeter_EmbedSetting_Recount(true) then
+		Info.EmbedMeter_Activate.Recount = true
+		NeedEmbeding = true
 	end
 	
-	if OmenLoaded then
-		needEmbed = KF:EmbedMeter_EmbedSetting_Omen(true) or needEmbed
+	if OmenLoaded and KF:EmbedMeter_EmbedSetting_Omen(true) then
+		Info.EmbedMeter_Activate.Omen = true
+		NeedEmbeding = true
 	end
 	
-	return Info.EmbedMeter_Activate and needEmbed
+	return NeedEmbeding
 end
 
 
@@ -613,8 +613,8 @@ KF.Modules.EmbedMeter = function(RemoveOrder)
 		KF:EmbedMeter_ClearSetting_Omen(RemoveOrder)
 	end
 	
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.EmbedMeter.Enable ~= false then
-		Info.EmbedMeter_Activate = true
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.EmbedMeter.Enable ~= false then
+		Info.EmbedMeter_Activate = {}
 		
 		if KF:EmbedMeter_CheckNeedEmbeding() then
 			KF:EmbedMeter()

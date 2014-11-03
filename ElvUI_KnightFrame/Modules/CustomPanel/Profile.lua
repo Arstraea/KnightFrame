@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.CustomPanel = {
+KF.db.Modules.CustomPanel = {
 	Enable = true
 }
 
@@ -44,12 +44,12 @@ KF.DBFunction.CustomPanel = {
 		end
 	end,
 	Save = function()
-		for panelName, IsPanelData in pairs(DB.Modules.CustomPanel) do
+		for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 			if type(IsPanelData) == 'table' then
-				DB.Modules.CustomPanel[panelName] = KF:CompareTable(IsPanelData, Info.CustomPanel_Default)
+				KF.db.Modules.CustomPanel[panelName] = KF:CompareTable(IsPanelData, Info.CustomPanel_Default)
 				
-				if DB.Modules.CustomPanel[panelName] == nil then
-					DB.Modules.CustomPanel[panelName] = {}
+				if KF.db.Modules.CustomPanel[panelName] == nil then
+					KF.db.Modules.CustomPanel[panelName] = {}
 				end
 			end
 		end

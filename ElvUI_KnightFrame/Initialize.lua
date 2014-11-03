@@ -15,14 +15,15 @@ local Information = {
 		['Arstriel-헬스크림'] = true
 	},
 	
-	myrealm = gsub(E.myrealm,'[%s%-]','')
+	MyRealm = gsub(E.myrealm,'[%s%-]','')
 }
 
 local Core = E:NewModule(Information.Name, 'AceEvent-3.0', 'AceConsole-3.0', 'AceHook-3.0')
-Core.InitializeFunction = {}
+Core.db = {}
 Core.DBFunction = {}
-Core.Callbacks = {}
+Core.InitializeFunction = {}
 Core.Events = {}
+Core.Callbacks = {}
 
 Core.Modules = {}
 
@@ -30,17 +31,14 @@ Core.UIParent = CreateFrame('Frame', Information.Name..'UIParent', E.UIParent)
 Core.UIParent:SetAllPoints(E.UIParent)
 Core.UIParent.MoverType = {}
 
-local DB = {}
-
 local Timer = {}
 local Empty = { Cancel = function() end }
 setmetatable(Timer, { __index = function() return Empty end })
 
 Engine[1] = Core
-Engine[2] = DB
-Engine[3] = Information
-Engine[4] = Timer
+Engine[2] = Information
+Engine[3] = Timer
 
 _G[AddOnName] = Engine
 
---local KF, DB, Info, Timer = unpack(select(2, ...))
+--local KF, Info, Timer = unpack(select(2, ...))

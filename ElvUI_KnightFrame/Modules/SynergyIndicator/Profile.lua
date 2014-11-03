@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.SynergyIndicator = {
+KF.db.Modules.SynergyIndicator = {
 	Enable = true,
 	
 	TopPanel_Height = 14,

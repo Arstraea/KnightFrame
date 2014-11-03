@@ -1,7 +1,12 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.EmbedMeter = {
+KF.db.Modules.EmbedMeter = {
 	Enable = true,
 	DisplayOnlyDuringCombat = false
 }
+
+
+if IsAddOnLoaded('Skada') or IsAddOnLoaded('SkadaU') then
+	KF.db.Modules.EmbedMeter.Skada = {}
+end

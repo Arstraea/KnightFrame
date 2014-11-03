@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 local CH = E:GetModule('Chat')
 
 local PANEL_HEIGHT = 22
@@ -13,15 +13,15 @@ local PanelTag = 'KF_CustomPanel'
 local FrameLinkByID = {}
 local DeletedFrame = {}
 local DeletedButton = {}
-local FrameCount = 0
+local PanelCount = 0
 
 KF.UIParent.Panel = {}
 KF.UIParent.Button = {}
 
 function KF:CustomPanel_Create(PanelName, PanelInfo)
-	PanelInfo = PanelInfo or DB.Modules.CustomPanel[PanelName] or {}
+	PanelInfo = PanelInfo or KF.db.Modules.CustomPanel[PanelName] or {}
 	
-	if not (DB.Modules.CustomPanel.Enable and PanelInfo.Enable) then
+	if not (KF.db.Modules.CustomPanel.Enable and PanelInfo.Enable) then
 		KF:CustomPanel_Delete(PanelName, true)
 		return
 	end
@@ -47,27 +47,25 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			
 			DeletedFrame[#DeletedFrame] = nil
 		else
-			FrameCount = FrameCount + 1
+			PanelCount = PanelCount + 1
 			
-			local f = CreateFrame('Frame', PanelTag..'_'..FrameCount, KF.UIParent)
-			f:CreateBackdrop('Transparent')
-			f.backdrop:SetAllPoints()
+			Panel = CreateFrame('Frame', PanelTag..'_'..PanelCount, KF.UIParent)
+			Panel:CreateBackdrop('Transparent')
+			Panel.backdrop:SetAllPoints()
 			
-			f.Texture = f:CreateTexture(nil, 'OVERLAY')
-			f.Texture:SetInside()
+			Panel.Texture = Panel:CreateTexture(nil, 'OVERLAY')
+			Panel.Texture:SetInside()
 			
-			f.Tab = CreateFrame('Frame', nil, f)
-			f.Tab:Point('TOPLEFT', f, SPACING, -SPACING)
-			f.Tab:Point('BOTTOMRIGHT', f, 'TOPRIGHT', -SPACING, -(SPACING + PANEL_HEIGHT))
+			Panel.Tab = CreateFrame('Frame', nil, Panel)
+			Panel.Tab:Point('TOPLEFT', Panel, SPACING, -SPACING)
+			Panel.Tab:Point('BOTTOMRIGHT', Panel, 'TOPRIGHT', -SPACING, -(SPACING + PANEL_HEIGHT))
 			
-			f.DP = CreateFrame('Frame', nil, f)
-			f.DP:Point('TOPLEFT', f, 'BOTTOMLEFT', SPACING, SPACING + PANEL_HEIGHT)
-			f.DP:Point('BOTTOMRIGHT', f, -SPACING, SPACING)
+			Panel.DP = CreateFrame('Frame', nil, Panel)
+			Panel.DP:Point('TOPLEFT', Panel, 'BOTTOMLEFT', SPACING, SPACING + PANEL_HEIGHT)
+			Panel.DP:Point('BOTTOMRIGHT', Panel, -SPACING, SPACING)
 			
-			f.Count = FrameCount
-			KF.UIParent.Panel[PanelName] = f
-			
-			Panel = KF.UIParent.Panel[PanelName]
+			Panel.Count = PanelCount
+			KF.UIParent.Panel[PanelName] = Panel
 		end
 		
 		FrameLinkByID[Panel.Count] = PanelName
@@ -178,7 +176,7 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 		end
 	end
 	-- Update Mover's Tag
-	Panel.mover.text:SetText(L['PanelTag']..'|n'..(PanelInfo.Name or PanelName)..(DB.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']))
+	Panel.mover.text:SetText(L['PanelTag']..'|n'..(PanelInfo.Name or PanelName)..(KF.db.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']))
 	
 	
 	if E.ConfigurationMode then
@@ -252,110 +250,110 @@ do --<< Area To Hiding button's optionpanel >>--
 end
 
 
-function KF:CustomPanel_Button_Create(ButtonFrame, buttonType, buttonTransparency)
-	if not buttonType then return end
+function KF:CustomPanel_Button_Create(ButtonFrame, ButtonType, ButtonTransparency)
+	if not ButtonType then return end
 	
-	local button
+	local Button
 	
 	if not ButtonFrame then
 		if #DeletedButton > 0 then
-			button = DeletedButton[#DeletedButton]
+			Button = DeletedButton[#DeletedButton]
 			DeletedButton[#DeletedButton] = nil
 		else
-			button = CreateFrame('Button', nil, KF.UIParent)
-			button:Size(SIDE_BUTTON_WIDTH, PANEL_HEIGHT)
-			KF:TextSetting(button, nil, { Font = 'Meat Edition Font', FontOutline = 'OUTLINE' }, 'CENTER', 0, 0)
-			button:RegisterForClicks('AnyUp')
+			Button = CreateFrame('Button', nil, KF.UIParent)
+			Button:Size(SIDE_BUTTON_WIDTH, PANEL_HEIGHT)
+			KF:TextSetting(Button, nil, { Font = 'Meat Edition Font', FontOutline = 'OUTLINE' }, 'CENTER', 0, 0)
+			Button:RegisterForClicks('AnyUp')
 		end
 	else
-		button = ButtonFrame
+		Button = ButtonFrame
 	end
 	
-	button:SetTemplate(buttonTransparency == true and 'Transparent' or 'Default', true)
-	button:Show()
+	Button:SetTemplate(ButtonTransparency == true and 'Transparent' or 'Default', true)
+	Button:Show()
 	
-	local buttonText = KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].Text or (IsAddOnLoaded(buttonType) and '' or '|cff828282')..(strsub(buttonType, 1, 1))
+	local buttonText = KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].Text or (IsAddOnLoaded(ButtonType) and '' or '|cff828282')..(strsub(ButtonType, 1, 1))
 	
-	button.text:SetText(buttonText or '|cff828282..')
+	Button.text:SetText(buttonText or '|cff828282..')
 	
-	button:SetScript('OnEnter', function(...)
-		if not (KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].OnEnter) then
-			GameTooltip:SetOwner(button, 'ANCHOR_TOP', 0, 2)
+	Button:SetScript('OnEnter', function(...)
+		if not (KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].OnEnter) then
+			GameTooltip:SetOwner(Button, 'ANCHOR_TOP', 0, 2)
 			GameTooltip:ClearLines()
 			
-			if not IsAddOnLoaded(buttonType) then
-				if select(5, GetAddOnInfo(buttonType)) ~= 'MISSING' then
-					GameTooltip:AddLine(KF:Color_Value(buttonType)..' is |cffb9062fnot loaded|r.|n|n', 1, 1, 1)
+			if not IsAddOnLoaded(ButtonType) then
+				if select(5, GetAddOnInfo(ButtonType)) ~= 'MISSING' then
+					GameTooltip:AddLine(KF:Color_Value(ButtonType)..' is |cffb9062fnot loaded|r.|n|n', 1, 1, 1)
 					GameTooltip:AddDoubleLine(KF:Color_Value('-')..' |cff6dd66dCLICK|r', 'Load AddOn.', 1, 1, 1, 1, 1, 1)
 				else
-					GameTooltip:AddLine(KF:Color_Value(buttonType)..' is |cffb9062fnot installed!!!|r :(', 1, 1, 1)
+					GameTooltip:AddLine(KF:Color_Value(ButtonType)..' is |cffb9062fnot installed!!!|r :(', 1, 1, 1)
 				end
 			else
-				button.text:SetText(KF:Color_Value(buttonText))
-				GameTooltip:AddLine('Open '..KF:Color_Value(buttonType)..' addon.', 1, 1, 1)
+				Button.text:SetText(KF:Color_Value(buttonText))
+				GameTooltip:AddLine('Open '..KF:Color_Value(ButtonType)..' addon.', 1, 1, 1)
 			end
 			
 			GameTooltip:Show()
 		else
-			KF.UIParent.Button[buttonType].OnEnter(...)
+			KF.UIParent.Button[ButtonType].OnEnter(...)
 		end
 	end)
 	
-	button:SetScript('OnLeave', function(...)
-		if not (KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].OnLeave) then
+	Button:SetScript('OnLeave', function(...)
+		if not (KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].OnLeave) then
 			GameTooltip:Hide()
-			button.text:SetText(buttonText)
+			Button.text:SetText(buttonText)
 		else
-			KF.UIParent.Button[buttonType].OnLeave(...)
+			KF.UIParent.Button[ButtonType].OnLeave(...)
 		end
 	end)
 	
-	button:SetScript('OnMouseDown', function(...)
-		if not (KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].OnMouseDown) then
-			button.text:SetPoint('CENTER', 0, -2)
+	Button:SetScript('OnMouseDown', function(...)
+		if not (KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].OnMouseDown) then
+			Button.text:SetPoint('CENTER', 0, -2)
 		else
-			KF.UIParent.Button[buttonType].OnMouseDown(...)
+			KF.UIParent.Button[ButtonType].OnMouseDown(...)
 		end
 	end)
 	
-	button:SetScript('OnMouseUp', function(...)
-		if not (KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].OnMouseUp) then
-			button.text:SetPoint('CENTER')
+	Button:SetScript('OnMouseUp', function(...)
+		if not (KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].OnMouseUp) then
+			Button.text:SetPoint('CENTER')
 		else
-			KF.UIParent.Button[buttonType].OnMouseUp(...)
+			KF.UIParent.Button[ButtonType].OnMouseUp(...)
 		end
 	end)
 	
-	button:SetScript('OnClick', function(...)
-		if not IsAddOnLoaded(buttonType) and select(5, GetAddOnInfo(buttonType)) ~= 'MISSING' then
-			EnableAddOn(buttonType)
+	Button:SetScript('OnClick', function(...)
+		if not IsAddOnLoaded(ButtonType) and select(5, GetAddOnInfo(ButtonType)) ~= 'MISSING' then
+			EnableAddOn(ButtonType)
 			
 			if InCombatLockdown() then
 				E:StaticPopup_Show('CONFIG_RL')
 			else
 				ReloadUI()
 			end
-		elseif KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].OnClick then
-			KF.UIParent.Button[buttonType].OnClick(...)
+		elseif KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].OnClick then
+			KF.UIParent.Button[ButtonType].OnClick(...)
 		end
 	end)
 	
-	if KF.UIParent.Button[buttonType] and KF.UIParent.Button[buttonType].Func then
-		KF.UIParent.Button[buttonType].Func()
+	if KF.UIParent.Button[ButtonType] and KF.UIParent.Button[ButtonType].Func then
+		KF.UIParent.Button[ButtonType].Func()
 	end
 	
-	return button
+	return Button
 end
 
 
 function KF:CustomPanel_Button_ClearAll(Panel)
 	if Panel.Button then
-		for buttonLocation in pairs(Panel.Button) do
-			for _, b in pairs(Panel.Button[buttonLocation]) do
-				b:ClearAllPoints()
-				b:SetParent(nil)
-				b:Hide()
-				DeletedButton[#DeletedButton + 1] = b
+		for Location in pairs(Panel.Button) do
+			for _, Button in pairs(Panel.Button[Location]) do
+				Button:ClearAllPoints()
+				Button:SetParent(nil)
+				Button:Hide()
+				DeletedButton[#DeletedButton + 1] = Button
 			end
 		end
 	end
@@ -404,19 +402,19 @@ hooksecurefunc('FCFTab_OnUpdate', function(self)
 			end
 		else
 			if MouseOveredPanel then
-				if DB.Modules.CustomPanel[MouseOveredPanelName] then
-					for i = 1, #DB.Modules.CustomPanel[MouseOveredPanelName].Chat do
-						if DB.Modules.CustomPanel[MouseOveredPanelName].Chat[i] == ChatID then
-							tremove(DB.Modules.CustomPanel[MouseOveredPanelName].Chat, i)
+				if KF.db.Modules.CustomPanel[MouseOveredPanelName] then
+					for i = 1, #KF.db.Modules.CustomPanel[MouseOveredPanelName].Chat do
+						if KF.db.Modules.CustomPanel[MouseOveredPanelName].Chat[i] == ChatID then
+							tremove(KF.db.Modules.CustomPanel[MouseOveredPanelName].Chat, i)
 						end
 					end
 					
-					tinsert(DB.Modules.CustomPanel[MouseOveredPanelName].Chat, ChatID)
+					tinsert(KF.db.Modules.CustomPanel[MouseOveredPanelName].Chat, ChatID)
 				end
 				
 				KF:DockingChatFrameToCustomPanel(self, MouseOveredPanel, true)
 			else
-				for panelName, IsPanelData in pairs(DB.Modules.CustomPanel) do
+				for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 					if type(IsPanelData) == 'table' then
 						for i = 1, #IsPanelData.Chat do
 							if IsPanelData.Chat[i] == ChatID then
@@ -472,16 +470,16 @@ KF.Modules.CustomPanel = function(RemoveOrder)
 		KF:CustomPanel_Delete(panelName, true)
 	end
 	
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.CustomPanel.Enable ~= false then
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.CustomPanel.Enable ~= false then
 		Info.CustomPanel_Activate = true
 		
-		for panelName, IsPanelData in pairs(DB.Modules.CustomPanel) do
+		for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 			if type(IsPanelData) == 'table' then
 				KF:CustomPanel_Create(panelName)
 				
-				for i = 1, #IsPanelData.Chat do
+				--for i = 1, #IsPanelData.Chat do
 					--KF:DockingChatFrameToCustomPanel(_G[format('ChatFrame%dTab', IsPanelData.Chat[i])], KF.UIParent.Panel[panelName])
-				end
+				--end
 			end
 		end
 	else

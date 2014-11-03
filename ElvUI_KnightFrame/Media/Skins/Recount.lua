@@ -1,11 +1,7 @@
--- Last Code Checking Date		: 2014. 6. 14
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
+local E, L, V, P, G = unpack(ElvUI)
+local KF, Info, Timer = unpack(select(2, ...))
 
-local E, L, V, P, G, _ = unpack(ElvUI)
-local KF, DB, Info, Update = unpack(select(2, ...))
-
-if IsAddOnLoaded('Recount') and DB.Skins.Recount ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
+if IsAddOnLoaded('Recount') and KF.db.Skins.Recount ~= false and not IsAddOnLoaded('ElvUI_AddOnSkins') then
 --------------------------------------------------------------------------------
 --<< KnightFrame : Recount Skin												>>--
 --------------------------------------------------------------------------------

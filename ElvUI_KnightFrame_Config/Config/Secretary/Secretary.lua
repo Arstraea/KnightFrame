@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Update = unpack(ElvUI_KnightFrame)
+local KF, Info, Update = unpack(ElvUI_KnightFrame)
 
 --[[
 if not KF then return

@@ -1,11 +1,14 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-local Value = {}
 --------------------------------------------------------------------------------
 --<< KnightFrame : Secretary - Notice proposal								>>--
 --------------------------------------------------------------------------------
+local Value = {}
+local LFDRoleCheckPopupDescriptionDefaultPoint = { LFDRoleCheckPopupDescription:GetPoint() }
+
 local SoundOff
+
 local function NoticeProposal_TurnOnSound(Sound)
 	if GetCVar('Sound_EnableAllSound') == '0' then
 		SoundOff = true
@@ -29,7 +32,7 @@ end
 
 
 local function NoticeProposal(EventName, ...)
-	if DB.Modules.Secretary.NoticeProposal then
+	if KF.db.Modules.Secretary.NoticeProposal then
 		if EventName == 'LFG_PROPOSAL_SHOW' then
 			NoticeProposal_TurnOnSound('ReadyCheck')
 		elseif EventName == 'LFG_PROPOSAL_SUCCEEDED' or EventName == 'LFG_PROPOSAL_FAILED' then
@@ -56,21 +59,21 @@ KF:RegisterEventList('UPDATE_BATTLEFIELD_STATUS', NoticeProposal, 'Secretary_Not
 --<< Create Check Button >>--
 for i = 1, 2 do
 	KF:CreateWidget_CheckButton('KF_NoticeProposalButton_'..i, L['Notice'])
-	if DB.Modules.Secretary.NoticeProposal == false then
+	if KF.db.Modules.Secretary.NoticeProposal == false then
 		_G['KF_NoticeProposalButton_'..i].CheckButton:Hide()
 	end
 	
 	_G['KF_NoticeProposalButton_'..i]:SetScript('OnClick', function(self)
-		if DB.Modules.Secretary.NoticeProposal == true then
-			DB.Modules.Secretary.NoticeProposal = false
+		if KF.db.Modules.Secretary.NoticeProposal == true then
+			KF.db.Modules.Secretary.NoticeProposal = false
 			self.CheckButton:Hide()
 		else
-			DB.Modules.Secretary.NoticeProposal = true
+			KF.db.Modules.Secretary.NoticeProposal = true
 			self.CheckButton:Show()
 		end
 	end)
 	_G['KF_NoticeProposalButton_'..i]:SetScript('OnShow', function(self)
-		if DB.Modules.Secretary.NoticeProposal == true then
+		if KF.db.Modules.Secretary.NoticeProposal == true then
 			self.CheckButton:Show()
 		else
 			self.CheckButton:Hide()
@@ -79,6 +82,9 @@ for i = 1, 2 do
 end
 KF_NoticeProposalButton_2:SetParent(LFDRoleCheckPopup)	
 KF_NoticeProposalButton_2:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 53)
+--KF_NoticeProposalButton_2:SetScript('OnUpdate', function(self)
+
+--end)
 
 
 local function NoticeProposal_ButtonSetting(frame)
@@ -113,16 +119,18 @@ KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
 end, 'Secretary_NoticeProposal')
 
 
-LFDRoleCheckPopup:HookScript('OnShow', function()
+KF:RegisterEventList('LFG_ROLE_CHECK_SHOW', function()
 	if GetCVar('Sound_EnableAllSound') == '0' then
 		KF_NoticeProposalButton_2:Show()
 		
-		LFDRoleCheckPopup:SetHeight(200)
-		LFDRoleCheckPopupDescription:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 77)
+		LFDRoleCheckPopup:SetHeight(LFDRoleCheckPopup:GetHeight() + 20)
+		
+		local Arg1, Arg2, Arg3, Arg4, Arg5 = unpack(LFDRoleCheckPopupDescriptionDefaultPoint)
+		LFDRoleCheckPopupDescription:Point(Arg1, Arg2, Arg3, Arg4, Arg5 + 20)
 	else
 		KF_NoticeProposalButton_2:Hide()
 		
 		LFDRoleCheckPopup:SetHeight(180)
-		LFDRoleCheckPopupDescription:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 57)
+		LFDRoleCheckPopupDescription:Point(unpack(LFDRoleCheckPopupDescriptionDefaultPoint))
 	end
-end)
+end, 'Secretary_NoticeProposal')

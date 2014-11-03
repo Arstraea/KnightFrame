@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Load KnightFrame Config									>>--
@@ -67,18 +67,18 @@ end
 --<< KnightFrame : Profile													>>--
 --------------------------------------------------------------------------------
 function KF:LoadDB()
-	P.KnightFrame = E:CopyTable({}, DB)
+	P.KnightFrame = E:CopyTable({}, KF.db)
 	
 	if E.db.KnightFrame then
 		KF:DBConversions(E.db.KnightFrame)
 		
 		for ModuleName, Function in pairs(KF.DBFunction) do
 			if type(Function.Load) == 'function' then
-				Function.Load(DB, E.db.KnightFrame)
+				Function.Load(KF.db, E.db.KnightFrame)
 			end
 		end
 		
-		E:CopyTable(DB, E.db.KnightFrame)
+		E:CopyTable(KF.db, E.db.KnightFrame)
 	end
 	
 	KF.LoadDB = nil
@@ -106,10 +106,11 @@ function KF:DBReloadFunction(self, ProfileKey)
 		E:CopyTable(Default, ElvDB.profiles[ProfileKey].KnightFrame)
 	end
 	
-	DB = Default
+	KF.db = Default
 	E:UpdateAll(true)
 	
 	local KF_Config = E:GetModule('KnightFrame_Config')
+	
 	if not (E.private.install_complete and ElvDB.profiles[ProfileKey] and ElvDB.profiles[ProfileKey].KnightFrame and ElvDB.profiles[ProfileKey].KnightFrame.Install_Complete) then
 		if KF_Config then
 			KF_Config.ReadyToRunKF = false
@@ -162,7 +163,7 @@ KF:RegisterEventList('PLAYER_LOGOUT', function()
 			end
 		end
 		
-		E.db.KnightFrame = KF:CompareTable(DB, P.KnightFrame)
+		E.db.KnightFrame = KF:CompareTable(KF.db, P.KnightFrame)
 	end
 end, 'KnightFrame_SaveDB')
 
@@ -199,7 +200,7 @@ function KF:Initialize()
 		KF.InitializeFunction = nil
 	end
 	
-	if DB.Enable then
+	if KF.db.Enable then
 		KF:UpdateAll()
 	end
 end

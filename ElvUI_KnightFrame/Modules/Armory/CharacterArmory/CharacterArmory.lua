@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Upgrade Character Frame's Item Info like Wow-Armory		>>--
@@ -9,11 +9,11 @@ local SlotIDList = {}
 local InsetDefaultPoint = { CharacterFrameInsetRight:GetPoint() }
 local ExpandButtonDefaultPoint = { CharacterFrameExpandButton:GetPoint() }
 
-CA.elapsed = 0
+CA.Elapsed = 0
 CA.Delay_Updater = .5
 
 do --<< Button Script >>--
-	CA.OnEnter = function(self)
+	function CA:OnEnter()
 		if self.Link or self.Message then
 			GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 			
@@ -35,12 +35,14 @@ do --<< Button Script >>--
 		end
 	end
 	
-	CA.OnLeave = function(self)
+	
+	function CA:OnLeave()
 		self:SetScript('OnUpdate', nil)
 		GameTooltip:Hide()
 	end
 	
-	CA.GemSocket_OnEnter = function(self)
+	
+	function CA:GemSocket_OnEnter()
 		GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 		
 		local Parent = self:GetParent()
@@ -70,7 +72,8 @@ do --<< Button Script >>--
 		GameTooltip:Show()
 	end
 	
-	CA.GemSocket_OnClick = function(self, button)
+	
+	function CA:GemSocket_OnClick(Button)
 		self = self:GetParent()
 		
 		if CursorHasItem() then
@@ -78,40 +81,41 @@ do --<< Button Script >>--
 			
 			-- Check cursor item is gem type
 			if CursorType == 'item' and select(6, GetItemInfo(ItemLink)) == select(8, GetAuctionItemClasses()) then
-				SocketInventoryItem(GetInventorySlotInfo(self.slotName))
-				ClickSocketButton(self.socketNumber)
+				SocketInventoryItem(GetInventorySlotInfo(self.SlotName))
+				ClickSocketButton(self.SocketNumber)
 				
 				return
 			end
 		end
 		
 		if self.GemItemID then
-			local itemName, itemLink = GetItemInfo(self.GemItemID)
+			local ItemName, ItemLink = GetItemInfo(self.GemItemID)
 			
 			if not IsShiftKeyDown() then
-				SetItemRef(itemLink, itemLink, 'LeftButton')
+				SetItemRef(ItemLink, ItemLink, 'LeftButton')
 			else
-				if button == 'RightButton' then
-					SocketInventoryItem(GetInventorySlotInfo(self.slotName))
-				elseif HandleModifiedItemClick(itemLink) then
+				if Button == 'RightButton' then
+					SocketInventoryItem(GetInventorySlotInfo(self.SlotName))
+				elseif HandleModifiedItemClick(ItemLink) then
 				elseif BrowseName and BrowseName:IsVisible() then
 					AuctionFrameBrowse_Reset(BrowseResetButton)
-					BrowseName:SetText(itemName)
+					BrowseName:SetText(ItemName)
 					BrowseName:SetFocus()
 				end
 			end
 		end
 	end
 	
-	CA.GemSocket_OnRecieveDrag = function(self)
+	
+	function CA:GemSocket_OnRecieveDrag()
 		self = self:GetParent()
 		
 		if CursorHasItem() then
 			local CursorType, _, ItemLink = GetCursorInfo()
 			
 			if CursorType == 'item' and select(6, GetItemInfo(ItemLink)) == select(8, GetAuctionItemClasses()) then
-				SocketInventoryItem(GetInventorySlotInfo(self.slotName))
-				ClickSocketButton(self.socketNumber)
+				SocketInventoryItem(GetInventorySlotInfo(self.SlotName))
+				ClickSocketButton(self.SocketNumber)
 			end
 		end
 	end
@@ -187,7 +191,7 @@ function CA:Setup_CharacterArmory()
 	--<< Background >>--
 	self.BG = self:CreateTexture(nil, 'OVERLAY')
 	self.BG:SetInside()
-	self.BG:SetTexture(DB.Modules.Armory.Character.BackgroundImage)
+	self.BG:SetTexture(KF.db.Modules.Armory.Character.BackgroundImage)
 	
 	--<< Change Model Frame's frameLevel >>--
 	CharacterModelFrame:SetFrameLevel(self:GetFrameLevel() + 2)
@@ -201,17 +205,17 @@ function CA:Setup_CharacterArmory()
 	
 	-- Create each equipment slots gradation, text, gem socket icon.
 	local Slot
-	for i, slotName in pairs(Info.Armory_Constants.GearList) do
+	for i, SlotName in pairs(Info.Armory_Constants.GearList) do
 		-- Equipment Tag
 		Slot = CreateFrame('Frame', nil, self)
 		Slot:Size(130, 41)
 		Slot:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 1)
 		Slot.Direction = i%2 == 1 and 'LEFT' or 'RIGHT'
-		Slot.ID, Slot.EmptyTexture = GetInventorySlotInfo(slotName)
-		Slot:Point(Slot.Direction, _G['Character'..slotName], Slot.Direction == 'LEFT' and -1 or 1, 0)
+		Slot.ID, Slot.EmptyTexture = GetInventorySlotInfo(SlotName)
+		Slot:Point(Slot.Direction, _G['Character'..SlotName], Slot.Direction == 'LEFT' and -1 or 1, 0)
 		
 		-- Grow each equipment slot's frame level
-		_G['Character'..slotName]:SetFrameLevel(Slot:GetFrameLevel() + 1)
+		_G['Character'..SlotName]:SetFrameLevel(Slot:GetFrameLevel() + 1)
 		
 		-- Gradation
 		Slot.Gradation = Slot:CreateTexture(nil, 'OVERLAY')
@@ -223,12 +227,12 @@ function CA:Setup_CharacterArmory()
 			Slot.Gradation:SetTexCoord(1, 0, 0, 1)
 		end
 		
-		if slotName ~= 'ShirtSlot' and slotName ~= 'TabardSlot' then
+		if SlotName ~= 'ShirtSlot' and SlotName ~= 'TabardSlot' then
 			-- Item Level
-			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel', FontSize = 10, directionH = Slot.Direction }, 'TOP'..Slot.Direction, _G['Character'..slotName], 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
+			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel', FontSize = 10, directionH = Slot.Direction }, 'TOP'..Slot.Direction, _G['Character'..SlotName], 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
 			
 			-- Enchantment Name
-			KF:TextSetting(Slot, nil, { Tag = 'ItemEnchant', FontSize = 8, directionH = Slot.Direction }, Slot.Direction, _G['Character'..slotName], Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
+			KF:TextSetting(Slot, nil, { Tag = 'ItemEnchant', FontSize = 8, directionH = Slot.Direction }, Slot.Direction, _G['Character'..SlotName], Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
 			Slot.EnchantWarning = CreateFrame('Button', nil, Slot)
 			Slot.EnchantWarning:Size(12)
 			Slot.EnchantWarning.Texture = Slot.EnchantWarning:CreateTexture(nil, 'OVERLAY')
@@ -239,7 +243,7 @@ function CA:Setup_CharacterArmory()
 			Slot.EnchantWarning:SetScript('OnLeave', self.OnLeave)
 			
 			-- Durability
-			KF:TextSetting(Slot, nil, { Tag = 'Durability', FontSize = 10, directionH = Slot.Direction }, 'BOTTOM'..Slot.Direction, _G['Character'..slotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 3)
+			KF:TextSetting(Slot, nil, { Tag = 'Durability', FontSize = 10, directionH = Slot.Direction }, 'BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 3)
 			
 			-- Gem Socket
 			for i = 1, MAX_NUM_SOCKETS do
@@ -255,8 +259,8 @@ function CA:Setup_CharacterArmory()
 				Slot['Socket'..i]:SetBackdropBorderColor(0, 0, 0)
 				Slot['Socket'..i]:SetFrameLevel(CharacterModelFrame:GetFrameLevel() + 1)
 				
-				Slot['Socket'..i].slotName = slotName
-				Slot['Socket'..i].socketNumber = i
+				Slot['Socket'..i].SlotName = SlotName
+				Slot['Socket'..i].SocketNumber = i
 				
 				Slot['Socket'..i].Socket = CreateFrame('Button', nil, Slot['Socket'..i])
 				Slot['Socket'..i].Socket:SetBackdrop({
@@ -290,8 +294,8 @@ function CA:Setup_CharacterArmory()
 			Slot.SocketWarning:SetScript('OnLeave', self.OnLeave)
 		end
 		
-		SlotIDList[Slot.ID] = slotName
-		self[slotName] = Slot
+		SlotIDList[Slot.ID] = SlotName
+		self[SlotName] = Slot
 	end
 	
 	-- GameTooltip for counting gem sockets and getting enchant effects
@@ -302,27 +306,27 @@ function CA:Setup_CharacterArmory()
 end
 
 
-function CA:CharacterArmory_DataSetting(elapsed)
-	self.elapsed = self.elapsed + (elapsed or .1)
+function CA:CharacterArmory_DataSetting(Elapsed)
+	self.Elapsed = self.Elapsed + (Elapsed or .1)
 	
-	if self.elapsed > 0 then
-		self.elapsed = -self.Delay_Updater
-		self.needUpdate = nil
+	if self.Elapsed > 0 then
+		self.Elapsed = -self.Delay_Updater
+		self.NeedUpdate = nil
 		
 		if not self.DurabilityUpdated then
-			self.needUpdate = self:Update_Durability() or self.needUpdate
+			self.NeedUpdate = self:Update_Durability() or self.NeedUpdate
 		end
 		
 		if self.GearUpdated ~= true then
-			self.needUpdate = self:Update_Gear() or self.needUpdate
+			self.NeedUpdate = self:Update_Gear() or self.NeedUpdate
 		end
 		
-		if not self.needUpdate and self:IsShown() then
-			self.elapsed = 0
+		if not self.NeedUpdate and self:IsShown() then
+			self.Elapsed = 0
 			self:SetScript('OnUpdate', nil)
-		elseif self.needUpdate then
+		elseif self.NeedUpdate then
 			self:SetScript('OnShow', function()
-				self.elapsed = 0
+				self.Elapsed = 0
 				self:CharacterArmory_DataSetting()
 				self:SetScript('OnShow', nil)
 			end)
@@ -333,19 +337,19 @@ end
 
 
 function CA:Update_Durability()
-	local Slot, r, g, b, CurrentDurability, MaxDurability
+	local Slot, R, G, B, CurrentDurability, MaxDurability
 	
-	for _, slotName in pairs(Info.Armory_Constants.GearList) do
-		Slot = self[slotName]
+	for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+		Slot = self[SlotName]
 		CurrentDurability, MaxDurability = GetInventoryItemDurability(Slot.ID)
 		
 		if CurrentDurability and MaxDurability then
-			r, g, b = E:ColorGradient((CurrentDurability / MaxDurability), 1, 0, 0, 1, 1, 0, 0, 1, 0)
-			Slot.Durability:SetFormattedText("%s%.0f%%|r", E:RGBToHex(r, g, b), (CurrentDurability / MaxDurability) * 100)
+			R, G, B = E:ColorGradient((CurrentDurability / MaxDurability), 1, 0, 0, 1, 1, 0, 0, 1, 0)
+			Slot.Durability:SetFormattedText("%s%.0f%%|r", E:RGBToHex(R, G, B), (CurrentDurability / MaxDurability) * 100)
 			Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, -2)
 		elseif Slot.Durability then
 			Slot.Durability:SetText('')
-			Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..slotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
+			Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
 		end
 	end
 	
@@ -353,14 +357,14 @@ function CA:Update_Durability()
 end
 
 
-function CA:ClearTooltip(tooltip)
-	local tooltipName = tooltip:GetName()
+function CA:ClearTooltip(Tooltip)
+	local TooltipName = Tooltip:GetName()
 	
-	tooltip:ClearLines()
+	Tooltip:ClearLines()
 	for i = 1, 10 do
-		_G[tooltipName..'Texture'..i]:SetTexture(nil)
-		_G[tooltipName..'Texture'..i]:ClearAllPoints()
-		_G[tooltipName..'Texture'..i]:Point('TOPLEFT', tooltip)
+		_G[TooltipName..'Texture'..i]:SetTexture(nil)
+		_G[TooltipName..'Texture'..i]:ClearAllPoints()
+		_G[TooltipName..'Texture'..i]:Point('TOPLEFT', Tooltip)
 	end
 end
 
@@ -376,17 +380,16 @@ function CA:Update_Gear()
 	if Prof1 and Info.Armory_Constants.ProfessionList[Prof1] then self.PlayerProfession[(Info.Armory_Constants.ProfessionList[Prof1].Key)] = Prof1_Level end
 	if Prof2 and Info.Armory_Constants.ProfessionList[Prof2] then self.PlayerProfession[(Info.Armory_Constants.ProfessionList[Prof2].Key)] = Prof2_Level end
 	
-	local ErrorDetected, needUpdate, needUpdateList
-	local r, g, b
+	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
 	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
 	
-	for _, slotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
-		if not (slotName == 'ShirtSlot' or slotName == 'TabardSlot') then
-			Slot = self[slotName]
+	for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
+		if not (SlotName == 'ShirtSlot' or SlotName == 'TabardSlot') then
+			Slot = self[SlotName]
 			ItemLink = GetInventoryItemLink('player', Slot.ID)
 			
 			do --<< Clear Setting >>--
-				needUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemTexture = nil, nil, nil, nil, nil, nil, nil
+				NeedUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemTexture = nil, nil, nil, nil, nil, nil, nil
 				
 				Slot.ItemLevel:SetText(nil)
 				Slot.ItemEnchant:SetText(nil)
@@ -432,8 +435,8 @@ function CA:Update_Gear()
 						
 						-- Second, Check if slot's item enable to adding a socket
 						GemCount_Enable = GemCount_Default
-						if (slotName == 'WaistSlot' and UnitLevel('player') >= 70) or -- buckle
-							((slotName == 'WristSlot' or slotName == 'HandsSlot') and self.PlayerProfession.BlackSmithing and self.PlayerProfession.BlackSmithing >= 550) then -- BlackSmith
+						if (SlotName == 'WaistSlot' and UnitLevel('player') >= 70) or -- buckle
+							((SlotName == 'WristSlot' or SlotName == 'HandsSlot') and self.PlayerProfession.BlackSmithing and self.PlayerProfession.BlackSmithing >= 550) then -- BlackSmith
 							
 							GemCount_Enable = GemCount_Enable + 1
 							Slot['Socket'..GemCount_Enable].GemType = 'PRISMATIC'
@@ -448,9 +451,9 @@ function CA:Update_Gear()
 							GemID = select(i, GetInventoryItemGems(Slot.ID))
 							
 							if Slot['Socket'..i].GemType and Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType] then
-								r, g, b = unpack(Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType])
-								Slot['Socket'..i].Socket:SetBackdropColor(r, g, b, .5)
-								Slot['Socket'..i].Socket:SetBackdropBorderColor(r, g, b)
+								R, G, B = unpack(Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType])
+								Slot['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
+								Slot['Socket'..i].Socket:SetBackdropBorderColor(R, G, B)
 							else
 								Slot['Socket'..i].Socket:SetBackdropColor(1, 1, 1, .5)
 								Slot['Socket'..i].Socket:SetBackdropBorderColor(1, 1, 1)
@@ -470,20 +473,20 @@ function CA:Update_Gear()
 									if ItemTexture then
 										Slot['Socket'..i].Texture:SetTexture(ItemTexture)
 									else
-										needUpdate = true
+										NeedUpdate = true
 									end
 								end
 							end
 						end
 						
-						--print(slotName..' : ', GemCount_Default, GemCount_Enable, GemCount_Now, GemCount)
+						--print(SlotName..' : ', GemCount_Default, GemCount_Enable, GemCount_Now, GemCount)
 						if GemCount_Now < GemCount_Default then -- ItemInfo not loaded
-							needUpdate = true
+							NeedUpdate = true
 						end
 					end
 					
 					_, _, ItemRarity, BasicItemLevel, _, _, _, _, _, ItemTexture = GetItemInfo(ItemLink)
-					r, g, b = GetItemQualityColor(ItemRarity)
+					R, G, B = GetItemQualityColor(ItemRarity)
 					
 					ItemUpgradeID = ItemLink:match(':(%d+)\124h%[')
 					
@@ -527,24 +530,24 @@ function CA:Update_Gear()
 					end
 					
 					--[[ Check Error
-					if DB.Modules.Armory.Character.NoticeMissing ~= false then
-						if (not IsEnchanted and Info.Armory_Constants.EnchantableSlots[slotName]) or ((slotName == 'Finger0Slot' or slotName == 'Finger1Slot') and self.PlayerProfession.Enchanting and self.PlayerProfession.Enchanting >= 550 and not IsEnchanted) then
+					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
+						if (not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName]) or ((SlotName == 'Finger0Slot' or SlotName == 'Finger1Slot') and self.PlayerProfession.Enchanting and self.PlayerProfession.Enchanting >= 550 and not IsEnchanted) then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
-						elseif self.PlayerProfession.Engineering and ((slotName == 'BackSlot' and self.PlayerProfession.Engineering >= 380) or (slotName == 'HandsSlot' and self.PlayerProfession.Engineering >= 400) or (slotName == 'WaistSlot' and self.PlayerProfession.Engineering >= 380)) and not UsableEffect then
+						elseif self.PlayerProfession.Engineering and ((SlotName == 'BackSlot' and self.PlayerProfession.Engineering >= 380) or (SlotName == 'HandsSlot' and self.PlayerProfession.Engineering >= 400) or (SlotName == 'WaistSlot' and self.PlayerProfession.Engineering >= 380)) and not UsableEffect then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.EnchantWarning.Message = '|cff71d5ff'..GetSpellInfo(110403)..'|r : '..L['Missing Tinkers']
-						elseif slotName == 'ShoulderSlot' and self.PlayerProfession.Inscription and Info.Armory_EnchantList.Profession_Inscription and self.PlayerProfession.Inscription >= Info.Armory_EnchantList.Profession_Inscription and not KF.Table.ItemEnchant_Profession_Inscription[(ItemData[3])] then
+						elseif SlotName == 'ShoulderSlot' and self.PlayerProfession.Inscription and Info.Armory_EnchantList.Profession_Inscription and self.PlayerProfession.Inscription >= Info.Armory_EnchantList.Profession_Inscription and not KF.Table.ItemEnchant_Profession_Inscription[(ItemData[3])] then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.EnchantWarning.Message = '|cff71d5ff'..GetSpellInfo(110400)..'|r : '..L['This is not profession only.']
-						elseif slotName == 'WristSlot' and self.PlayerProfession.LeatherWorking and Info.Armory_EnchantList.Profession_LeatherWorking and self.PlayerProfession.LeatherWorking >= Info.Armory_EnchantList.Profession_LeatherWorking and not KF.Table.ItemEnchant_Profession_LeatherWorking[(ItemData[3])] then
+						elseif SlotName == 'WristSlot' and self.PlayerProfession.LeatherWorking and Info.Armory_EnchantList.Profession_LeatherWorking and self.PlayerProfession.LeatherWorking >= Info.Armory_EnchantList.Profession_LeatherWorking and not KF.Table.ItemEnchant_Profession_LeatherWorking[(ItemData[3])] then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.EnchantWarning.Message = '|cff71d5ff'..GetSpellInfo(110423)..'|r : '..L['This is not profession only.']
-						elseif slotName == 'BackSlot' and self.PlayerProfession.Tailoring and Info.Armory_EnchantList.Profession_Tailoring then
+						elseif SlotName == 'BackSlot' and self.PlayerProfession.Tailoring and Info.Armory_EnchantList.Profession_Tailoring then
 							for EnchantID, NeedLevel in pairs(Info.Armory_EnchantList.Profession_Tailoring) do
 								if self.PlayerProfession.Tailoring >= NeedLevel then
 									if EnchantID == ItemTable[3] then
@@ -566,7 +569,7 @@ function CA:Update_Gear()
 							Slot.SocketWarning:Show()
 							
 							if GemCount_Enable > GemCount_Now then
-								if slotName == 'WaistSlot' then
+								if SlotName == 'WaistSlot' then
 									if TrueItemLevel < 300 then
 										_, Slot.SocketWarning.Link = GetItemInfo(41611)	
 									elseif TrueItemLevel < 417 then
@@ -599,10 +602,10 @@ function CA:Update_Gear()
 											end
 										end
 									end)
-								elseif slotName == 'HandsSlot' then
+								elseif SlotName == 'HandsSlot' then
 									Slot.SocketWarning.Link = GetSpellLink(114112)
 									Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
-								elseif slotName == 'WristSlot' then
+								elseif SlotName == 'WristSlot' then
 									Slot.SocketWarning.Link = GetSpellLink(113263)
 									Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
 								end
@@ -613,28 +616,28 @@ function CA:Update_Gear()
 					end
 					]]
 				else
-					needUpdate = true
+					NeedUpdate = true
 				end
 			end
 			
 			-- Change Gradation
-			if ErrorDetected and DB.Modules.Armory.Character.NoticeMissing ~= false then
+			if ErrorDetected and KF.db.Modules.Armory.Character.NoticeMissing ~= false then
 				Slot.Gradation:SetVertexColor(1, 0, 0)
 			else
-				Slot.Gradation:SetVertexColor(unpack(DB.Modules.Armory.Character.GradationColor))
+				Slot.Gradation:SetVertexColor(unpack(KF.db.Modules.Armory.Character.GradationColor))
 			end
 			
-			if needUpdate then
-				needUpdateList = needUpdateList or {}
-				needUpdateList[#needUpdateList + 1] = slotName
+			if NeedUpdate then
+				NeedUpdateList = NeedUpdateList or {}
+				NeedUpdateList[#NeedUpdateList + 1] = SlotName
 			end
 		end
 	end
 	
 	self.AverageItemLevel:SetText(KF:Color_Value(STAT_AVERAGE_ITEM_LEVEL)..' : '..format('%.2f', select(2, GetAverageItemLevel())))
 	
-	if needUpdateList then
-		self.GearUpdated = needUpdateList
+	if NeedUpdateList then
+		self.GearUpdated = NeedUpdateList
 		return true
 	end
 	
@@ -644,7 +647,7 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'CharacterArmory'
 KF.Modules.CharacterArmory = function(RemoveOrder)
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.Armory and DB.Modules.Armory.Character and DB.Modules.Armory.Character.Enable ~= false then
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.Armory and KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable ~= false then
 		Info.CharacterArmory_Activate = true
 		
 		-- Setting frame

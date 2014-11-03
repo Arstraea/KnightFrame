@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Register Callbacks	 									>>--
@@ -515,10 +515,10 @@ end
 
 
 function KF:BossExists(Unit)
-	local bossName = UnitName(Unit)
+	local BossName = UnitName(Unit)
 	
-	if bossName and bossName ~= UNKNOWNOBJECT and bossName ~= COMBATLOG_UNKNOWN_UNIT and not UnitIsDead(Unit) and not (Info.BossBattle_Exception[bossName] and (Info.BossBattle_Exception[bossName] == 'friendly' and UnitIsFriend('player', Unit) or UnitIsEnemy('player', Unit))) then
-		return bossName
+	if BossName and BossName ~= UNKNOWNOBJECT and BossName ~= COMBATLOG_UNKNOWN_UNIT and not UnitIsDead(Unit) and not (Info.BossBattle_Exception[BossName] and (Info.BossBattle_Exception[BossName] == 'friendly' and UnitIsFriend('player', Unit) or UnitIsEnemy('player', Unit))) then
+		return BossName
 	end
 end
 
@@ -563,18 +563,18 @@ Timer.CheckCombatEnd = C_Timer.NewTicker(.1, KF.CheckBossCombat)
 
 
 KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
-	local bossName
+	local BossName
 	
 	for i = 1, 5 do
-		bossName = KF:BossExists('boss'..i)
+		BossName = KF:BossExists('boss'..i)
 		
-		if bossName then
-			if NowInBossBattle == nil and not Info.KilledBossList[bossName] then
+		if BossName then
+			if NowInBossBattle == nil and not Info.KilledBossList[BossName] then
 				Timer.CheckCombatEnd = C_Timer.NewTicker(.1, KF.CheckBossCombat)
 				KF:CheckBossCombat()
 			end
 			
-			Info.KilledBossList[bossName] = true
+			Info.KilledBossList[BossName] = true
 		end
 	end
 end)
@@ -583,7 +583,7 @@ end)
 
 
 --------------------------------------------------------------------------------
---<< KnightFrame : UD													>>--
+--<< KnightFrame : Updater													>>--
 --------------------------------------------------------------------------------
 function KF:UpdateAll(RemoveOrder)
 	for i = 1, #KF.Modules do
@@ -604,20 +604,20 @@ function KF:CheckDeveloper()
 		return
 	end
 	
-	local userName, userRealm
+	local UserName, UserRealm
 	
 	for i = 1, MAX_RAID_MEMBERS do
-		userName, userRealm = UnitName(Info.CurrentGroupMode..i)
-		--print('체크아스트라이아', userName, userRealm)
-		if userName then
-			userRealm = userRealm ~= '' and userRealm or E.myrealm
+		UserName, UserRealm = UnitName(Info.CurrentGroupMode..i)
+		
+		if UserName then
+			UserRealm = UserRealm ~= '' and UserRealm or Info.MyRealm
 			
-			if Info.Developer[userName..'-'..userRealm] then
+			if Info.Developer[UserName..'-'..UserRealm] then
 				if not Info.DeveloperFind then
 					Info.DeveloperFind = true
-					SendAddonMessage('KnightFrame_CA', Info.Name..'/'..Info.Version, userRealm == E.myrealm and 'WHISPER' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(Info.CurrentGroupMode), userName..'-'..userRealm)
 					
-					print(L['KF']..' : '..format(L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'], '|cff2eb7e4'..userName..'|r', '|cffceff00'..L[Info.CurrentGroupMode]..'|r', KF:Color_Value(Info.Name)))
+					SendAddonMessage('KnightFrame_CA', Info.Name..'/'..Info.Version, UserRealm == Info.MyRealm and 'WHISPER' or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and 'INSTANCE_CHAT' or string.upper(Info.CurrentGroupMode), UserName..'-'..UserRealm)
+					print(L['KF']..' : '..format(L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'], '|cff2eb7e4'..UserName..'|r', '|cffceff00'..L[Info.CurrentGroupMode]..'|r', KF:Color_Value(Info.Name)))
 				end
 				
 				Timer.CheckDeveloper:Cancel()
@@ -632,6 +632,7 @@ end
 
 KF:RegisterCallback('GroupChanged', function()
 	Timer.CheckDeveloper:Cancel()
+	
 	if Info.CurrentGroupMode == 'NoGroup' then
 		Info.DeveloperFind = nil
 	else

@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (KF and KF.Modules and KF.Modules.CustomPanel and KF_Config) then return end
@@ -12,7 +12,7 @@ local IsModified, Message
 
 
 local function NameColor(Color)
-	return DB.Enable ~= false and DB.Modules.CustomPanel.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
+	return KF.db.Enable ~= false and KF.db.Modules.CustomPanel.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
 end
 
 
@@ -45,17 +45,17 @@ KF_Config.Options.args.CustomPanel = {
 	type = 'group',
 	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Custom Panel']) end,
 	order = 100 + OptionIndex,
-	disabled = function() return DB.Enable == false end,
+	disabled = function() return KF.db.Enable == false end,
 	args = {
 		Enable = {
 			type = 'toggle',
-			name = function() return ' '..(DB.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(DB.Enable ~= false and KF:Color_Value() or '')..L['Custom Panel'] end,
+			name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Custom Panel'] end,
 			order = 1,
 			desc = '',
 			descStyle = 'inline',
-			get = function() return DB.Modules.CustomPanel.Enable end,
+			get = function() return KF.db.Modules.CustomPanel.Enable end,
 			set = function(_, value)
-				DB.Modules.CustomPanel.Enable = value
+				KF.db.Modules.CustomPanel.Enable = value
 				
 				KF.Modules.CustomPanel()
 				KF:CallbackFire('CustomPanel_Toggle')
@@ -64,7 +64,7 @@ KF_Config.Options.args.CustomPanel = {
 		},
 		SelectPanel = {
 			type = 'select',
-			name = function() return ' '..(DB.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Select'] end,
+			name = function() return ' '..(KF.db.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Select'] end,
 			order = 2,
 			get = function() return SelectedPanel end,
 			set = function(_, value)
@@ -77,14 +77,14 @@ KF_Config.Options.args.CustomPanel = {
 				if value ~= '0' then
 					KF:CustomPanel_Delete(0)
 					
-					E:CopyTable(PanelInfo, DB.Modules.CustomPanel[value])
+					E:CopyTable(PanelInfo, KF.db.Modules.CustomPanel[value])
 					PanelInfo.Name = value
 				end
 			end,
 			values = function()
-				local list = { [''] = (DB.Modules.CustomPanel.Enable ~= false and NameColor('ceff00') or '')..L['Please Select'], ['0'] = (DB.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Create new one'], }
+				local list = { [''] = (KF.db.Modules.CustomPanel.Enable ~= false and NameColor('ceff00') or '')..L['Please Select'], ['0'] = (KF.db.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Create new one'], }
 				
-				for panelName, IsPanelData in pairs(DB.Modules.CustomPanel) do
+				for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 					if type(IsPanelData) == 'table' then
 						list[panelName] = (IsPanelData.Enable == false and '|cff712633' or '')..panelName
 					end
@@ -92,7 +92,7 @@ KF_Config.Options.args.CustomPanel = {
 				
 				return list
 			end,
-			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false end
+			hidden = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false end
 		},
 		Space = {
 			type = 'description',
@@ -109,7 +109,7 @@ KF_Config.Options.args.CustomPanel = {
 		},
 		Name_NewPanel = {
 			type = 'input',
-			name = function() return ' '..(DB.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Input New Name'] end,
+			name = function() return ' '..(KF.db.Modules.CustomPanel.Enable ~= false and NameColor() or '')..L['Input New Name'] end,
 			order = 5,
 			desc = '',
 			descStyle = 'inline',
@@ -135,7 +135,7 @@ KF_Config.Options.args.CustomPanel = {
 					end
 				end
 			end,
-			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or SelectedPanel == '' or (PanelInfo.Name and PanelInfo.Name ~= '') end
+			hidden = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or SelectedPanel == '' or (PanelInfo.Name and PanelInfo.Name ~= '') end
 		},
 		ConfigSpace = {
 			type = 'group',
@@ -154,7 +154,7 @@ KF_Config.Options.args.CustomPanel = {
 				
 				KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 			end,
-			hidden = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or SelectedPanel == '' or PanelInfo.Name == '' or not PanelInfo.Name end,
+			hidden = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or SelectedPanel == '' or PanelInfo.Name == '' or not PanelInfo.Name end,
 			args = {
 				Name = {
 					type = 'input',
@@ -186,7 +186,7 @@ KF_Config.Options.args.CustomPanel = {
 				},
 				Save = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.CustomPanel.Enable ~= false and not (SelectedPanel ~= '0' and not IsModified) and PanelInfo.Name and PanelInfo.Name ~= '' and KF:Color_Value() or '|cff808080')..L['Save'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.CustomPanel.Enable ~= false and not (SelectedPanel ~= '0' and not IsModified) and PanelInfo.Name and PanelInfo.Name ~= '' and KF:Color_Value() or '|cff808080')..L['Save'] end,
 					order = 3,
 					desc = '',
 					descStyle = 'inline',
@@ -194,19 +194,19 @@ KF_Config.Options.args.CustomPanel = {
 					func = function()
 						local CurrentPanelName = (SelectedPanel == '0' or (PanelInfo.Name ~= SelectedPanel)) and PanelInfo.Name or SelectedPanel
 						
-						if not (SelectedPanel ~= '0' and PanelInfo.Name == SelectedPanel) and DB.Modules.CustomPanel[CurrentPanelName] and
+						if not (SelectedPanel ~= '0' and PanelInfo.Name == SelectedPanel) and KF.db.Modules.CustomPanel[CurrentPanelName] and
 							Message ~= L['Custom Panel that named same is already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?'] then
 							
 							Message = L['Custom Panel that named same is already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?']
 							return
-						elseif DB.Modules.CustomPanel[CurrentPanelName] then
+						elseif KF.db.Modules.CustomPanel[CurrentPanelName] then
 							KF:CustomPanel_Delete(CurrentPanelName)
 						elseif SelectedPanel ~= '0' and PanelInfo.Name ~= SelectedPanel then
 							KF:CustomPanel_Delete(SelectedPanel, true)
 							E.db.movers[CurrentPanelName] = E.db.movers[SelectedPanel]
 							E.db.movers[SelectedPanel] = nil
 							
-							DB.Modules.CustomPanel[SelectedPanel] = nil
+							KF.db.Modules.CustomPanel[SelectedPanel] = nil
 							
 							KF:CallbackFire('CustomPanel_RewritePanelName', SelectedPanel, CurrentPanelName)
 						end
@@ -219,7 +219,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						local SaveData = E:CopyTable({}, PanelInfo)
 						SaveData.Name = nil
-						DB.Modules.CustomPanel[CurrentPanelName] = SaveData
+						KF.db.Modules.CustomPanel[CurrentPanelName] = SaveData
 						
 						IsModified = nil
 						
@@ -236,11 +236,11 @@ KF_Config.Options.args.CustomPanel = {
 						KF:CustomPanel_Create(SelectedPanel)
 						KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel)
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or (SelectedPanel ~= '0' and not IsModified) or not PanelInfo.Name or PanelInfo.Name == '' end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or (SelectedPanel ~= '0' and not IsModified) or not PanelInfo.Name or PanelInfo.Name == '' end
 				},
 				Reset = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.CustomPanel.Enable ~= false and IsModified == true and KF:Color_Value() or '|cff808080')..L['Reset'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.CustomPanel.Enable ~= false and IsModified == true and KF:Color_Value() or '|cff808080')..L['Reset'] end,
 					order = 4,
 					desc = '',
 					descStyle = 'inline',
@@ -254,7 +254,7 @@ KF_Config.Options.args.CustomPanel = {
 							
 							KF:CustomPanel_Delete(0)
 							
-							E:CopyTable(PanelInfo, DB.Modules.CustomPanel[SelectedPanel])
+							E:CopyTable(PanelInfo, KF.db.Modules.CustomPanel[SelectedPanel])
 							PanelInfo.Name = SelectedPanel
 							
 							KF:CustomPanel_Create(SelectedPanel, PanelInfo)
@@ -267,11 +267,11 @@ KF_Config.Options.args.CustomPanel = {
 							KF:CustomPanel_Create(0, PanelInfo)
 						end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or not IsModified end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or not IsModified end
 				},
 				Delete = {
 					type = 'execute',
-					name = function() return (DB.Enable ~= false and DB.Modules.CustomPanel.Enable ~= false and SelectedPanel ~= '0' and '|cffff5675' or '|cff808080')..L['Delete'] end,
+					name = function() return (KF.db.Enable ~= false and KF.db.Modules.CustomPanel.Enable ~= false and SelectedPanel ~= '0' and '|cffff5675' or '|cff808080')..L['Delete'] end,
 					order = 5,
 					desc = '',
 					descStyle = 'inline',
@@ -280,7 +280,7 @@ KF_Config.Options.args.CustomPanel = {
 						if Message ~= format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedPanel)..' '..L['Panel']) then
 							Message = format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedPanel)..' '..L['Panel'])
 						else
-							DB.Modules.CustomPanel[SelectedPanel] = nil
+							KF.db.Modules.CustomPanel[SelectedPanel] = nil
 							
 							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedPanel))
 							KF:CustomPanel_Delete(SelectedPanel)
@@ -291,7 +291,7 @@ KF_Config.Options.args.CustomPanel = {
 							IsModified = nil
 						end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or SelectedPanel == '0' end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or SelectedPanel == '0' end
 				},
 				Space2 = {
 					type = 'description',
@@ -343,7 +343,7 @@ KF_Config.Options.args.CustomPanel = {
 					order = 14,
 					desc = '',
 					descStyle = 'inline',
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
 				},
 				Space5 = {
 					type = 'description',
@@ -355,7 +355,7 @@ KF_Config.Options.args.CustomPanel = {
 					name = L['General'],
 					order = 100,
 					guiInline = true,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end,
 					set = function(info, value)
 						Message = nil
 						
@@ -414,7 +414,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end,
 					args = {
 						panelBackdrop = {
 							type = 'toggle',
@@ -467,7 +467,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								KF:CustomPanel_Create(SelectedPanel == '0' and 0 or SelectedPanel, PanelInfo)
 							end,
-							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false or PanelInfo.Texture.Path == '' end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false or PanelInfo.Texture.Path == '' end
 						},
 						Path = {
 							type = 'input',
@@ -475,7 +475,7 @@ KF_Config.Options.args.CustomPanel = {
 							order = 4,
 							desc = L['Specify a filename located inside the World of Warcraft directory. Textures folder that you wish to have set as a panel background.\n\nPlease Note:\n-The image size recommended is 256x128\n-You must do a complete game restart after adding a file to the folder.\n-The file type must be tga format.\n\nExample: Interface\\AddOns\\ElvUI\\media\\textures\\copy\n\nOr for most users it would be easier to simply put a tga file into your WoW folder, then type the name of the file here.'],
 							width = 'full',
-							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Texture.Enable == false end
 						},
 					}
 				},
@@ -503,7 +503,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Tab.Enable == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.Tab.Enable == false end,
 					args = {
 						Enable = {
 							type = 'toggle',
@@ -524,7 +524,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
-							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
 						},
 						Transparency = {
 							type = 'toggle',
@@ -679,7 +679,7 @@ KF_Config.Options.args.CustomPanel = {
 						
 						if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 					end,
-					disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.DP.Enable == false end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false or PanelInfo.DP.Enable == false end,
 					args = {
 						Enable = {
 							type = 'toggle',
@@ -700,7 +700,7 @@ KF_Config.Options.args.CustomPanel = {
 								
 								if SelectedPanel ~= '0' then KF:CallbackFire('CustomPanel_PanelSettingChanged', SelectedPanel) end
 							end,
-							disabled = function() return DB.Enable == false or DB.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.CustomPanel.Enable == false or PanelInfo.Enable == false end
 						},
 						Transparency = {
 							type = 'toggle',
@@ -844,5 +844,4 @@ KF_Config.Options.args.CustomPanel = {
 			order = 999
 		},
 	},
-	hidden = function() return KF_Config.ReadyToRunKF == false end,
 }

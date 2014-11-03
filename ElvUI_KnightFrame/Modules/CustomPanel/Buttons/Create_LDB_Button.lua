@@ -1,9 +1,5 @@
-﻿-- Last Code Checking Date		: 2014. 6. 23
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9998
-
-local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+﻿local E, L, V, P, G = unpack(ElvUI)
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Panel - Button By LDB Registered							>>--

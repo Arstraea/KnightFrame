@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.FloatingDatatext = {
+KF.db.Modules.FloatingDatatext = {
 	Enable = true
 }
 
@@ -49,12 +49,12 @@ KF.DBFunction.FloatingDatatext = {
 		end
 	end,
 	Save = function()
-		for datatextName, IsDatatextData in pairs(DB.Modules.FloatingDatatext) do
+		for datatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 			if type(IsDatatextData) == 'table' then
-				DB.Modules.FloatingDatatext[datatextName] = KF:CompareTable(IsDatatextData, Info.FloatingDatatext_Default)
+				KF.db.Modules.FloatingDatatext[datatextName] = KF:CompareTable(IsDatatextData, Info.FloatingDatatext_Default)
 				
-				if DB.Modules.FloatingDatatext[datatextName] == nil then
-					DB.Modules.FloatingDatatext[datatextName] = {}
+				if KF.db.Modules.FloatingDatatext[datatextName] == nil then
+					KF.db.Modules.FloatingDatatext[datatextName] = {}
 				end
 			end
 		end

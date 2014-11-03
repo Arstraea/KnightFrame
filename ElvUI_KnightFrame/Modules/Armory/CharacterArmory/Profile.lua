@@ -1,9 +1,9 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.Armory = DB.Modules.Armory or {}
+KF.db.Modules.Armory = KF.db.Modules.Armory or {}
 	
-DB.Modules.Armory.Character = {
+KF.db.Modules.Armory.Character = {
 	Enable = true,
 	NoticeMissing = true,
 	
