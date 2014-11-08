@@ -34,11 +34,11 @@ Info.CustomPanel_Default = {
 
 
 KF.DBFunction.CustomPanel = {
-	Load = function(TableToSave, TableToLoad)
+	Load = function(TargetTable, TableToLoad)
 		if TableToLoad.Modules and TableToLoad.Modules.CustomPanel and type(TableToLoad.Modules.CustomPanel) == 'table' then
 			for panelName, IsPanelData in pairs(TableToLoad.Modules.CustomPanel) do
 				if type(IsPanelData) == 'table' then
-					TableToSave.Modules.CustomPanel[panelName] = E:CopyTable({}, Info.CustomPanel_Default)
+					TargetTable.Modules.CustomPanel[panelName] = E:CopyTable({}, Info.CustomPanel_Default)
 				end
 			end
 		end

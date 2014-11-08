@@ -3,7 +3,7 @@ local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if KF.Modules.ExpRepDisplay then
-	local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled
+	local Panel, PanelType, PanelTab, IsTabEnabled, PanelDP, IsDPEnabled
 	
 	
 	local function NameColor(Color)
@@ -59,9 +59,17 @@ if KF.Modules.ExpRepDisplay then
 				values = function()
 					local List = { [''] = NameColor('ceff00')..L['Please Select'] }
 					
-					for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
+					for PanelName, LocalizedName in pairs({ LeftChatPanel = 'Left Chat', RightChatPanel = 'Right Chat' }) do
+						_, _, _, IsTabEnabled, _, IsDPEnabled = KF:GetPanelData(PanelName)
+						
+						if IsTabEnabled or ISDPEnabled then
+							List[PanelName] = L[LocalizedName]
+						end
+					end
+					
+					for PanelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 						if type(IsPanelData) == 'table' and IsPanelData.Enable ~= false and (IsPanelData.Tab.Enable or IsPanelData.DP.Enable) then
-							List[panelName] = panelName
+							List[PanelName] = PanelName
 						end
 					end
 					
@@ -71,7 +79,7 @@ if KF.Modules.ExpRepDisplay then
 			EmbedLocation = {
 				type = 'select',
 				name = function()
-					Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled = KF:GetPanelData(KF.db.Modules.ExpRepDisplay.EmbedPanel)
+					Panel, PanelType, PanelTab, IsTabEnabled, PanelDP, IsDPEnabled = KF:GetPanelData(KF.db.Modules.ExpRepDisplay.EmbedPanel)
 					
 					return ' '..((IsTabEnabled or IsDPEnabled) and NameColor() or '')..L['Embed Location']
 				end,
@@ -95,7 +103,7 @@ if KF.Modules.ExpRepDisplay then
 						KF.db.Modules.ExpRepDisplay.EmbedLocation = value
 					end
 					
-					if Panel and not Panel.HiddenByToggled and (IsTabEnabled and not panelTab:IsShown() or IsDPEnabled and not panelDP:IsShown()) then
+					if Panel and not Panel.HiddenByToggled and (IsTabEnabled and not PanelTab:IsShown() or IsDPEnabled and not PanelDP:IsShown()) then
 						KF:Create_CustomPanel(KF.db.Modules.ExpRepDisplay.EmbedPanel)
 					end
 					

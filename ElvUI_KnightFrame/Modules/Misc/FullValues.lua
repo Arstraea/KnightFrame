@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Full Values in Tooltip and UnitFrame						>>--
@@ -31,7 +31,7 @@ function TT:GameTooltipStatusBar_OnValueChanged(tt, value)
 	elseif(value == 0 or (unit and UnitIsDeadOrGhost(unit))) then
 		tt.text:SetText(DEAD)
 	else
-		tt.text:SetText((DB.Modules.FullValues ~= false and value..' / '..max or E:ShortValue(value)..' / '..E:ShortValue(max)))
+		tt.text:SetText((KF.db.Modules.FullValues ~= false and value..' / '..max or E:ShortValue(value)..' / '..E:ShortValue(max)))
 	end
 end
 
@@ -61,7 +61,7 @@ function E:GetFormattedText(style, min, max) --ElvUI\Core\math.lua
 
 	if max == 0 then max = 1 end
 	
-	style = DB.Modules.FullValues ~= false and styles['KF_'..style] and 'KF_'..style or style
+	style = KF.db.Modules.FullValues ~= false and styles['KF_'..style] and 'KF_'..style or style
 	
 	local useStyle = styles[style]
 	

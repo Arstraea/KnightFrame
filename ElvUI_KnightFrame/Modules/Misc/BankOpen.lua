@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 local OpenAllBagsInBank
 
@@ -24,7 +24,7 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'BankOpen'
 KF.Modules.BankOpen = function(RemoveOrder)
-	if not RemoveOrder and DB.Modules.BankOpen ~= false then
+	if not RemoveOrder and KF.db.Modules.BankOpen ~= false then
 		if OpenAllBagsInBank then
 			KF:RegisterEventList('BANKFRAME_OPENED', OpenAllBagsInBank, 'BankOpen')
 		end

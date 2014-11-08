@@ -214,65 +214,7 @@ elseif KF.UIParent and KF.db.Modules.SmartTracker.Enable ~= false then
 		
 		
 		-- Refresh Cooltime
-		KF.Update['RaidCooldown_RefreshCooldown'] = {
-			['Condition'] = function() return Value['RefreshCooldown'] end,
-			['Delay'] = 0,
-			['Action'] = function()
-				local HasData, RemainCooltime, NeedRefreshCooldownBarData
-				
-				for userGUID in pairs(Table['Cooldown_Cache']) do
-					HasData = nil
-					
-					for spellID in pairs(Table['Cooldown_Cache'][userGUID]['List']) do
-						HasData = true
-						
-						RemainCooltime = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime'] - KF.TimeNow
-						
-						if Table['Cooldown_Cache'][userGUID]['List'][spellID]['Chargy'] and RemainCooltime <= 0 then
-							if Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] ~= 0 then
-								if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][userGUID]['Class']][spellID] == 3 then
-									Func['Announcer'](userGUID, spellID)
-								end
-								
-								Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime']
-							else
-								Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2']
-							end
-							
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestColor'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestColor2']
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName2']
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName2'] = nil
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['Chargy'] = nil
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2'] = nil
-							
-							RemainCooltime = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime'] - KF.TimeNow
-							
-							NeedRefreshCooldownBarData = true
-						end
-						
-						if RemainCooltime <= 0 then
-							if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][userGUID]['Class']][spellID] == 3 and not (Table['Cooldown_Cache'][userGUID]['List'][spellID]['Fade'] and Table['Cooldown_Cache'][userGUID]['List'][spellID]['Fade']['NoAnnounce']) then
-								Func['Announcer'](userGUID, spellID)
-							end
-							
-							Table['Cooldown_Cache'][userGUID]['List'][spellID] = nil
-							
-							NeedRefreshCooldownBarData = true
-						end
-					end
-					
-					if not HasData then
-						Table['Cooldown_Cache'][userGUID] = nil
-					end
-				end
-				
-				if NeedRefreshCooldownBarData then
-					KF:RaidCooldown_RefreshCooldownBarData()
-				elseif HasData == nil then
-					Value['RefreshCooldown'] = nil
-				end
-			end,
-		}
+		
 	end
 	
 	

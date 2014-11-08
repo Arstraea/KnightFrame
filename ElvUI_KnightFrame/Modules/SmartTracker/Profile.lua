@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
-DB.Modules.SmartTracker = {
+KF.db.Modules.SmartTracker = {
 	Enable = true,
 	
 	Window = {
@@ -17,9 +17,12 @@ DB.Modules.SmartTracker = {
 				Bar_Height = 16,
 				Bar_FontSize = 10,
 				
+				Count_TargetUser = 3,
+				
 				Color_WindowTab = { 1, 1, 1 },
 				Color_BehindBar = { 1, 1, 1, 0.2 },
-				Color_Charged = { .38, .82, 1 }
+				Color_Charged1 = { .38, .82, 1 },
+				Color_Charged2 = { 0, .38, .82 }
 			},
 			
 			Display = {
@@ -236,9 +239,12 @@ Info.SmartTracker_Default = {
 		Bar_Height = 16,
 		Bar_FontSize = 10,
 		
+		Count_TargetUser = 3,
+		
 		Color_WindowTab = { 1, 1, 1 },
 		Color_BehindBar = { 1, 1, 1, 0.2 },
-		Color_Charged = { .38, .82, 1 }
+		Color_Charged1 = { .38, .82, 1 },
+		Color_Charged2 = { 0, .38, .82 }
 	},
 	
 	Display = {
@@ -311,12 +317,12 @@ KF.DBFunction.SmartTracker = {
 		end
 	end,
 	Save = function()
-		for WindowName, IsWindowData in pairs(DB.Modules.SmartTracker.Window) do
+		for WindowName, IsWindowData in pairs(KF.db.Modules.SmartTracker.Window) do
 			if type(IsWindowData) == 'table' then
-				DB.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default)
+				KF.db.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default)
 				
-				if DB.Modules.SmartTracker.Window[WindowName] == nil then
-					DB.Modules.SmartTracker.Window[WindowName] = {}
+				if KF.db.Modules.SmartTracker.Window[WindowName] == nil then
+					KF.db.Modules.SmartTracker.Window[WindowName] = {}
 				end
 			end
 		end

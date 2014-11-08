@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Create Panel, Button										>>--
@@ -53,13 +53,13 @@ end
 
 function KF:ExpRepDisplay_Lock(Button)
 	if not Button or Button == 'RightButton' then
-		if DB.Modules.ExpRepDisplay.Lock == true then
+		if KF.db.Modules.ExpRepDisplay.Lock == true then
 			if KF_ExpTooltip then
 				KF_ExpTooltip.Title:SetText('< '..KF:Color_Value(COMBAT_XP_GAIN)..' >')
 			end
 			KF_RepTooltip.Title:SetText('< '..KF:Color_Value(REPUTATION)..' >')
 			
-			DB.Modules.ExpRepDisplay.Lock = false
+			KF.db.Modules.ExpRepDisplay.Lock = false
 			print(L['KF']..' : '..L['Unlock ExpRep Tooltip.'])
 		else
 			if KF_ExpTooltip then
@@ -67,7 +67,7 @@ function KF:ExpRepDisplay_Lock(Button)
 			end
 			KF_RepTooltip.Title:SetText('< '..KF:Color_Value(REPUTATION)..' > |cffceff00LOCKED!!|r')
 			
-			DB.Modules.ExpRepDisplay.Lock = true
+			KF.db.Modules.ExpRepDisplay.Lock = true
 			print(L['KF']..' : '..L['Lock ExpRep Tooltip.'])
 		end
 	elseif Button then
@@ -160,13 +160,13 @@ function M:UpdateReputation(event)
 		if not name then
 			M.repBar:Hide()
 			
-			if DB.Modules.ExpRepDisplay.Lock and KF_RepTooltip:IsShown() then
+			if KF.db.Modules.ExpRepDisplay.Lock and KF_RepTooltip:IsShown() then
 				KF:ExpRepDisplay_ToggleExpRepTooltip('SHOW')
 			end
 		elseif name then
 			M.repBar:Show()
 			
-			if DB.Modules.ExpRepDisplay.Lock and not KF_RepTooltip:IsShown() then
+			if KF.db.Modules.ExpRepDisplay.Lock and not KF_RepTooltip:IsShown() then
 				KF:ExpRepDisplay_ToggleExpRepTooltip('SHOW')
 			end
 			
@@ -186,10 +186,10 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'ExpRepDisplay'
 KF.Modules.ExpRepDisplay = function(RemoveOrder)
-	if not RemoveOrder and DB.Enable ~= false and DB.Modules.Enable ~= false and DB.Modules.ExpRepDisplay.Enable ~= false and DB.Modules.ExpRepDisplay.EmbedPanel then
-		local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled = KF:GetPanelData(DB.Modules.ExpRepDisplay.EmbedPanel)
+	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.ExpRepDisplay.Enable ~= false and KF.db.Modules.ExpRepDisplay.EmbedPanel then
+		local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled = KF:GetPanelData(KF.db.Modules.ExpRepDisplay.EmbedPanel)
 		
-		if Panel and DB.Modules.ExpRepDisplay.EmbedLocation and (DB.Modules.ExpRepDisplay.EmbedLocation == 'Tab' and IsTabEnabled or IsDPEnabled) then
+		if Panel and KF.db.Modules.ExpRepDisplay.EmbedLocation and (KF.db.Modules.ExpRepDisplay.EmbedLocation == 'Tab' and IsTabEnabled or IsDPEnabled) then
 			if not E.db.general.reputation.enable then
 				E.db.general.reputation.enable = true
 				M:EnableDisable_ReputationBar()
@@ -207,7 +207,7 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 				KF_ExpRepSensor:RegisterForClicks('AnyUp')
 				KF_ExpRepSensor:SetScript('OnEnter', KF.ExpRepDisplay_ToggleExpRepTooltip)
 				KF_ExpRepSensor:SetScript('OnLeave', function()
-					if DB.Modules.ExpRepDisplay.Lock == false then
+					if KF.db.Modules.ExpRepDisplay.Lock == false then
 						KF:ExpRepDisplay_ToggleExpRepTooltip('HIDE')
 					end
 				end)
@@ -258,7 +258,7 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 				KF_ExpRepSensor:Show()
 			end
 			
-			KF_ExpRepSensor:SetParent(DB.Modules.ExpRepDisplay.EmbedLocation == 'Tab' and panelTab or panelDP)
+			KF_ExpRepSensor:SetParent(KF.db.Modules.ExpRepDisplay.EmbedLocation == 'Tab' and panelTab or panelDP)
 			KF_ExpRepSensor:SetFrameStrata('TOOLTIP')
 			KF_ExpRepSensor:SetFrameLevel(7)
 			KF_ExpRepSensor:ClearAllPoints()
@@ -292,7 +292,7 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 			end
 			
 			
-			if DB.Modules.ExpRepDisplay.Lock ~= false then
+			if KF.db.Modules.ExpRepDisplay.Lock ~= false then
 				if KF_ExpTooltip then
 					KF_ExpTooltip.Title:SetText('< '..KF:Color_Value(COMBAT_XP_GAIN)..' > |cffceff00LOCKED!!|r')
 				end
@@ -372,7 +372,7 @@ end
 
 local function Update_Color()
 	if KF_ExpRepSensor then
-		if DB.Modules.ExpRepDisplay.Lock ~= false then
+		if KF.db.Modules.ExpRepDisplay.Lock ~= false then
 			if KF_ExpTooltip then
 				KF_ExpTooltip.Title:SetText('< '..KF:Color_Value(COMBAT_XP_GAIN)..' > |cffceff00LOCKED!!|r')
 			end

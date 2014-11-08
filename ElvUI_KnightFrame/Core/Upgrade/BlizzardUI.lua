@@ -15,3 +15,12 @@ hooksecurefunc('UnitPopup_HideButtons', function(...)
 		end
 	end
 end)
+
+InterfaceOptionsFrame:SetMovable(true)
+InterfaceOptionsFrame:HookScript('OnMouseDown', function(self)
+	self:StartMoving()
+	self:SetUserPlaced(false)
+end)
+InterfaceOptionsFrame:HookScript('OnMouseUp', function(self)
+	self:StopMovingOrSizing()
+end)

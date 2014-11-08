@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 -----------------------------------------------------------
 -- [ Knight : Spell Data								]--
@@ -15,6 +15,7 @@ Info.SmartTracker_SPELL_CAST_SUCCESS_Spell = {}
 		Reset	= Spell that reset when boss combat is end (Boolean)
 		Target	= Target type spell (Boolean)
 		Charge	= Spell that chargable (Boolean)
+		NotToMe	= Spell that can't target me (Boolean)
 		
 		Spec = {
 			[Global string of Spec in L table] = ChangedCooltime(Number)

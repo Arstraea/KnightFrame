@@ -579,7 +579,9 @@ end
 
 
 function KF:EmbedMeter_ClearSettingByPanel(panelName, PreserveSetting)
+	print(panelName, PreserveSetting)
 	for Key in pairs(PanelLink) do
+		print(Key, Key == panelName)
 		if Key == panelName then
 			for Direction in pairs(PanelLink[Key]) do
 				if type(PanelLink[Key][Direction]) == 'table' and PanelLink[Key][Direction].AddOn == 'Skada' then
@@ -593,7 +595,9 @@ function KF:EmbedMeter_ClearSettingByPanel(panelName, PreserveSetting)
 		end
 	end
 	
-	KF.Modules.EmbedMeter()
+	if KF:EmbedMeter_CheckNeedEmbeding() then
+		KF:EmbedMeter()
+	end
 end
 
 

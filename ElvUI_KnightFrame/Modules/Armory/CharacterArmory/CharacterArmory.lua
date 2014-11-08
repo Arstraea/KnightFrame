@@ -674,6 +674,12 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		end
 		CA:CharacterArmory_DataSetting()
 		
+		if PaperDollFrame:IsShown() then
+			CharacterFrame:SetWidth(CharacterFrame.Expanded and 650 or 448)
+			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
+			CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
+		end
+		
 		-- Run KnightArmory
 		CA:RegisterEvent('SOCKET_INFO_SUCCESS')
 		CA:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
@@ -695,6 +701,9 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		
 		-- Setting frame to default
 		CharacterFrame:SetHeight(424)
+		CharacterFrame:SetWidth(PaperDollFrame:IsShown() and CharacterFrame.Expanded and CHARACTERFRAME_EXPANDED_WIDTH or PANEL_DEFAULT_WIDTH)
+		CharacterFrameInsetRight:SetPoint(unpack(InsetDefaultPoint))
+		CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
 		
 		-- Move rightside equipment slots to default position
 		CharacterHandsSlot:SetPoint('TOPRIGHT', CharacterFrameInset, 'TOPRIGHT', -4, -2)

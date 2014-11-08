@@ -52,13 +52,9 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 			
 			FD = KF.UIParent.Datatext[DatatextName]
 			
-			local moverData = FD.MoverData
-			E.CreatedMovers[FD.mover.name] = moverData
-			E.CreatedMovers[FD.mover.name].point = E:HasMoverBeenMoved(DatatextName) and E.db.movers[DatatextName] or DatatextInfo.Location or 'CENTERElvUIParent'
-			
+			--local moverData = FD.MoverData
+			E.CreatedMovers[FD.mover.name] = FD.MoverData --moverData
 			FD.MoverData = nil
-			FD.mover:ClearAllPoints()
-			FD.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[FD.mover.name].point)}))
 			
 			FD:Show()
 			
@@ -71,7 +67,7 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 			FD.yOff = 2
 			FD.anchor = 'ANCHOR_TOP'
 			FD.Count = FloatingDatatextCount
-			FD:Size(100, PANEL_HEIGHT)
+			FD:Point('CENTER')
 			
 			FD.BG = CreateFrame('Frame', nil, FD)
 			FD.BG:SetInside()
@@ -82,7 +78,13 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 			KF:TextSetting(FD.Datatext, nil, nil, 'CENTER', FD.Datatext)
 			
 			KF.UIParent.Datatext[DatatextName] = FD
+			
+			E:CreateMover(FD, 'KF_Datatext_'..FD.Count, DatatextInfo.Name or DatatextName, nil, nil, nil, 'ALL,KF,KF_Datatext')
 		end
+		
+		E.CreatedMovers[FD.mover.name].point = E:HasMoverBeenMoved(DatatextName) and E.db.movers[DatatextName] or DatatextInfo.Location or 'CENTERElvUIParent'
+		FD.mover:ClearAllPoints()
+		FD.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[FD.mover.name].point)}))
 	end
 	
 	-- Parent
@@ -92,6 +94,7 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 	
 	-- Size
 	FD:Size(DatatextInfo.Backdrop.Width, DatatextInfo.Backdrop.Height)
+	FD.mover:Size(DatatextInfo.Backdrop.Width, DatatextInfo.Backdrop.Height)
 	
 	-- Backdrop
 	if DatatextInfo.Backdrop.Enable then
@@ -146,26 +149,8 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 	RefreshDatatext(DatatextName, DatatextInfo)
 	
 	
-	-- Create Mover after frame locating
-	if not FD.mover then
-		if DatatextInfo.Location then
-			FD:SetPoint(unpack({string.split('\031', DatatextInfo.Location)}))
-			--DatatextInfo['Location'] = nil
-		else
-			FD:Point('CENTER')
-		end
-		
-		E:CreateMover(FD, 'KF_Datatext_'..FD.Count, DatatextInfo.Name or DatatextName, nil, nil, nil, 'ALL,KF,KF_Datatext')
-		
-		if E:HasMoverBeenMoved(DatatextName) then
-			FD.mover:ClearAllPoints()
-			FD.mover:SetPoint(unpack({string.split('\031', E.db.movers[DatatextName])}))
-			E.CreatedMovers['KF_Datatext_'..FD.Count].point = E.db.movers[DatatextName]
-		end
-	else
-		-- Update Mover's Tag
-		FD.mover.text:SetText(DatatextInfo.Name or DatatextName)
-	end
+	-- Update Mover's Tag
+	FD.mover.text:SetText(DatatextInfo.Name or DatatextName)
 	
 	
 	-- Ignore Cursor

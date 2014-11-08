@@ -1,5 +1,5 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, DB, Info, Timer = unpack(select(2, ...))
+local KF, Info, Timer = unpack(select(2, ...))
 
 if E.private.general.minimap.enable ~= false then
 	--------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ if E.private.general.minimap.enable ~= false then
 	
 	KF.Modules[#KF.Modules + 1] = 'MinimapBackdropWhenFarmMode'
 	KF.Modules.MinimapBackdropWhenFarmMode = function(RemoveOrder)
-		if not RemoveOrder and DB.Enable ~= false and DB.Modules.MinimapBackdropWhenFarmMode ~= false then
+		if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.MinimapBackdropWhenFarmMode ~= false then
 			if not MinimapBG then
 				CreateFrame('Button', 'MinimapBG', KF.UIParent)
 				MinimapBG:CreateBackdrop('Transparent')

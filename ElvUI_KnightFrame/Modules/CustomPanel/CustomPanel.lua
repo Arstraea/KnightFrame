@@ -35,13 +35,9 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			
 			Panel = KF.UIParent.Panel[PanelName]
 			
-			local moverData = Panel.MoverData
-			E.CreatedMovers[Panel.mover.name] = moverData
+			--local moverData = Panel.MoverData
+			E.CreatedMovers[Panel.mover.name] = Panel.MoverData --moverData
 			Panel.MoverData = nil
-			E.CreatedMovers[Panel.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTERElvUIParent'
-			
-			Panel.mover:ClearAllPoints()
-			Panel.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Panel.mover.name].point)}))
 			
 			Panel:Show()
 			
@@ -51,6 +47,7 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			
 			Panel = CreateFrame('Frame', PanelTag..'_'..PanelCount, KF.UIParent)
 			Panel:CreateBackdrop('Transparent')
+			Panel:Point('CENTER')
 			Panel.backdrop:SetAllPoints()
 			
 			Panel.Texture = Panel:CreateTexture(nil, 'OVERLAY')
@@ -66,7 +63,13 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			
 			Panel.Count = PanelCount
 			KF.UIParent.Panel[PanelName] = Panel
+			
+			E:CreateMover(Panel, PanelTag..'_'..Panel.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF')
 		end
+		
+		E.CreatedMovers[Panel.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTERElvUIParent'
+		Panel.mover:ClearAllPoints()
+		Panel.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Panel.mover.name].point)}))
 		
 		FrameLinkByID[Panel.Count] = PanelName
 	end
@@ -79,6 +82,7 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 	
 	-- Size
 	Panel:Size(PanelInfo.Width, PanelInfo.Height)
+	Panel.mover:Size(PanelInfo.Width, PanelInfo.Height)
 	
 	-- Backdrop
 	if PanelInfo.panelBackdrop then
@@ -158,23 +162,6 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 	end
 	
 	
-	-- Create Mover after Panel locating
-	if not Panel.mover then
-		if PanelInfo.Location then
-			Panel:SetPoint(unpack({string.split('\031', PanelInfo.Location)}))
-			--PanelInfo['Location'] = nil
-		else
-			Panel:Point('CENTER')
-		end
-		
-		E:CreateMover(Panel, PanelTag..'_'..Panel.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF')
-		
-		if E:HasMoverBeenMoved(PanelName) then
-			Panel.mover:ClearAllPoints()
-			Panel.mover:SetPoint(unpack({string.split('\031', E.db.movers[PanelName])}))
-			E.CreatedMovers[PanelTag..'_'..Panel.Count..'_Mover'].point = E.db.movers[PanelName]
-		end
-	end
 	-- Update Mover's Tag
 	Panel.mover.text:SetText(L['PanelTag']..'|n'..(PanelInfo.Name or PanelName)..(KF.db.Modules.CustomPanel[PanelName] and '' or '|n|n|cffff5675'..L['CAUTION']..' : '..L['NOT SAVED!!']))
 	

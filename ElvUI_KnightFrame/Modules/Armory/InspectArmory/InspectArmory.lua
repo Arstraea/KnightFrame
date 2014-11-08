@@ -4,7 +4,7 @@ local KF, Info, Timer = unpack(select(2, ...))
 --------------------------------------------------------------------------------
 --<< KnightFrame : Upgrade Inspect Frame like Wow-Armory					>>--
 --------------------------------------------------------------------------------
-local IA = CreateFrame('Frame', 'InspectArmory', E.UIParent)
+local IA = InspectArmory or CreateFrame('Frame', 'InspectArmory', E.UIParent)
 local ENI = _G['EnhancedNotifyInspect'] or { CancelInspect = function() end }
 local AISM = _G['Armory_InspectSupportModule']
 local ButtonName = L['Knight Inspect']
@@ -960,7 +960,7 @@ function IA:CreateInspectFrame()
 		
 		do -- Guild Category
 			self.Info.Guild.CategoryHeight = INFO_TAB_SIZE + 66 + SPACING * 3
-			self.Info.Guild.Icon:SetTexture(GetSpellTexture(83968))
+			self.Info.Guild.Icon:SetTexture('Interface\\Icons\\ACHIEVEMENT_GUILDPERK_MASSRESURRECTION')
 			
 			self.Info.Guild.Banner = CreateFrame('Frame', nil, self.Info.Guild.Page)
 			self.Info.Guild.Banner:SetInside()

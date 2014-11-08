@@ -48,17 +48,23 @@ KF:RegisterChatCommand('kf_install', 'Install')
 
 
 -- Run KF Install instead of ElvUI Install 
-if not E.private.install_complete then
-	if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
-		E.private.install_complete = E.version
-	else
-		E.Install_ = E.Install
-		
-		function E:Install()
-			KF:Install()
+function KF:SkipDefaultInstallProcess()
+	if not E.private.install_complete then
+		if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
+			if ElvUIInstallFrame and ElvUIInstallFrame:IsShown() then
+				ElvUIInstallFrame:Hide()
+			end
+			E.private.install_complete = E.version
+		else
+			E.Install_ = E.Install
+			
+			function E:Install()
+				KF:Install()
+			end
 		end
 	end
 end
+KF:SkipDefaultInstallProcess()
 
 
 
@@ -66,7 +72,7 @@ end
 --------------------------------------------------------------------------------
 --<< KnightFrame : Profile													>>--
 --------------------------------------------------------------------------------
-function KF:LoadDB()
+KF.InitializeFunction.LoadDB = function()
 	P.KnightFrame = E:CopyTable({}, KF.db)
 	
 	if E.db.KnightFrame then
@@ -81,53 +87,66 @@ function KF:LoadDB()
 		E:CopyTable(KF.db, E.db.KnightFrame)
 	end
 	
-	KF.LoadDB = nil
-end
-
-
-function KF:DBReloadFunction(self, ProfileKey)
-	if E.db.KnightFrame and E.db.KnightFrame.Install_Complete then
-		KF.Events.PLAYER_LOGOUT.KnightFrame_SaveDB()
+	Info.CurrentSetDBKey = ElvDB.profileKeys[E.myname..' - '..E.myrealm]
+	E.UpdateAll_ = E.UpdateAll
+	function E:UpdateAll(IgnoreInstall)
+		local NeedUpdate
+		local NewProfileKey = ElvDB.profileKeys[E.myname..' - '..E.myrealm]
 		
-		KF:UpdateAll('SwitchProfile')
-	end
-	
-	local Default = E:CopyTable({}, P.KnightFrame)
-	
-	if ElvDB.profiles[ProfileKey] and ElvDB.profiles[ProfileKey].KnightFrame then
-		KF:DBConversions(ElvDB.profiles[ProfileKey].KnightFrame)
+		if Info.CurrentSetDBKey ~= NewProfileKey then
+			KF.Events.PLAYER_LOGOUT.KnightFrame_SaveDB(nil, Info.CurrentSetDBKey)
+			
+			KF:UpdateAll('SwitchProfile')
+			
+			NeedUpdate = true
+		end
 		
-		for ModuleName, Function in pairs(KF.DBFunction) do
-			if type(Function.Load) == 'function' then
-				Function.Load(Default, ElvDB.profiles[ProfileKey].KnightFrame)
+		E:UpdateAll_(IgnoreInstall)
+		
+		if NeedUpdate then
+			local Default = E:CopyTable({}, P.KnightFrame)
+			
+			if ElvDB.profiles[NewProfileKey] and ElvDB.profiles[NewProfileKey].KnightFrame then
+				KF:DBConversions(ElvDB.profiles[NewProfileKey].KnightFrame)
+				
+				for ModuleName, Function in pairs(KF.DBFunction) do
+					if type(Function.Load) == 'function' then
+						Function.Load(Default, ElvDB.profiles[NewProfileKey].KnightFrame)
+					end
+				end
+				
+				E:CopyTable(Default, ElvDB.profiles[NewProfileKey].KnightFrame)
+			end
+			
+			KF.db = Default
+			Info.CurrentSetDBKey = NewProfileKey
+			
+			local KF_Config = E:GetModule('KnightFrame_Config', true)
+			
+			if not (E.private.install_complete and ElvDB.profiles[NewProfileKey] and ElvDB.profiles[NewProfileKey].KnightFrame and ElvDB.profiles[NewProfileKey].KnightFrame.Install_Complete) then
+				if KF_Config then
+					KF_Config.ReadyToRunKF = false
+				end
+				
+				KF:Install()
+			else
+				if KF_Config then
+					KF_Config.ReadyToRunKF = true
+				end
+				
+				if KnightFrame_InstallWindow and KnightFrame_InstallWindow:IsShown() then
+					KnightFrame_InstallWindow:Hide()
+				end
+				
+				KF:Initialize()
 			end
 		end
-		
-		E:CopyTable(Default, ElvDB.profiles[ProfileKey].KnightFrame)
 	end
 	
-	KF.db = Default
-	E:UpdateAll(true)
-	
-	local KF_Config = E:GetModule('KnightFrame_Config')
-	
-	if not (E.private.install_complete and ElvDB.profiles[ProfileKey] and ElvDB.profiles[ProfileKey].KnightFrame and ElvDB.profiles[ProfileKey].KnightFrame.Install_Complete) then
-		if KF_Config then
-			KF_Config.ReadyToRunKF = false
-		end
-		
-		KF:Install()
-	else
-		if KF_Config then
-			KF_Config.ReadyToRunKF = true
-		end
-		
-		if KnightFrame_InstallWindow and KnightFrame_InstallWindow:IsShown() then
-			KnightFrame_InstallWindow:Hide()
-		end
-		
-		KF:Initialize()
-	end
+	-- Original Code (Version)		: ElvUI(6.94)
+	-- Original Code Location		: ElvUI\Core\Core.lua
+	E.data.RegisterCallback(E, 'OnProfileChanged', 'UpdateAll')
+	E.data.RegisterCallback(E, 'OnProfileCopied', 'UpdateAll')
 end
 
 
@@ -155,8 +174,16 @@ function KF:CompareTable(MainTable, TableToCompare)
 	end
 end
 
-KF:RegisterEventList('PLAYER_LOGOUT', function()
-	if E.db.KnightFrame then
+KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
+	if TargetTable and ElvDB.profiles[TargetTable].KnightFrame then
+		for ModuleName, Function in pairs(KF.DBFunction) do
+			if type(Function.Save) == 'function' then
+				Function.Save()
+			end
+		end
+		
+		ElvDB.profiles[TargetTable].KnightFrame = KF:CompareTable(KF.db, P.KnightFrame)
+	elseif E.db.KnightFrame then
 		for ModuleName, Function in pairs(KF.DBFunction) do
 			if type(Function.Save) == 'function' then
 				Function.Save()
@@ -174,13 +201,12 @@ end, 'KnightFrame_SaveDB')
 --<< KnightFrame : Initializae	 											>>--
 --------------------------------------------------------------------------------
 function KF:Initialize()
-	-- Original Code (Version)		: ElvUI(6.94)
-	-- Original Code Location		: ElvUI\Core\Core.lua
-	if KF.LoadDB then
-		KF:LoadDB()
+	if KF.InitializeFunction then
+		for _, InitializeFunction in pairs(KF.InitializeFunction) do
+			InitializeFunction()
+		end
 		
-		E.data.RegisterCallback(E, 'OnProfileChanged', KF.DBReloadFunction)
-		E.data.RegisterCallback(E, 'OnProfileCopied', KF.DBReloadFunction)
+		KF.InitializeFunction = nil
 	end
 	
 	if not (E.db.KnightFrame and E.db.KnightFrame.Install_Complete) then
@@ -192,13 +218,7 @@ function KF:Initialize()
 		E.db.KnightFrame.PatchCheck = true
 	end
 	
-	if KF.InitializeFunction then
-		for _, InitializeFunction in pairs(KF.InitializeFunction) do
-			InitializeFunction()
-		end
-		
-		KF.InitializeFunction = nil
-	end
+	KF:SkipDefaultInstallProcess()
 	
 	if KF.db.Enable then
 		KF:UpdateAll()
