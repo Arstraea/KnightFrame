@@ -836,7 +836,7 @@ function IA:CreateInspectFrame()
 		
 		do -- Profession Part
 			self.Info.Profession.CategoryHeight = INFO_TAB_SIZE + 34 + SPACING * 3
-			self.Info.Profession.Icon:SetTexture(GetSpellTexture(110396))
+			self.Info.Profession.Icon:SetTexture('Interface\\Icons\\Trade_BlackSmithing')
 			
 			for i = 1, 2 do
 				self.Info.Profession['Prof'..i] = CreateFrame('Frame', nil, self.Info.Profession.Page)

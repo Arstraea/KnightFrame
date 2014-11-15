@@ -177,7 +177,7 @@ function SI:UpdateIndicator()
 				NeedUpdate = true
 			end
 			
-			if Info.SynergyIndicator_Filters[self[IconName].FilterName].ShownWhenHasAura then
+			if self[IconName].FilterName and Info.SynergyIndicator_Filters[self[IconName].FilterName].ShownWhenHasAura then
 				self[IconName]:Hide()
 			end
 			
@@ -552,8 +552,8 @@ KF.Modules.SynergyIndicator = function(RemoveOrder)
 		
 		SI:Point('BOTTOMRIGHT', KF.UIParent, 'TOPRIGHT', -6, -(2 + KF.db.Modules.SynergyIndicator.TopPanel_Height))
 		
-		KF:RegisterEventList('PLAYER_STARTED_MOVING', function() Timer.SI_UpdateLocation = C_Timer.NewTicker(.25, SI.UpdateLocation) end, 'SI_UpdateLocation')
-		KF:RegisterEventList('PLAYER_STOPPED_MOVING', Timer.SI_UpdateLocation.Cancel, 'SI_UpdateLocation')
+		KF:RegisterEventList('PLAYER_STARTED_MOVING', function() KF:RegisterTimer('SI_UpdateLocation', 'NewTicker', .25, SI.UpdateLocation) end, 'SI_UpdateLocation')
+		KF:RegisterEventList('PLAYER_STOPPED_MOVING', function() KF:CancelTimer('SI_UpdateLocation') end, 'SI_UpdateLocation')
 		KF:RegisterEventList('PLAYER_ENTERING_WORLD', SI.UpdateLocation, 'SI_UpdateLocation')
 		KF:RegisterEventList('WORLD_MAP_UPDATE', SI.UpdateLocation, 'SI_UpdateLocation')
 		SI:UpdateLocation()
@@ -568,6 +568,7 @@ KF.Modules.SynergyIndicator = function(RemoveOrder)
 		
 		if UnitExists('target') then
 			SI.Target:Show()
+			SI:TargetIndicatorSetting()
 			SI.UpdateIndicator(SI.Target)
 		else
 			SI.Target:Hide()

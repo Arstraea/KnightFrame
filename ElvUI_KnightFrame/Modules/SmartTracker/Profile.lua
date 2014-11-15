@@ -4,8 +4,32 @@ local KF, Info, Timer = unpack(select(2, ...))
 KF.db.Modules.SmartTracker = {
 	Enable = true,
 	
+	SortOrder = {
+		Role = {
+			'Tank',
+			'Healer',
+			'Melee',
+			'Caster'
+		},
+		Class = {
+			'WARRIOR',
+			'HUNTER',
+			'SHAMAN',
+			'MONK',
+			'ROGUE',
+			'DEATHKNIGHT',
+			'MAGE',
+			'DRUID',
+			'PALADIN',
+			'PRIEST',
+			'WARLOCK'
+		},
+	},
+	
 	Window = {
 		[1] = {
+			Enable = true,
+			
 			Appearance = {
 				Location = 'TOPLEFTElvUIParentTOPLEFT11-258',
 				
@@ -27,18 +51,18 @@ KF.db.Modules.SmartTracker = {
 			
 			Display = {
 				Situation = {
-					Solo = false,
-					Group = false,
-					Instance = false,
-					RaidDungeon = false,
-					PvPGround = false
+					Solo = true,
+					Group = true,
+					Instance = true,
+					RaidDungeon = true,
+					PvPGround = true
 				},
 				
 				Filter = {
-					Tanker = false,
-					Healer = false,
-					Caster = false,
-					Melee = false
+					Tanker = true,
+					Healer = true,
+					Caster = true,
+					Melee = true
 				}
 			},
 			
@@ -74,7 +98,7 @@ KF.db.Modules.SmartTracker = {
 					
 				},
 				WARLOCK = {
-				
+					[108416] = true
 				}
 			}
 		}
@@ -249,18 +273,18 @@ Info.SmartTracker_Default = {
 	
 	Display = {
 		Situation = {
-			Solo = false,
-			Group = false,
-			Instance = false,
-			RaidDungeon = false,
-			PvPGround = false
+			Solo = true,
+			Group = true,
+			Instance = true,
+			RaidDungeon = true,
+			PvPGround = true
 		},
 		
 		Filter = {
-			Tanker = false,
-			Healer = false,
-			Caster = false,
-			Melee = false
+			Tanker = true,
+			Healer = true,
+			Caster = true,
+			Melee = true
 		}
 	},
 	

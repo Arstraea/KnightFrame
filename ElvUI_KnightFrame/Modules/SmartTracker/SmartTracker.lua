@@ -22,33 +22,39 @@ KF.UIParent.MoverType.KF_SmartTracker = L['Smart Tracker']
 
 do	--<< About Window's Layout and Appearance >>--
 	function ST:OnSizeChanged()
-		KF.db.Modules.SmartTracker.Window[self.Name].Area_Width = tonumber(E:Round(self:GetWidth()))
-		KF.db.Modules.SmartTracker.Window[self.Name].Area_Height = tonumber(E:Round(self:GetHeight()))
+		KF.db.Modules.SmartTracker.Window[self.Name].Appearance.Area_Width = tonumber(E:Round(self:GetWidth()))
+		KF.db.Modules.SmartTracker.Window[self.Name].Appearance.Area_Height = tonumber(E:Round(self:GetHeight()))
 		
 		ST:Window_Size(self)
-		
-		--KF:RaidCooldown_RefreshCooldownBarData()
 	end
 	
 	
 	function ST:DisplayArea_OnMouseWheel(Spinning)
-		--마우스 휠을 위로 굴리면 spining 에 1값 리턴, 아래로 굴리면 spining 에 -1값 리턴
+		--마우스 휠을 위로 굴리면 Spinning 에 1값 리턴, 아래로 굴리면 Spinning 에 -1값 리턴
 		local Window = self:GetParent()
 		
-		if KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Direction == 'UP' then
-			if spining == 1 and Window.BarRemains then
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
+			if Spinning == 1 and Window.BarRemains then
 				Window.CurrentWheelLine = Window.CurrentWheelLine + 1
-			elseif spining == -1 and Window.CurrentWheelLine > 0 then
+			elseif Spinning == -1 and Window.CurrentWheelLine > 0 then
 				Window.CurrentWheelLine = Window.CurrentWheelLine - 1
+			else
+				return
 			end
 		else
-			if spining == -1 and Window.BarRemains then
+			if Spinning == -1 and Window.BarRemains then
+				print('아래로 굴림')
 				Window.CurrentWheelLine = Window.CurrentWheelLine + 1
-			elseif spining == 1 and Window.CurrentWheelLine > 0 then
+			elseif Spinning == 1 and Window.CurrentWheelLine > 0 then
+				print('위로 굴림')
 				Window.CurrentWheelLine = Window.CurrentWheelLine - 1
+			else
+				print('리턴됨')
+				return
 			end
 		end
-		--KF:RaidCooldown_RefreshCooldownBarData()
+		
+		ST:RedistributeCooldownData(Window)
 	end
 	
 	
@@ -94,7 +100,7 @@ do	--<< About Window's Layout and Appearance >>--
 			Window:SetResizable(false)
 			
 			Window:ClearAllPoints()
-			if KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Direction == 'UP' then
+			if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
 				Window:Point('BOTTOMLEFT', Window.mover)
 			else
 				Window:Point('TOPLEFT', Window.mover)
@@ -114,7 +120,7 @@ do	--<< About Window's Layout and Appearance >>--
 			local x, y = Window.mover:GetLeft(), Window.mover:GetBottom()
 			
 			Window.mover:ClearAllPoints()
-			if KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Direction == 'UP' then
+			if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
 				Window.mover:Point('BOTTOMLEFT', E.UIParent, x, y)
 				Window:StartSizing('TOPRIGHT')
 			else
@@ -179,11 +185,11 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:ToggleDisplay(Window)
 		if Window.DisplayArea:GetAlpha() > 0 then
 			Window.DisplayArea:SetAlpha(0)
-			KF.db.Modules.SmartTracker.Window[Window.Name].DisplayArea = false
+			KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show = false
 			print(L['KF']..' : '..L['Lock Display Area.'])
 		else
 			Window.DisplayArea:SetAlpha(1)
-			KF.db.Modules.SmartTracker.Window[Window.Name].DisplayArea = true
+			KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show = true
 			print(L['KF']..' : '..L['Unlock Display Area.'])
 		end
 	end
@@ -228,7 +234,6 @@ do	--<< About Window's Layout and Appearance >>--
 			Window.Name = WindowName
 			Window.CurrentWheelLine = 0
 			Window.ContainedBar = {}
-			Window.mover.text:SetText(L['WindowTag']..'|n'..WindowName)
 		end
 		
 		-- Setting
@@ -236,8 +241,9 @@ do	--<< About Window's Layout and Appearance >>--
 		self:Window_ChangeBarGrowDirection(Window)
 		
 		-- Colorize
-		Window.Tab:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[WindowName].Color_WindowTab))
+		Window.Tab:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Color_WindowTab))
 		
+		Window.mover.text:SetText(L['WindowTag']..'|n'..WindowName)
 		
 		--Window.Tab.text:SetText('|cff2eb7e4'..Default['MainFrame_Tab_AddOnName']) 탭에 표시할 제목
 		
@@ -249,17 +255,27 @@ do	--<< About Window's Layout and Appearance >>--
 
 
 	function ST:Window_Size(Window)
-		local MinimumHeight = (KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Height - 1) * 5 + ST.TAB_HEIGHT
+		local MinimumHeight = (KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height - 1) * 5 + ST.TAB_HEIGHT
 		
-		if KF.db.Modules.SmartTracker.Window[Window.Name].Area_Height < MinimumHeight then
-			KF.db.Modules.SmartTracker.Window[Window.Name].Area_Height = MinimumHeight
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height < MinimumHeight then
+			KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height = MinimumHeight
 		end
 		
 		Window:SetMinResize(200, MinimumHeight)
 		Window:SetMaxResize(floor(UIParent:GetWidth() / 2), floor(UIParent:GetHeight() * 2/3))
-		Window:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Area_Width, KF.db.Modules.SmartTracker.Window[Window.Name].Area_Height)
-		Window.mover:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Area_Width, KF.db.Modules.SmartTracker.Window[Window.Name].Area_Height)
-		Window.DisplayArea.text:SetText(L['Enable to display']..' : |cff2eb7e4'..floor((KF.db.Modules.SmartTracker.Window[Window.Name].Area_Height - ST.TAB_HEIGHT) / (KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Height - 1)))
+		Window:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Width, KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height)
+		Window.mover:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Width, KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height)
+		
+		local DisplayableBarNum = floor((KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height - ST.TAB_HEIGHT) / (KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height - 1))
+		
+		if Window.OldDisplayableBarNum ~= DisplayableBarNum then
+			if Window.OldDisplayableBarNum then
+				ST:RedistributeCooldownData(Window)
+			end
+			
+			Window.OldDisplayableBarNum = DisplayableBarNum
+			Window.DisplayArea.text:SetText(L['Enable to display']..' : |cff2eb7e4'..DisplayableBarNum)
+		end
 	end
 
 
@@ -270,7 +286,7 @@ do	--<< About Window's Layout and Appearance >>--
 		
 		Window.ResizeGrip:ClearAllPoints()
 		Window.DisplayArea.text:ClearAllPoints()
-		if KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Direction == 'UP' then -- 1 : Up / 2 : Down
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then -- 1 : Up / 2 : Down
 			Window.Tab:Point('BOTTOM', Window)
 			Window.DisplayArea:Point('TOPLEFT', Window)
 			Window.DisplayArea:Point('BOTTOMRIGHT', Window.Tab, 'TOPRIGHT', 0, -1)
@@ -301,7 +317,7 @@ do	--<< About Window's Layout and Appearance >>--
 		KF.UIParent.Window[1] = self:Window_Setup(self, 1)
 		
 		if KF.db.Modules.SmartTracker.Window[1].Location then
-			self:SetPoint(unpack({string.split('\031', KF.db.Modules.SmartTracker.Window[1].Location)}))
+			self:SetPoint(unpack({string.split('\031', KF.db.Modules.SmartTracker.Window[1].Appearance.Location)}))
 			--KF.db.Modules.SmartTracker.Window[1].Location = nil
 		else
 			self:Point('CENTER')
@@ -318,6 +334,7 @@ do	--<< About Window's Layout and Appearance >>--
 		
 		self.Name = 1
 		self.CurrentWheelLine = 0
+		self.ContainedBar = {}
 		
 		self.Setup_MainWindow = nil
 	end
@@ -356,7 +373,7 @@ do	--<< About Bar's Layout and Appearance >>--
 				GameTooltip:Hide()
 				if IsShiftKeyDown() then
 					KF.db.Modules.SmartTracker[ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID.Class][Table['Cooldown_BarList'][BarNumber].Data.SpellID] = 0
-					KF:RaidCooldown_RefreshCooldownBarData()
+					KF:RedistributeCooldownDataToWindow()
 				elseif not ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade or ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].FadeFadeType == 'IN' then
 					if ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['Chargy'] then
 						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['ActivateTime'] = 0
@@ -393,7 +410,8 @@ do	--<< About Bar's Layout and Appearance >>--
 				self:SetScript('OnUpdate', nil)
 			end
 			
-			self.Text:SetText('|TInterface\\AddOns\\ElvUI\\media\\textures\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t'..KF:Color_Class(ST.CooldownCache[UserGUID].Class, ST.CooldownCache[UserGUID].Name)..ST:GetUserRoleIcon(UserGUID))
+			--|TInterface\\AddOns\\ElvUI\\media\\textures\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t
+			self.Text:SetText('|cffceff00'..(self.Data.ArrowUp and '▲|r ' or '▼|r ')..KF:Color_Class(ST.CooldownCache[UserGUID].Class, ST.CooldownCache[UserGUID].Name)..ST:GetUserRoleIcon(UserGUID))
 		elseif self.Data.FrameType == 'CooldownBar' then
 			local Bar_Color = RAID_CLASS_COLORS[ST.CooldownCache[UserGUID].Class]
 			local SpellID = tonumber(self.Data.SpellID)
@@ -408,18 +426,18 @@ do	--<< About Bar's Layout and Appearance >>--
 				
 				if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and ST.CooldownCache[UserGUID].List[SpellID][2] then
 					if ST.CooldownCache[UserGUID].List[SpellID][2].ChargedColor then
-						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Color_Charged1))
-						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Color_Charged2))
+						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged1))
+						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged2))
 					else
-						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Color_Charged2))
-						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Color_Charged1))
+						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged2))
+						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged1))
 					end
 					
 					if not ST.CooldownCache[UserGUID].List[SpellID][3] then
 						self:SetBackdropColor(Bar_Color.r, Bar_Color.g, Bar_Color.b)
 					end
 				else
-					self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Color_BehindBar))
+					self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_BehindBar))
 					self.CooldownBar:SetStatusBarColor(Bar_Color.r, Bar_Color.g, Bar_Color.b)
 				end
 				
@@ -432,7 +450,7 @@ do	--<< About Bar's Layout and Appearance >>--
 					
 					for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
 						if LastestTargetUserGUID ~= ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID then
-							Target = (Target and '|r'..(LastestTargetUserCount > 1 and 'x '..ST.CooldownCache[UserGUID].List[SpellID][i]DestColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i]DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
+							Target = (Target and '|r'..(LastestTargetUserCount > 1 and 'x '..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
 							
 							LastestTargetUserCount = 1
 							DisplayedTargetUser = DisplayedTargetUser + 1
@@ -482,7 +500,7 @@ do	--<< About Bar's Layout and Appearance >>--
 				ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime, ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating = ST:CalculateCooldown(ST.CooldownCache[UserGUID].List[SpellID][1].Event, UserGUID, ST.CooldownCache[UserGUID].Name, ST.CooldownCache[UserGUID].Class, SpellID, ST.CooldownCache[UserGUID].List[SpellID][1].DestName)
 			end
 			
-			if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID].Cooltime - ST.FADE_TIME) and not self.Fade then
+			if not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) and not self.Fade then
 				self.Fade = { Type = TimeNow, }
 			end
 			
@@ -492,7 +510,7 @@ do	--<< About Bar's Layout and Appearance >>--
 	end
 	
 	
-	function ST:Bar_Setup(Bar)
+	function ST:Bar_Setup(Bar, Window)
 		--Bar:SetAlpha(0)
 		Bar:SetBackdrop({
 			bgFile = E.media.normTex,
@@ -522,11 +540,11 @@ do	--<< About Bar's Layout and Appearance >>--
 		Bar.CooldownBar:Point('TOPLEFT', Bar.SpellIconFrame, 'TOPRIGHT', 0, -1)
 		Bar.CooldownBar:Point('BOTTOMRIGHT', Bar, -1, 1)
 		
-		KF:TextSetting(Bar.CooldownBar, nil, { Tag = 'Time', FontSize = KF.db.Modules.SmartTracker.Window[WindowName].Bar_Fontsize, FontOutline = 'OUTLINE', directionH = 'RIGHT', }, 'RIGHT', Bar.CooldownBar, -2, 0)
+		KF:TextSetting(Bar.CooldownBar, nil, { Tag = 'Time', FontSize = KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_FontSize, FontOutline = 'OUTLINE', directionH = 'RIGHT', }, 'RIGHT', Bar.CooldownBar, -2, 0)
 		Bar.Time = Bar.CooldownBar.Time
 		
-		KF:TextSetting(Bar.CooldownBar, nil, { FontSize = KF.db.Modules.SmartTracker.Window[WindowName].Bar_Fontsize, FontOutline = 'OUTLINE', directionH = 'LEFT', }, 'LEFT', Bar.CooldownBar, 5, 0)
-		Bar.Text = Bar.Text
+		KF:TextSetting(Bar.CooldownBar, nil, { FontSize = KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_FontSize, FontOutline = 'OUTLINE', directionH = 'LEFT', }, 'LEFT', Bar.CooldownBar, 5, 0)
+		Bar.Text = Bar.CooldownBar.text
 		Bar.Text:Point('RIGHT', Bar.Time, 'LEFT', -5, 0)
 		
 		return Bar
@@ -541,11 +559,12 @@ do	--<< About Bar's Layout and Appearance >>--
 				Window.ContainedBar[BarNum] = self.DeletedBar[#self.DeletedBar]
 				self.DeletedBar[#self.DeletedBar] = nil
 			else
-				Window.ContainedBar[BarNum] = self:Bar_Setup(CreateFrame('Frame'))
+				Window.ContainedBar[BarNum] = self:Bar_Setup(CreateFrame('Frame'), Window)
 			end
 			
 			Bar = Window.ContainedBar[BarNum]
 			Bar:SetParent(Window)
+			Bar:SetScript('OnUpdate', ST.Bar_OnUpdate)
 			
 			--초기화 여기서
 			Bar.Num = BarNum
@@ -553,6 +572,8 @@ do	--<< About Bar's Layout and Appearance >>--
 		
 		-- Update Appearance
 		ST:Bar_Rearrange(Window, BarNum)
+		
+		return Bar
 	end
 	
 	
@@ -566,7 +587,7 @@ do	--<< About Bar's Layout and Appearance >>--
 			Bar:Point('LEFT', Window.DisplayArea)
 			Bar:Point('RIGHT', Window.DisplayArea)
 			
-			if KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Direction == 1 then
+			if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 1 then
 				if CurrentLine == 1 then
 					Bar:Point('BOTTOM', Window.DisplayArea, 0, 2)
 				else
@@ -579,12 +600,26 @@ do	--<< About Bar's Layout and Appearance >>--
 					Bar:Point('TOP', Window.ContainedBar[CurrentLine - 1], 'BOTTOM', 0, 1)
 				end
 			end
-			Bar:SetHeight(KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Height)
-			Bar.SpellIconFrame:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Height)
-			Bar.Time:SetFont(Bar.Time:GetFont(), KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Fontsize, 'OUTLINE')
-			Bar.Text:SetFont(Bar.Text:GetFont(), KF.db.Modules.SmartTracker.Window[Window.Name].Bar_Fontsize, 'OUTLINE')
+			Bar:SetHeight(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height)
+			Bar.SpellIconFrame:Size(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height)
+			Bar.Time:SetFont(Bar.Time:GetFont(), KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_FontSize, 'OUTLINE')
+			Bar.Text:SetFont(Bar.Text:GetFont(), KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_FontSize, 'OUTLINE')
 			
 			Bar:Show()
+		end
+	end
+	
+	
+	function ST:Bar_Delete(Window, BarNum)
+		local Bar = Window.ContainedBar[BarNum]
+		
+		if Bar then
+			Bar:SetAlpha(1)
+			Bar:SetScript('OnUpdate', nil)
+			Bar:Hide()
+			
+			self.DeletedBar[#self.DeletedBar + 1] = Window.ContainedBar[BarNum]
+			Window.ContainedBar[BarNum] = nil
 		end
 	end
 end
@@ -594,7 +629,7 @@ do	--<< System >>--
 	function ST:GetTimeFormat(InputTime)
 		if InputTime > 60 then
 			return string.format('%d:%.2d', InputTime / 60, InputTime % 60)
-		elseif InputTime < 10 then
+		elseif InputTime <= 9.9 then
 			return string.format('|cffb90624%.1f|r', InputTime)
 		else
 			return string.format('%d', InputTime)
@@ -633,7 +668,7 @@ do	--<< System >>--
 	
 	
 	function ST:CalculateCooldown(Event, UserGUID, UserName, UserClass, SpellID, DestName)
-		local Cooldown = Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Time
+		local Cooldown = Info.SmartTracker_Data[UserClass][SpellID].Time
 		
 		if self.InspectCache[UserGUID] then
 			local UserSpec = self.InspectCache[UserGUID].Spec or self.CooldownCache[UserGUID].Spec
@@ -670,16 +705,16 @@ do	--<< System >>--
 				]]
 				
 				--Change Cooldown By Talent
-				if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Talent then
+				if Info.SmartTracker_Data[UserClass][SpellID].Talent then
 					for i = 1, MAX_TALENT_TIERS * NUM_TALENT_COLUMNS do
-						Cooldown = Cooldown + (Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Talent[(self.InspectCache[UserGUID].Glyph[i])] or 0)
+						Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Talent[(self.InspectCache[UserGUID].Glyph[i])] or 0)
 					end
 				end
 				
 				--Change Cooldown By Glyph
-				if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Glyph then
+				if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
 					for i = 1, NUM_GLYPH_SLOTS do
-						Cooldown = Cooldown + (Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Glyph[(self.InspectCache[UserGUID].Glyph[i])] or 0)
+						Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Glyph[(self.InspectCache[UserGUID].Glyph[i])] or 0)
 					end
 				end
 				
@@ -695,11 +730,12 @@ do	--<< System >>--
 	function ST:BuildTrackingSpellList()
 		wipe(TempTable)
 		
-		for WindowName in pairs(KF.db.Modules.SmartTracker.Window) do
-			for ClassName in pairs(KF.db.Modules.SmartTracker.Window[WindowName].SpellList) do
-				for SpellID, Enable in pairs(KF.db.Modules.SmartTracker.Window[WindowName].SpellList[ClassName]) do
-					if Enable then
-						TempTable[SpellID] = (TempTable[SpellID] or 0) + 1
+		for WindowName, Window in pairs(KF.UIParent.Window) do
+			for ClassName in pairs(Info.SmartTracker_Data) do
+				for SpellID in pairs(Info.SmartTracker_Data[ClassName]) do
+					if KF.db.Modules.SmartTracker.Window[WindowName].SpellList[ClassName][SpellID] ~= false then
+						TempTable[SpellID] = TempTable[SpellID] or {}
+						TempTable[SpellID][Window] = 'Window'
 					end
 				end
 			end
@@ -708,8 +744,25 @@ do	--<< System >>--
 		self.TrackingSpell = TempTable
 	end
 	
+	--[[
+	function ST:SetWindowDisplay(Window)
+		Window = Window or self
+		
+		if
+			Info.InstanceType == 'field' and (Info.CurrentGroupMode == 'NoGroup' and KF.db.Modules.SmartTracker.Window[Window.Name].Display.Situation.Solo == false or
+			(Info.CurrentGroupMode == 'raid' or Info.CurrentGroupMode == 'party') and KF.db.Modules.SmartTracker.Window[Window.Name].Display.Situation.Group == false) or
+			Info.InstanceType == 'raid' and KF.db.Modules.SmartTracker.Window[Window.Name].Display.Situation.RaidDungeon == false or
+			(Info.InstanceType == 'arena' or Info.InstanceType == 'pvp') and KF.db.Modules.SmartTracker.Window[Window.Name].Display.Situation.PvPGround == false or
+			KF.db.Modules.SmartTracker.Window[Window.Name].Display.Situation.Instance == false then
+			
+			
+		else
+			
+		end
+	end
+	]]
 	
-	function ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
+	function ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
 		local TimeNow = GetTime()
 		
 		--[[
@@ -747,11 +800,16 @@ do	--<< System >>--
 		end
 		]]
 		
-		ST.CooldownCache[UserGUID] = ST.CooldownCache[UserGUID] or {
-			Name = UserName,
-			Class = UserClass,
-			List = {}
-		}
+		if not ST.CooldownCache[UserGUID] then
+			ST.CooldownCache[UserGUID] = {
+				Name = UserName,
+				Class = UserClass,
+				List = {}
+			}
+			tinsert(ST.CooldownCache, UserGUID)
+			
+			sort(ST.CooldownCache, function(UserGUID_A, UserGUID_B) ST:SortData(UserGUID_A, UserGUID_B) end)
+		end
 		
 		if not ST.CooldownCache[UserGUID].List[SpellID] then
 			ST.CooldownCache[UserGUID].List[SpellID] = {
@@ -768,8 +826,8 @@ do	--<< System >>--
 				]]
 				--Fade = { FadeType = 'IN' }
 			}
-		--elseif ST.CooldownCache[UserGUID].List[SpellID].ActivateTime + 0.5 > TimeNow then -- because combat log check more than 1 time, so it needs to forbid just one.
-		--	return
+		elseif TimeStamp and ST.CooldownCache[UserGUID].List[SpellID][(#ST.CooldownCache[UserGUID].List[SpellID])].TimeStamp == TimeStamp then -- because combat log check more than 1 time, so it needs to forbid just one.
+			return
 		--elseif ST.CooldownCache[UserGUID].List[SpellID].Fade then
 		--	ST.CooldownCache[UserGUID].List[SpellID].Fade = { FadeType = 'IN' }
 		end
@@ -778,7 +836,9 @@ do	--<< System >>--
 		
 		if ST.CooldownCache[UserGUID].List[SpellID][1] and Info.SmartTracker_Data[UserClass][SpellID].Charge and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) then
 			local Data = {
-				ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][1],
+				ForbidFadeIn = true,
+				TimeStamp = TimeStamp,
+				ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime,
 				DestGUID = DestGUID,
 				DestColor = DestColor,
 				DestName = DestName,
@@ -790,6 +850,7 @@ do	--<< System >>--
 			tinsert(ST.CooldownCache[UserGUID].List[SpellID], Data)
 		else
 			ST.CooldownCache[UserGUID].List[SpellID][1] = ST.CooldownCache[UserGUID].List[SpellID][1] or {}
+			ST.CooldownCache[UserGUID].List[SpellID][1].TimeStamp = TimeStamp
 			ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime = TimeNow
 			ST.CooldownCache[UserGUID].List[SpellID][1].DestGUID = DestGUID
 			ST.CooldownCache[UserGUID].List[SpellID][1].DestColor = DestColor
@@ -798,15 +859,22 @@ do	--<< System >>--
 			ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime, ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating = ST:CalculateCooldown(Event, UserGUID, UserName, UserClass, SpellID, DestName)
 		end
 		
-		--Value['RefreshCooldown'] = true
-		--KF:RaidCooldown_RefreshCooldownBarData()
+		KF:RegisterTimer('RefreshCooldownCache', 'NewTicker', .1, ST.RefreshCooldownCache)
+		
+		for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
+			if TrackerType == 'Window' then --and Tracker.NowDisplaying then
+				ST:RedistributeCooldownData(Tracker)
+			else
+				
+			end
+		end
 	end
 	
 	
 	do
 		local UnitType, SpellID, UserName, UserGUID, UserClass
-		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', function(...)
-			_, UnitType, _, _, _, SpellID = ...
+		function ST:UNIT_SPELLCAST_SUCCEEDED(...)
+			UnitType, _, _, _, SpellID = ...
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
 			
 			if not (SpellID and ST.TrackingSpell[SpellID] and Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID]) then return end
@@ -847,15 +915,15 @@ do	--<< System >>--
 			end
 			]]
 			
-			ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID)
-		end)
+			ST:RegisterCooldown(nil, Event, UserGUID, UserClass, UserName, SpellID)
+		end
 	end
 	
 	
 	do
-		local Event, UserGUID, UserName, UserFlag, DestGUID, DestName, DestFlag, SpellID, UserClass, DestColor
-		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', function(...)
-			_, _, Event, _, UserGUID, UserName, UserFlag, _, DestGUID, DestName, DestFlag, _, SpellID = ...
+		local TimeStamp, Event, UserGUID, UserName, UserFlag, DestGUID, DestName, DestFlag, SpellID, UserClass, DestColor
+		function ST:COMBAT_LOG_EVENT_UNFILTERED(...)
+			TimeStamp, Event, _, UserGUID, UserName, UserFlag, _, DestGUID, DestName, DestFlag, _, SpellID = ...
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
 			
 			if not (SpellID and ST.TrackingSpell[SpellID]) or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 or
@@ -902,72 +970,243 @@ do	--<< System >>--
 					end
 				end
 				
-				ST:RegisterCooldown(Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
+				ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName)
 			end
-		end)
+		end
+	end
+	
+	
+	function ST:SortData(UserGUID_A, UserGUID_B)
+		local OrderTable = {}
+		for i, Role in ipairs(KF.db.Modules.SmartTracker.SortOrder.Role) do
+			OrderTable[Role] = i
+		end
+		for i, Class in ipairs(KF.db.Modules.SmartTracker.SortOrder.Class) do
+			OrderTable[Class] = i
+		end
+		
+		local Result
+		local A = ST.CooldownCache[UserGUID_A]
+		local B = ST.CooldownCache[UserGUID_B]
+		
+		if A.Spec and B.Spec then
+			if Info.ClassRole[A.Class][A.Spec].Role == Info.ClassRole[B.Class][B.Spec].Role then
+				Result = OrderTable[A.Class] < OrderTable[B.Class]
+			else
+				Result = OrderTable[Info.ClassRole[A.Class][A.Spec].Role] < OrderTable[Info.ClassRole[B.Class][B.Spec].Role]
+			end
+		elseif A.Spec then
+			Result = true
+		elseif B.Spec then
+			Result = false
+		else
+			Result = OrderTable[A.Class] < OrderTable[B.Class]
+		end
+		
+		return Result
 	end
 	
 	
 	function ST:RefreshCooldownCache()
-		--[[
-		['Condition'] = function() return Value['RefreshCooldown'] end,
-		['Delay'] = 0,
-		['Action'] = function()
-			local HasData, RemainCooltime, NeedRefreshCooldownBarData
-			
-			for userGUID in pairs(Table['Cooldown_Cache']) do
-				HasData = nil
+		local HasData, NeedRedistributing
+		local TimeNow = GetTime()
+		
+		for UserGUID, IsCooldownData in pairs(ST.CooldownCache) do
+			if type(IsCooldownData) == 'table' then
+				HasData = false
 				
-				for spellID in pairs(Table['Cooldown_Cache'][userGUID]['List']) do
+				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
 					HasData = true
 					
-					RemainCooltime = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime'] - KF.TimeNow
-					
-					if Table['Cooldown_Cache'][userGUID]['List'][spellID]['Chargy'] and RemainCooltime <= 0 then
-						if Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] ~= 0 then
-							if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][userGUID]['Class'] ][spellID] == 3 then
-								Func['Announcer'](userGUID, spellID)
-							end
-							
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime']
-						else
-							Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2']
+					while ST.CooldownCache[UserGUID].List[SpellID][1] and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow <= 0 do
+						if #ST.CooldownCache[UserGUID].List[SpellID] > 1 then
+							ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime
 						end
 						
-						Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestColor'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestColor2']
-						Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName'] = Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName2']
-						Table['Cooldown_Cache'][userGUID]['List'][spellID]['DestName2'] = nil
-						Table['Cooldown_Cache'][userGUID]['List'][spellID]['Chargy'] = nil
-						Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime2'] = nil
+						--if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][UserGUID]['Class'] ][SpellID] == 3 and not (Table['Cooldown_Cache'][UserGUID]['List'][SpellID]['Fade'] and Table['Cooldown_Cache'][UserGUID]['List'][SpellID]['Fade']['NoAnnounce']) then
+						--	Func['Announcer'](UserGUID, SpellID)
+						--end
 						
-						RemainCooltime = Table['Cooldown_Cache'][userGUID]['List'][spellID]['ActivateTime'] + Table['Cooldown_Cache'][userGUID]['List'][spellID]['Cooltime'] - KF.TimeNow
-						
-						NeedRefreshCooldownBarData = true
+						tremove(ST.CooldownCache[UserGUID].List[SpellID], 1)
+						NeedRedistributing = NeedRedistributing or {}
+						NeedRedistributing[SpellID] = true
 					end
 					
-					if RemainCooltime <= 0 then
-						if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][userGUID]['Class'] ][spellID] == 3 and not (Table['Cooldown_Cache'][userGUID]['List'][spellID]['Fade'] and Table['Cooldown_Cache'][userGUID]['List'][spellID]['Fade']['NoAnnounce']) then
-							Func['Announcer'](userGUID, spellID)
-						end
-						
-						Table['Cooldown_Cache'][userGUID]['List'][spellID] = nil
-						
-						NeedRefreshCooldownBarData = true
+					if #ST.CooldownCache[UserGUID].List[SpellID] == 0 then
+						ST.CooldownCache[UserGUID].List[SpellID] = nil
 					end
 				end
 				
 				if not HasData then
-					Table['Cooldown_Cache'][userGUID] = nil
+					ST.CooldownCache[UserGUID] = nil
+					
+					for i = 1, #ST.CooldownCache do
+						if ST.CooldownCache[i] == UserGUID then
+							tremove(ST.CooldownCache, i)
+							break
+						end
+					end
+				end
+			end
+		end
+		
+		if NeedRedistributing then
+			local NeedUpdatingWindowList = {}
+			local NeedUpdatingRaidIcon = {}
+			
+			for SpellID in pairs(NeedRedistributing) do
+				for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
+					if TrackerType == 'Window' then --and Tracker.NowDisplaying then
+						NeedUpdatingWindowList[Tracker.Name] = Tracker
+					elseif TrackerType == 'Icon' and Tracker.NowDisplaying then
+						NeedUpdatingRaidIcon[Tracker.Name] = Tracker
+					end
 				end
 			end
 			
-			if NeedRefreshCooldownBarData then
-				KF:RaidCooldown_RefreshCooldownBarData()
-			elseif HasData == nil then
-				Value['RefreshCooldown'] = nil
+			for WindowName, Window in pairs(NeedUpdatingWindowList) do
+				ST:RedistributeCooldownData(Window)
 			end
-		end,
+		elseif HasData == nil then
+			KF:CancelTimer('RefreshCooldownCache')
+		end
+	end
+	
+	
+	function ST:RedistributeCooldownData(Window)
+		local CurrentWheelLine = Window.CurrentWheelLine
+		local DisplayableBarNum = floor((KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height - ST.TAB_HEIGHT) / (KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height - 1))
+		local CurrentLine = 1
+		local ReverseDirection = KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP'
+		local TimeNow = GetTime()
+		
+		local SpellCount, SecondUserFromTheBack
+		local Bar, NamePlateSet, BarExists
+		--[[
+		if CurrentWheelLine > 0 then
+			for k = #ST.CooldownCache, 1, -1 do
+				if not ST.CooldownCache[(ST.CooldownCache[k])].Spec or KF.db.Modules.SmartTracker.Window[Window.Name].Display.Filter[Info.ClassRole[ST.CooldownCache[(ST.CooldownCache[k])].Class][ST.CooldownCache[(ST.CooldownCache[k])].Spec].Role] then
+					if not SecondUserFromTheBack then
+						SecondUserFromTheBack = true
+					else
+						SecondUserFromTheBack = ST.CooldownCache[k]
+						break
+					end
+				end
+			end
+		end
 		]]
+		
+		Window.BarRemains = nil
+		
+		for i, UserGUID in ipairs(ST.CooldownCache) do
+			ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID] and ST.InspectCache[UserGUID].Spec or ST.CooldownCache[UserGUID].Spec
+			
+			if not ST.CooldownCache[UserGUID].Spec or KF.db.Modules.SmartTracker.Window[Window.Name].Display.Filter[Info.ClassRole[ST.CooldownCache[UserGUID].Class][ST.CooldownCache[UserGUID].Spec].Role] then
+				SpellCount = 0
+				BarExists = nil
+				NamePlateSet = nil
+				
+				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
+					if KF.db.Modules.SmartTracker.Window[Window.Name].SpellList[ST.CooldownCache[UserGUID].Class][SpellID] ~= false then
+						SpellCount = SpellCount + 1
+					end
+				end
+				
+				if CurrentWheelLine > 0 and CurrentLine + SpellCount < DisplayableBarNum then
+					CurrentWheelLine = CurrentWheelLine - 1
+				else
+					for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
+						if BarExists == nil then BarExists = false end
+						
+						if CurrentWheelLine > 0 then
+							CurrentWheelLine = CurrentWheelLine - 1
+						elseif CurrentLine <= DisplayableBarNum then
+							Bar = ST:Bar_Create(Window, CurrentLine)
+							
+							if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'DOWN' and not NamePlateSet then
+								BarExists = true
+								NamePlateSet = true
+								
+								Bar.Data = {
+									FrameType = 'NamePlate',
+									GUID = UserGUID,
+								}
+								
+								if CurrentLine < DisplayableBarNum then
+									CurrentLine = CurrentLine + 1
+									Bar = ST:Bar_Create(Window, CurrentLine)
+								else
+									Window.BarRemains = true
+									break
+								end
+							elseif KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
+								if CurrentLine + 1 <= DisplayableBarNum then
+									BarExists = true
+									NamePlateSet = true
+									
+									ST:Bar_Create(Window, CurrentLine + 1).Data = {
+										FrameType = 'NamePlate',
+										GUID = UserGUID,
+									}
+								else
+									NamePlateSet = nil
+									
+									Bar.Data = {
+										FrameType = 'NamePlate',
+										GUID = UserGUID,
+									}
+									
+									if BarExists == false then
+										Bar.Data.ArrowUp = true
+									else
+										Window.BarRemains = true
+									end
+								end
+							end
+							
+							if NamePlateSet then
+								Bar.Data = {
+									FrameType = 'CooldownBar',
+									GUID = UserGUID,
+									SpellID = SpellID,
+								}
+							end
+							
+							CurrentLine = CurrentLine + 1
+							
+							if not ST.CooldownCache[UserGUID].List[SpellID][1].ForbidFadeIn and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.FADE_TIME > TimeNow then
+								Bar.Fade = { Type = 'IN', Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime }
+							elseif not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) then
+								Bar.Fade = { Type = TimeNow, Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime }
+							else
+								Bar.Fade = nil
+							end
+						else
+							print('이건데....')
+							Window.BarRemains = true
+						end
+					end
+					
+					if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' and NamePlateSet then
+						CurrentLine = CurrentLine + 1
+					end
+					
+					--if BarExists == false and CurrentLine == 1 then
+					--	PrevUserExists = true
+					--end
+				end
+			end
+		end
+		
+		for BarNum = CurrentLine, #Window.ContainedBar do
+			ST:Bar_Delete(Window, BarNum)
+		end
+		
+		--if Window.CurrentWheelLine > 0 and CurrentLine + (PrevUserExists and 1 or 0) <= BarNumber then
+		--	KnightRaidCooldown.CurrentWheelLine = KnightRaidCooldown.CurrentWheelLine - 1
+		--	KF:RaidCooldown_RefreshCooldownBarData()
+		--end
 	end
 end
 
@@ -983,16 +1222,23 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		
 		if ST.Setup_MainWindow then
 			ST:Setup_MainWindow()
-			ST:BuildTrackingSpellList()
 		end
 		
 		for WindowName, IsWindowData in pairs(KF.db.Modules.SmartTracker.Window) do
 			if type(IsWindowData) == 'table' then
 				ST:Window_Create(WindowName)
 			end
+			
+			ST:BuildTrackingSpellList()
 		end
+		
+		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', ST.UNIT_SPELLCAST_SUCCEEDED, 'SmartTracker')
+		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', ST.COMBAT_LOG_EVENT_UNFILTERED, 'SmartTracker')
 	else
 		Info.SmartTracker_Activate = nil
+		
+		KF:UnregisterEventList('UNIT_SPELLCAST_SUCCEEDED', 'SmartTracker')
+		KF:UnregisterEventList('COMBAT_LOG_EVENT_UNFILTERED', 'SmartTracker')
 	end
 end
 ]]

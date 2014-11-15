@@ -32,8 +32,6 @@ Core.UIParent:SetAllPoints(E.UIParent)
 Core.UIParent.MoverType = {}
 
 local Timer = {}
-local Empty = { Cancel = function() end }
-setmetatable(Timer, { __index = function() return Empty end })
 
 Engine[1] = Core
 Engine[2] = Information

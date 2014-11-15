@@ -76,6 +76,26 @@ end
 
 
 
+
+--------------------------------------------------------------------------------
+--<< KnightFrame : Register Timer											>>--
+--------------------------------------------------------------------------------
+function KF:RegisterTimer(TimerName, Type, Duration, Callback, Iteration)
+	if not Timer[TimerName] or Timer[TimerName]._cancelled then
+		Timer[TimerName] = C_Timer[Type](Duration, Callback, Iteration)
+	end
+end
+
+
+function KF:CancelTimer(TimerName)
+	if Timer[TimerName] and Timer.Cancel and not Timer[TimerName]._cancelled then
+		Timer[TimerName]:Cancel()
+	end
+end
+
+
+
+
 --------------------------------------------------------------------------------
 --<< KnightFrame : Toggle KnightFrame During Pet Battle						>>--
 --------------------------------------------------------------------------------
@@ -432,12 +452,12 @@ Info.BossBattle_Exception = {
 }
 
 local function ClearKilledBossList(forced)
-	Timer.ClearKilledBossList:Cancel()
+	KF:CancelTimer('ClearKilledBossList')
 	
 	if not IsEncounterInProgress() or forced == true then
 		Info.KilledBossList = {}
 	else
-		Timer.ClearKilledBossList = C_Timer.NewTimer(3, ClearKilledBossList)
+		KF:RegisterTimer('ClearKilledBossList', 'NewTimer', 3, ClearKilledBossList)
 	end
 end
 KF:RegisterCallback('GroupChanged', ClearKilledBossList)
@@ -449,10 +469,10 @@ KF.BossBattleStart = function(StartingType)
 	
 	if StartingType == 'pull' then
 		NowInBossBattle = 'DBM'
-		Timer.CheckCombatEnd:Cancel()
+		KF:CancelTimer('CheckCombatEnd')
 	elseif StartingType == 'BigWigs_OnBossEngage' then
 		NowInBossBattle = 'BigWigs'
-		Timer.CheckCombatEnd:Cancel()
+		KF:CancelTimer('CheckCombatEnd')
 	else
 		NowInBossBattle = 'KF'
 	end
@@ -464,11 +484,11 @@ end
 
 KF.BossBattleEnd = function(EndingType)
 	--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
-		Timer.ClearKilledBossList:Cancel()
-		Timer.ClearKilledBossList = C_Timer.NewTimer(5, ClearKilledBossList)
+		KF:CancelTimer('ClearKilledBossList')
+		KF:RegisterTimer('ClearKilledBossList', 'NewTimer', 5, ClearKilledBossList)
 	--end
 	
-	Timer.CheckCombatEnd:Cancel()
+	KF:CancelTimer('CheckCombatEnd')
 	
 	NowInBossBattle = nil
 	BossIsExists = nil
@@ -537,8 +557,8 @@ function KF:CheckBossCombat()
 		end
 		
 		if BossIsExists or IsEncounterInProgressOn then
-			Timer.CheckCombatEnd:Cancel()
-			Timer.CheckCombatEnd = C_Timer.NewTicker(.1, function()
+			KF:CancelTimer('CheckCombatEnd')
+			KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, function()
 				if BossIsExists == true and not (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
 					BossIsExists = false
 				elseif BossIsExists == false and (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
@@ -557,9 +577,9 @@ function KF:CheckBossCombat()
 		end
 	end
 	
-	Timer.CheckCombatEnd:Cancel()
+	KF:CancelTimer('CheckCombatEnd')
 end
-Timer.CheckCombatEnd = C_Timer.NewTicker(.1, KF.CheckBossCombat)
+KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat)
 
 
 KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
@@ -570,7 +590,7 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 		
 		if BossName then
 			if NowInBossBattle == nil and not Info.KilledBossList[BossName] then
-				Timer.CheckCombatEnd = C_Timer.NewTicker(.1, KF.CheckBossCombat)
+				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat)
 				KF:CheckBossCombat()
 			end
 			
@@ -599,7 +619,7 @@ end
 --------------------------------------------------------------------------------
 function KF:CheckDeveloper()
 	if Info.CurrentGroupMode == 'NoGroup' then
-		Timer.CheckDeveloper:Cancel()
+		KF:CancelTimer('CheckDeveloper')
 		
 		return
 	end
@@ -620,7 +640,7 @@ function KF:CheckDeveloper()
 					print(L['KF']..' : '..format(L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'], '|cff2eb7e4'..UserName..'|r', '|cffceff00'..L[Info.CurrentGroupMode]..'|r', KF:Color_Value(Info.Name)))
 				end
 				
-				Timer.CheckDeveloper:Cancel()
+				KF:CancelTimer('CheckDeveloper')
 				return
 			end
 		end
@@ -631,12 +651,12 @@ end
 
 
 KF:RegisterCallback('GroupChanged', function()
-	Timer.CheckDeveloper:Cancel()
+	KF:CancelTimer('CheckDeveloper')
 	
 	if Info.CurrentGroupMode == 'NoGroup' then
 		Info.DeveloperFind = nil
 	else
 		KF:CheckDeveloper()
-		Timer.CheckDeveloper = C_Timer.NewTicker(1, KF.CheckDeveloper)
+		KF:RegisterTimer('CheckDeveloper', 'NewTicker', 1, KF.CheckDeveloper)
 	end
 end, 'CheckDeveloper')

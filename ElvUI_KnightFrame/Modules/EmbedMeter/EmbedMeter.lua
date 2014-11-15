@@ -141,12 +141,11 @@ if RecoundLoaded then
 		if Info.EmbedMeter_Activate and Recount_MainWindow:GetParent() ~= UIParent and Recount.db.profile.KnightFrame_Embed then
 			local mouseX, mouseY = GetCursorPosition()
 			
-			Timer.EmbedMeter_CheckRecountMoving:Cancel()
-			Timer.EmbedMeter_CheckRecountMoving = C_Timer.NewTicker(.1, function()
+			KF:RegisterTimer('EmbedMeter_CheckRecountMoving',  'NewTicker', .1, function()
 				local New_mouseX, New_mouseY = GetCursorPosition()
 					
 				if mouseX ~= New_mouseX or mouseY ~= New_mouseY then
-					Timer.EmbedMeter_CheckRecountMoving:Cancel()
+					KF:CancelTimer('EmbedMeter_CheckRecountMoving')
 					Recount.db.profile.KnightFrame_Embed = nil
 					
 					if KF:EmbedMeter_CheckNeedEmbeding() then
@@ -158,7 +157,7 @@ if RecoundLoaded then
 	end)
 	
 	Recount_MainWindow:HookScript('OnMouseUp', function(self)
-		Timer.EmbedMeter_CheckRecountMoving:Cancel()
+		KF:CancelTimer('EmbedMeter_CheckRecountMoving')
 	end)
 	
 	hooksecurefunc(Recount_MainWindow, 'SaveMainWindowPosition', function(self)
