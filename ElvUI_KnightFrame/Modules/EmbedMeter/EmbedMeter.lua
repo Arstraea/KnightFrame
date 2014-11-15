@@ -106,10 +106,10 @@ if RecoundLoaded then
 	function KF:EmbedMeter_EmbedSetting_Recount(HoldEmbeding)
 		if not Info.EmbedMeter_Activate then return end
 		
-		if Recount.db.profile.KnightFrame_Embed then
-			if KF:GetPanelData(Recount.db.profile.KnightFrame_Embed.Key) then
-				PanelLink[Recount.db.profile.KnightFrame_Embed.Key] = PanelLink[Recount.db.profile.KnightFrame_Embed.Key] or {}
-				PanelLink[Recount.db.profile.KnightFrame_Embed.Key][(Recount.db.profile.KnightFrame_Embed.Direction or 'LEFT')] = 'Recount'
+		if KF.db.Modules.EmbedMeter.Recount then
+			if KF:GetPanelData(KF.db.Modules.EmbedMeter.Recount.Key) then
+				PanelLink[KF.db.Modules.EmbedMeter.Recount.Key] = PanelLink[KF.db.Modules.EmbedMeter.Recount.Key] or {}
+				PanelLink[KF.db.Modules.EmbedMeter.Recount.Key][(KF.db.Modules.EmbedMeter.Recount.Direction or 'LEFT')] = 'Recount'
 				
 				if not HoldEmbeding then
 					KF:EmbedMeter()
@@ -131,14 +131,14 @@ if RecoundLoaded then
 			Recount:RestoreMainWindowPosition(Recount.db.profile.MainWindow.Position.x, Recount.db.profile.MainWindow.Position.y, Recount.db.profile.MainWindow.Position.w, Recount.db.profile.MainWindow.Position.h)
 			
 			if PreserveSetting ~= 'SwitchProfile' then
-				Recount.db.profile.KnightFrame_Embed = nil
+				KF.db.Modules.EmbedMeter.Recount = nil
 			end
 		end
 	end
 	
 	Recount_MainWindow:HookScript('OnMouseDown', function(self)
 		-- If user move recount then delete config
-		if Info.EmbedMeter_Activate and Recount_MainWindow:GetParent() ~= UIParent and Recount.db.profile.KnightFrame_Embed then
+		if Info.EmbedMeter_Activate and Recount_MainWindow:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Recount then
 			local mouseX, mouseY = GetCursorPosition()
 			
 			KF:RegisterTimer('EmbedMeter_CheckRecountMoving',  'NewTicker', .1, function()
@@ -146,7 +146,7 @@ if RecoundLoaded then
 					
 				if mouseX ~= New_mouseX or mouseY ~= New_mouseY then
 					KF:CancelTimer('EmbedMeter_CheckRecountMoving')
-					Recount.db.profile.KnightFrame_Embed = nil
+					KF.db.Modules.EmbedMeter.Recount = nil
 					
 					if KF:EmbedMeter_CheckNeedEmbeding() then
 						KF:EmbedMeter()
@@ -160,10 +160,10 @@ if RecoundLoaded then
 		KF:CancelTimer('EmbedMeter_CheckRecountMoving')
 	end)
 	
-	hooksecurefunc(Recount_MainWindow, 'SaveMainWindowPosition', function(self)
-		if Info.EmbedMeter_Activate and Recount_MainWindow:GetParent() ~= UIParent and Recount.db.profile.KnightFrame_Embed then
+	hooksecurefunc(Recount, 'SaveMainWindowPosition', function(self)
+		if Info.EmbedMeter_Activate and Recount_MainWindow:GetParent() ~= UIParent and KF.db.Modules.EmbedMeter.Recount then
 			self:SetParent(UIParent)
-			Recount.db.profile.KnightFrame_Embed = nil
+			KF.db.Modules.EmbedMeter.Recount = nil
 			
 			if KF:EmbedMeter_CheckNeedEmbeding() then
 				KF:EmbedMeter()
@@ -177,10 +177,10 @@ if OmenLoaded then
 	function KF:EmbedMeter_EmbedSetting_Omen(HoldEmbeding)
 		if not Info.EmbedMeter_Activate then return end
 		
-		if Omen.db.profile.KnightFrame_Embed then
-			if KF:GetPanelData(Omen.db.profile.KnightFrame_Embed.Key) then
-				PanelLink[(Omen.db.profile.KnightFrame_Embed.Key)] = PanelLink[(Omen.db.profile.KnightFrame_Embed.Key)] or {}
-				PanelLink[(Omen.db.profile.KnightFrame_Embed.Key)][(Omen.db.profile.KnightFrame_Embed.Direction or 'LEFT')] = 'Omen'
+		if KF.db.Modules.EmbedMeter.Omen then
+			if KF:GetPanelData(KF.db.Modules.EmbedMeter.Omen.Key) then
+				PanelLink[(KF.db.Modules.EmbedMeter.Omen.Key)] = PanelLink[(KF.db.Modules.EmbedMeter.Omen.Key)] or {}
+				PanelLink[(KF.db.Modules.EmbedMeter.Omen.Key)][(KF.db.Modules.EmbedMeter.Omen.Direction or 'LEFT')] = 'Omen'
 			
 				if not HoldEmbeding then
 					KF:EmbedMeter()
@@ -202,7 +202,7 @@ if OmenLoaded then
 			Omen:SetAnchors(true)
 			
 			if PreserveSetting ~= 'SwitchProfile' then
-				Omen.db.profile.KnightFrame_Embed = nil
+				KF.db.Modules.EmbedMeter.Omen = nil
 			end
 		end
 	end
@@ -212,10 +212,10 @@ if OmenLoaded then
 	KnightFrame_OmenEmbed:SetScript('OnHide', function() if Omen_Embed then OmenAnchor:Hide() end end)
 	
 	hooksecurefunc(Omen, 'SetAnchors', function()
-		if Omen_Embed and Omen.db.profile.KnightFrame_Embed then
+		if Omen_Embed and KF.db.Modules.EmbedMeter.Omen then
 			KnightFrame_OmenEmbed:SetParent(nil)
 			Omen_Embed = nil
-			Omen.db.profile.KnightFrame_Embed = nil
+			KF.db.Modules.EmbedMeter.Omen = nil
 			
 			if KF:EmbedMeter_CheckNeedEmbeding() then
 				KF:EmbedMeter()
@@ -578,7 +578,6 @@ end
 
 
 function KF:EmbedMeter_ClearSettingByPanel(panelName, PreserveSetting)
-	print(panelName, PreserveSetting)
 	for Key in pairs(PanelLink) do
 		print(Key, Key == panelName)
 		if Key == panelName then
