@@ -450,7 +450,7 @@ do	--<< About Bar's Layout and Appearance >>--
 					
 					for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
 						if LastestTargetUserGUID ~= ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID then
-							Target = (Target and '|r'..(LastestTargetUserCount > 1 and 'x '..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
+							Target = (Target and Target..'|r'..(LastestTargetUserCount > 1 and 'x '..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
 							
 							LastestTargetUserCount = 1
 							DisplayedTargetUser = DisplayedTargetUser + 1
@@ -488,16 +488,13 @@ do	--<< About Bar's Layout and Appearance >>--
 					else
 						self:SetAlpha(0)
 						ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime = 0
-						--KF.Update['RaidCooldown_RefreshCooldown']['Action']()
+						
+						ST:RefreshCooldownCache()
 						return
 					end
 				end
 			elseif self:GetAlpha() ~= 1 then
 				self:SetAlpha(1)
-			end
-			
-			if ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating and ((ST.InspectCache[UserGUID] and ST.InspectCache[UserGUID].Spec) or ST.CooldownCache[UserGUID].Spec) then
-				ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime, ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating = ST:CalculateCooldown(ST.CooldownCache[UserGUID].List[SpellID][1].Event, UserGUID, ST.CooldownCache[UserGUID].Name, ST.CooldownCache[UserGUID].Class, SpellID, ST.CooldownCache[UserGUID].List[SpellID][1].DestName)
 			end
 			
 			if not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) and not self.Fade then
@@ -669,60 +666,64 @@ do	--<< System >>--
 	
 	function ST:CalculateCooldown(Event, UserGUID, UserName, UserClass, SpellID, DestName)
 		local Cooldown = Info.SmartTracker_Data[UserClass][SpellID].Time
+		local NeedUpdating
 		
-		if self.InspectCache[UserGUID] then
-			local UserSpec = self.InspectCache[UserGUID].Spec or self.CooldownCache[UserGUID].Spec
+		self.CooldownCache[UserGUID].Spec = self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec or self.CooldownCache[UserGUID].Spec
+		
+		if self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec then
+			if DestName and DestName:find('|cff') then DestName = strsub(DestName, 11, -3) end
 			
-			if UserSpec then
-				if DestName and DestName:find('|cff') then DestName = strsub(DestName, 11, -3) end
-				
-				--Change Cooldown By Specialization
-				--[[
-				if UserClass == 'WARRIOR' and UserSpec == L['Spec_Warrior_Protection'] and SpellID == 871 then
-					Cooldown = Cooldown - 60
-				elseif UserClass == 'HUNTER' and UserSpec == L['Spec_Hunter_Survival'] and (SpellID == 1499 or SpellID == 13809 or SpellID == 34600) then
-					Cooldown = Cooldown - 6
-				elseif UserClass == 'DRUID' and UserSpec == L['Spec_Druid_Restoration'] and SpellID == 740 and UnitLevel(UserName) >= 82 then
-					Cooldown = Cooldown - 300
-				elseif UserClass == 'ROGUE' and Event == 'SPELL_INTERRUPT' and SpellID == 1766 and (self.InspectCache[UserGUID]['Glyph'][2] == 56805 or self.InspectCache[UserGUID]['Glyph'][4] == 56805 or self.InspectCache[UserGUID]['Glyph'][6] == 56805) then
-					Cooldown = Cooldown - 6
-				elseif UserClass == 'PALADIN' and UserSpec == L['Spec_Paladin_Retribution'] and SpellID == 31884 then
-					Cooldown = Cooldown - 60
-				elseif UserClass == 'PRIEST' and UserSpec == L['Spec_Priest_Shadow'] and SpellID == 108968 then
-					Cooldown = Cooldown + 300
-				end
-				
-				if UserClass == 'HUNTER' and DestName and SpellID == 131894 then
-					local CheckID = UnitName(UserName..'-target')
-					UnitHealth(DestName)/UnitHealthMax(DestName) <= 0.2 then
-					
-					local asdfasdf = UnitName(UserName..'-target')
-					print(asdfasdf)
-					print(asdfasdf ~= nil and UnitHealth(UserName..'-target') or 'nil')
-					
-					Cooldown = Cooldown - 60 --저승까마귀 생명력 20% 이하 대상에게 사용 시 60초감소
-				end
-				]]
-				
-				--Change Cooldown By Talent
-				if Info.SmartTracker_Data[UserClass][SpellID].Talent then
-					for i = 1, MAX_TALENT_TIERS * NUM_TALENT_COLUMNS do
-						Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Talent[(self.InspectCache[UserGUID].Glyph[i])] or 0)
-					end
-				end
-				
-				--Change Cooldown By Glyph
-				if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
-					for i = 1, NUM_GLYPH_SLOTS do
-						Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Glyph[(self.InspectCache[UserGUID].Glyph[i])] or 0)
-					end
-				end
-				
-				return Cooldown, nil
+			--Change Cooldown By Specialization
+			--[[
+			if UserClass == 'WARRIOR' and UserSpec == L['Spec_Warrior_Protection'] and SpellID == 871 then
+				Cooldown = Cooldown - 60
+			elseif UserClass == 'HUNTER' and UserSpec == L['Spec_Hunter_Survival'] and (SpellID == 1499 or SpellID == 13809 or SpellID == 34600) then
+				Cooldown = Cooldown - 6
+			elseif UserClass == 'DRUID' and UserSpec == L['Spec_Druid_Restoration'] and SpellID == 740 and UnitLevel(UserName) >= 82 then
+				Cooldown = Cooldown - 300
+			elseif UserClass == 'ROGUE' and Event == 'SPELL_INTERRUPT' and SpellID == 1766 and (self.InspectCache[UserGUID]['Glyph'][2] == 56805 or self.InspectCache[UserGUID]['Glyph'][4] == 56805 or self.InspectCache[UserGUID]['Glyph'][6] == 56805) then
+				Cooldown = Cooldown - 6
+			elseif UserClass == 'PALADIN' and UserSpec == L['Spec_Paladin_Retribution'] and SpellID == 31884 then
+				Cooldown = Cooldown - 60
+			elseif UserClass == 'PRIEST' and UserSpec == L['Spec_Priest_Shadow'] and SpellID == 108968 then
+				Cooldown = Cooldown + 300
 			end
+			
+			if UserClass == 'HUNTER' and DestName and SpellID == 131894 then
+				local CheckID = UnitName(UserName..'-target')
+				UnitHealth(DestName)/UnitHealthMax(DestName) <= 0.2 then
+				
+				local asdfasdf = UnitName(UserName..'-target')
+				print(asdfasdf)
+				print(asdfasdf ~= nil and UnitHealth(UserName..'-target') or 'nil')
+				
+				Cooldown = Cooldown - 60 --저승까마귀 생명력 20% 이하 대상에게 사용 시 60초감소
+			end
+			]]
+			
+			-- Change Cooldown By Talent
+			if Info.SmartTracker_Data[UserClass][SpellID].Talent then
+				for i = 1, MAX_TALENT_TIERS * NUM_TALENT_COLUMNS do
+					Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Talent[(self.InspectCache[UserGUID].Talent[i])] or 0)
+				end
+			end
+			
+			-- Change Cooldown By Glyph
+			if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
+				for i = 1, NUM_GLYPH_SLOTS do
+					Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Glyph[(self.InspectCache[UserGUID].Glyph[i])] or 0)
+				end
+			end
+			
+			-- If spell need more specific calcurating then run contained function.
+			if Info.SmartTracker_Data[UserClass][SpellID].Func then
+				Cooldown, NeedUpdating = Info.SmartTracker_Data[UserClass][SpellID].Func(Cooldown, self.CooldownCache[UserGUID], self.InspectCache[UserGUID], Event, UserGUID, UserName, UserClass, SpellID, DestName)
+			end
+		else
+			NeedUpdating = true
 		end
 		
-		return Cooldown, true
+		return Cooldown, NeedUpdating
 	end
 	
 	
@@ -808,7 +809,7 @@ do	--<< System >>--
 			}
 			tinsert(ST.CooldownCache, UserGUID)
 			
-			sort(ST.CooldownCache, function(UserGUID_A, UserGUID_B) ST:SortData(UserGUID_A, UserGUID_B) end)
+			sort(ST.CooldownCache, function(UserGUID_A, UserGUID_B) return ST:SortData(UserGUID_A, UserGUID_B) end)
 		end
 		
 		if not ST.CooldownCache[UserGUID].List[SpellID] then
@@ -832,9 +833,7 @@ do	--<< System >>--
 		--	ST.CooldownCache[UserGUID].List[SpellID].Fade = { FadeType = 'IN' }
 		end
 		
-		if Event ~= 'SPELL_INTERRUPT' then Event = nil end
-		
-		if ST.CooldownCache[UserGUID].List[SpellID][1] and Info.SmartTracker_Data[UserClass][SpellID].Charge and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) then
+		if ST.CooldownCache[UserGUID].List[SpellID][1] and Info.SmartTracker_Data[UserClass][SpellID].Charge then
 			local Data = {
 				ForbidFadeIn = true,
 				TimeStamp = TimeStamp,
@@ -849,7 +848,11 @@ do	--<< System >>--
 			
 			tinsert(ST.CooldownCache[UserGUID].List[SpellID], Data)
 		else
-			ST.CooldownCache[UserGUID].List[SpellID][1] = ST.CooldownCache[UserGUID].List[SpellID][1] or {}
+			if not ST.CooldownCache[UserGUID].List[SpellID][1] then
+				ST.CooldownCache[UserGUID].List[SpellID][1] = {}
+			else
+				ST.CooldownCache[UserGUID].List[SpellID][1].ForbidFadeIn = true
+			end
 			ST.CooldownCache[UserGUID].List[SpellID][1].TimeStamp = TimeStamp
 			ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime = TimeNow
 			ST.CooldownCache[UserGUID].List[SpellID][1].DestGUID = DestGUID
@@ -915,19 +918,28 @@ do	--<< System >>--
 			end
 			]]
 			
-			ST:RegisterCooldown(nil, Event, UserGUID, UserClass, UserName, SpellID)
+			if not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) then
+				ST:RegisterCooldown(nil, Event, UserGUID, UserClass, UserName, SpellID)
+			end
 		end
 	end
 	
 	
 	do
+		local DefaultEventList = {
+			SPELL_RESURRECT = true,
+			SPELL_AURA_APPLIED = true,
+			SPELL_AURA_REFRESH = true,
+			SPELL_CAST_SUCCESS = true,
+			SPELL_INTERRUPT	= true,
+			SPELL_SUMMON = true
+		}
 		local TimeStamp, Event, UserGUID, UserName, UserFlag, DestGUID, DestName, DestFlag, SpellID, UserClass, DestColor
 		function ST:COMBAT_LOG_EVENT_UNFILTERED(...)
 			TimeStamp, Event, _, UserGUID, UserName, UserFlag, _, DestGUID, DestName, DestFlag, _, SpellID = ...
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
 			
-			if not (SpellID and ST.TrackingSpell[SpellID]) or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 or
-				(Event ~= 'SPELL_RESURRECT' and Event ~= 'SPELL_AURA_APPLIED' and Event ~= 'SPELL_AURA_REFRESH' and Event ~= 'SPELL_CAST_SUCCESS' and Event ~= 'SPELL_INTERRUPT' and Event ~= 'SPELL_SUMMON') then return end
+			if not (SpellID and ST.TrackingSpell[SpellID]) or Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID] or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 then return end
 			
 			if UserName then
 				if not UnitIsPlayer(UserName) then -- find pet master
@@ -954,7 +966,8 @@ do	--<< System >>--
 			
 			UserName = string.split('-', UserName)
 			
-			if UserClass and Info.SmartTracker_Data[UserClass] and UserName and UserGUID then
+			if UserClass and Info.SmartTracker_Data[UserClass] and UserName and UserGUID and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) and
+			   (Info.SmartTracker_Data[UserClass][SpellID].Event and Info.SmartTracker_Data[UserClass][SpellID].Event[Event] or not Info.SmartTracker_Data[UserClass][SpellID].Event and DefaultEventList[Event]) then
 				if DestName then
 					if GetPlayerInfoByGUID(DestGUID) then
 						DestName = strsplit('-', DestName)
@@ -1018,6 +1031,10 @@ do	--<< System >>--
 				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
 					HasData = true
 					
+					if ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating and ((ST.InspectCache[UserGUID] and ST.InspectCache[UserGUID].Spec) or ST.CooldownCache[UserGUID].Spec) then
+						ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime, ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating = ST:CalculateCooldown(ST.CooldownCache[UserGUID].List[SpellID][1].Event, UserGUID, ST.CooldownCache[UserGUID].Name, ST.CooldownCache[UserGUID].Class, SpellID, ST.CooldownCache[UserGUID].List[SpellID][1].DestName)
+					end
+					
 					while ST.CooldownCache[UserGUID].List[SpellID][1] and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow <= 0 do
 						if #ST.CooldownCache[UserGUID].List[SpellID] > 1 then
 							ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime
@@ -1073,140 +1090,156 @@ do	--<< System >>--
 	end
 	
 	
-	function ST:RedistributeCooldownData(Window)
+	function ST:RedistributeCooldownData(Window, ForbidUserSkipScrolling)
 		local CurrentWheelLine = Window.CurrentWheelLine
 		local DisplayableBarNum = floor((KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height - ST.TAB_HEIGHT) / (KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height - 1))
 		local CurrentLine = 1
-		local ReverseDirection = KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP'
 		local TimeNow = GetTime()
+		local SkipSpellCount
 		
-		local SpellCount, SecondUserFromTheBack
-		local Bar, NamePlateSet, BarExists
-		--[[
-		if CurrentWheelLine > 0 then
-			for k = #ST.CooldownCache, 1, -1 do
-				if not ST.CooldownCache[(ST.CooldownCache[k])].Spec or KF.db.Modules.SmartTracker.Window[Window.Name].Display.Filter[Info.ClassRole[ST.CooldownCache[(ST.CooldownCache[k])].Class][ST.CooldownCache[(ST.CooldownCache[k])].Spec].Role] then
-					if not SecondUserFromTheBack then
-						SecondUserFromTheBack = true
-					else
-						SecondUserFromTheBack = ST.CooldownCache[k]
-						break
-					end
-				end
-			end
+		if ForbidUserSkipScrolling then
+			SkipSpellCount = true
+			CurrentWheelLine = CurrentWheelLine - 1
 		end
-		]]
 		
-		Window.BarRemains = nil
+		local SpellCount, UserGUID
+		local Bar, NamePlateSet, BarExists
 		
-		for i, UserGUID in ipairs(ST.CooldownCache) do
-			ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID] and ST.InspectCache[UserGUID].Spec or ST.CooldownCache[UserGUID].Spec
+		local List = {}
+		for i = 1, #ST.CooldownCache do
+			UserGUID = ST.CooldownCache[i]
 			
 			if not ST.CooldownCache[UserGUID].Spec or KF.db.Modules.SmartTracker.Window[Window.Name].Display.Filter[Info.ClassRole[ST.CooldownCache[UserGUID].Class][ST.CooldownCache[UserGUID].Spec].Role] then
-				SpellCount = 0
-				BarExists = nil
-				NamePlateSet = nil
+				tinsert(List, { UserGUID = UserGUID })
 				
 				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
 					if KF.db.Modules.SmartTracker.Window[Window.Name].SpellList[ST.CooldownCache[UserGUID].Class][SpellID] ~= false then
-						SpellCount = SpellCount + 1
+						tinsert(List[#List], SpellID)
 					end
-				end
-				
-				if CurrentWheelLine > 0 and CurrentLine + SpellCount < DisplayableBarNum then
-					CurrentWheelLine = CurrentWheelLine - 1
-				else
-					for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
-						if BarExists == nil then BarExists = false end
-						
-						if CurrentWheelLine > 0 then
-							CurrentWheelLine = CurrentWheelLine - 1
-						elseif CurrentLine <= DisplayableBarNum then
-							Bar = ST:Bar_Create(Window, CurrentLine)
-							
-							if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'DOWN' and not NamePlateSet then
-								BarExists = true
-								NamePlateSet = true
-								
-								Bar.Data = {
-									FrameType = 'NamePlate',
-									GUID = UserGUID,
-								}
-								
-								if CurrentLine < DisplayableBarNum then
-									CurrentLine = CurrentLine + 1
-									Bar = ST:Bar_Create(Window, CurrentLine)
-								else
-									Window.BarRemains = true
-									break
-								end
-							elseif KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
-								if CurrentLine + 1 <= DisplayableBarNum then
-									BarExists = true
-									NamePlateSet = true
-									
-									ST:Bar_Create(Window, CurrentLine + 1).Data = {
-										FrameType = 'NamePlate',
-										GUID = UserGUID,
-									}
-								else
-									NamePlateSet = nil
-									
-									Bar.Data = {
-										FrameType = 'NamePlate',
-										GUID = UserGUID,
-									}
-									
-									if BarExists == false then
-										Bar.Data.ArrowUp = true
-									else
-										Window.BarRemains = true
-									end
-								end
-							end
-							
-							if NamePlateSet then
-								Bar.Data = {
-									FrameType = 'CooldownBar',
-									GUID = UserGUID,
-									SpellID = SpellID,
-								}
-							end
-							
-							CurrentLine = CurrentLine + 1
-							
-							if not ST.CooldownCache[UserGUID].List[SpellID][1].ForbidFadeIn and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.FADE_TIME > TimeNow then
-								Bar.Fade = { Type = 'IN', Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime }
-							elseif not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) then
-								Bar.Fade = { Type = TimeNow, Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime }
-							else
-								Bar.Fade = nil
-							end
-						else
-							print('이건데....')
-							Window.BarRemains = true
-						end
-					end
-					
-					if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' and NamePlateSet then
-						CurrentLine = CurrentLine + 1
-					end
-					
-					--if BarExists == false and CurrentLine == 1 then
-					--	PrevUserExists = true
-					--end
 				end
 			end
 		end
 		
-		for BarNum = CurrentLine, #Window.ContainedBar do
-			ST:Bar_Delete(Window, BarNum)
+		Window.BarRemains = nil
+		
+		for i = 1, #List do
+			UserGUID = List[i].UserGUID
+			
+			SpellCount = #List[i]
+			BarExists = nil
+			NamePlateSet = nil
+			
+			for k, SpellID in ipairs(List[i]) do
+				if BarExists == nil then BarExists = false end
+				
+				if CurrentWheelLine > 0 then
+					CurrentWheelLine = CurrentWheelLine - 1
+					
+					if CurrentLine + SpellCount < DisplayableBarNum then
+						break
+					else
+						SpellCount = SpellCount - 1
+					end
+				elseif SkipSpellCount and type(ForbidUserSkipScrolling) == 'number' and ForbidUserSkipScrolling > 0 then
+					ForbidUserSkipScrolling = ForbidUserSkipScrolling - 1
+					SpellCount = SpellCount - 1
+				elseif CurrentLine <= DisplayableBarNum then
+					Bar = ST:Bar_Create(Window, CurrentLine)
+					
+					if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'DOWN' and not NamePlateSet then
+						BarExists = true
+						NamePlateSet = true
+						
+						Bar.Data = {
+							FrameType = 'NamePlate',
+							GUID = UserGUID,
+						}
+						
+						CurrentLine = CurrentLine + 1
+						
+						if SpellCount > 0 and CurrentLine <= DisplayableBarNum then
+							Bar = ST:Bar_Create(Window, CurrentLine)
+						else
+							if CurrentLine - 1 == 1 then
+								Bar.Data.ArrowUp = true
+							end
+							
+							Window.BarRemains = true
+							break
+						end
+					--[[
+					elseif KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
+						if CurrentLine + 1 <= DisplayableBarNum then
+							BarExists = true
+							NamePlateSet = true
+							
+							ST:Bar_Create(Window, CurrentLine + 1).Data = {
+								FrameType = 'NamePlate',
+								GUID = UserGUID,
+							}
+						else
+							NamePlateSet = nil
+							
+							Bar.Data = {
+								FrameType = 'NamePlate',
+								GUID = UserGUID,
+							}
+							
+							if BarExists == false then
+								Bar.Data.ArrowUp = true
+							else
+								Window.BarRemains = true
+							end
+						end
+					]]
+					end
+					
+					Bar.Fade = nil
+					
+					if SpellCount > 0 and NamePlateSet then
+						Bar.Data = {
+							FrameType = 'CooldownBar',
+							GUID = UserGUID,
+							SpellID = SpellID,
+						}
+						
+						SpellCount = SpellCount - 1
+						CurrentLine = CurrentLine + 1
+						
+						if not ST.CooldownCache[UserGUID].List[SpellID][1].ForbidFadeIn and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.FADE_TIME > TimeNow then
+							Bar.Fade = { Type = 'IN', Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime }
+						elseif not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) then
+							Bar.Fade = { Type = TimeNow, Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime }
+						end
+					elseif SpellCount == 0 then
+						Window.BarRemains = true
+					end
+				else
+					Window.BarRemains = true
+				end
+			end
+			
+			--if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' and NamePlateSet then
+			--	CurrentLine = CurrentLine + 1
+			--end
+			
+			--if BarExists == false and CurrentLine == 1 then
+			--	PrevUserExists = true
+			--end
 		end
 		
-		--if Window.CurrentWheelLine > 0 and CurrentLine + (PrevUserExists and 1 or 0) <= BarNumber then
-		--	KnightRaidCooldown.CurrentWheelLine = KnightRaidCooldown.CurrentWheelLine - 1
-		--	KF:RaidCooldown_RefreshCooldownBarData()
-		--end
+		if Window.CurrentWheelLine > 0 and CurrentLine - 1--[[ + (PrevUserExists and 1 or 0)]] < DisplayableBarNum then
+			if SkipSpellCount then
+				Window.CurrentWheelLine = Window.CurrentWheelLine - 1
+			end
+			print('다시해', DisplayableBarNum - (CurrentLine - 1))
+			
+			ST:RedistributeCooldownData(Window, DisplayableBarNum - (CurrentLine - 1))
+		else
+			for BarNum = CurrentLine, #Window.ContainedBar do
+				ST:Bar_Delete(Window, BarNum)
+			end
+		end
 	end
 end
 

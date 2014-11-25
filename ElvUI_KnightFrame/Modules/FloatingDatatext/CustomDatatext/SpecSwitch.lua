@@ -131,9 +131,8 @@ local function OnClick(self, button)
 			menuList[2].text = ' 0. '..format(LOOT_SPECIALIZATION_DEFAULT, self.text:GetText())
 			
 			if #menuList == 2 then
-				local SpecID, Spec, SpecRole
 				for i = 1, GetNumSpecializations() do
-					SpecID, Spec, _, _, _, SpecRole = GetSpecializationInfo(i)
+					local SpecID, Spec, _, _, _, SpecRole = GetSpecializationInfo(i)
 					
 					if SpecID then
 						menuList[i + 2] = {

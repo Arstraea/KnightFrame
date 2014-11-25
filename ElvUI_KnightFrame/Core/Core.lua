@@ -82,13 +82,14 @@ end
 --------------------------------------------------------------------------------
 function KF:RegisterTimer(TimerName, Type, Duration, Callback, Iteration)
 	if not Timer[TimerName] or Timer[TimerName]._cancelled then
+		Callback()
 		Timer[TimerName] = C_Timer[Type](Duration, Callback, Iteration)
 	end
 end
 
 
 function KF:CancelTimer(TimerName)
-	if Timer[TimerName] and Timer.Cancel and not Timer[TimerName]._cancelled then
+	if Timer[TimerName] and not Timer[TimerName]._cancelled then
 		Timer[TimerName]:Cancel()
 	end
 end

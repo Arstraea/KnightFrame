@@ -249,7 +249,7 @@ function KF:CustomPanel_Button_Create(ButtonFrame, ButtonType, ButtonTransparenc
 		else
 			Button = CreateFrame('Button', nil, KF.UIParent)
 			Button:Size(SIDE_BUTTON_WIDTH, PANEL_HEIGHT)
-			KF:TextSetting(Button, nil, { Font = 'Meat Edition Font', FontOutline = 'OUTLINE' }, 'CENTER', 0, 0)
+			KF:TextSetting(Button, nil, { FontOutline = 'OUTLINE' }, 'CENTER', 0, 0)
 			Button:RegisterForClicks('AnyUp')
 		end
 	else
