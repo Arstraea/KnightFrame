@@ -53,6 +53,10 @@ do	-- Modules
 		L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
 	end
 	
+	do	-- SmartTracker
+		L['Hunter_Now_FeignDeath'] = '죽은척 하는 중임 >ㅁ<'
+	end
+	
 	do	-- Secretary
 		L['Notice'] = '알림'
 	end

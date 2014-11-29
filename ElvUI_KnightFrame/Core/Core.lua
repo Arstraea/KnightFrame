@@ -80,9 +80,11 @@ end
 --------------------------------------------------------------------------------
 --<< KnightFrame : Register Timer											>>--
 --------------------------------------------------------------------------------
-function KF:RegisterTimer(TimerName, Type, Duration, Callback, Iteration)
+function KF:RegisterTimer(TimerName, Type, Duration, Callback, Iteration, InitFunc)
 	if not Timer[TimerName] or Timer[TimerName]._cancelled then
-		Callback()
+		if InitFunc then
+			Callback()
+		end
 		Timer[TimerName] = C_Timer[Type](Duration, Callback, Iteration)
 	end
 end
