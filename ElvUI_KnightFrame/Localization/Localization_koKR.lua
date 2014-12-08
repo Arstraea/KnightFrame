@@ -74,6 +74,7 @@ do	-- Modules
 		L['Boars'] = '멧돼지'
 		L['Cats'] = '살쾡이'
 		L['Clefthooves'] = '갈래발굽'
+		L['Dragonhawk'] = '용매'
 		L['Goats'] = '염소'
 		L['Gorillas'] = '고릴라'
 		L['Hyenas'] = '하이에나'
@@ -94,6 +95,7 @@ do	-- Modules
 		L['Hydras'] = '히드라'..Exotic
 		L['Quilen'] = '기렌'..Exotic
 		L['Silithids'] = '실리시드'..Exotic
+		L['Shale Spider'] = '혈암거미'..Exotic
 		L['Spirit Beasts'] = '야수정령'..Exotic
 		L['Water Striders'] = '소금쟁이'..Exotic
 		L['Worms'] = '벌레'..Exotic

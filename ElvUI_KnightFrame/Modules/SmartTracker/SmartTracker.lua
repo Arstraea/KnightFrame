@@ -2,21 +2,31 @@
 local KF, Info, Timer = unpack(select(2, ...))
 
 local WindowCount = 1
-local WindowTag = 'SmartTracker'
+local IconCount = 1
+local AnchorCount = 1
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Smart Tracker											>>--
 --------------------------------------------------------------------------------
 local ST = SmartTracker or CreateFrame('Frame', 'SmartTracker', KF.UIParent)
+
 ST.DeletedWindow = {}
 ST.DeletedBar = {}
+ST.DeletedIcon = {}
+ST.DeletedAnchor = {}
+
 ST.TrackingSpell = {}
+ST.WarriorRageTracker = {}
+
+ST.InspectOrder = {}
 ST.InspectCache = {}
 ST.CooldownCache = {}
+
 ST.TAB_HEIGHT = 22
 ST.FADE_TIME = .4
 
-KF.UIParent.Window = {}
+KF.UIParent.ST_Window = {}
+KF.UIParent.ST_Icon = {}
 KF.UIParent.MoverType.KF_SmartTracker = L['Smart Tracker']
 
 
@@ -64,12 +74,12 @@ do	--<< About Window's Layout and Appearance >>--
 		
 		if Window.DisplayArea:GetAlpha() > 0 then
 			Window:StopMovingOrSizing()
-			local point, _, secondaryPoint, x, y = Window:GetPoint()
+			local Point, _, SecondaryPoint, X, Y = Window:GetPoint()
 			Window.mover:ClearAllPoints()
-			Window.mover:Point(point, E.UIParent, secondaryPoint, x, y)
+			Window.mover:Point(Point, E.UIParent, SecondaryPoint, X, Y)
 			E:SaveMoverPosition(Window.mover.name)
 			Window:ClearAllPoints()
-			Window:SetPoint(point, Window.mover, 0, 0)
+			Window:SetPoint(Point, Window.mover, 0, 0)
 		end
 	end
 	
@@ -109,7 +119,6 @@ do	--<< About Window's Layout and Appearance >>--
 			
 			E:SaveMoverPosition(Window.mover.name)
 		end
-
 	end
 	
 	
@@ -202,13 +211,13 @@ do	--<< About Window's Layout and Appearance >>--
 			return
 		end
 		
-		local Window = KF.UIParent.Window[WindowName]
+		local Window = KF.UIParent.ST_Window[WindowName]
 		
 		if not Window then
 			if #self.DeletedWindow > 0 then
-				KF.UIParent.Window[WindowName] = self.DeletedWindow[#self.DeletedWindow]
+				KF.UIParent.ST_Window[WindowName] = self.DeletedWindow[#self.DeletedWindow]
 				
-				Window = KF.UIParent.Window[WindowName]
+				Window = KF.UIParent.ST_Window[WindowName]
 				
 				E.CreatedMovers[Window.mover.name] = Window.MoverData
 				Window.MoverData = nil
@@ -219,11 +228,11 @@ do	--<< About Window's Layout and Appearance >>--
 			else
 				WindowCount = WindowCount + 1
 				
-				Window = self:Window_Setup(CreateFrame('Frame', WindowTag..'_'..WindowCount, KF.UIParent), WindowCount)
+				Window = self:Window_Setup(CreateFrame('Frame', 'ST_Window_'..WindowCount, KF.UIParent), WindowCount)
 				
-				KF.UIParent.Window[WindowName] = Window
+				KF.UIParent.ST_Window[WindowName] = Window
 				
-				E:CreateMover(Window, WindowTag..'_'..Window.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
+				E:CreateMover(Window, 'ST_Window_'..Window.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 				Window:SetScript('OnSizeChanged', self.OnSizeChanged)
 			end
 			
@@ -235,6 +244,9 @@ do	--<< About Window's Layout and Appearance >>--
 			Window.Name = WindowName
 			Window.CurrentWheelLine = 0
 			Window.ContainedBar = {}
+			
+			self:BuildTrackingSpellList(WindowName)
+			self:RedistributeCooldownData(Window)
 		end
 		
 		-- Setting
@@ -244,7 +256,7 @@ do	--<< About Window's Layout and Appearance >>--
 		-- Colorize
 		Window.Tab:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Color_WindowTab))
 		
-		Window.mover.text:SetText(L['WindowTag']..'|n'..WindowName)
+		Window.mover.text:SetText(L['WindowTag']..WindowName)
 		
 		--Window.Tab.text:SetText('|cff2eb7e4'..Default['MainFrame_Tab_AddOnName']) 탭에 표시할 제목
 		
@@ -270,12 +282,12 @@ do	--<< About Window's Layout and Appearance >>--
 		local DisplayableBarNum = floor((KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Height - ST.TAB_HEIGHT) / (KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Height - 1))
 		
 		if Window.OldDisplayableBarNum ~= DisplayableBarNum then
-			Window.OldDisplayableBarNum = DisplayableBarNum
-			Window.DisplayArea.text:SetText(L['Enable to display']..' : |cff2eb7e4'..DisplayableBarNum)
-			
 			if Window.OldDisplayableBarNum then
 				ST:RedistributeCooldownData(Window)
 			end
+			
+			Window.OldDisplayableBarNum = DisplayableBarNum
+			Window.DisplayArea.text:SetText(L['Enable to display']..' : |cff2eb7e4'..DisplayableBarNum)
 		end
 	end
 
@@ -306,7 +318,7 @@ do	--<< About Window's Layout and Appearance >>--
 
 
 	function ST:Window_Delete(WindowName, SaveProfile)
-		local Window = KF.UIParent.Window[WindowName]
+		local Window = KF.UIParent.ST_Window[WindowName]
 		
 		if Window then
 			
@@ -315,7 +327,7 @@ do	--<< About Window's Layout and Appearance >>--
 
 
 	function ST:Setup_MainWindow()
-		KF.UIParent.Window[1] = self:Window_Setup(self, 1)
+		KF.UIParent.ST_Window[1] = self:Window_Setup(self, 1)
 		
 		if KF.db.Modules.SmartTracker.Window[1].Location then
 			self:SetPoint(unpack({string.split('\031', KF.db.Modules.SmartTracker.Window[1].Appearance.Location)}))
@@ -324,7 +336,7 @@ do	--<< About Window's Layout and Appearance >>--
 			self:Point('CENTER')
 		end
 		
-		E:CreateMover(self, 'SmartTracker_MainWindow', L['WindowTag']..'|n'..L['SmartTracker_MainWindow'], nil, nil, nil, 'ALL,KF,KF_SmartTracker')
+		E:CreateMover(self, 'SmartTracker_MainWindow', L['WindowTag']..L['SmartTracker_MainWindow'], nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 		self:SetScript('OnSizeChanged', self.OnSizeChanged)
 		
 		if E:HasMoverBeenMoved('SmartTracker_MainWindow') then
@@ -337,62 +349,125 @@ do	--<< About Window's Layout and Appearance >>--
 		self.CurrentWheelLine = 0
 		self.ContainedBar = {}
 		
+		self:BuildTrackingSpellList(1)
+		self:RedistributeCooldownData(self)
+		
 		self.Setup_MainWindow = nil
 	end
 end
 
 
 do	--<< About Bar's Layout and Appearance >>--
-	--[[
-	Bar.SpellIconFrame:SetScript('OnEnter', function(self)
-		if Table['Cooldown_BarList'][BarNumber]['Data']['FrameType'] == 'NamePlate' or not Table['Cooldown_BarList'][BarNumber]['Data'] then return end
+	function ST:BarIcon_OnEnter()
+		local Bar = self:GetParent()
 		
-		self:SetScript('OnUpdate', function()
-			if Table['Cooldown_BarList'][BarNumber]['Data']['FrameType'] ~= 'NamePlate' and Table['Cooldown_BarList'][BarNumber].Data.SpellID then
-				if KF.db.Modules.SmartTracker.Appearance.Bar_Direction == 1 then -- 1 : Up / 2 : Down
-					GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
-				else
-					GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
-				end
-				GameTooltip:ClearLines()
-				
-				if KF.db.Modules.SmartTracker.General.ShowDetailTooltip == true or IsShiftKeyDown() then
-					GameTooltip:SetHyperlink(GetSpellLink(Table['Cooldown_BarList'][BarNumber].Data.SpellID))
-					GameTooltip:AddLine('|n')
-				else
-					GameTooltip:AddLine(GetSpellInfo(Table['Cooldown_BarList'][BarNumber].Data.SpellID))
-				end
-				GameTooltip:AddDoubleLine(' - |cff2eb7e4'..L['RightClick'], L['Remove this cooltime bar.'], 1, 1, 1, 1, 1, 1)
-				GameTooltip:AddDoubleLine(' - Shift + |cff2eb7e4'..L['RightClick'], L['Clear this spell config to forbid displaying.'], 1, 1, 1, 1, 1, 1)
-				GameTooltip:Show()
-			end
-		end)
-		self:SetScript('OnClick', function(_, button)
-			if button ~= 'RightButton' or Table['Cooldown_BarList'][BarNumber]['Data']['FrameType'] == 'NamePlate' then
-				return
-			else
+		if not (Bar.Data and Bar.Data.FrameType ~= 'NamePlate') then return end
+		
+		self:SetScript('OnUpdate', ST.BarIcon_OnUpdate)
+	end
+	
+	
+	function ST:BarIcon_OnLeave()
+		self:SetScript('OnUpdate', nil)
+		
+		if self.TooltipDisplayed then
+			GameTooltip:Hide()
+		end
+		self.TooltipDisplayed = nil
+	end
+	
+	
+	function ST:BarIcon_OnClick(Button)
+		local Bar = self:GetParent()
+		
+		if not (Button == 'RightButton' and Bar.Data and Bar.Data.FrameType ~= 'NamePlate') then
+			return
+		else
+			if self.TooltipDisplayed then
 				GameTooltip:Hide()
-				if IsShiftKeyDown() then
-					KF.db.Modules.SmartTracker[ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID.Class][Table['Cooldown_BarList'][BarNumber].Data.SpellID] = 0
-					KF:RedistributeCooldownDataToWindow()
-				elseif not ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade or ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].FadeFadeType == 'IN' then
-					if ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['Chargy'] then
-						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID]['ActivateTime'] = 0
-					else
-						ST.CooldownCache[Table['Cooldown_BarList'][BarNumber].Data.GUID].List[Table['Cooldown_BarList'][BarNumber].Data.SpellID].Fade = { FadeType = TimeNow, .NoAnnounce = true, }
+			end
+			self.TooltipDisplayed = nil
+			
+			if IsShiftKeyDown() then
+				local Window = Bar:GetParent()
+				
+				do	-- Modify TrackingSpell List
+					local EraseTrackingSpell = true
+					
+					ST.TrackingSpell[Bar.Data.SpellID][Window] = nil
+					
+					for _ in pairs(ST.TrackingSpell[Bar.Data.SpellID]) do
+						EraseTrackingSpell = nil
+						break
+					end
+					
+					if EraseTrackingSpell then
+						ST.TrackingSpell[Bar.Data.SpellID] = nil
 					end
 				end
+				
+				for i = 1, #ST.CooldownCache do
+					ST.CooldownCache[(ST.CooldownCache[i])].List[Bar.Data.SpellID] = nil
+				end
+				
+				KF.db.Modules.SmartTracker.Window[Window.Name].SpellList[ST.CooldownCache[Bar.Data.GUID].Class][Bar.Data.SpellID] = false
+				
+				ST:RedistributeCooldownData(Window)
+			elseif not ST.CooldownCache[Bar.Data.GUID].List[Bar.Data.SpellID].Fade or ST.CooldownCache[Bar.Data.GUID].List[Bar.Data.SpellID].Fade.Type == 'IN' then
+				if #ST.CooldownCache[Bar.Data.GUID].List[Bar.Data.SpellID] > 1 then
+					ST.CooldownCache[Bar.Data.GUID].List[Bar.Data.SpellID][1].EraseThisCooltimeCache = true
+				else
+					Bar.Fade = {}
+					ST.CooldownCache[Bar.Data.GUID].List[Bar.Data.SpellID][1].NoAnnounce = true
+				end
 			end
-		end)
-		self:SetScript('OnLeave', function() self:SetScript('OnUpdate', nil) self:SetScript('OnClick', nil) GameTooltip:Hide() end)
-	end)
-	]]
+		end
+	end
+	
+	
+	function ST:BarIcon_OnUpdate()
+		local Bar = self:GetParent()
+		local Window = Bar:GetParent()
+		
+		if Bar.Data and Bar.Data.FrameType ~= 'NamePlate' and Bar.Data.SpellID then
+			self.TooltipDisplayed = true
+			
+			if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 1 then -- 1 : Up / 2 : Down
+				GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
+			else
+				GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
+			end
+			
+			GameTooltip:ClearLines()
+			
+			if KF.db.Modules.SmartTracker.General.DetailSpellTooptip == true or IsShiftKeyDown() then
+				GameTooltip:SetHyperlink(GetSpellLink(Bar.Data.SpellID))
+				GameTooltip:AddLine('|n')
+			else
+				GameTooltip:AddLine(GetSpellInfo(Bar.Data.SpellID))
+			end
+			
+			GameTooltip:AddDoubleLine(' - |cff2eb7e4'..L['RightClick'], L['Remove this cooltime bar.'], 1, 1, 1, 1, 1, 1)
+			GameTooltip:AddDoubleLine(' - Shift + |cff2eb7e4'..L['RightClick'], L['Clear this spell config to forbid displaying.'], 1, 1, 1, 1, 1, 1)
+			GameTooltip:Show()
+		else
+			ST.BarIcon_OnLeave(self)
+		end
+	end
+	
 	
 	function ST:Bar_OnUpdate(elapsed)
 		local UserGUID = self.Data.GUID
 		local Window = self:GetParent()
 		
 		if self.Data.FrameType == 'NamePlate' then
+			if ST.InspectCache[UserGUID] and ST.CooldownCache[UserGUID].Spec ~= ST.InspectCache[UserGUID].Spec then
+				ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID].Spec
+				
+				self.Data.SettingComplete = nil
+				self:SetScript('OnUpdate', nil)
+			end
+			
 			if not self.Data.SettingComplete then
 				self:SetAlpha(1)
 				self:SetBackdropColor(0, 0, 0, 0)
@@ -403,12 +478,6 @@ do	--<< About Bar's Layout and Appearance >>--
 				self.Time:SetText(nil)
 				
 				self.Data.SettingComplete = true
-			end
-			
-			if ST.InspectCache[UserGUID] then
-				ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID].Spec
-				
-				self:SetScript('OnUpdate', nil)
 			end
 			
 			--|TInterface\\AddOns\\ElvUI\\media\\textures\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t
@@ -452,24 +521,26 @@ do	--<< About Bar's Layout and Appearance >>--
 					local DisplayedTargetUser = 0
 					
 					for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
-						if LastestTargetUserGUID ~= ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID then
-							Target = (Target and Target..'|r'..(LastestTargetUserCount > 1 and ' x '..LastestTargetColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
+						if ST.CooldownCache[UserGUID].List[SpellID][i].DestName then
+							if LastestTargetUserGUID ~= ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID then
+								Target = (Target and Target..'|r'..(LastestTargetUserCount > 1 and ' x '..LastestTargetColor..LastestTargetUserCount or ', ') or '')..ST.CooldownCache[UserGUID].List[SpellID][i].DestColor..ST.CooldownCache[UserGUID].List[SpellID][i].DestName
+								
+								LastestTargetUserCount = 1
+								DisplayedTargetUser = DisplayedTargetUser + 1
+							else
+								LastestTargetUserCount = LastestTargetUserCount + 1
+								LastestTargetColor = ST.CooldownCache[UserGUID].List[SpellID][i].DestColor
+							end
 							
-							LastestTargetUserCount = 1
-							DisplayedTargetUser = DisplayedTargetUser + 1
-						else
-							LastestTargetUserCount = LastestTargetUserCount + 1
-							LastestTargetColor = ST.CooldownCache[UserGUID].List[SpellID][i].DestColor
+							if DisplayedTargetUser > KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Count_TargetUser then
+								break
+							end
+							
+							LastestTargetUserGUID = ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID
 						end
-						
-						if DisplayedTargetUser > KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Count_TargetUser then
-							break
-						end
-						
-						LastestTargetUserGUID = ST.CooldownCache[UserGUID].List[SpellID][i].DestGUID
 					end
 					
-					SpellName = SpellName..' |cffceff00▶|r '..Target..(LastestTargetUserCount > 1 and ' |rx '..LastestTargetColor..LastestTargetUserCount or '')
+					SpellName = SpellName..(Target and ' |cffceff00▶|r '..Target..(LastestTargetUserCount > 1 and ' |rx '..LastestTargetColor..LastestTargetUserCount or '') or '')
 				end
 				self.Text:SetText(SpellName)
 				
@@ -502,7 +573,7 @@ do	--<< About Bar's Layout and Appearance >>--
 			end
 			
 			if #ST.CooldownCache[UserGUID].List[SpellID] == 1 and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) and not self.Fade then
-				self.Fade = { Type = TimeNow, }
+				self.Fade = {}--{ Type = TimeNow, }
 			end
 			
 			self.CooldownBar:SetValue(100 - (TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime) / ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime * 100)
@@ -530,6 +601,9 @@ do	--<< About Bar's Layout and Appearance >>--
 		})
 		Bar.SpellIconFrame:Point('LEFT', Bar)
 		Bar.SpellIconFrame:RegisterForClicks('AnyUp')
+		Bar.SpellIconFrame:SetScript('OnEnter', ST.BarIcon_OnEnter)
+		Bar.SpellIconFrame:SetScript('OnLeave', ST.BarIcon_OnLeave)
+		Bar.SpellIconFrame:SetScript('OnClick', ST.BarIcon_OnClick)
 		Bar.SpellIcon = Bar.SpellIconFrame:CreateTexture(nil, 'OVERLAY')
 		Bar.SpellIcon:SetTexCoord(unpack(E.TexCoords))
 		Bar.SpellIcon:SetInside()
@@ -565,11 +639,12 @@ do	--<< About Bar's Layout and Appearance >>--
 			
 			Bar = Window.ContainedBar[BarNum]
 			Bar:SetParent(Window)
-			Bar:SetScript('OnUpdate', ST.Bar_OnUpdate)
 			
 			--초기화 여기서
 			Bar.Num = BarNum
 		end
+		
+		Bar:SetScript('OnUpdate', ST.Bar_OnUpdate)
 		
 		-- Update Appearance
 		ST:Bar_Rearrange(Window, BarNum)
@@ -617,10 +692,338 @@ do	--<< About Bar's Layout and Appearance >>--
 		if Bar then
 			Bar:SetAlpha(1)
 			Bar:SetScript('OnUpdate', nil)
+			Bar.Data = nil
 			Bar:Hide()
 			
 			self.DeletedBar[#self.DeletedBar + 1] = Window.ContainedBar[BarNum]
 			Window.ContainedBar[BarNum] = nil
+		end
+	end
+end
+
+
+do	--<< About Icon >>--
+	function ST:Icon_OnEnter()
+		self:SetBackdropBorderColor(unpack(E.media.rgbvaluecolor))
+		
+		GameTooltip:SetOwner(self, 'ANCHOR_NONE')
+		self.DisplayTooltip = true
+		self:SetScript('OnUpdate', ST.Icon_OnUpdate)
+	end
+	
+	
+	function ST:Icon_OnLeave()
+		self:SetBackdropBorderColor(unpack(E.media.bordercolor))
+		
+		self.DisplayTooltip = nil
+		self:SetScript('OnUpdate', nil)
+		GameTooltip:Hide()
+	end
+	
+	
+	function ST:Icon_OnUpdate()
+		if not self.Data then
+			return
+		elseif self.DisplayTooltip then
+			GameTooltip:ClearLines()
+			
+			if KF.db.Modules.SmartTracker.General.DetailSpellTooptip == true or IsShiftKeyDown() then
+				self.Link = self.Link or GetSpellLink(self.SpellID)
+				
+				GameTooltip:SetHyperlink(self.Link)
+				GameTooltip:AddLine('|n|cff1784d1>>|r '..L['Castable User']..' |cff1784d1<<', 1, 1, 1)
+			else
+				self.SpellName = self.SpellName or GetSpellInfo(self.SpellID)
+				
+				GameTooltip:AddLine('|cff1784d1>>|r '..self.SpellName..' |cff1784d1<<', 1, 1, 1)
+			end
+		end
+		
+		local UserName, Text
+		local SpellNow, SpellCount, TotalNow, TotalCount = 0, 0, 0, 0
+		local TimeNow = GetTime()
+		
+		for _, UserGUID in pairs(self.Data) do
+			if ST.InspectCache[UserGUID] then
+				UserName = ST.InspectCache[UserGUID].Name
+				
+				SpellCount = ST:CheckSpellChargeCondition(UserGUID, UserName, ST.InspectCache[UserGUID].Class, self.SpellID) or 1
+				SpellNow = SpellCount
+				
+				if ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].List[SpellID] then
+					SpellNow = SpellNow - #ST.CooldownCache[UserGUID].List[SpellID]
+				end
+				
+				TotalNow = TotalNow + SpellNow
+				TotalCount = TotalCount + SpellCount
+				
+				
+				if self.DisplayTooltip then
+					GameTooltip:AddDoubleLine(
+						' '..ST:GetUserRoleIcon(UserGUID)' '..(UnitIsDeadOrGhost(UserName) and '|cff778899'..UserName..' ('..DEAD..')' or KF:Color_Class(ST.InspectCache[UserGUID].Class, UserName))
+						,
+						SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST.CooldownCache[UserGUID].List[self.SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[self.SpellID][1].Cooltime - TimeNow
+					)
+				end
+			end
+		end
+		
+		self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .2)
+		self.text:SetText((TotalNow == 0 and '|cffb90624' or '')..TotalNow..(KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
+		
+		if self.DisplayTooltip then
+			GameTooltip:Show()
+		end
+	end
+	
+	
+	function ST:Icon_Setup(Icon, Anchor)
+		Icon:SetBackdrop({
+			bgFile = E.media.blankTex,
+			edgeFile = E.media.blankTex,
+			tile = false, tileSize = 0, edgeSize = E.mult,
+			insets = { left = 0, right = 0, top = 0, bottom = 0 }
+		})
+		Icon:SetFrameLevel(3)
+		Icon:SetBackdropColor(0, 0, 0, .8)
+		Icon:SetBackdropBorderColor(unpack(E.media.bordercolor))
+		Icon:SetScript('OnEnter', ST.Icon_OnEnter)
+		Icon:SetScript('OnLeave', ST.Icon_OnLeave)
+		
+		Icon.SpellIcon = Icon:CreateTexture(nil, 'OVERLAY')
+		--Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(spellID)))
+		Icon.SpellIcon:SetInside()
+		
+		KF:TextSetting(Icon, nil, { FontSize = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Fontsize, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'BOTTOMRIGHT', -1, 4)
+		
+		return Icon
+	end
+	
+	
+	function ST:Icon_Create(Anchor, IconNum)
+		local Icon = Anchor.ContainedIcon[IconNum]
+		
+		if not Icon then
+			if #self.DeletedIcon > 0 then
+				Anchor.ContainedIcon[IconNum] = self.DeletedIcon[#self.DeletedIcon]
+				self.DeletedIcon[#self.DeletedIcon] = nil
+			else
+				Anchor.ContainedIcon[IconNum] = self:Icon_Setup(CreateFrame('Button'), Anchor)
+			end
+			
+			Icon = Anchor.ContainedIcon[IconNum]
+			Icon:SetParent(Anchor)
+			
+			Icon.Num = IconNum
+		end
+		
+		ST:Icon_Size(Anchor, IconNum)
+		
+		return Icon
+	end
+	
+	
+	function ST:Icon_Delete(Anchor, IconNum)
+		local Icon = Anchor.ContainedIcon[IconNum]
+		
+		if Icon then
+			Icon:SetScript('OnUpdate', nil)
+			Icon.Data = nil
+			Icon.SpellName = nil
+			Icon.Link = nil
+			Icon:Hide()
+			
+			self.DeletedIcon[#self.DeletedIcon + 1] = Anchor.ContainedIcon[IconNum]
+			Anchor.ContainedIcon[IconNum] = nil
+		end
+	end
+	
+	
+	function ST:Icon_Size(Anchor, StartNum)
+		local Icon
+		local TexCoord = { unpack(E.TexCoords) }
+		
+		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth ~= KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight then
+			local Diff
+			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth > KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight then
+				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth / 2
+				TexCoord[3] = Diff
+				TexCoord[4] = 1 - Diff
+			else
+				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight / 2
+				TexCoord[1] = Diff
+				TexCodrd[2] = 1 - Diff
+			end
+		end
+		
+		for IconNum = (StartNum or 1), StartNum or #Anchor.ContainedIcon do
+			Icon = Anchor.ContainedIcon[IconNum]
+			
+			Icon:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+			Icon.SpellIcon:SetTexCoord(unpack(TexCoord))
+		end
+	end
+	
+	
+	function ST:Icon_Rearrange(Anchor, StartNum)
+		local Icon
+		local Point, SecondaryPoint
+		local Spacing = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing
+		
+		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'CENTER' then
+			local OddNumberMode = #Anchor.ContainedIcon % 2 > 0
+			local LeftAnchor, CenterAnchor, RightAnchor
+			
+			if OddNumberMode then
+				CenterAnchor = ceil(#Anchor.ContainedIcon / 2)
+				
+				if not (StartNum and StartNum ~= CenterAnchor) then
+					Icon = Anchor.ContainedIcon[CenterAnchor]
+					Icon:ClearAllPoints()
+					Icon:Point('CENTER', Anchor)
+				end
+			else
+				LeftAnchor = #Anchor.ContainedIcon / 2
+				RightAnchor = LeftAnchor + 1
+				
+				if not (StartNum and StartNum ~= (LeftAnchor)) then
+					Icon = Anchor.ContainedIcon[LeftAnchor]
+					Icon:ClearAllPoints()
+					Icon:Point('CENTER', Anchor, 'Right', -Spacing / 2, 0)
+				end
+				
+				if not (StartNum and StartNum ~= RightAnchor) then
+					Icon = Anchor.ContainedIcon[RightAnchor]
+					Icon:ClearAllPoints()
+					Icon:Point('CENTER', Anchor, 'LEFT', Spacing / 2, 0)
+				end
+			end
+			
+			if not (StartNum and StartNum >= (LeftAnchor or CenterAnchor)) then
+				Point = 'RIGHT'
+				SecondaryPoint = 'LEFT'
+				
+				for IconNum = (StartNum or LeftAnchor - 1), StartNum or 1, -1 do
+					Icon = Anchor.ContainedIcon[IconNum]
+					Icon:ClearAllPoints()
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum + 1], SecondaryPoint, Spacing, 0)
+				end
+			end
+			
+			if not (StartNum and StartNum <= (RightAnchor or CenterAnchor)) then
+				Point = 'LEFT'
+				SecondaryPoint = 'RIGHT'
+				
+				for IconNum = (StartNum or RightAnchor + 1), StartNum or #Anchor.ContainedIcon do
+					Icon = Anchor.ContainedIcon[IconNum]
+					Icon:ClearAllPoints()
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, Spacing, 0)
+				end
+			end
+		else
+			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'Left to Right' then
+				Point = 'LEFT'
+				SecondaryPoint = 'RIGHT'
+			else
+				Point = 'RIGHT'
+				SecondaryPoint = 'LEFT'
+				Spacing = -Spacing
+			end
+			
+			for IconNum = (StartNum or 1), StartNum or #Anchor.ContainedIcon do
+				Icon = Anchor.ContainedIcon[IconNum]
+				Icon:ClearAllPoints()
+				
+				if IconNum == 1 then
+					Icon:Point(Point, Anchor)
+				else
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, Spacing, 0)
+				end
+			end
+		end
+	end
+	
+	
+	function ST:IconAnchor_Create(AnchorName)
+		if not KF.db.Modules.SmartTracker.Enable or KF.db.Modules.SmartTracker.Icon[AnchorName].Enable == false then
+			self:IconAnchor_Delete(AnchorName, true)
+			return
+		end
+		
+		local Anchor = KF.UIParent.ST_Icon[AnchorName]
+		
+		if not Anchor then
+			if #self.DeletedIcon > 0 then
+				KF.UIParent.ST_Icon[AnchorName] = self.DeletedAnchor[#self.DeletedIcon]
+				
+				Anchor = KF.UIParent.ST_Icon[AnchorName]
+				
+				E.CreatedMovers[Anchor.mover.name] = Anchor.MoverData
+				Anchor.MoverData = nil
+				
+				Anchor:Show()
+				
+				self.DeletedIcon[#self.DeletedIcon] = nil
+			else
+				AnchorCount = AnchorCount + 1
+				
+				Anchor = CreateFrame('Frame', 'ST_IconAnchor_'..AnchorCount, KF.UIParent)
+				Anchor:Point('CENTER')
+				Anchor.Count = AnchorCount
+				
+				KF.UIParent.ST_Window[AnchorName] = Anchor
+				
+				E:CreateMover(Anchor, 'ST_Icon_'..Anchor.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
+			end
+			
+			E.CreatedMovers[Anchor.mover.name].point = E:HasMoverBeenMoved(AnchorName) and E.db.movers[AnchorName] or KF.db.Modules.SmartTracker.Icon[AnchorName].Location or 'CENTERElvUIParent'
+			Anchor.mover:ClearAllPoints()
+			Anchor.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Anchor.mover.name].point)}))
+			
+			--초기화 여기서
+			Anchor.Name = AnchorName
+			Anchor.ContainedIcon = {}
+			
+			self:BuildTrackingSpellList(AnchorName)
+			self:RedistributeIconData(Anchor)
+		end
+		
+		-- Update AnchorSize
+		self:IconAnchor_Size(Anchor)
+		
+		
+		
+		
+		
+		if E.ConfigurationMode then
+			Anchor.mover:Show()
+		end
+	end
+	
+	
+	function ST:IconAnchor_Delete(AnchorName, SaveProfile)
+		
+	end
+	
+	
+	function ST:IconAnchor_Size(Anchor)
+		local Width, Height
+		local SpellCount = #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList
+		
+		if SpellCount == 1 then
+			Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+			Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+		elseif SpellCount > 1 then
+			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
+				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+			else
+				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
+				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
+			end
+		elseif SpellCount == 0 then
+			Anchor:Size(0)
+			Anchor.mover:Size(0)
 		end
 	end
 end
@@ -656,11 +1059,11 @@ do	--<< System >>--
 			Spec = Info.ClassRole[Class][Spec].Role
 			
 			if Spec == 'Tank' then
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:12:12:0:|t'
+				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:12:12:1:-1|t'
 			elseif Spec == 'Healer' then
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:0:0|t'
+				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:1:-1|t'
 			else
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:12:12:0:0|t'
+				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:12:12:1:-1|t'
 			end
 		end
 		
@@ -707,15 +1110,19 @@ do	--<< System >>--
 			
 			-- Change Cooldown By Talent
 			if Info.SmartTracker_Data[UserClass][SpellID].Talent then
-				for i = 1, MAX_TALENT_TIERS * NUM_TALENT_COLUMNS do
-					Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Talent[(self.InspectCache[UserGUID].Talent[i])] or 0)
+				for SelectedTalent, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Talent) do
+					if self.InspectCache[UserGUID].Talent[SelectedTalent] then
+						Cooldown = Cooldown + ChangingTime
+					end
 				end
 			end
 			
 			-- Change Cooldown By Glyph
 			if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
-				for i = 1, NUM_GLYPH_SLOTS do
-					Cooldown = Cooldown + (Info.SmartTracker_Data[UserClass][SpellID].Glyph[(self.InspectCache[UserGUID].Glyph[i])] or 0)
+				for GlyphID, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Glyph) do
+					if self.InspectCache[UserGUID].Glyph[GlyphID] then
+						Cooldown = Cooldown + ChangingTime
+					end
 				end
 			end
 		else
@@ -731,22 +1138,53 @@ do	--<< System >>--
 	end
 	
 	
-	local TempTable = {}
-	function ST:BuildTrackingSpellList()
-		wipe(TempTable)
-		
-		for WindowName, Window in pairs(KF.UIParent.Window) do
-			for ClassName in pairs(Info.SmartTracker_Data) do
-				for SpellID in pairs(Info.SmartTracker_Data[ClassName]) do
-					if KF.db.Modules.SmartTracker.Window[WindowName].SpellList[ClassName][SpellID] ~= false then
-						TempTable[SpellID] = TempTable[SpellID] or {}
-						TempTable[SpellID][Window] = 'Window'
+	function ST:BuildTrackingSpellList(TrackerName)
+		if TrackerName then
+			local Tracker, TrackerType
+			
+			if KF.UIParent.ST_Window[TrackerName] then
+				Tracker = KF.UIParent.ST_Window[TrackerName]
+				TrackerType = 'Window'
+			elseif KF.UIParent.ST_Icon[TrackerName] then
+				Tracker = KF.UIParent.ST_Icon[TrackerName]
+				TrackerType = 'Icon'
+			end
+			
+			if Tracker and TrackerType then
+				for ClassName in pairs(Info.SmartTracker_Data) do
+					for SpellID in pairs(Info.SmartTracker_Data[ClassName]) do
+						if KF.db.Modules.SmartTracker[TrackerType][TrackerName].SpellList[ClassName][SpellID] ~= false and not (self.TrackingSpell[SpellID] and self.TrackingSpell[SpellID][Tracker]) then
+							self.TrackingSpell[SpellID] = self.TrackingSpell[SpellID] or {}
+							self.TrackingSpell[SpellID][Tracker] = TrackerType
+						end
+					end
+				end
+			end
+		else
+			wipe(self.TrackingSpell)
+			
+			for WindowName, Window in pairs(KF.UIParent.ST_Window) do
+				for ClassName in pairs(Info.SmartTracker_Data) do
+					for SpellID in pairs(Info.SmartTracker_Data[ClassName]) do
+						if KF.db.Modules.SmartTracker.Window[WindowName].SpellList[ClassName][SpellID] ~= false and not (self.TrackingSpell[SpellID] and self.TrackingSpell[SpellID][Window]) then
+							self.TrackingSpell[SpellID] = self.TrackingSpell[SpellID] or {}
+							self.TrackingSpell[SpellID][Window] = 'Window'
+						end
+					end
+				end
+			end
+			
+			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
+				for ClassName in pairs(Info.SmartTracker_Data) do
+					for SpellID in pairs(Info.SmartTracker_Data[ClassName]) do
+						if KF.db.Modules.SmartTracker.Icon[AnchorName].SpellList[SpellID] ~= false and not (self.TrackingSpell[SpellID] and self.TrackingSpell[SpellID][Anchor]) then
+							self.TrackingSpell[SpellID] = self.TrackingSpell[SpellID] or {}
+							self.TrackingSpell[SpellID][Anchor] = 'Icon'
+						end
 					end
 				end
 			end
 		end
-		
-		self.TrackingSpell = TempTable
 	end
 	
 	--[[
@@ -767,6 +1205,15 @@ do	--<< System >>--
 	end
 	]]
 	
+	function ST:CheckSpellChargeCondition(UserGUID, UserName, UserClass, SpellID)
+		if type(Info.SmartTracker_Data[UserClass][SpellID].Charge) == 'function' then
+			return Info.SmartTracker_Data[UserClass][SpellID].Charge(UserGUID, UserName)
+		else
+			return Info.SmartTracker_Data[UserClass][SpellID].Charge
+		end
+	end
+	
+	
 	function ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName, ParamTable)
 		local TimeNow = GetTime()
 		
@@ -785,15 +1232,6 @@ do	--<< System >>--
 				if ST.CooldownCache[UserGUID].List[1856] then ST.CooldownCache[UserGUID].List[1856].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
 				if ST.CooldownCache[UserGUID].List[180] then ST.CooldownCache[UserGUID].List[180].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
 				if ST.CooldownCache[UserGUID].List[51722] then ST.CooldownCache[UserGUID].List[51722].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-			elseif SpellID == 108285 then --원소의 부름
-				if ST.CooldownCache[UserGUID].List[8143] then ST.CooldownCache[UserGUID].List[8143].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[51485] then ST.CooldownCache[UserGUID].List[51485].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[108273] then ST.CooldownCache[UserGUID].List[108273].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[2484] then ST.CooldownCache[UserGUID].List[2484].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[108269] then ST.CooldownCache[UserGUID].List[108269].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[108279] then ST.CooldownCache[UserGUID].List[108279].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[8177] then ST.CooldownCache[UserGUID].List[8177].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
-				if ST.CooldownCache[UserGUID].List[108270] then ST.CooldownCache[UserGUID].List[108270].Fade = { FadeType = TimeNow, NoAnnounce = true, } end
 			end
 		end
 		]]
@@ -811,6 +1249,7 @@ do	--<< System >>--
 				Class = UserClass,
 				List = {}
 			}
+			ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID] and ST.InspectCache[UserGUID].Spec or nil
 			tinsert(ST.CooldownCache, UserGUID)
 			
 			sort(ST.CooldownCache, function(UserGUID_A, UserGUID_B) return ST:SortData(UserGUID_A, UserGUID_B) end)
@@ -838,11 +1277,12 @@ do	--<< System >>--
 		--	ST.CooldownCache[UserGUID].List[SpellID].Fade = { FadeType = 'IN' }
 		end
 		
-		if ST.CooldownCache[UserGUID].List[SpellID][1] and Info.SmartTracker_Data[UserClass][SpellID].Charge then
+		local Chargable = ST:CheckSpellChargeCondition(UserGUID, UserName, UserClass, SpellID)
+		
+		if ST.CooldownCache[UserGUID].List[SpellID][1] and Chargable and not (type(Chargable) == 'number' and #ST.CooldownCache[UserGUID].List[SpellID] >= Chargable) then
 			local Data = {
 				ForbidFadeIn = true,
 				TimeStamp = TimeStamp,
-				ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime,
 				DestGUID = DestGUID,
 				DestColor = DestColor,
 				DestName = DestName,
@@ -874,24 +1314,24 @@ do	--<< System >>--
 			ST.CooldownCache[UserGUID].List[SpellID][1].Count = nil
 		end
 		
-		KF:RegisterTimer('RefreshCooldownCache', 'NewTicker', .1, ST.RefreshCooldownCache)
+		KF:RegisterTimer('RefreshCooldownCache', 'NewTicker', .1, ST.RefreshCooldownCache, nil, true)
 		
 		for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
 			if TrackerType == 'Window' then --and Tracker.NowDisplaying then
 				ST:RedistributeCooldownData(Tracker)
 			else
-				
+				ST:RedistributeIconData(Tracker)
 			end
 		end
 	end
 	
 	
-	do
+	do	-- Event : UNIT_SPELLCAST_SUCCEEDED
 		local UnitType, SpellID, UserName, UserGUID, UserClass
 		function ST:UNIT_SPELLCAST_SUCCEEDED(...)
 			UnitType, _, _, _, SpellID = ...
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
-			if UserClass == 'WARRIOR' then print(..., '분노 : ', UnitPower(UnitType)) end
+			
 			if not (SpellID and ST.TrackingSpell[SpellID] and Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID]) then return end
 			
 			UserName = UnitName(UnitType)
@@ -937,7 +1377,7 @@ do	--<< System >>--
 	end
 	
 	
-	do
+	do	-- Event : COMBAT_LOG_EVENT_UNFILTERED
 		local DefaultEventList = {
 			SPELL_RESURRECT = true,
 			SPELL_AURA_APPLIED = true,
@@ -952,12 +1392,12 @@ do	--<< System >>--
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
 			
 			if ST.PrintEvent then
-				print(...)
+				print(Event, UserName, DestGUID, DestName, GetSpellLink(SpellID))
 			end
 			
-			if Event == 'SPELL_CAST_SUCCESS' and UserClass == 'WARRIOR' and bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) ~= 0 then
-				print(Event, UserName, GetSpellLink(SpellID), '분노 : ', UnitPower(UserName))
-			end
+	--		if (Event == 'SPELL_CAST_SUCCESS' or Event == 'SPELL_AURA_APPLIED') and UserName and UnitIsPlayer(UserName) and select(2, UnitClass(UserName)) == 'WARRIOR' and bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) ~= 0 then
+	--			print(Event, UserName, GetSpellLink(SpellID), '분노 : ', UnitPower(UserName))
+	--		end
 			
 			if not (SpellID and ST.TrackingSpell[SpellID]) or Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID] or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 then return end
 			
@@ -1049,7 +1489,7 @@ do	--<< System >>--
 				HasData = false
 				
 				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
-					HasData = true
+					HasData = HasData or SpellID
 					
 					if ST.CooldownCache[UserGUID].List[SpellID][1].NeedCalculating then
 						ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime, NeedUpdateByCooldownCalcurating = ST:CalculateCooldown(ST.CooldownCache[UserGUID].List[SpellID][1].Event, UserGUID, ST.CooldownCache[UserGUID].Name, ST.CooldownCache[UserGUID].Class, SpellID, ST.CooldownCache[UserGUID].List[SpellID][1].DestName, ST.CooldownCache[UserGUID].List[SpellID][1].ParamTable)
@@ -1062,12 +1502,12 @@ do	--<< System >>--
 						end
 					end
 					
-					while ST.CooldownCache[UserGUID].List[SpellID][1] and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow <= 0 do
+					while ST.CooldownCache[UserGUID].List[SpellID][1] and (ST.CooldownCache[UserGUID].List[SpellID][1].EraseThisCooltimeCache or ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow <= 0) do
 						if #ST.CooldownCache[UserGUID].List[SpellID] > 1 then
-							ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime
+							ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][1].EraseThisCooltimeCache and TimeNow or ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime
 						end
 						
-						--if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][UserGUID]['Class'] ][SpellID] == 3 and not (Table['Cooldown_Cache'][UserGUID]['List'][SpellID]['Fade'] and Table['Cooldown_Cache'][UserGUID]['List'][SpellID]['Fade']['NoAnnounce']) then
+						--if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][UserGUID]['Class'] ][SpellID] == 3 and not ST.CooldownCache[UserGUID].List[SpellID][1].NoAnnounce then
 						--	Func['Announcer'](UserGUID, SpellID)
 						--end
 						
@@ -1078,6 +1518,10 @@ do	--<< System >>--
 					
 					if #ST.CooldownCache[UserGUID].List[SpellID] == 0 then
 						ST.CooldownCache[UserGUID].List[SpellID] = nil
+						
+						if HasData == SpellID then
+							HasData = false
+						end
 					end
 				end
 				
@@ -1095,21 +1539,25 @@ do	--<< System >>--
 		end
 		
 		if NeedRedistributing then
-			local NeedUpdatingWindowList = {}
-			local NeedUpdatingRaidIcon = {}
+			local NeedUpdatingWindow = {}
+			local NeedUpdatingIcon = {}
 			
 			for SpellID in pairs(NeedRedistributing) do
 				for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
 					if TrackerType == 'Window' then --and Tracker.NowDisplaying then
-						NeedUpdatingWindowList[Tracker.Name] = Tracker
-					elseif TrackerType == 'Icon' and Tracker.NowDisplaying then
-						NeedUpdatingRaidIcon[Tracker.Name] = Tracker
+						NeedUpdatingWindow[Tracker.Name] = Tracker
+					elseif TrackerType == 'Icon' then --and Tracker.NowDisplaying then
+						NeedUpdatingIcon[Tracker.Name] = Tracker
 					end
 				end
 			end
 			
-			for WindowName, Window in pairs(NeedUpdatingWindowList) do
+			for WindowName, Window in pairs(NeedUpdatingWindow) do
 				ST:RedistributeCooldownData(Window)
+			end
+			
+			for AnchorName, Anchor in pairs(NeedUpdatingIcon) do
+				ST:RedistributeIconData(Anchor)
 			end
 		elseif HasData == nil then
 			KF:CancelTimer('RefreshCooldownCache')
@@ -1132,7 +1580,7 @@ do	--<< System >>--
 			UserGUID = ST.CooldownCache[i]
 			
 			if not ST.CooldownCache[UserGUID].Spec or KF.db.Modules.SmartTracker.Window[Window.Name].Display.Filter[Info.ClassRole[ST.CooldownCache[UserGUID].Class][ST.CooldownCache[UserGUID].Spec].Role] then
-				tinsert(List, { UserGUID = UserGUID })
+				tinsert(List, { UserGUID = UserGUID, Name = ST.CooldownCache[UserGUID].Name })
 				
 				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
 					if KF.db.Modules.SmartTracker.Window[Window.Name].SpellList[ST.CooldownCache[UserGUID].Class][SpellID] ~= false and not ST.CooldownCache[UserGUID].List[SpellID][1].Hidden then
@@ -1174,18 +1622,22 @@ do	--<< System >>--
 							CurrentLine = CurrentLine + 1
 						
 							if CurrentLine <= DisplayableBarNum then
+								--print('이름세팅 1번', List[i].Name)
 								Bar = ST:Bar_Create(Window, CurrentLine)
 							else
+								--print('이름세팅 2번', List[i].Name)
 								Window.BarRemains = true
 								break
 							end
 						elseif not Window.ContainedBar[CurrentLine - 1] then
+							--print('이름세팅 3번', List[i].Name)
 							NamePlateSet = true
 							
 							if k == #List[i] then
 								Bar.Data.ArrowUp = true
 							end
 						elseif k == 1 then
+							--print('이름세팅 4번', List[i].Name)
 							CurrentLine = CurrentLine - 1
 							
 							ST:Bar_Create(Window, CurrentLine).Data = {
@@ -1235,8 +1687,8 @@ do	--<< System >>--
 						
 						if not ST.CooldownCache[UserGUID].List[SpellID][1].ForbidFadeIn and ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.FADE_TIME > TimeNow then
 							Bar.Fade = { Type = 'IN', Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime }
-						elseif not Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Charge and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) then
-							Bar.Fade = { Type = TimeNow, Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime }
+						elseif #ST.CooldownCache[UserGUID].List[SpellID] == 1 and (TimeNow > ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - ST.FADE_TIME) then
+							Bar.Fade = { Timer = TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime }
 						end
 					else
 						CurrentLine = CurrentLine - 1
@@ -1268,18 +1720,23 @@ do	--<< System >>--
 			--end
 		end
 		
+		--print('RV= ', Window.Reverse and 'T' or 'F', ' / CL= ', CurrentLine, ' / WL= ', Window.CurrentWheelLine, ' / SK= ', TotalSkipped)
 		if Window.Reverse then
 			if CurrentLine > 0 then
+				--print('종료 1번')
 				Window.CurrentWheelLine = 0
 				Window.Reverse = nil
 				ST:RedistributeCooldownData(Window)
 			else
+				--print('종료 2번')
 				Window.CurrentWheelLine = TotalSkipped
 			end
 		elseif Window.CurrentWheelLine > 0 and CurrentLine - 1--[[ + (PrevUserExists and 1 or 0)]] < DisplayableBarNum then
+			--print('종료 3번')
 			Window.Reverse = true
 			ST:RedistributeCooldownData(Window)
 		else
+			--print('종료 4번')
 			for BarNum = CurrentLine, #Window.ContainedBar do
 				ST:Bar_Delete(Window, BarNum)
 			end
@@ -1289,12 +1746,439 @@ do	--<< System >>--
 			ST:Bar_Delete(Window, BarNum)
 		end
 	end
+	
+	
+	function ST:RedistributeIconData(Anchor)
+	
+	end
 end
 
---[[
+
+do	--<< Inspect System >>--
+	ST.CheckPlayer = CreateFrame('Frame')
+	ST.CheckPlayer:Hide()
+	ST.CheckPlayer:SetScript('OnEvent', function(self, Event, ...)
+		if Event == 'ACTIVE_TALENT_GROUP_CHANGED' or Event == 'PLAYER_SPECIALIZATION_CHANGED' then
+			self.NeedCheckingSpec = true
+			self.NeedCheckingGlyph = true
+		elseif Event == 'GLYPH_ADDED' or Event == 'GLYPH_REMOVED' or Event == 'GLYPH_UPDATED' then
+			self.NeedCheckingGlyph = true
+		elseif Event == 'PLAYER_TALENT_UPDATE' then
+			self.NeedCheckingSpec = true
+		elseif Event == 'PLAYER_LEVEL_UP' then
+			self.NeedCheckingLevel = true
+		end
+		
+		self:Show()
+	end)
+	ST.CheckPlayer:SetScript('OnUpdate', function(self, elapsed)
+		self.Elapsed = (self.Elapsed or 0) + elapsed
+		
+		if self.Elapsed > 0 then
+			self.Elapsed = -.1
+			self.NeedUpdate = nil
+			
+			if self.NeedCheckingSpec then
+				self.NeedUpdate = ST:CheckPlayerSpec()
+			end
+			
+			if self.NeedCheckingGlyph then
+				self.NeedUpdate = ST:CheckPlayerGlyph() or self.NeedUpdate
+			end
+			
+			if self.NeedCheckingLevel then
+				self.NeedUpdate = ST:CheckPlayerLevel() or self.NeedUpdate
+			end
+			
+			if not self.NeedUpdate then
+				self.Elapsed = 0
+				self:Hide()
+			end
+		end
+	end)
+	
+	
+	function ST:CheckPlayerSpec()
+		wipe(ST.InspectCache[E.myguid].Talent)
+		
+		local Spec = GetSpecialization()
+		local ActiveSpec = GetActiveSpecGroup()
+		
+		ST.InspectCache[E.myguid].Spec = Spec and Spec > 0 and select(2, GetSpecializationInfo(Spec)) or nil
+		
+		local Talent, IsSelected
+		for i = 1, MAX_TALENT_TIERS do
+			for k = 1, NUM_TALENT_COLUMNS do
+				Talent, _, _, IsSelected = GetTalentInfo(i, k, ActiveSpec)
+				
+				if IsSelected then
+					ST.InspectCache[E.myguid].Talent[Talent] = true
+				end
+			end
+		end
+		
+		ST.CheckPlayer.NeedCheckingSpec = nil
+	end
+	
+	
+	function ST:CheckPlayerGlyph()
+		wipe(ST.InspectCache[E.myguid].Glyph)
+		
+		local GlyphID
+		local ActiveSpec = GetActiveSpecGroup()
+		
+		for SlotNum = 1, NUM_GLYPH_SLOTS do
+			_, _, _, _, _, GlyphID = GetGlyphSocketInfo(SlotNum, ActiveSpec)
+			
+			if GlyphID then
+				ST.InspectCache[E.myguid].Glyph[GlyphID] = true
+			end
+		end
+		
+		ST.CheckPlayer.NeedCheckingGlyph = nil
+	end
+	
+	
+	function ST:CheckPlayerLevel()
+		ST.InspectCache[E.myguid].Level = UnitLevel('player')
+		
+		ST.CheckPlayer.NeedCheckingLevel = nil
+	end
+	
+	
+	do
+		local UnitID, UserClass, UserName, Spec, Talent, IsSelected, GlyphID
+		function ST:INSPECT_READY(UserGUID)
+			if Info.CurrentGroupMode == 'NoGroup' then
+				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
+				return
+			end
+			
+			_, UserClass, _, _, _, UserName = GetPlayerInfoByGUID(UserGUID)
+			
+			if UserName == E.myname or not UnitExists(UserName) then return end
+			print('INSPECT_READY', UserName)
+			for i = 1, MAX_RAID_MEMBERS do
+				if UnitName(Info.CurrentGroupMode..i) == UserName then
+					UnitID = Info.CurrentGroupMode..i
+					break
+				end
+			end
+			
+			if not ST.InspectCache[UserGUID] then
+				ST.InspectCache[UserGUID] = {
+					Name = UserName,
+					Class = UserClass,
+					Talent = {},
+					Glyph = {}
+				}
+			else
+				wipe(ST.InspectCache[UserGUID].Talent)
+				wipe(ST.InspectCache[UserGUID].Glyph)
+			end
+			
+			Spec = GetInspectSpecialization(UserName)
+			ST.InspectCache[UserGUID].Spec = Spec and Spec > 0 and select(2, GetSpecializationInfoByID(Spec)) or nil
+			
+			for i = 1, MAX_TALENT_TIERS do
+				for k = 1, NUM_TALENT_COLUMNS do
+					Talent, _, _, IsSelected = GetTalentInfo(i, k, 1, true, UnitID)
+					
+					if IsSelected then
+						ST.InspectCache[UserGUID].Talent[Talent] = true
+					end
+				end
+			end
+			
+			for i = 1, NUM_GLYPH_SLOTS do
+				_, _, _, _, _, GlyphID = GetGlyphSocketInfo(i, nil, true, UnitID)
+				
+				if GlyphID then
+					ST.InspectCache[UserGUID].Glyph[GlyphID] = true
+				end
+			end
+			
+			ST.InspectCache[UserGUID].Level = UnitLevel(UserName)
+			
+			print('|cff2eb7e4INSPECT_READY|r : ', UserName, '설정검사 끝')
+			ST.InspectOrder[UserName] = true
+		end
+	end
+	
+	
+	do
+		local InspectType, InspectTarget, DelayedMemberExists
+		function ST:InspectGroup()
+			ST.NowInspecting = true
+			
+			DelayedMemberExists = nil
+			
+			if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false then
+				InspectType = 'Updating'
+				
+				for MemberName in pairs(ST.InspectOrder) do
+					if type(ST.InspectOrder[MemberName]) == 'number' or ST.InspectOrder[MemberName] == 'Delayed' then
+						InspectType = 'Inspecting'
+						break
+					end
+				end
+			else
+				InspectType = 'Inspecting'
+			end
+			
+			if ST.CurrentInspectMemberUnitName then
+				if not UnitExists(ST.CurrentInspectMemberUnitName) or not UnitIsConnected(ST.CurrentInspectMemberUnitName) or not (ST.InspectOrder[ST.CurrentInspectMemberUnitName] and ST.InspectOrder[ST.CurrentInspectMemberUnitName] ~= true) then
+					ST.CurrentInspectMemberUnitName = nil
+				else
+					InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[ST.CurrentInspectMemberUnitName]) or ST.InspectOrder[ST.CurrentInspectMemberUnitName]
+					
+					if type(InspectTarget) == 'number' then
+						if InspectTarget >= 3 then
+							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
+							ST.CurrentInspectMemberUnitName = nil
+						elseif InspectType == 'Updating' then
+							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = tostring(InspectTarget + 1)
+						else
+							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectTarget + 1
+						end
+					else
+						ST.CurrentInspectMemberUnitName = nil
+					end
+				end
+			end
+			
+			if not ST.CurrentInspectMemberUnitName then
+				ST.CurrentInspectMemberUnitName = nil
+				
+				for MemberName in pairs(ST.InspectOrder) do
+					if not UnitExists(MemberName) then
+						ST.InspectOrder[MemberName] = nil
+					elseif ST.InspectOrder[MemberName] ~= true then
+						InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[MemberName]) or ST.InspectOrder[MemberName]
+						
+						if type(InspectTarget) == 'number' then
+							if ST.CurrentInspectMemberUnitName == nil then
+								ST.CurrentInspectMemberUnitName = false
+							end
+							
+							if not (UnitIsConnected(MemberName) and InspectTarget < 3) then
+								ST.InspectOrder[MemberName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
+								DelayedMemberExists = true
+							else
+								if InspectType == 'Updating' then
+									ST.InspectOrder[MemberName] = tostring(InspectTarget + 1)
+								else
+									ST.InspectOrder[MemberName] = InspectTarget + 1
+								end
+								
+								ST.CurrentInspectMemberUnitName = MemberName
+								break
+							end
+						elseif InspectType == 'Updating' and ST.InspectOrder[MemberName] == 'UpdateDelayed' or ST.InspectOrder[MemberName] == 'Delayed' then
+							DelayedMemberExists = true
+						end
+					end
+				end
+			end
+			
+			if not ST.CurrentInspectMemberUnitName then
+				if DelayedMemberExists and InspectType == 'Inspecting' then
+					if ST.CurrentInspectMemberUnitName == nil then
+						for MemberName in pairs(ST.InspectOrder) do
+							if ST.InspectOrder[MemberName] == 'Delayed' then
+								ST.InspectOrder[MemberName] = 0
+							end
+						end
+					end
+					
+					return
+				elseif KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false and InspectType == 'Updating' then
+					local Check -- if false then just stop this function and if true then notice message.
+					
+					for MemberName in pairs(ST.InspectOrder) do
+						if ST.InspectOrder[MemberName] == 'Update' then
+							if not Check then
+								Check = ST.CurrentInspectMemberUnitName == nil
+							end
+							
+							ST.InspectOrder[MemberName] = '0'
+						elseif ST.InspectOrder[MemberName] == 'UpdateDelayed' then
+							if Check == nil then
+								Check = false
+							end
+							
+							if ST.CurrentInspectMemberUnitName == nil then
+								ST.InspectOrder[MemberName] = '0'
+							end
+						end
+					end
+					
+					if Check ~= nil or DelayedMemberExists then
+						if Check == true then
+							print(L['KF']..' : '..L["Now updating old member's setting."])
+						end
+						
+						return
+					end
+				end
+				
+				--KnightRaidCooldown.InspectMembers.Number:SetText(nil)
+				
+				--if Value['Inspect_ScanByChanging'] == true then
+				--	Value['Inspect_ScanByChanging'] = nil
+				--else
+					print(L['KF']..' : |cff2eb7e4'..L['Inspect Complete']..'|r. '..L["All members specialization, talent setting, glyph setting is saved. RaidCooldown will calcurating each spell's cooltime by this data.|r"])
+				--end
+				
+				ST.NowInspecting = nil
+				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
+				KF:CancelTimer('SmartTracker_InspectGroup')
+			else
+				--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
+				KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
+				NotifyInspect(ST.CurrentInspectMemberUnitName, nil, 3)
+			end
+		end
+	end
+	
+	
+	do
+		local NeedInspecting, Old_NeedInspecting, AlreadyChecked = 0, 0, 0
+		local Check, MemberName
+		function ST:CheckGroupMember()
+			--[[
+			for MemberName in pairs(ST.InspectOrder) do
+				if not UnitExists(MemberName) then
+					ST.InspectOrder[MemberName] = nil
+				end
+			end
+			]]
+			Old_NeedInspecting = NeedInspecting
+			NeedInspecting = 0
+			AlreadyChecked = 0
+			Check = nil
+			
+			for i = 1, MAX_RAID_MEMBERS do
+				if UnitExists(Info.CurrentGroupMode..i) and not UnitIsUnit(Info.CurrentGroupMode..i, 'player') then
+					MemberName = UnitName(Info.CurrentGroupMode..i)
+					
+					if MemberName then
+						if MemberName == UNKNOWNOBJECT then
+							return
+						elseif ST.InspectOrder[MemberName] == true then
+							AlreadyChecked = AlreadyChecked + 1
+						else
+							NeedInspecting = NeedInspecting + 1
+							
+							if not ST.InspectOrder[MemberName] then
+								print('신입, 검사 필요 : ', MemberName)
+								ST.InspectOrder[MemberName] = 0
+								Check = true
+							end
+						end
+					end
+				end
+			end
+			
+			if Check and (KF.db.Modules.SmartTracker.Scan.AutoScanning ~= false or ST.ForceUpdateAll) then
+				if not ST.NowInspecting or ST.ForceUpdateAll then
+					for MemberName in pairs(ST.InspectOrder) do
+						if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false and ST.InspectOrder[MemberName] == true and ST.InspectCache[UnitGUID(MemberName)] then
+							print('업데이트 시작 : ', MemberName)
+							ST.InspectOrder[MemberName] = 'Update'
+						end
+					end
+					
+					print(L['KF']..' : '..format(L["%s member's setting check start."], '|cffceff00'..NeedInspecting..'|r'))
+				end
+				
+				ST.ForceUpdateAll = nil
+				
+				KF:RegisterTimer('SmartTracker_InspectGroup', 'NewTicker', 1, ST.InspectGroup, nil, true)
+			end
+			
+			KF:CancelTimer('SmartTracker_CheckGroupMember')
+		end
+	end
+	
+	
+	function ST:PrepareGroupInspect(ForceUpdateAll)
+		if Info.CurrentGroupMode == 'NoGroup' then
+			KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
+			KF:CancelTimer('SmartTracker_CheckGroupMember')
+			KF:CancelTimer('SmartTracker_InspectGroup')
+			
+			wipe(self.InspectOrder)
+			self.NowInspectingMember = nil
+			
+			wipe(self.InspectCache)
+			self.InspectCache[E.myguid] = {
+				Name = E.myname,
+				Class = E.myclass,
+				Talent = {},
+				Glyph = {}
+			}
+			self.CheckPlayer.NeedCheckingSpec = true
+			self.CheckPlayer.NeedCheckingGlyph = true
+			self.CheckPlayer.NeedCheckingLevel = true
+			self.CheckPlayer:Show()
+			
+			self.GroupMemberCount = 0
+			
+			if KF.db.Modules.SmartTracker.General.EraseWhenUserLeftGroup ~= false then
+				for UserGUID in pairs(self.CooldownCache) do
+					if UserGUID ~= E.myguid and self.CooldownCache[UserGUID].List then
+						for SpellID in pairs(self.CooldownCache[UserGUID].List) do
+							for i = 1, #self.CooldownCache[UserGUID].List[SpellID] do
+								self.CooldownCache[UserGUID].List[SpellID][i].EraseThisCooltimeCache = true
+							end
+						end
+					end
+				end
+				
+				self:RefreshCooldownCache()
+			end
+			return
+		elseif ForceUpdateAll then
+			wipe(self.InspectOrder)
+			self.ForceUpdateAll = true
+		end
+		
+		local MemberName, NeedRefresh
+		for SavedGUID in pairs(self.InspectCache) do	-- Clear user that leaved party
+			if SavedGUID ~= E.myguid then
+				MemberName = self.InspectCache[SavedGUID].Name
+				
+				if not (UnitExists(MemberName) and UnitIsConnected(MemberName))then
+					self.InspectCache[SavedGUID] = nil
+					self.InspectOrder[MemberName] = nil
+					
+					if KF.db.Modules.SmartTracker.General.EraseWhenUserLeftGroup ~= false and self.CooldownCache[SavedGUID] then
+						for SpellID in pairs(self.CooldownCache[SavedGUID].List) do
+							for i = 1, #self.CooldownCache[SavedGUID].List[SpellID] do
+								self.CooldownCache[SavedGUID].List[SpellID][i].EraseThisCooltimeCache = true
+							end
+						end
+					end
+					
+					NeedRefresh = true
+				end
+			end
+		end
+		
+		if NeedRefresh then
+			self:RefreshCooldownCache()
+		end
+		
+		self.GroupMemberCount = GetNumGroupMembers()
+		KF:RegisterTimer('SmartTracker_CheckGroupMember', 'NewTicker', .5, ST.CheckGroupMember, nil, true)
+	end
+end
+
+
 KF.Modules[#KF.Modules + 1] = 'SmartTracker'
 KF.Modules.SmartTracker = function(RemoveOrder)
-	for WindowName in pairs(KF.UIParent.Window) do
+	for WindowName in pairs(KF.UIParent.ST_Window) do
 		ST:Window_Delete(WindowName, true)
 	end
 	
@@ -1309,17 +2193,54 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 			if type(IsWindowData) == 'table' then
 				ST:Window_Create(WindowName)
 			end
-			
-			ST:BuildTrackingSpellList()
 		end
+		
+		for AnchorName, IsAnchorData in pairs(KF.db.Modules.SmartTracker.Icon) do
+			if type(IsAnchorData) == 'table' then
+				ST:IconAnchor_Create(AnchorName)
+			end
+		end
+		
+		E.myguid = E.myguid or UnitGUID('player')
+		ST.InspectCache[E.myguid] = ST.InspectCache[E.myguid] or {
+			Name = E.myname,
+			Class = E.myclass,
+			Talent = {},
+			Glyph = {}
+		}
+		ST.CheckPlayer.NeedCheckingSpec = true
+		ST.CheckPlayer.NeedCheckingGlyph = true
+		ST.CheckPlayer.NeedCheckingLevel = true
+		ST.CheckPlayer:RegisterEvent('ACTIVE_TALENT_GROUP_CHANGED')
+		ST.CheckPlayer:RegisterEvent('PLAYER_SPECIALIZATION_CHANGED')
+		ST.CheckPlayer:RegisterEvent('GLYPH_ADDED')
+		ST.CheckPlayer:RegisterEvent('GLYPH_REMOVED')
+		ST.CheckPlayer:RegisterEvent('GLYPH_UPDATED')
+		ST.CheckPlayer:RegisterEvent('PLAYER_TALENT_UPDATE')
+		ST.CheckPlayer:RegisterEvent('PLAYER_LEVEL_UP')
+		ST.CheckPlayer:Show()
+		
+		ST:PrepareGroupInspect(true)
 		
 		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', ST.UNIT_SPELLCAST_SUCCEEDED, 'SmartTracker')
 		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', ST.COMBAT_LOG_EVENT_UNFILTERED, 'SmartTracker')
+		KF:RegisterCallback('GroupChanged', function() ST:PrepareGroupInspect() end, 'SmartTracker_PrepareGroupInspect')
+		KF:RegisterEventList('GROUP_ROSTER_UPDATE', function() ST:PrepareGroupInspect() end, 'SmartTracker_PrepareGroupInspect')
+		KF:RegisterEventList('READY_CHECK', function() ST:PrepareGroupInspect(true) end, 'SmartTracker_PrepareGroupInspect')
 	else
 		Info.SmartTracker_Activate = nil
 		
+		wipe(ST.InspectOrder)
+		wipe(ST.InspectCache)
+		wipe(ST.CooldownCache)
+		
+		ST.CheckPlayer:UnregisterAllEvents()
+		ST.CheckPlayer:Hide()
+		
 		KF:UnregisterEventList('UNIT_SPELLCAST_SUCCEEDED', 'SmartTracker')
 		KF:UnregisterEventList('COMBAT_LOG_EVENT_UNFILTERED', 'SmartTracker')
+		KF:UnregisterEventList('UNIT_SPELLCAST_SUCCEEDED', 'SmartTracker_PrepareGroupInspect')
+		KF:UnregisterEventList('COMBAT_LOG_EVENT_UNFILTERED', 'SmartTracker_PrepareGroupInspect')
 	end
 end
 
@@ -1327,4 +2248,3 @@ end
 function KF:Test()
 	ST.PrintEvent = not ST.PrintEvent
 end
-]]

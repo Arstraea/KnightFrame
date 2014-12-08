@@ -4,6 +4,16 @@ local KF, Info, Timer = unpack(select(2, ...))
 KF.db.Modules.SmartTracker = {
 	Enable = true,
 	
+	General = {
+		DetailSpellTooptip = false,
+		EraseWhenUserLeftGroup = true,
+	},
+	
+	Scan = {
+		AutoScanning = true,
+		UpdateInspectCache = true,
+	},
+	
 	SortOrder = {
 		Role = {
 			'Tank',
@@ -59,7 +69,7 @@ KF.db.Modules.SmartTracker = {
 				},
 				
 				Filter = {
-					Tanker = true,
+					Tank = true,
 					Healer = true,
 					Caster = true,
 					Melee = true
@@ -98,10 +108,14 @@ KF.db.Modules.SmartTracker = {
 					
 				},
 				WARLOCK = {
-					[108416] = true
+					
 				}
 			}
 		}
+	},
+	
+	Icon = {
+	
 	}
 	--[[
 	['General'] = {
@@ -118,14 +132,7 @@ KF.db.Modules.SmartTracker = {
 		['Update'] = false,
 	},
 	
-	['Appearance'] = {
-		['RaidIcon_Size'] = 35,
-		['RaidIcon_Spacing'] = 5,
-		['RaidIcon_Fontsize'] = 13,
-		['RaidIcon_StartPoint'] = 1,	-- 1 : LEFTSIDE of MainFrame, 2 : RIGHTSIDE of MainFrame
-		['RaidIcon_Direction'] = 3,		-- 1 : UP, 2 : DOWN, 3 : UPPER, 4 : BELOW
-		['RaidIcon_DisplayMax'] = true,
-	},
+	
 	
 	['WARRIOR'] = {
 		[97462] = 2, --재집결
@@ -251,7 +258,7 @@ KF.db.Modules.SmartTracker = {
 }
 
 
-Info.SmartTracker_Default = {
+Info.SmartTracker_Default_Window = {
 	Enable = true,
 	
 	Appearance = {
@@ -326,15 +333,44 @@ Info.SmartTracker_Default = {
 }
 
 
+Info.SmartTracker_Default_Icon = {
+	Appearance = {
+		Icon_Width = 35,
+		Icon_Height = 35,
+		Spacing = 5,
+		
+		Arrangement = 'CENTER',		-- Left to Right, Right to Left, Center
+		Orientation = 'Horizontal',	-- Horizontal, Vertical
+		
+		FontSize = 13,
+		DisplayMax = true
+	},
+	
+	SpellList = {
+	
+	},
+}
+
+
 KF.DBFunction.SmartTracker = {
 	Load = function(TableToSave, TableToLoad)
-		if TableToLoad.Modules and TableToLoad.Modules.SmartTracker and type(TableToLoad.Modules.SmartTracker.Window) == 'table' then
-			for WindowName, IsWindowData in pairs(TableToLoad.Modules.SmartTracker.Window) do
-				if type(IsWindowData) == 'table' then
-					if WindowName == 1 then
-						E:CopyTable(TableToSave.Modules.SmartTracker.Window[WindowName], IsWindowData)
-					else
-						TableToSave.Modules.SmartTracker.Window[WindowName] = E:CopyTable({}, Info.SmartTracker_Default)
+		if TableToLoad.Modules and TableToLoad.Modules.SmartTracker then
+			if type(TableToLoad.Modules.SmartTracker.Window) == 'table' then
+				for WindowName, IsWindowData in pairs(TableToLoad.Modules.SmartTracker.Window) do
+					if type(IsWindowData) == 'table' then
+						if WindowName == 1 then
+							E:CopyTable(TableToSave.Modules.SmartTracker.Window[WindowName], IsWindowData)
+						else
+							TableToSave.Modules.SmartTracker.Window[WindowName] = E:CopyTable({}, Info.SmartTracker_Default_Window)
+						end
+					end
+				end
+			end
+			
+			if type(TableToLoad.Modules.SmartTracker.Icon) == 'table' then
+				for IconName, IsIconData in pairs(TableToLoad.Modules.SmartTracker.Icon) do
+					if type(IsIconData) == 'table' then
+						TableToSave.Modules.SmartTracker.Icon[IconName] = E:CopyTable({}, Info.SmartTracker_Default_Icon)
 					end
 				end
 			end
@@ -343,7 +379,7 @@ KF.DBFunction.SmartTracker = {
 	Save = function()
 		for WindowName, IsWindowData in pairs(KF.db.Modules.SmartTracker.Window) do
 			if type(IsWindowData) == 'table' then
-				KF.db.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default)
+				KF.db.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default_Window)
 				
 				if KF.db.Modules.SmartTracker.Window[WindowName] == nil then
 					KF.db.Modules.SmartTracker.Window[WindowName] = {}
@@ -351,11 +387,32 @@ KF.DBFunction.SmartTracker = {
 			end
 		end
 		
-		if E.db.movers and KF.UIParent.Window then
-			for WindowName, Window in pairs(KF.UIParent.Window) do
-				if WindowName ~= 1 and E.db.movers and E.db.movers[Window.mover.name] then
-					E.db.movers[WindowName] = E.db.movers[Window.mover.name]
-					E.db.movers[Window.mover.name] = nil
+		for IconName, IsIconData in pairs(KF.db.Modules.SmartTracker.Icon) do
+			if type(IsIconData) == 'table' then
+				KF.db.Modules.SmartTracker.Icon[IconName] = KF:CompareTable(IsIconData, Info.SmartTracker_Default_Icon)
+				
+				if KF.db.Modules.SmartTracker.Icon[IconName] == nil then
+					KF.db.Modules.SmartTracker.Icon[IconName] = {}
+				end
+			end
+		end
+		
+		if E.db.movers then
+			if KF.UIParent.ST_Window then
+				for WindowName, Window in pairs(KF.UIParent.ST_Window) do
+					if WindowName ~= 1 and E.db.movers[Window.mover.name] then
+						E.db.movers[WindowName] = E.db.movers[Window.mover.name]
+						E.db.movers[Window.mover.name] = nil
+					end
+				end
+			end
+			
+			if KF.UIParent.ST_Icon then
+				for IconName, Icon in pairs(KF.UIParent.ST_Icon) do
+					if E.db.movers[Icon.mover.name] then
+						E.db.movers[IconName] = E.db.movers[Icon.mover.name]
+						E.db.movers[Icon.mover.name] = nil
+					end
 				end
 			end
 		end

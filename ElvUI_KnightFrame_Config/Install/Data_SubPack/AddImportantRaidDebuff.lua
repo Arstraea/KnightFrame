@@ -87,4 +87,9 @@ function KF_Config:Install_SubPackData_RaidDebuffs()
 		RegistRaidDebuffSpell(142863, 1)
 		RegistRaidDebuffSpell(142864, 1)
 		RegistRaidDebuffSpell(142865, 1)
+		
+		
+	-- Highmoul
+		-- Kargath Bladefist
+		RegistRaidDebuffSpell(159178)	-- 꿰뚫기
 end
