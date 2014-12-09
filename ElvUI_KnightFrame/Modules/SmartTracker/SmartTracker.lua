@@ -867,7 +867,7 @@ do	--<< About Icon >>--
 	
 	function ST:Icon_Rearrange(Anchor, StartNum)
 		local Icon
-		local Point, SecondaryPoint
+		local Point, SecondaryPoint, X, Y
 		local Spacing = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing
 		
 		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'CENTER' then
@@ -886,48 +886,89 @@ do	--<< About Icon >>--
 				LeftAnchor = #Anchor.ContainedIcon / 2
 				RightAnchor = LeftAnchor + 1
 				
-				if not (StartNum and StartNum ~= (LeftAnchor)) then
+				if not (StartNum and StartNum ~= LeftAnchor) then
 					Icon = Anchor.ContainedIcon[LeftAnchor]
 					Icon:ClearAllPoints()
-					Icon:Point('CENTER', Anchor, 'Right', -Spacing / 2, 0)
+					
+					if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
+						Icon:Point('RIGHT', Anchor, 'CENTER', -Spacing / 2, 0)
+					else
+						Icon:Point('BOTTOM', Anchor, 'CENTER', 0, Spacing / 2)
+					end
 				end
 				
 				if not (StartNum and StartNum ~= RightAnchor) then
 					Icon = Anchor.ContainedIcon[RightAnchor]
 					Icon:ClearAllPoints()
-					Icon:Point('CENTER', Anchor, 'LEFT', Spacing / 2, 0)
+					
+					if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
+						Icon:Point('LEFT', Anchor, 'CENTER', Spacing / 2, 0)
+					else
+						Icon:Point('TOP', Anchor, 'CENTER', 0, -Spacing / 2)
+					end
 				end
 			end
 			
 			if not (StartNum and StartNum >= (LeftAnchor or CenterAnchor)) then
-				Point = 'RIGHT'
-				SecondaryPoint = 'LEFT'
+				if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
+					Point = 'RIGHT'
+					SecondaryPoint = 'LEFT'
+					X = -Spacing
+					Y = 0
+				else
+					Point = 'BOTTOM'
+					SecondaryPoint = 'TOP'
+					X = 0
+					Y = Spacing
+				end
 				
 				for IconNum = (StartNum or LeftAnchor - 1), StartNum or 1, -1 do
 					Icon = Anchor.ContainedIcon[IconNum]
 					Icon:ClearAllPoints()
-					Icon:Point(Point, Anchor.ContainedIcon[IconNum + 1], SecondaryPoint, Spacing, 0)
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum + 1], SecondaryPoint, X, Y)
 				end
 			end
 			
 			if not (StartNum and StartNum <= (RightAnchor or CenterAnchor)) then
-				Point = 'LEFT'
-				SecondaryPoint = 'RIGHT'
+				if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
+					Point = 'LEFT'
+					SecondaryPoint = 'RIGHT'
+					X = Spacing
+					Y = 0
+				else
+					Point = 'TOP'
+					SecondaryPoint = 'BOTTOM'
+					X = 0
+					Y = -Spacing
+				end
 				
 				for IconNum = (StartNum or RightAnchor + 1), StartNum or #Anchor.ContainedIcon do
 					Icon = Anchor.ContainedIcon[IconNum]
 					Icon:ClearAllPoints()
-					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, Spacing, 0)
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, X, Y)
 				end
 			end
 		else
 			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'Left to Right' then
 				Point = 'LEFT'
 				SecondaryPoint = 'RIGHT'
-			else
+				X = Spacing
+				Y = 0
+			elseif KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'Right to Left' then
 				Point = 'RIGHT'
 				SecondaryPoint = 'LEFT'
-				Spacing = -Spacing
+				X = -Spacing
+				Y = 0
+			elseif KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'Top To Bottom' then
+				Point = 'TOP'
+				SecondaryPoint = 'BOTTOM'
+				X = 0
+				Y = -Spacing
+			elseif KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Arrangement == 'Bottom To Top' then
+				Point = 'BOTTOM'
+				SecondaryPoint = 'TOP'
+				X = 0
+				Y = Spacing
 			end
 			
 			for IconNum = (StartNum or 1), StartNum or #Anchor.ContainedIcon do
@@ -937,7 +978,7 @@ do	--<< About Icon >>--
 				if IconNum == 1 then
 					Icon:Point(Point, Anchor)
 				else
-					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, Spacing, 0)
+					Icon:Point(Point, Anchor.ContainedIcon[IconNum - 1], SecondaryPoint, X, Y)
 				end
 			end
 		end

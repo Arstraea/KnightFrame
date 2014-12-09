@@ -339,7 +339,7 @@ Info.SmartTracker_Default_Icon = {
 		Icon_Height = 35,
 		Spacing = 5,
 		
-		Arrangement = 'CENTER',		-- Left to Right, Right to Left, Center
+		Arrangement = 'CENTER',		-- Left to Right, Right to Left, Center, 'Top To Bottom', 'Bottom To Top'
 		Orientation = 'Horizontal',	-- Horizontal, Vertical
 		
 		FontSize = 13,
