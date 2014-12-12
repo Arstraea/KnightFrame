@@ -102,6 +102,72 @@ do	-- Modules
 		L['Use Custom FontStyle'] = '이 정보문자만 글꼴스타일 따로설정'
 	end
 	
+	do -- Smart Tracker
+		-- General
+			L['General Setting'] = '일반 설정'
+				L['Detail SpellTooltip'] = '스킬툴팁 항상보기'
+				L['Erase leaved user'] = '파탈 유저 지우기'
+					L["Erase specific user's all cooltime bar who left group."] = '파티를 탈퇴하는 유저들의 쿨타임 바를 자동으로 지웁니다.|n|n(플레이어가 파티를 나갈 때엔 플레이어의 쿨타임을 제외한 모든 바를 삭제하게 됩니다.)'
+			L['Inspect Parts'] = '살펴보기 부분 설정'
+				L['Auta Scanning'] = '자동 살펴보기'
+					L["SmartTracker will check new member of groups automatically."] = '구성원이 새로 합류해 해당 유저의 데이터가 없으면 자동으로 캐릭터 세팅을 검사합니다.'
+				L['Update old data'] = '기존 파티원 재검사'
+					L["After new member's scanning, scan old member's setting for updating."] = '새로운 멤버의 검사가 끝난 후, 세팅 업데이트를 위해 기존 멤버들을 재검사합니다.'
+		
+		-- Sort Order
+			L['Sort Order'] = '정렬 방법'
+				L['By Role'] = '역할에 따른 순서'
+				L['By Class'] = '직업에 따른 순서'
+				
+		-- Window Setting
+			L['Window Setting'] = '창 설정'
+				L['Appearance'] = '외형'
+					L['Cooldown Bar'] = '쿨다운 바'
+						L['Bar Direction'] = '바 생성방향'
+							L['Upper the tab'] = '탭 위로 쌓기'
+							L['Below the tab'] = '탭 아래로 놓기'
+						L['Bar Height'] = '바 세로길이'
+						L['Bar Fontsize'] = '글자 크기'
+						L['Number of Target Display'] = '표시할 스킬 대상 수'
+					
+					L['Window Tab Color'] = '윈도우 탭 색상'
+					L['Bar Background Color'] = '바 뒷배경 색상'
+					L['Charged Bar Color %d'] = '충전 색상 %d번'
+				
+				L['Display Condition'] = '표시 조건 설정'
+					L['Group Situation'] = '파티 상황'
+						L['Solo Playing'] = '솔플 시 표시'
+						L['Group Playing'] = '그룹 때 표시'
+					L['Location Condition'] = '장소 조건'
+						L['In Field'] = '필드에서 표시'
+						L['In Instance'] = '인스에서 표시'
+						L['In RaidDungeon'] = '레이드에서 표시'
+						L['In PvPGround'] = 'PvP에서 표시'
+					L['Player Condition'] = '내 캐릭 상태조건'
+						L["When I'm Tank"] = '탱커일 때 표시'
+						L["When I'm Healer"] = '힐러일 때 표시'
+						L["When I'm Caster"] = '캐스터일 때 표시'
+						L["When I'm Melee"] = '밀리일 때 표시'
+						L["When I'm GroupLeader"] = '파티장일 때 표시'
+					L['Filtering by Role'] = '역할에 따른 바 필터링'
+						L['Display Tank'] = '탱커유저 바 표시'
+						L['Display Healer'] = '힐러유저 바 표시'
+						L['Display Caster'] = '캐스터유저 바 표시'
+						L['Display Melee'] = '밀리유저 바 표시'
+		
+		-- Icon Setting
+			L['Icon Setting'] = '아이콘 설정'
+				L['Spell Icon'] = '주문 아이콘'
+					L['Icon Width'] = '아이콘 가로길이'
+					L['Icon Height'] = '아이콘 세로길이'
+					L['Icon Spacing'] = '아이콘 간격'
+					L['Count FontSize'] = '주문수 글자 크기'
+					
+				L['Icon Arrangement'] = '아이콘 배치방법'
+					L['Icon Orientation'] = '아이콘 생성방향'
+					L['Icon Align'] = '정렬방법'
+	end
+	
 	do -- Secretary
 	
 	end
@@ -150,7 +216,7 @@ do	-- Modules
 			L["Hides RaidCooldown's window when not in a party or raid."] = '파티나 레이드 상태가 아닐 땐 레이드쿨다운을 숨깁니다.'
 		
 		L['Erase Bar'] = '바 자동 지우기'
-			L["Erase specific user's all cooltime bar who left group."] = '파티를 탈퇴하는 유저들의 쿨타임 바를 자동으로 지웁니다.|n|n(플레이어가 파티를 나갈 때엔 플레이어의 쿨타임을 제외한 모든 바를 삭제하게 됩니다.)'
+			
 		
 		L['Detail Tooltip'] = '자세한 스킬 툴팁'
 		
@@ -164,17 +230,14 @@ do	-- Modules
 			
 	L["Scan Group Member's Setting"] = '파티원 세팅 검사'
 		L['Auto Scan'] = '자동 검사'
-			L["RaidCooldown will check group member's setting automatically when there is no data."] = '파티원이 새로 합류하여 해당 유저의 데이터가 없으면 자동으로 검사합니다.'
+			
 		L['Check Changing'] = '변경 시 재검사'
 			L['If group member CHANGE his setting(specialization or talent or glyph), reinspect him.|n|nThis function works only when that member is near you.'] = '파티원이 전문화나 특성, 문양을 |cffff0000변경|r하면 해당 유저를 다시 검사합니다.|n|n이 기능은 그 유저가 당신 근처에 있을 때에만 작동합니다.'
 		L['Update After Scanning'] = '검사 후 업데이트'
-			L["After new member's scanning, scan old member's setting for updating."] = '새로운 멤버의 검사가 끝난 후, 세팅을 업데이트하기 위해 기존에 있던 멤버들을 재검사합니다.'
+			
 	
-	L['Appearance'] = '외형'
-		L['Cooltime Bar'] = '쿨타임 바'
-			L['Bar Direction'] = '바 생성방향'
-			L['Bar Height'] = '바 세로길이'
-			L['Fontsize'] = '글자 크기'
+	L['Cooltime Bar'] = '쿨타임 바'
+			
 		
 		L['RaidIcon'] = '레이드 아이콘'
 			L['Spacing'] = '간격'

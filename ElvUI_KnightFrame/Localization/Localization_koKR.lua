@@ -54,7 +54,24 @@ do	-- Modules
 	end
 	
 	do	-- SmartTracker
-		L['Hunter_Now_FeignDeath'] = '죽은척 하는 중임 >ㅁ<'
+		-- General
+			L['Smart Tracker'] = '스마트 추적기'
+			L['SmartTracker_MainWindow'] = '메인 창'
+			L['SmartTracker_WindowTag'] = '|cffffffff[|cffceff00'..'스마트추적기 창'..'|cffffffff]|r|n'
+			L['SmartTracker_IconTag'] = '|cffffffff[|cffceff00'..'스마트추적기 아이콘'..'|cffffffff]|r|n'
+			L['Enable To Cast'] = '시전 가능'
+		
+		-- Message
+			L['Lock Display Area.'] = '표시영역을 고정합니다.'
+			L['Unlock Display Area.'] = '표시영역 고정을 해제합니다.'
+			L["%s member's setting check start."] = '파티원 %s명의 세팅을 검사합니다.'
+			L["Now updating old member's setting."] = '기존 파티원의 세팅을 업데이트합니다.'
+			L['Inspect Complete'] = '검사 완료'
+			L["All members specialization, talent, glyph setting is saved. SmartTracker will calcurating each spell's cooltime by this data.|r"] = '모든 파티원의 전문화, 특성, 문양설정을 저장했습니다. 이 기록을 기준으로 주문의 쿨타임을 검사합니다.'
+			L['Reset major cooltime that had used in previous boss battle.'] = '이전 보스전투에서 쓰였던 주요 스킬들의 쿨타임을 리셋합니다.'
+			
+		-- ETC
+			L['Hunter_Now_FeignDeath'] = '죽은척 하는 중임 >ㅁ<'
 	end
 	
 	do	-- Secretary
@@ -73,10 +90,10 @@ do	-- Modules
 		L['Birds of Prey'] = '맹금'
 		L['Boars'] = '멧돼지'
 		L['Cats'] = '살쾡이'
-		L['Clefthooves'] = '갈래발굽'
 		L['Dragonhawk'] = '용매'
 		L['Goats'] = '염소'
 		L['Gorillas'] = '고릴라'
+		L['Hydras'] = '히드라'
 		L['Hyenas'] = '하이에나'
 		L['Raptors'] = '랩터'
 		L['Ravagers'] = '칼날발톱'
@@ -90,9 +107,9 @@ do	-- Modules
 		
 		local Exotic = '|cff1784d1(특수)|r'
 		L['Chimaeras'] = '키메라'..Exotic
+		L['Clefthooves'] = '갈래발굽'..Exotic
 		L['Core Hounds'] = '심장부사냥개'..Exotic
 		L['Devilsaurs'] = '데빌사우루스'..Exotic
-		L['Hydras'] = '히드라'..Exotic
 		L['Quilen'] = '기렌'..Exotic
 		L['Silithids'] = '실리시드'..Exotic
 		L['Shale Spider'] = '혈암거미'..Exotic

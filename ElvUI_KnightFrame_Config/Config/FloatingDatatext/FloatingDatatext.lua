@@ -669,7 +669,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							max = 22,
 							step = 1
 						},
-						FontOutline = {
+						FontStyle = {
 							type = 'select',
 							name = function() return ' '..(DatatextInfo.Enable ~= false and DatatextInfo.Font.UseCustomFontStyle ~= false and NameColor() or '')..L['Font Outline'] end,
 							order = 5,

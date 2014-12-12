@@ -381,7 +381,7 @@ function IA:CreateInspectFrame()
 			insets = { left = 0, right = 0, top = 0, bottom = 0}
 		})
 		self.Tab:SetBackdropBorderColor(0, 0, 0)
-		KF:TextSetting(self.Tab, ' |cff2eb7e4Knight Inspect', { FontSize = 10, FontOutline = 'OUTLINE' }, 'LEFT', 6, 1)
+		KF:TextSetting(self.Tab, ' |cff2eb7e4Knight Inspect', { FontSize = 10, FontStyle = 'OUTLINE' }, 'LEFT', 6, 1)
 		self.Tab:SetScript('OnMouseDown', function() self:StartMoving() end)
 		self.Tab:SetScript('OnMouseUp', function() self:StopMovingOrSizing() end)
 	end
@@ -459,7 +459,7 @@ function IA:CreateInspectFrame()
 		self.MessageFrame:SetScrollChild(self.MessageFrame.Page)
 		self.MessageFrame.Page:Point('TOPLEFT', self.MessageFrame)
 		self.MessageFrame.Page:Point('BOTTOMLEFT', self.MessageFrame)
-		KF:TextSetting(self.MessageFrame.Page, '', { FontSize = 10, FontOutline = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', self.MessageFrame.Page)
+		KF:TextSetting(self.MessageFrame.Page, '', { FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', self.MessageFrame.Page)
 		
 		self.Message = self.MessageFrame.Page.text
 	end
@@ -485,7 +485,7 @@ function IA:CreateInspectFrame()
 			})
 			self[ButtonName]:SetBackdropBorderColor(0, 0, 0)
 			self[ButtonName]:SetFrameLevel(CORE_FRAME_LEVEL + 1)
-			KF:TextSetting(self[ButtonName], _G[ButtonString], { FontSize = 9, FontOutline = 'OUTLINE' })
+			KF:TextSetting(self[ButtonName], _G[ButtonString], { FontSize = 9, FontStyle = 'OUTLINE' })
 			self[ButtonName]:SetScript('OnEnter', self.Button_OnEnter)
 			self[ButtonName]:SetScript('OnLeave', self.Button_OnLeave)
 			self[ButtonName]:SetScript('OnClick', function() IA:ChangePage(ButtonName) end)
@@ -520,8 +520,8 @@ function IA:CreateInspectFrame()
 	end
 	
 	do --<< Texts >>--
-		KF:TextSetting(self, nil, { Tag = 'Name', FontSize = 22, FontOutline = 'OUTLINE', }, 'LEFT', self.Bookmark, 'RIGHT', 9, 0)
-		KF:TextSetting(self, nil, { Tag = 'Title', FontSize = 9, FontOutline = 'OUTLINE', }, 'BOTTOMLEFT', self.Name, 'TOPLEFT', 2, 5)
+		KF:TextSetting(self, nil, { Tag = 'Name', FontSize = 22, FontStyle = 'OUTLINE', }, 'LEFT', self.Bookmark, 'RIGHT', 9, 0)
+		KF:TextSetting(self, nil, { Tag = 'Title', FontSize = 9, FontStyle = 'OUTLINE', }, 'BOTTOMLEFT', self.Name, 'TOPLEFT', 2, 5)
 		KF:TextSetting(self, nil, { Tag = 'LevelRace', FontSize = 10, directionH = 'LEFT', }, 'BOTTOMLEFT', self.Name, 'BOTTOMRIGHT', 5, 2)
 		KF:TextSetting(self, nil, { Tag = 'Guild', FontSize = 10, directionH = 'LEFT', }, 'TOPLEFT', self.Name, 'BOTTOMLEFT', 4, -5)
 		self.Guild:Point('RIGHT', self, -44, 0)
@@ -610,7 +610,7 @@ function IA:CreateInspectFrame()
 			Slot:SetScript('OnEnter', self.EquipmentSlot_OnEnter)
 			Slot:SetScript('OnLeave', self.OnLeave)
 			Slot:SetScript('OnClick', self.OnClick)
-			KF:TextSetting(Slot, '', { FontSize = 12, FontOutline = 'OUTLINE' })
+			KF:TextSetting(Slot, '', { FontSize = 12, FontStyle = 'OUTLINE' })
 			
 			Slot.SlotName = SlotName
 			Slot.Direction = i%2 == 1 and 'LEFT' or 'RIGHT'
@@ -626,7 +626,7 @@ function IA:CreateInspectFrame()
 			Slot.Highlight:SetTexture(1, 1, 1, 0.3)
 			Slot:SetHighlightTexture(Slot.Highlight)
 			
-			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel', FontSize = 10, FontOutline = 'OUTLINE', }, 'TOP', Slot, 0, -3)
+			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel', FontSize = 10, FontStyle = 'OUTLINE', }, 'TOP', Slot, 0, -3)
 			
 			-- Gradation
 			Slot.Gradation = CreateFrame('Frame', nil, self.Character)
@@ -933,11 +933,11 @@ function IA:CreateInspectFrame()
 				self.Info.PvP[Type].RankNoLeaf:SetVertexColor(.2, .4, 1)
 				self.Info.PvP[Type].RankNoLeaf:Size(80, 65)
 				
-				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Type', FontSize = 10, FontOutline = 'OUTLINE' }, 'TOPLEFT', self.Info.PvP[Type])
+				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Type', FontSize = 10, FontStyle = 'OUTLINE' }, 'TOPLEFT', self.Info.PvP[Type])
 				self.Info.PvP[Type].Type:Point('TOPRIGHT', self.Info.PvP[Type])
 				self.Info.PvP[Type].Type:SetHeight(22)
-				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Rating', FontSize = 22, FontOutline = 'OUTLINE' }, 'CENTER', self.Info.PvP[Type].Rank, 0, 3)
-				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Record', FontSize = 10, FontOutline = 'OUTLINE' }, 'TOP', self.Info.PvP[Type].Rank, 'BOTTOM', 0, 12)
+				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Rating', FontSize = 22, FontStyle = 'OUTLINE' }, 'CENTER', self.Info.PvP[Type].Rank, 0, 3)
+				KF:TextSetting(self.Info.PvP[Type], nil, { Tag = 'Record', FontSize = 10, FontStyle = 'OUTLINE' }, 'TOP', self.Info.PvP[Type].Rank, 'BOTTOM', 0, 12)
 			end
 			self.Info.PvP['2vs2']:Point('TOP', self.Info.PvP.Bar1)
 			self.Info.PvP['2vs2']:Point('LEFT', self.Info.PvP.Page)
@@ -1042,7 +1042,7 @@ function IA:CreateInspectFrame()
 				self.Spec['Spec'..i].Tab:SetBackdropColor(0, 0, 0, .7)
 				self.Spec['Spec'..i].Tab:SetBackdropBorderColor(0, 0, 0, 0)
 				self.Spec['Spec'..i].Tab:Point('TOPRIGHT', self.Spec['Spec'..i])
-				KF:TextSetting(self.Spec['Spec'..i].Tab, nil, { FontSize = 10, FontOutline = 'OUTLINE' }, 'TOPLEFT', 0, 0)
+				KF:TextSetting(self.Spec['Spec'..i].Tab, nil, { FontSize = 10, FontStyle = 'OUTLINE' }, 'TOPLEFT', 0, 0)
 				self.Spec['Spec'..i].Tab.text:Point('BOTTOMRIGHT', 0, -4)
 				
 				self.Spec['Spec'..i].Icon = CreateFrame('Frame', nil, self.Spec['Spec'..i].Tab)

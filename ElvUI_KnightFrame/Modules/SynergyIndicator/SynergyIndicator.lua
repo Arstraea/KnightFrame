@@ -356,7 +356,7 @@ function SI:Setup_SynergyIndicator()
 		self.LocationName:Size(250, 20)
 		self.LocationName:Point('BOTTOM', self.LocationHolder, 0, -6)
 		self.LocationName:SetFrameLevel(11)
-		KF:TextSetting(self.LocationName, nil, { Fontsize = 12, FontOutline = 'NONE' })
+		KF:TextSetting(self.LocationName, nil, { Fontsize = 12, FontStyle = 'NONE' })
 		
 		self.LocationX = CreateFrame('Frame', nil, self.LocationName)
 		self.LocationX:SetTemplate('Default', true)
@@ -364,7 +364,7 @@ function SI:Setup_SynergyIndicator()
 		self.LocationX:Size(46, 20)
 		self.LocationX:Point('RIGHT', self.LocationName, 'LEFT', -4, 0)
 		self.LocationX:SetFrameLevel(11)
-		KF:TextSetting(self.LocationX, nil, { FontSize = 12, FontOutline = 'NONE' })
+		KF:TextSetting(self.LocationX, nil, { FontSize = 12, FontStyle = 'NONE' })
 		
 		self.LocationY = CreateFrame('Frame', nil, self.LocationName)
 		self.LocationY:SetTemplate('Default', true)
@@ -372,7 +372,7 @@ function SI:Setup_SynergyIndicator()
 		self.LocationY:Size(46, 20)
 		self.LocationY:Point('LEFT', self.LocationName, 'RIGHT', 4, 0)
 		self.LocationY:SetFrameLevel(11)
-		KF:TextSetting(self.LocationY, nil, { FontSize = 12, FontOutline = 'NONE' })
+		KF:TextSetting(self.LocationY, nil, { FontSize = 12, FontStyle = 'NONE' })
 	end
 	
 	do -- Indicator(Player) --

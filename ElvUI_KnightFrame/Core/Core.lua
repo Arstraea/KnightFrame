@@ -330,10 +330,10 @@ KF:RegisterEventList('UNIT_INVENTORY_CHANGED', CheckRole, 'CheckRole')
 --<< KnightFrame : Check Current Group Type									>>--
 --------------------------------------------------------------------------------
 Info.CurrentGroupMode = 'NoGroup' -- Default
-local function CheckGroupMode()
+function KF:CheckGroupMode()
 	local Check
 	
-	if not (IsInGroup() or IsInRaid()) or GetNumGroupMembers() == 1 then
+	if not (IsInGroup() or IsInRaid()) or GetNumGroupMembers() <= 1 then
 		Check = 'NoGroup'
 	else
 		if IsInRaid() then
@@ -351,8 +351,8 @@ local function CheckGroupMode()
 	
 	return Check
 end
-KF:RegisterEventList('GROUP_ROSTER_UPDATE', CheckGroupMode, 'CheckGroupMode')
-KF:RegisterEventList('PLAYER_ENTERING_WORLD', CheckGroupMode, 'CheckGroupMode')
+KF:RegisterEventList('GROUP_ROSTER_UPDATE', KF.CheckGroupMode, 'CheckGroupMode')
+KF:RegisterEventList('PLAYER_ENTERING_WORLD', KF.CheckGroupMode, 'CheckGroupMode')
 
 
 
@@ -447,7 +447,7 @@ end)
 --------------------------------------------------------------------------------
 --<< KnightFrame : Check BossBattle											>>--
 --------------------------------------------------------------------------------
-local NowInBossBattle, BossIsExists, IsEncounterInProgressOn, EndType
+local BossIsExists, IsEncounterInProgressOn, EndType
 
 Info.KilledBossList = {}
 Info.BossBattle_Exception = {
@@ -468,19 +468,20 @@ KF:RegisterCallback('CurrentAreaChanged', ClearKilledBossList)
 
 
 KF.BossBattleStart = function(StartingType)
-	if NowInBossBattle ~= nil then return end
+	if Info.NowInBossBattle ~= nil then return end
 	
 	if StartingType == 'pull' then
-		NowInBossBattle = 'DBM'
+		Info.NowInBossBattle = 'DBM'
 		KF:CancelTimer('CheckCombatEnd')
 	elseif StartingType == 'BigWigs_OnBossEngage' then
-		NowInBossBattle = 'BigWigs'
+		Info.NowInBossBattle = 'BigWigs'
 		KF:CancelTimer('CheckCombatEnd')
 	else
-		NowInBossBattle = 'KF'
+		Info.NowInBossBattle = 'KF'
 	end
 	
 	ClearKilledBossList(true)
+	
 	KF:CallbackFire('BossBattleStart')
 end
 
@@ -493,7 +494,7 @@ KF.BossBattleEnd = function(EndingType)
 	
 	KF:CancelTimer('CheckCombatEnd')
 	
-	NowInBossBattle = nil
+	Info.NowInBossBattle = nil
 	BossIsExists = nil
 	
 	KF:CallbackFire('BossBattleEnd')
@@ -547,7 +548,7 @@ end
 
 
 function KF:CheckBossCombat()
-	if NowInBossBattle == nil then
+	if Info.NowInBossBattle == nil then
 		if IsEncounterInProgress() then
 			IsEncounterInProgressOn = true
 		end
@@ -592,7 +593,7 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 		BossName = KF:BossExists('boss'..i)
 		
 		if BossName then
-			if NowInBossBattle == nil and not Info.KilledBossList[BossName] then
+			if Info.NowInBossBattle == nil and not Info.KilledBossList[BossName] then
 				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat)
 				KF:CheckBossCombat()
 			end

@@ -313,6 +313,7 @@ if E.db.KnightFrame and E.db.KnightFrame.UseProfile == true then
 	G.unitframe.AuraBarColors[GetSpellInfo(80353)] = { r = 0.09, g = 0.51, b = 0.82 }
 	G.unitframe.AuraBarColors[GetSpellInfo(90355)] = { r = 0.09, g = 0.51, b = 0.82 }
 	G.unitframe.AuraBarColors[GetSpellInfo(146555)] = { r = 0.09, g = 0.51, b = 0.82 }
+	G.unitframe.AuraBarColors[GetSpellInfo(178207)] = { r = 0.09, g = 0.51, b = 0.82 }
 	G.unitframe.aurafilters.Whitelist.spells[GetSpellInfo(146555)] = { enable = true, priority = 0 }
 	
 	-- ActionBar

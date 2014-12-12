@@ -5,7 +5,7 @@ KF.db.Modules.SmartTracker = {
 	Enable = true,
 	
 	General = {
-		DetailSpellTooptip = false,
+		DetailSpellTooltip = false,
 		EraseWhenUserLeftGroup = true,
 	},
 	
@@ -37,14 +37,14 @@ KF.db.Modules.SmartTracker = {
 	},
 	
 	Window = {
-		[1] = {
+		[(L['SmartTracker_MainWindow'])] = {
 			Enable = true,
 			
 			Appearance = {
-				Location = 'TOPLEFTElvUIParentTOPLEFT11-258',
+				Location = 'TOPLEFTElvUIParentTOPLEFT11-220',
 				
-				Area_Width = 395,
-				Area_Height = 277,
+				Area_Width = 360,
+				Area_Height = 394,
 				Area_Show = true,
 				
 				Bar_Direction = 'DOWN',
@@ -61,11 +61,23 @@ KF.db.Modules.SmartTracker = {
 			
 			Display = {
 				Situation = {
-					Solo = true,
+					Solo = false,
 					Group = true,
+				},
+				
+				Location = {
+					Field = false,
 					Instance = true,
 					RaidDungeon = true,
 					PvPGround = true
+				},
+				
+				AmICondition = {
+					Tank = true,
+					Healer = true,
+					Caster = true,
+					Melee = true,
+					GroupLeader = true
 				},
 				
 				Filter = {
@@ -78,34 +90,70 @@ KF.db.Modules.SmartTracker = {
 			
 			SpellList = {
 				WARRIOR = {
-					
+					[97462] = true,
+					[114192] = true,
+					[114029] = true,
+					[12975] = true,
+					[871] = true,
+					[114030] = true,
+					[1160] = true,
+					[55694] = true
 				},
 				HUNTER = {
-					
+					[5384] = true,
+					[172106] = true
 				},
 				SHAMAN = {
-					
+					[152256] = true,
+					[98008] = true,
+					[108280] = true
 				},
 				MONK = {
-					
+					[115203] = true,
+					[115176] = true,
+					[115295] = true,
+					[115080] = true,
+					[116849] = true,
+					[115310] = true
 				},
 				ROGUE = {
-					
+					[76577] = true
 				},
 				DEATHKNIGHT = {
-					
+					[49028] = true,
+					[108199] = true,
+					[55233] = true,
+					[51052] = true,
+					[48792] = true
 				},
 				MAGE = {
-					
+					[159916] = true
 				},
 				DRUID = {
-					
+					[740] = true,
+					[77764] = true,
+					[102342] = true,
+					[62606] = true,
+					[61336] = true,
+					[22812] = true
 				},
 				PALADIN = {
-					
+					[1022] = true,
+					[31850] = true,
+					[114039] = true,
+					[31821] = true,
+					[498] = true,
+					[642] = true,
+					[86659] = true,
+					[633] = true,
+					[6940] = true
 				},
 				PRIEST = {
-					
+					[47788] = true,
+					[62618] = true,
+					[33206] = true,
+					[15286] = true,
+					[64843] = true
 				},
 				WARLOCK = {
 					
@@ -115,146 +163,104 @@ KF.db.Modules.SmartTracker = {
 	},
 	
 	Icon = {
-	
+		RaidIcon = {
+			Appearance = {
+				Location = 'TOPLEFTElvUIParentTOPLEFT11-186',
+				
+				IconWidth = 35,
+				IconHeight = 30,
+				Spacing = 5,
+				FontSize = 13,
+				DisplayMax = true,
+				
+				Orientation = 'Horizontal',	-- Horizontal, Vertical
+				Arrangement = 'Left to Right'	-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
+			},
+			
+			Display = {
+				Situation = {
+					Solo = false,
+					Group = true,
+				},
+				
+				Location = {
+					Field = true,
+					Instance = true,
+					RaidDungeon = true,
+					PvPGround = true
+				},
+				
+				AmICondition = {
+					Tank = true,
+					Healer = true,
+					Caster = true,
+					Melee = true,
+					GroupLeader = true
+				},
+			},
+			
+			SpellList = {
+				{ SpellID = 31821, Class = 'PALADIN' },
+				{ SpellID = 62618, Class = 'PRIEST' },
+				{ SpellID = 64843, Class = 'PRIEST' },
+				{ SpellID = 98008, Class = 'SHAMAN' },
+				{ SpellID = 108280, Class = 'SHAMAN' },
+				{ SpellID = 152256, Class = 'SHAMAN' },
+				{ SpellID = 115310, Class = 'MONK' },
+				{ SpellID = 740, Class = 'DRUID' },
+				{ SpellID = 97462, Class = 'WARRIOR' },
+				{ SpellID = 76577, Class = 'ROGUE' },
+				{ SpellID = 159916, Class = 'MAGE' },
+				{ SpellID = 172106, Class = 'HUNTER' },
+				{ SpellID = 15286, Class = 'PRIEST' }
+			},
+		},
+		SupportIcon = {
+			Appearance = {
+				Location = 'BOTTOMElvUIParentBOTTOM0432',
+				
+				IconWidth = 35,
+				IconHeight = 30,
+				Spacing = 5,
+				FontSize = 13,
+				DisplayMax = true,
+				
+				Orientation = 'Horizontal',	-- Horizontal, Vertical
+				Arrangement = 'Center'		-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
+			},
+			
+			Display = {
+				Situation = {
+					Solo = false,
+					Group = true,
+				},
+				
+				Location = {
+					Field = false,
+					Instance = true,
+					RaidDungeon = true,
+					PvPGround = true
+				},
+				
+				AmICondition = {
+					Tank = true,
+					Healer = true,
+					Caster = true,
+					Melee = true,
+					GroupLeader = true
+				},
+			},
+			
+			SpellList = {
+				{ SpellID = 6940, Class = 'PALADIN' },
+				{ SpellID = 33206, Class = 'PRIEST' },
+				{ SpellID = 47788, Class = 'PRIEST' },
+				{ SpellID = 116849, Class = 'MONK' },
+				{ SpellID = 102342, Class = 'DRUID' },
+				{ SpellID = 114030, Class = 'WARRIOR' }
+			},
+		}
 	}
-	--[[
-	['General'] = {
-		['HideWhenSolo'] = true,
-		['EraseWhenUserLeftGroup'] = true,
-		['ShowDetailTooltip'] = false,
-		
-		['CooldownEndAnnounce'] = 1,
-	},
-	
-	['Scan'] = {
-		['AutoScanning'] = true,
-		['CheckChanging'] = true,
-		['Update'] = false,
-	},
-	
-	
-	
-	['WARRIOR'] = {
-		[97462] = 2, --재집결
-		[114030] = 2, --경계
-		[871] = 2, --방벽
-		[12975] = 2, --최저
-		[1160] = 2, --사기의 외침
-		[114207] = 2,--해골 깃발
-	},
-	['HUNTER'] = {
-		[19263] = 2, --공저
-	},
-	['SHAMAN'] = {
-		[108280] = 2, --치유해일 토템
-		[16190] = 2, --마나해일 토템
-		[98008] = 2, --정신고리 토템
-		[120668] = 2, --폭풍채찍 토템
-	},
-	['MONK'] = {
-		[115203] = 2, --강화주
-		[115213] = 2, --해악 방지
-		[115176] = 2, --명상
-		[116849] = 2, --기의 고치
-		[122783] = 2, --마법 해소
-		[115310] = 2, --재활
-	},
-	['ROGUE'] = {
-		[114018] = 1, --은폐의 장막
-	},
-	['DEATHKNIGHT'] = {
-		[48792] = 2, --얼인
-		[49222] = 2, --뼈의 보호막
-		[55233] = 2, --흡혈
-		[61999] = 2, --아군 되살리기
-		[48743] = 2, --죽음의 서약
-		[51052] = 2, --대마지
-	},
-	['MAGE'] = {
-		[45438] = 2, --얼방
-	},
-	['DRUID'] = {
-		[20484] = 2, --환생
-		[740] = 2, --평온
-		[106922] = 2, --우르속의 힘
-		[102342] = 2, --무쇠껍질
-		[22812] = 2, --나무 껍질
-		[61336] = 2, --생존본능
-		[77761] = 2, --쇄포
-	},
-	['PALADIN'] = {
-		[31821] = 2, --헌신의 오라
-		[6940] = 2, --희손
-		[86659] = 2, --고왕수:보기
-		[633] = 3, --신축
-		[498] = 2, --신의 가호
-		[1022] = 2, --보축
-		[642] = 2, --무적
-		[31850] = 2, --헌수
-	},
-	['PRIEST'] = {
-		[64843] = 2, --천찬
-		[62618] = 2, --방벽
-		[33206] = 2, --고억
-		[47788] = 2, --수호영혼
-		[19236] = 2, --구원의 기도
-	},
-	['WARLOCK'] = {
-		[20707] = 2, --영석
-	},
-	
-	['RaidIcon'] = {
-		[97462] = {
-			['Class'] = 'WARRIOR',
-			['Level'] = 83,
-		},
-		[98008] = {
-			['Class'] = 'SHAMAN',
-			['Level'] = 70,
-			['Spec'] = L['Spec_Shaman_Restoration'],
-		},
-		[108280] = {
-			['Class'] = 'SHAMAN',
-			['Level'] = 65,
-		},
-		[31821] = {
-			['Class'] = 'PALADIN',
-			['Level'] = 60,
-		},
-		[76577] = {
-			['Class'] = 'ROGUE',
-			['Level'] = 85,
-		},
-		[51052] = {
-			['Class'] = 'DEATHKNIGHT',
-			['Talent'] = 5,
-		},
-		[740] = {
-			['Class'] = 'DRUID',
-			['Level'] = 74,
-		},
-		[64843] = {
-			['Class'] = 'PRIEST',
-			['Level'] = 78,
-			['Spec'] = L['Spec_Priest_Holy'],
-		},
-		[62618] = {
-			['Class'] = 'PRIEST',
-			['Level'] = 70,
-			['Spec'] = L['Spec_Priest_Discipline'],
-		},
-		[115310] = {
-			['Class'] = 'MONK',
-			['Level'] = 78,
-			['Spec'] = L['Spec_Monk_Mistweaver'],
-		},
-		[15286] = {
-			['Class'] = 'PRIEST',
-			['Level'] = 78,
-			['Spec'] = L['Spec_Priest_Shadow'],
-		},
-	},
-	]]
 }
 
 
@@ -280,11 +286,23 @@ Info.SmartTracker_Default_Window = {
 	
 	Display = {
 		Situation = {
-			Solo = true,
+			Solo = false,
 			Group = true,
+		},
+		
+		Location = {
+			Field = false,
 			Instance = true,
 			RaidDungeon = true,
 			PvPGround = true
+		},
+		
+		AmICondition = {
+			Tank = true,
+			Healer = true,
+			Caster = true,
+			Melee = true,
+			GroupLeader = true
 		},
 		
 		Filter = {
@@ -296,39 +314,17 @@ Info.SmartTracker_Default_Window = {
 	},
 	
 	SpellList = {
-		WARRIOR = {
-			
-		},
-		HUNTER = {
-			
-		},
-		SHAMAN = {
-			
-		},
-		MONK = {
-			
-		},
-		ROGUE = {
-			
-		},
-		DEATHKNIGHT = {
-			
-		},
-		MAGE = {
-			
-		},
-		DRUID = {
-			
-		},
-		PALADIN = {
-			
-		},
-		PRIEST = {
-			
-		},
-		WARLOCK = {
-		
-		}
+		WARRIOR = {},
+		HUNTER = {},
+		SHAMAN = {},
+		MONK = {},
+		ROGUE = {},
+		DEATHKNIGHT = {},
+		MAGE = {},
+		DRUID = {},
+		PALADIN = {},
+		PRIEST = {},
+		WARLOCK = {}
 	}
 }
 
@@ -338,17 +334,36 @@ Info.SmartTracker_Default_Icon = {
 		Icon_Width = 35,
 		Icon_Height = 35,
 		Spacing = 5,
-		
-		Arrangement = 'CENTER',		-- Left to Right, Right to Left, Center, 'Top To Bottom', 'Bottom To Top'
-		Orientation = 'Horizontal',	-- Horizontal, Vertical
-		
 		FontSize = 13,
-		DisplayMax = true
+		DisplayMax = true,
+		
+		Orientation = 'Horizontal',	-- Horizontal, Vertical
+		Arrangement = 'Center'		-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
 	},
 	
-	SpellList = {
-	
+	Display = {
+		Situation = {
+			Solo = false,
+			Group = true,
+		},
+		
+		Location = {
+			Field = false,
+			Instance = true,
+			RaidDungeon = true,
+			PvPGround = true
+		},
+		
+		AmICondition = {
+			Tank = true,
+			Healer = true,
+			Caster = true,
+			Melee = true,
+			GroupLeader = true
+		}
 	},
+	
+	SpellList = {},
 }
 
 
@@ -357,19 +372,15 @@ KF.DBFunction.SmartTracker = {
 		if TableToLoad.Modules and TableToLoad.Modules.SmartTracker then
 			if type(TableToLoad.Modules.SmartTracker.Window) == 'table' then
 				for WindowName, IsWindowData in pairs(TableToLoad.Modules.SmartTracker.Window) do
-					if type(IsWindowData) == 'table' then
-						if WindowName == 1 then
-							E:CopyTable(TableToSave.Modules.SmartTracker.Window[WindowName], IsWindowData)
-						else
-							TableToSave.Modules.SmartTracker.Window[WindowName] = E:CopyTable({}, Info.SmartTracker_Default_Window)
-						end
+					if type(IsWindowData) == 'table' and not TableToSave.Modules.SmartTracker.Window[WindowName] then
+						TableToSave.Modules.SmartTracker.Window[WindowName] = E:CopyTable({}, Info.SmartTracker_Default_Window)
 					end
 				end
 			end
 			
 			if type(TableToLoad.Modules.SmartTracker.Icon) == 'table' then
 				for IconName, IsIconData in pairs(TableToLoad.Modules.SmartTracker.Icon) do
-					if type(IsIconData) == 'table' then
+					if type(IsIconData) == 'table' and not TableToSave.Modules.SmartTracker.Icon[IconName] then
 						TableToSave.Modules.SmartTracker.Icon[IconName] = E:CopyTable({}, Info.SmartTracker_Default_Icon)
 					end
 				end
@@ -400,7 +411,7 @@ KF.DBFunction.SmartTracker = {
 		if E.db.movers then
 			if KF.UIParent.ST_Window then
 				for WindowName, Window in pairs(KF.UIParent.ST_Window) do
-					if WindowName ~= 1 and E.db.movers[Window.mover.name] then
+					if E.db.movers[Window.mover.name] then
 						E.db.movers[WindowName] = E.db.movers[Window.mover.name]
 						E.db.movers[Window.mover.name] = nil
 					end
@@ -408,10 +419,10 @@ KF.DBFunction.SmartTracker = {
 			end
 			
 			if KF.UIParent.ST_Icon then
-				for IconName, Icon in pairs(KF.UIParent.ST_Icon) do
-					if E.db.movers[Icon.mover.name] then
-						E.db.movers[IconName] = E.db.movers[Icon.mover.name]
-						E.db.movers[Icon.mover.name] = nil
+				for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
+					if E.db.movers[Anchor.mover.name] then
+						E.db.movers[AnchorName] = E.db.movers[Anchor.mover.name]
+						E.db.movers[Anchor.mover.name] = nil
 					end
 				end
 			end

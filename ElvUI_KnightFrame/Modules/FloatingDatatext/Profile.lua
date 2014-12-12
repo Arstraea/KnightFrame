@@ -33,7 +33,7 @@ Info.FloatingDatatext_Default = {
 		UseCustomFontStyle = false,
 		Font = 'ElvUI Pixel',
 		FontSize = 10,
-		FontOutline = 'OUTLINE'
+		FontStyle = 'OUTLINE'
 	}
 }
 

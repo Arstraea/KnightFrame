@@ -50,13 +50,13 @@ function KF_Config:InstallWindow_Initialize()
 		KnightFrame_InstallWindow.KnightFrameImage:Size(512,256)
 		KnightFrame_InstallWindow.KnightFrameImage:Point('CENTER', 0, -50)
 		
-		KF:TextSetting(KnightFrame_InstallWindow, '', { Tag = 'SubTitle', FontSize = 15, FontOutline = 'OUTLINE' }, 'TOP', 0, -64)
+		KF:TextSetting(KnightFrame_InstallWindow, '', { Tag = 'SubTitle', FontSize = 15, FontStyle = 'OUTLINE' }, 'TOP', 0, -64)
 		KnightFrame_InstallWindow.SubTitle:SetWidth(480)
 		
-		KF:TextSetting(KnightFrame_InstallWindow, '', { Tag = 'State', FontOutline = 'OUTLINE' }, 'TOP', 0, -170)
+		KF:TextSetting(KnightFrame_InstallWindow, '', { Tag = 'State', FontStyle = 'OUTLINE' }, 'TOP', 0, -170)
 		KnightFrame_InstallWindow.State:SetWidth(480)
 		
-		KF:TextSetting(KnightFrame_InstallWindow, '', { FontOutline = 'OUTLINE' }, 'TOP', 0, -100)
+		KF:TextSetting(KnightFrame_InstallWindow, '', { FontStyle = 'OUTLINE' }, 'TOP', 0, -100)
 		KnightFrame_InstallWindow.text:SetWidth(480)
 		
 		do -- Window : Tab
@@ -70,7 +70,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.Tab:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.Tab, 'ElvUI - |cff1784d1Knight Frame', { FontSize = 12, FontOutline = 'OUTLINE' }, 'CENTER', 0, 1)
+			KF:TextSetting(KnightFrame_InstallWindow.Tab, 'ElvUI - |cff1784d1Knight Frame', { FontSize = 12, FontStyle = 'OUTLINE' }, 'CENTER', 0, 1)
 			
 			KnightFrame_InstallWindow.Tab.Close = CreateFrame('Button', nil, KnightFrame_InstallWindow.Tab)
 			KnightFrame_InstallWindow.Tab.Close:Size(PANEL_HEIGHT - 8)
@@ -108,7 +108,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.PrevButton:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.PrevButton, PREV, { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.PrevButton, PREV, { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.PrevButton:SetScript('OnClick', function(self)
 				if CURRENT_PAGE ~= 1 then
 					CURRENT_PAGE = CURRENT_PAGE - 1
@@ -133,7 +133,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.NextButton:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.NextButton, NEXT, { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.NextButton, NEXT, { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.NextButton:SetScript('OnClick', function(self)
 				if CURRENT_PAGE ~= MAX_PAGE then
 					CURRENT_PAGE = CURRENT_PAGE + 1
@@ -164,7 +164,7 @@ function KF_Config:InstallWindow_Initialize()
 			KnightFrame_InstallWindow.StatusBar:SetMinMaxValues(0, 6)
 			KnightFrame_InstallWindow.StatusBar:SetStatusBarTexture(E.media.normTex)
 			KnightFrame_InstallWindow.StatusBar:SetStatusBarColor(.57, .8, 1)--(0.67, 0.85, 1)--(0.13, 0.43, 0.64)
-			KF:TextSetting(KnightFrame_InstallWindow.StatusBar, CURRENT_PAGE..' / '..MAX_PAGE, { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.StatusBar, CURRENT_PAGE..' / '..MAX_PAGE, { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.StatusBar:SetScript('OnValueChanged', function(self) self.text:SetText(CURRENT_PAGE..' / '..MAX_PAGE) end)
 		end
 		
@@ -179,7 +179,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.MainButton:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.MainButton, '', { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.MainButton, '', { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.MainButton:SetScript('OnEnter', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.hr, self.textcolor.hg, self.textcolor.hb) else self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end end)
 			KnightFrame_InstallWindow.MainButton:SetScript('OnLeave', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.r, self.textcolor.g, self.textcolor.b) else self.text:SetTextColor(1, 1, 1) end self.text:SetPoint('CENTER') end)
 			KnightFrame_InstallWindow.MainButton:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', 0, -2) end)
@@ -224,7 +224,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.OptionButton1:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.OptionButton1, L['Install'], { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.OptionButton1, L['Install'], { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.OptionButton1:SetScript('OnEnter', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.hr, self.textcolor.hg, self.textcolor.hb) else self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end end)
 			KnightFrame_InstallWindow.OptionButton1:SetScript('OnLeave', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.r, self.textcolor.g, self.textcolor.b) else self.text:SetTextColor(1, 1, 1) end self.text:SetPoint('CENTER') end)
 			KnightFrame_InstallWindow.OptionButton1:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', 0, -2) end)
@@ -271,7 +271,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.OptionButton2:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.OptionButton2, L['Install'], { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.OptionButton2, L['Install'], { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.OptionButton2:SetScript('OnEnter', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.hr, self.textcolor.hg, self.textcolor.hb) else self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end end)
 			KnightFrame_InstallWindow.OptionButton2:SetScript('OnLeave', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.r, self.textcolor.g, self.textcolor.b) else self.text:SetTextColor(1, 1, 1) end self.text:SetPoint('CENTER') end)
 			KnightFrame_InstallWindow.OptionButton2:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', 0, -2) end)
@@ -307,7 +307,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.LayoutButton1:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.LayoutButton1, 'Moonlight', { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.LayoutButton1, 'Moonlight', { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.LayoutButton1:SetScript('OnEnter', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.hr, self.textcolor.hg, self.textcolor.hb) else self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end end)
 			KnightFrame_InstallWindow.LayoutButton1:SetScript('OnLeave', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.r, self.textcolor.g, self.textcolor.b) else self.text:SetTextColor(1, 1, 1) end self.text:SetPoint('CENTER') end)
 			KnightFrame_InstallWindow.LayoutButton1:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', 0, -2) end)
@@ -347,7 +347,7 @@ function KF_Config:InstallWindow_Initialize()
 				insets = { left = 0, right = 0, top = 0, bottom = 0}
 			})
 			KnightFrame_InstallWindow.LayoutButton2:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			KF:TextSetting(KnightFrame_InstallWindow.LayoutButton2, 'Kimsungjae', { FontOutline = 'OUTLINE' })
+			KF:TextSetting(KnightFrame_InstallWindow.LayoutButton2, 'Kimsungjae', { FontStyle = 'OUTLINE' })
 			KnightFrame_InstallWindow.LayoutButton2:SetScript('OnEnter', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.hr, self.textcolor.hg, self.textcolor.hb) else self.text:SetTextColor(unpack(E.media.rgbvaluecolor)) end end)
 			KnightFrame_InstallWindow.LayoutButton2:SetScript('OnLeave', function(self) if self.textcolor then self.text:SetTextColor(self.textcolor.r, self.textcolor.g, self.textcolor.b) else self.text:SetTextColor(1, 1, 1) end self.text:SetPoint('CENTER') end)
 			KnightFrame_InstallWindow.LayoutButton2:SetScript('OnMouseDown', function(self) self.text:Point('CENTER', 0, -2) end)

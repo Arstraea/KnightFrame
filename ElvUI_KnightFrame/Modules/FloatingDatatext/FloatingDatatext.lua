@@ -125,9 +125,9 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 	
 	-- Font
 	if DatatextInfo.Font.UseCustomFontStyle == false then
-		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
 	else
-		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontOutline)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontStyle)
 	end
 	
 	-- Display Mode
@@ -209,7 +209,7 @@ KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
 			if Info.FloatingDatatext_Activate then
 				for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 					if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[DatatextName] and IsDatatextData.Font.UseCustomFontStyle == false then
-						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.fontOutline)
+						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
 					end
 				end
 			end

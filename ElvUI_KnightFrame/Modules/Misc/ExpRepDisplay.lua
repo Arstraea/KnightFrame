@@ -227,10 +227,10 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 				KF_RepTooltip.background:SetInside()
 				KF_RepTooltip.background:SetFrameLevel(1)
 				
-				KF:TextSetting(KF_RepTooltip, '< '..KF:Color_Value(REPUTATION)..' >', { Tag = 'Title', FontSize = 10, FontOutline = 'OUTLINE', directionH = 'LEFT' }, 'TOPLEFT', KF_RepTooltip, 6, -3)
-				KF:TextSetting(KF_RepTooltip, '', { FontSize = 10, FontOutline = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', KF_RepTooltip, 8, 4)
-				KF:TextSetting(KF_RepTooltip, '', { Tag = 'text2', FontSize = 10, FontOutline = 'OUTLINE', directionH = 'RIGHT' }, 'RIGHT', KF_RepTooltip, -8, 4)
-				KF:TextSetting(KF_RepTooltip, '', { Tag = 'text3', FontSize = 10, FontOutline = 'OUTLINE', directionH = 'RIGHT' }, 'TOPRIGHT', KF_RepTooltip, -8, -3)
+				KF:TextSetting(KF_RepTooltip, '< '..KF:Color_Value(REPUTATION)..' >', { Tag = 'Title', FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'TOPLEFT', KF_RepTooltip, 6, -3)
+				KF:TextSetting(KF_RepTooltip, '', { FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', KF_RepTooltip, 8, 4)
+				KF:TextSetting(KF_RepTooltip, '', { Tag = 'text2', FontSize = 10, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'RIGHT', KF_RepTooltip, -8, 4)
+				KF:TextSetting(KF_RepTooltip, '', { Tag = 'text3', FontSize = 10, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'TOPRIGHT', KF_RepTooltip, -8, -3)
 				
 				KF_RepTooltip:Hide()
 				
@@ -248,9 +248,9 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 					KF_ExpTooltip.background:SetInside()
 					KF_ExpTooltip.background:SetFrameLevel(1)
 					
-					KF:TextSetting(KF_ExpTooltip, '< '..KF:Color_Value(COMBAT_XP_GAIN)..' >', { Tag = 'Title', FontSize = 10, FontOutline = 'OUTLINE', directionH = 'LEFT' }, 'TOPLEFT', KF_ExpTooltip, 6, -4)
-					KF:TextSetting(KF_ExpTooltip, '', { FontSize = 10, FontOutline = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', KF_ExpTooltip, 8, 3)
-					KF:TextSetting(KF_ExpTooltip, '', { Tag = 'text2', FontSize = 10, FontOutline = 'OUTLINE', directionH = 'RIGHT' }, 'TOPRIGHT', KF_ExpTooltip, -8, -4)
+					KF:TextSetting(KF_ExpTooltip, '< '..KF:Color_Value(COMBAT_XP_GAIN)..' >', { Tag = 'Title', FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'TOPLEFT', KF_ExpTooltip, 6, -4)
+					KF:TextSetting(KF_ExpTooltip, '', { FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', KF_ExpTooltip, 8, 3)
+					KF:TextSetting(KF_ExpTooltip, '', { Tag = 'text2', FontSize = 10, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'TOPRIGHT', KF_ExpTooltip, -8, -4)
 					
 					KF_ExpTooltip:Hide()
 				end

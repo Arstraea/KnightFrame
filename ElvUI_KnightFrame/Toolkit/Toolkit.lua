@@ -24,7 +24,7 @@ function KF:TextSetting(self, Text, Style, ...)
 		self = self.text
 	end
 	
-	self:FontTemplate(Style.Font and E.LSM:Fetch('font', Style.Font), Style.FontSize, Style.FontOutline)
+	self:FontTemplate(Style.Font and E.LSM:Fetch('font', Style.Font), Style.FontSize, Style.FontStyle)
 	self:SetJustifyH(Style.directionH or 'CENTER')
 	self:SetJustifyV(Style.directionV or 'MIDDLE')
 	self:SetText(Text)

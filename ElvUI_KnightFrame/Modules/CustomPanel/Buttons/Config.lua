@@ -35,7 +35,7 @@ KF.UIParent.Button.Config = {
 			KF_OptionPanelHolder:SetFrameLevel(7)
 			KF_OptionPanelHolder:Size(116, 85)
 			KF_OptionPanelHolder:SetTemplate('Default', true)
-			KF:TextSetting(KF_OptionPanelHolder, '', { FontSize = 12, FontOutline = 'NONE' }, 'TOP', 0, -5)
+			KF:TextSetting(KF_OptionPanelHolder, '', { FontSize = 12, FontStyle = 'NONE' }, 'TOP', 0, -5)
 			
 			
 			--<< Buttons : Toggle Anchor Mode, Toggle ElvUI Config, Toggle Addon Control Panel >>--
@@ -49,7 +49,7 @@ KF.UIParent.Button.Config = {
 			})
 			KF_OptionPanelHolder.Button1:SetBackdropColor(0.2, 0.2, 0.2, 1)
 			KF_OptionPanelHolder.Button1:Point('BOTTOM', KF_OptionPanelHolder, 0, 4)
-			KF:TextSetting(KF_OptionPanelHolder.Button1, 'Anchor Toggle', { FontSize = 12, FontOutline = 'NONE' })
+			KF:TextSetting(KF_OptionPanelHolder.Button1, 'Anchor Toggle', { FontSize = 12, FontStyle = 'NONE' })
 			
 			KF_OptionPanelHolder.Button1.ButtonTag = 'Anchor Toggle'
 			KF_OptionPanelHolder.Button1:SetScript('OnEnter', OnEnter)
@@ -69,7 +69,7 @@ KF.UIParent.Button.Config = {
 			})
 			KF_OptionPanelHolder.Button2:SetBackdropColor(0.2, 0.2, 0.2, 1)
 			KF_OptionPanelHolder.Button2:Point('BOTTOM', KF_OptionPanelHolder, 0, 25)
-			KF:TextSetting(KF_OptionPanelHolder.Button2, 'Elv UI Config', { FontSize = 12, FontOutline = 'NONE' })
+			KF:TextSetting(KF_OptionPanelHolder.Button2, 'Elv UI Config', { FontSize = 12, FontStyle = 'NONE' })
 			KF_OptionPanelHolder.Button2.ButtonTag = 'Elv UI Config'
 			KF_OptionPanelHolder.Button2:SetScript('OnEnter', OnEnter)
 			KF_OptionPanelHolder.Button2:SetScript('OnLeave', OnLeave)
@@ -88,7 +88,7 @@ KF.UIParent.Button.Config = {
 			})
 			KF_OptionPanelHolder.Button3:SetBackdropColor(0.2, 0.2, 0.2, 1)
 			KF_OptionPanelHolder.Button3:Point('BOTTOM', KF_OptionPanelHolder, 0, 46)
-			KF:TextSetting(KF_OptionPanelHolder.Button3, ADDONS, { FontSize = 12, FontOutline = 'NONE' })
+			KF:TextSetting(KF_OptionPanelHolder.Button3, ADDONS, { FontSize = 12, FontStyle = 'NONE' })
 			KF_OptionPanelHolder.Button3.ButtonTag = ADDONS
 			KF_OptionPanelHolder.Button3:SetScript('OnEnter', OnEnter)
 			KF_OptionPanelHolder.Button3:SetScript('OnLeave', OnLeave)
