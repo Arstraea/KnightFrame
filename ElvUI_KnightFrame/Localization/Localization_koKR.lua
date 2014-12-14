@@ -60,6 +60,9 @@ do	-- Modules
 			L['SmartTracker_WindowTag'] = '|cffffffff[|cffceff00'..'스마트추적기 창'..'|cffffffff]|r|n'
 			L['SmartTracker_IconTag'] = '|cffffffff[|cffceff00'..'스마트추적기 아이콘'..'|cffffffff]|r|n'
 			L['Enable To Cast'] = '시전 가능'
+			L['Castable User'] = '시전가능 유저'
+			L['Remove this cooltime bar.'] = '해당 쿨타임 바 삭제'
+			L['Clear this spell config to forbid displaying.'] = '해당 주문 표시옵션 해제'
 		
 		-- Message
 			L['Lock Display Area.'] = '표시영역을 고정합니다.'
@@ -235,8 +238,7 @@ do	--Extra Function
 	--<< RaidCooldown >>--
 	L['Enable to display'] = '표시가능한 바 개수'
 	L['Inspect All Members.'] = '파티원 세팅 검사'
-	L['Remove this cooltime bar.'] = '해당 쿨타임 바 삭제'
-	L['Clear this spell config to forbid displaying.'] = '해당 주문 표시옵션 해제'
+	
 	L['Castable User'] = '시전 가능한 유저'
 	L['Enable To Cast'] = '시전 가능'
 	L['Resurrected User'] = '부활한 유저'

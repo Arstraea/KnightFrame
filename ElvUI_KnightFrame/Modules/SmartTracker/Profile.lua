@@ -411,7 +411,7 @@ KF.DBFunction.SmartTracker = {
 		if E.db.movers then
 			if KF.UIParent.ST_Window then
 				for WindowName, Window in pairs(KF.UIParent.ST_Window) do
-					if E.db.movers[Window.mover.name] then
+					if WindowName ~= L['SmartTracker_MainWindow'] and E.db.movers[Window.mover.name] then
 						E.db.movers[WindowName] = E.db.movers[Window.mover.name]
 						E.db.movers[Window.mover.name] = nil
 					end

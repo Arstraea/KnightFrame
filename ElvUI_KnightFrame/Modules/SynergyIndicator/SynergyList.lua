@@ -35,6 +35,7 @@ Info.SynergyIndicator_Filters = {
 	},
 	MultiStrike = { -- 연속타격
 		{ 113742, 'Rogue', true },							-- Swiftblade's Cunning					스위프트블레이드의 간교함
+		{ 166916, 'Monk/Windwalker' },						-- Windflurry							성난바람
 		{ 109773, 'Warlock' },								-- Dark Intent							검은 의도
 		{ 49868, 'Priest/Shadow' },							-- Mind Quickening						사고 촉진
 		true,

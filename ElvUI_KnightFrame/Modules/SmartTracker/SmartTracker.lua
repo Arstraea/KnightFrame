@@ -68,6 +68,38 @@ do	--<< About Window's Layout and Appearance >>--
 	end
 	
 	
+	function ST:Tab_OnEnter()
+		local Window = self:GetParent()
+		
+		ST.ToggleDisplayButton:SetParent(Window)
+		ST.ToggleDisplayButton:Point('RIGHT', self, -2, 0)
+		ST.ToggleDisplayButton:SetAlpha(1)
+		ST.ToggleDisplayButton:SetFrameLevel(4)
+		ST.ToggleDisplayButton:SetFrameStrata('HIGH')
+		ST.ToggleDisplayButton:Show()
+		
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
+			ST.ToggleDisplayButton.Texture:SetTexCoord(.25, .5, 0, 1)
+		else
+			ST.ToggleDisplayButton.Texture:SetTexCoord(0, .25, 0, 1)
+		end
+		
+		self:SetScript('OnUpdate', ST.Tab_OnUpdate)
+	end
+	
+	
+	function ST:Tab_OnUpdate()
+		if not self:IsMouseOver() then
+			ST.ToggleDisplayButton:SetParent(nil)
+			ST.ToggleDisplayButton:ClearAllPoints()
+			ST.ToggleDisplayButton:SetAlpha(0)
+			ST.ToggleDisplayButton:Hide()
+			
+			self:SetScript('OnUpdate', nil)
+		end
+	end
+	
+	
 	function ST:Tab_OnMouseUp()
 		local Window = self:GetParent()
 		
@@ -89,6 +121,43 @@ do	--<< About Window's Layout and Appearance >>--
 		if Window.DisplayArea:GetAlpha() > 0 then
 			Window:StartMoving()
 		end
+	end
+	
+	
+	function ST:ToggleDisplay_OnEnter()
+		if not self then return end
+		
+		local Window = self:GetParent()
+		if not (Window and KF.db.Modules.SmartTracker.Window[Window.Name]) then return end
+		
+		GameTooltip:SetOwner(self, 'ANCHOR_NONE')
+		GameTooltip:ClearLines()
+		GameTooltip:Point('LEFT', self, 'RIGHT')
+		
+		if KF.db.Modules.SmartTracker.Window[self:GetParent().Name].Appearance.Area_Show then
+			GameTooltip:AddLine(L['Lock Display Area.'], 1, 1, 1)
+		else
+			GameTooltip:AddLine(L['Unlock Display Area.'], 1, 1, 1)
+		end
+		
+		GameTooltip:Show()
+	end
+	
+	
+	function ST:ToggleDisplay_OnLeave()
+		GameTooltip:Hide()
+	end
+	
+	
+	function ST:ToggleDisplay_OnClick()
+		if not self then return end
+		
+		local Window = self:GetParent()
+		
+		if not (Window and KF.db.Modules.SmartTracker.Window[Window.Name]) then return end
+		
+		ST:ToggleDisplay(Window)
+		ST.ToggleDisplay_OnEnter(self)
 	end
 	
 	
@@ -175,6 +244,7 @@ do	--<< About Window's Layout and Appearance >>--
 		Window.Tab:SetFrameLevel(3)
 		Window.Tab:Height(ST.TAB_HEIGHT - 2)
 		KF:TextSetting(Window.Tab, nil, { FontSize = 10, FontStyle = 'OUTLINE', directionH = 'LEFT' }, 'LEFT', 4, 0)
+		Window.Tab:SetScript('OnEnter', self.Tab_OnEnter)
 		Window.Tab:SetScript('OnMouseUp', self.Tab_OnMouseUp)
 		Window.Tab:SetScript('OnMouseDown', self.Tab_OnMouseDown)
 		
@@ -194,14 +264,29 @@ do	--<< About Window's Layout and Appearance >>--
 
 
 	function ST:ToggleDisplay(Window)
-		if Window.DisplayArea:GetAlpha() > 0 then
-			Window.DisplayArea:SetAlpha(0)
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
 			KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show = false
+			self.ToggleDisplayButton.Texture:SetTexCoord(0, .25, 0, 1)
+			
 			print(L['KF']..' : '..L['Lock Display Area.'])
 		else
-			Window.DisplayArea:SetAlpha(1)
 			KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show = true
+			self.ToggleDisplayButton.Texture:SetTexCoord(.25, .5, 0, 1)
+			
 			print(L['KF']..' : '..L['Unlock Display Area.'])
+		end
+		
+		self:SetWindowDisplayingStatus(Window)
+	end
+	
+	
+	function ST:SetWindowDisplayingStatus(Window)
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
+			Window.DisplayArea:Show()
+			Window.DisplayArea:SetAlpha(Window:GetAlpha())
+		else
+			Window.DisplayArea:SetAlpha(0)
+			Window.DisplayArea:Hide()
 		end
 	end
 
@@ -249,6 +334,7 @@ do	--<< About Window's Layout and Appearance >>--
 			self:SetDisplay('Window', 'ST_Window', WindowName, Window)
 			self:BuildTrackingSpellList(WindowName)
 			self:RedistributeCooldownData(Window)
+			self:SetWindowDisplayingStatus(Window)
 		end
 		
 		-- Setting
@@ -342,12 +428,6 @@ do	--<< About Window's Layout and Appearance >>--
 		E:CreateMover(self, L['SmartTracker_MainWindow'], L['SmartTracker_WindowTag']..L['SmartTracker_MainWindow'], nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 		self:SetScript('OnSizeChanged', self.OnSizeChanged)
 		
-		if E:HasMoverBeenMoved(L['SmartTracker_MainWindow']) then
-			self.mover:ClearAllPoints()
-			self.mover:SetPoint(unpack({string.split('\031', E.db.movers[(L['SmartTracker_MainWindow'])])}))
-			E.CreatedMovers[(L['SmartTracker_MainWindow'])].point = E.db.movers[(L['SmartTracker_MainWindow'])]
-		end
-		
 		self.Name = L['SmartTracker_MainWindow']
 		self.CurrentWheelLine = 0
 		self.ContainedBar = {}
@@ -355,6 +435,16 @@ do	--<< About Window's Layout and Appearance >>--
 		self:SetDisplay('Window', 'ST_Window', L['SmartTracker_MainWindow'], self)
 		self:BuildTrackingSpellList(L['SmartTracker_MainWindow'])
 		self:RedistributeCooldownData(self)
+		self:SetWindowDisplayingStatus(self)
+		
+		self.ToggleDisplayButton = CreateFrame('Button')
+		self.ToggleDisplayButton:Size(ST.TAB_HEIGHT - 8)
+		self.ToggleDisplayButton.Texture = self.ToggleDisplayButton:CreateTexture(nil, 'OVERLAY')
+		self.ToggleDisplayButton.Texture:SetInside()
+		self.ToggleDisplayButton.Texture:SetTexture('Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons')
+		self.ToggleDisplayButton:SetScript('OnEnter', ST.ToggleDisplay_OnEnter)
+		self.ToggleDisplayButton:SetScript('OnLeave', ST.ToggleDisplay_OnLeave)
+		self.ToggleDisplayButton:SetScript('OnClick', ST.ToggleDisplay_OnClick)
 		
 		self.Setup_MainWindow = nil
 	end
@@ -486,7 +576,7 @@ do	--<< About Bar's Layout and Appearance >>--
 			
 			--|TInterface\\AddOns\\ElvUI\\media\\textures\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t
 			self.Text:SetText('|cffceff00'..(self.Data.ArrowUp and '▲|r ' or '▼|r ')..KF:Color_Class(ST.CooldownCache[UserGUID].Class, ST.CooldownCache[UserGUID].Name)..ST:GetUserRoleIcon(UserGUID))
-		elseif self.Data.FrameType == 'CooldownBar' then
+		elseif self.Data.FrameType == 'CooldownBar' and ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].List[tonumber(self.Data.SpellID)] then
 			local Bar_Color = RAID_CLASS_COLORS[ST.CooldownCache[UserGUID].Class]
 			local SpellID = tonumber(self.Data.SpellID)
 			local TimeNow = GetTime()
@@ -582,6 +672,8 @@ do	--<< About Bar's Layout and Appearance >>--
 			
 			self.CooldownBar:SetValue(100 - (TimeNow - ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime) / ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime * 100)
 			self.Time:SetText(ST:GetTimeFormat(RemainCooltime))
+		else
+			ST:RedistributeCooldownData(Window)
 		end
 	end
 	
@@ -765,10 +857,7 @@ do	--<< About Icon >>--
 		end
 		
 		if TotalCount == 0 then
-			local Anchor = self:GetParent()
-			
-			ST:Icon_Delete(Anchor, self.Num)
-			ST:Icon_Rearrange(Anchor)
+			ST:DistributeIconData(self:GetParent())
 		else
 			self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
 			self.text:SetText((TotalNow == 0 and '|cffb90624' or '')..TotalNow..(KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
@@ -811,9 +900,9 @@ do	--<< About Icon >>--
 		if not Icon then
 			if #self.DeletedIcon > 0 then
 				Anchor.ContainedIcon[IconNum] = self.DeletedIcon[#self.DeletedIcon]
-				Anchor.ContainedIcon[IconNum]:Show()
-				
 				self.DeletedIcon[#self.DeletedIcon] = nil
+				
+				Anchor.ContainedIcon[IconNum]:Show()
 			else
 				Anchor.ContainedIcon[IconNum] = self:Icon_Setup(CreateFrame('Button'), Anchor)
 			end
@@ -1205,7 +1294,7 @@ do	--<< System >>--
 			and (Info.InstanceType == 'field' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Location.Field ~= false or
 			Info.InstanceType == 'raid' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Situation.RaidDungeon ~= false or
 			(Info.InstanceType == 'arena' or Info.InstanceType == 'pvp') and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Situation.PvPGround ~= false or
-			(Info.InstanceType == 'scenario' or Info.InstanceType == 'party') and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Location.Instance ~= false)
+			(Info.InstanceType == 'scenario' or Info.InstanceType == 'party' or Info.InstanceType == 'challenge') and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Location.Instance ~= false)
 			
 			and (KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.AmICondition[Info.Role] ~= false or
 			(UnitIsGroupLeader('player') or UnitIsRaidOfficer('player')) and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.AmICondition.GroupLeader ~= false) then
@@ -1770,7 +1859,7 @@ do	--<< System >>--
 			for UserGUID, Data in pairs(ST.InspectCache) do
 				if not ((Data.Class ~= Class) or 
 						(Info.SmartTracker_Data[Class][SpellID].Level and Info.SmartTracker_Data[Class][SpellID].Level > Data.Level) or
-						(Info.SmartTracker_Data[Class][SpellID].Spec and (type(Info.SmartTracker_Data[Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Class][SpellID].Spec[Data.Spec] or Info.SmartTracker_Data[Class][SpellID].Spec ~= Data.Spec)) or
+						(Info.SmartTracker_Data[Class][SpellID].Spec and (type(Info.SmartTracker_Data[Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Class][SpellID].Spec ~= Data.Spec)) or
 						(Info.SmartTracker_Data[Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Class][SpellID].TalentID]) or
 						(Info.SmartTracker_Data[Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Class][SpellID].GlyphID])) then
 					
@@ -1824,7 +1913,9 @@ do	--<< System >>--
 				
 				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
 					if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Reset then
-						ST.CooldownCache[UserGUID].List[SpellID][1].EraseThisCooltimeCache = true
+						for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
+							ST.CooldownCache[UserGUID].List[SpellID][i].EraseThisCooltimeCache = true
+						end
 					end
 				end
 			end

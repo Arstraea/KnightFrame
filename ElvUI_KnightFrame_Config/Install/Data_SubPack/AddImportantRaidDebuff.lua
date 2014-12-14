@@ -92,4 +92,12 @@ function KF_Config:Install_SubPackData_RaidDebuffs()
 	-- Highmoul
 		-- Kargath Bladefist
 		RegistRaidDebuffSpell(159178)	-- 꿰뚫기
+		
+		-- The Butcher
+		RegistRaidDebuffSpell(156152, 1)	-- 상처 출혈
+		RegistRaidDebuffSpell(156147)	-- 식칼
+		RegistRaidDebuffSpell(156151)	-- 고기다지개
+		
+		-- Brackenspore
+		
 end

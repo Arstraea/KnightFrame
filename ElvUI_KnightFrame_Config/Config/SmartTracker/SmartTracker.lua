@@ -936,6 +936,7 @@ for i, Class in ipairs(ClassTable) do
 		order = 299 + i,
 		desc = '',
 		descStyle = 'inline',
+		disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 		args = {
 			Space = {
 				type = 'description',
