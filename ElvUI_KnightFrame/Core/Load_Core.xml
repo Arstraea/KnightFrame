@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Core.lua"/>
+	
 	<Include file="Database\Load_Database.xml"/>
 	<Include file="Upgrade\Load_Upgrade.xml"/>
-	
-	<Script file="Core.lua"/>
 </Ui>

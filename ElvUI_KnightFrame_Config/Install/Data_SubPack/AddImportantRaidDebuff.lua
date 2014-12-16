@@ -94,10 +94,16 @@ function KF_Config:Install_SubPackData_RaidDebuffs()
 		RegistRaidDebuffSpell(159178)	-- 꿰뚫기
 		
 		-- The Butcher
-		RegistRaidDebuffSpell(156152, 1)	-- 상처 출혈
+		RegistRaidDebuffSpell(156152, 2)-- 상처 출혈
 		RegistRaidDebuffSpell(156147)	-- 식칼
-		RegistRaidDebuffSpell(156151)	-- 고기다지개
+		RegistRaidDebuffSpell(156151, 1)-- 고기다지개
 		
 		-- Brackenspore
 		
+		
+		-- Mar'gok
+		RegistRaidDebuffSpell(156225)	-- 낙인
+		RegistRaidDebuffSpell(164004)	-- 낙인: 변위
+		RegistRaidDebuffSpell(164005)	-- 낙인: 경화
+		RegistRaidDebuffSpell(164006)	-- 낙인: 복제
 end

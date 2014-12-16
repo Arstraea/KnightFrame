@@ -18,7 +18,7 @@ local INFO_TAB_SIZE = 22
 local TALENT_SLOT_SIZE = 26
 local GLYPH_SLOT_HEIGHT = 22
 
-local HeadSlotItem = 1020
+local HeadSlotItem = 99568
 local BackSlotItem = 102246
 local Default_NotifyInspect, Default_InspectUnit
 
@@ -1722,12 +1722,14 @@ function IA:InspectFrame_DataSetting(DataTable)
 							
 							-- Second, Check if slot's item enable to adding a socket
 							GemCount_Enable = GemCount_Default
+							--[[
 							if (SlotName == 'WaistSlot' and DataTable.Level >= 70) or -- buckle
 								((SlotName == 'WristSlot' or SlotName == 'HandsSlot') and (DataTable.Profession[1].Name == GetSpellInfo(110396) and DataTable.Profession[1].Level >= 550 or DataTable.Profession[2].Name == GetSpellInfo(110396) and DataTable.Profession[2].Level >= 550)) then -- BlackSmith
 								
 								GemCount_Enable = GemCount_Enable + 1
 								Slot['Socket'..GemCount_Enable].GemType = 'PRISMATIC'
 							end
+							]]
 							
 							self:ClearTooltip(self.ScanTT)
 							self.ScanTT:SetHyperlink(Slot.Link)
@@ -1836,12 +1838,19 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.EnchantWarning:Show()
 							Slot.EnchantWarning.Message = '|cff71d5ff'..GetSpellInfo(110426)..'|r : '..L['This is not profession only.']
 						end
+						]]
+						if not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] then
+							ErrorDetected = true
+							Slot.EnchantWarning:Show()
+							Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
+						end
 						
 						if GemCount_Enable > GemCount_Now or GemCount_Enable > GemCount or GemCount_Now > GemCount then
 							ErrorDetected = true
 							
 							Slot.SocketWarning:Show()
-							
+							Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
+							--[[
 							if GemCount_Enable > GemCount_Now then
 								if SlotName == 'WaistSlot' then
 									if TrueItemLevel < 300 then
@@ -1882,8 +1891,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 							else
 								Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
 							end
+							]]
 						end
-						]]
 					else
 						NeedUpdate = true
 					end
@@ -2040,19 +2049,6 @@ function IA:InspectFrame_DataSetting(DataTable)
 			self.Spec['Spec'..groupNum].Tab.text:SetText(Color..Name)
 			self.Spec['Spec'..groupNum].Texture:SetTexture(Texture)
 			self.Spec['Spec'..groupNum].Texture:SetDesaturated(groupNum ~= SpecGroup)
-			
-			-- Talents
-			for i = 1, MAX_TALENT_TIERS do
-				for k = 1, NUM_TALENT_COLUMNS do
-					if DataTable.Specialization[groupNum]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] and DataTable.Specialization[groupNum]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1] then
-						TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[groupNum]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1])
-						
-						self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon.Texture:SetTexture(Texture)
-						self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].text:SetText(Name)
-						self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip.Link = GetTalentLink(TalentID)
-					end
-				end
-			end
 		end
 	end
 	
@@ -2251,6 +2247,12 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 	local LevelTable = CLASS_TALENT_LEVELS[DataTable.Class] or CLASS_TALENT_LEVELS.DEFAULT
 	for i = 1, MAX_TALENT_TIERS do
 		for k = 1, NUM_TALENT_COLUMNS do
+			TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1])
+			
+			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon.Texture:SetTexture(Texture)
+			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].text:SetText(Name)
+			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip.Link = GetTalentLink(TalentID)
+			
 			if DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][2] == true then
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)]:SetBackdropColor(R, G, B, .3)
 				self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)]:SetBackdropBorderColor(R, G, B)

@@ -435,12 +435,14 @@ function CA:Update_Gear()
 						
 						-- Second, Check if slot's item enable to adding a socket
 						GemCount_Enable = GemCount_Default
+						--[[
 						if (SlotName == 'WaistSlot' and UnitLevel('player') >= 70) or -- buckle
 							((SlotName == 'WristSlot' or SlotName == 'HandsSlot') and self.PlayerProfession.BlackSmithing and self.PlayerProfession.BlackSmithing >= 550) then -- BlackSmith
 							
 							GemCount_Enable = GemCount_Enable + 1
 							Slot['Socket'..GemCount_Enable].GemType = 'PRISMATIC'
 						end
+						]]
 						
 						self:ClearTooltip(self.ScanTT)
 						self.ScanTT:SetInventoryItem('player', Slot.ID)
@@ -529,6 +531,20 @@ function CA:Update_Gear()
 						Slot.ItemLevel:SetText((Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
 					end
 					
+					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
+						if not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] then
+							ErrorDetected = true
+							Slot.EnchantWarning:Show()
+							Slot.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
+						end
+						
+						if GemCount_Enable > GemCount_Now or GemCount_Enable > GemCount or GemCount_Now > GemCount then
+							ErrorDetected = true
+							
+							Slot.SocketWarning:Show()
+							Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
+						end
+					end
 					--[[ Check Error
 					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
 						if (not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName]) or ((SlotName == 'Finger0Slot' or SlotName == 'Finger1Slot') and self.PlayerProfession.Enchanting and self.PlayerProfession.Enchanting >= 550 and not IsEnchanted) then

@@ -16,6 +16,7 @@ hooksecurefunc('UnitPopup_HideButtons', function(...)
 	end
 end)
 
+
 InterfaceOptionsFrame:SetMovable(true)
 InterfaceOptionsFrame:HookScript('OnMouseDown', function(self)
 	self:StartMoving()
@@ -24,3 +25,19 @@ end)
 InterfaceOptionsFrame:HookScript('OnMouseUp', function(self)
 	self:StopMovingOrSizing()
 end)
+
+
+KF:RegisterEventList('ADDON_LOADED', function(Event, AddOnName)
+	if AddOnName == 'Blizzard_GarrisonUI' then
+		GarrisonMissionFrame:SetMovable(true)
+		GarrisonMissionFrame:HookScript('OnMouseDown', function(self)
+			self:StartMoving()
+			self:SetUserPlaced(false)
+		end)
+		GarrisonMissionFrame:HookScript('OnMouseUp', function(self)
+			self:StopMovingOrSizing()
+		end)
+		
+		KF:UnregisterEventList('ADDON_LOADED', 'GarrisonUpgrade')
+	end
+end, 'GarrisonUpgrade')

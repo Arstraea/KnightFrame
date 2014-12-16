@@ -36,6 +36,42 @@ KF.db.Modules.SmartTracker = {
 		},
 	},
 	
+	ChargedColor = {
+		WARRIOR = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		HUNTER = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		SHAMAN = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		MONK = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		ROGUE = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		DEATHKNIGHT = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		MAGE = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		DRUID = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		PALADIN = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		PRIEST = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		},
+		WARLOCK = {
+			{ .38, .82, 1 }, { 0, .38, .82 }
+		}
+	},
+	
 	Window = {
 		[(L['SmartTracker_MainWindow'])] = {
 			Enable = true,
@@ -167,8 +203,8 @@ KF.db.Modules.SmartTracker = {
 			Appearance = {
 				Location = 'TOPLEFTElvUIParentTOPLEFT11-186',
 				
-				IconWidth = 35,
-				IconHeight = 30,
+				Icon_Width = 35,
+				Icon_Height = 30,
 				Spacing = 5,
 				FontSize = 13,
 				DisplayMax = true,
@@ -219,8 +255,8 @@ KF.db.Modules.SmartTracker = {
 			Appearance = {
 				Location = 'BOTTOMElvUIParentBOTTOM0432',
 				
-				IconWidth = 35,
-				IconHeight = 30,
+				Icon_Width = 35,
+				Icon_Height = 30,
 				Spacing = 5,
 				FontSize = 13,
 				DisplayMax = true,
@@ -411,7 +447,7 @@ KF.DBFunction.SmartTracker = {
 		if E.db.movers then
 			if KF.UIParent.ST_Window then
 				for WindowName, Window in pairs(KF.UIParent.ST_Window) do
-					if WindowName ~= L['SmartTracker_MainWindow'] and E.db.movers[Window.mover.name] then
+					if E.db.movers[Window.mover.name] and WindowName ~= Window.mover.name then
 						E.db.movers[WindowName] = E.db.movers[Window.mover.name]
 						E.db.movers[Window.mover.name] = nil
 					end
@@ -420,7 +456,7 @@ KF.DBFunction.SmartTracker = {
 			
 			if KF.UIParent.ST_Icon then
 				for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
-					if E.db.movers[Anchor.mover.name] then
+					if E.db.movers[Anchor.mover.name] and AnchorName ~= Anchor.mover.name then
 						E.db.movers[AnchorName] = E.db.movers[Anchor.mover.name]
 						E.db.movers[Anchor.mover.name] = nil
 					end

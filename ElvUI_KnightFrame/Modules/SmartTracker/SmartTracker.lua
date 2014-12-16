@@ -307,6 +307,7 @@ do	--<< About Window's Layout and Appearance >>--
 				
 				E.CreatedMovers[Window.mover.name] = Window.MoverData
 				Window.MoverData = nil
+				wipe(Window.ContainedBar)
 				
 				Window:Show()
 				
@@ -329,7 +330,6 @@ do	--<< About Window's Layout and Appearance >>--
 			--초기화 여기서
 			Window.Name = WindowName
 			Window.CurrentWheelLine = 0
-			Window.ContainedBar = {}
 			
 			self:SetDisplay('Window', 'ST_Window', WindowName, Window)
 			self:BuildTrackingSpellList(WindowName)
@@ -718,6 +718,8 @@ do	--<< About Bar's Layout and Appearance >>--
 		Bar.Text = Bar.CooldownBar.text
 		Bar.Text:Point('RIGHT', Bar.Time, 'LEFT', -5, 0)
 		
+		Bar.Data = {}
+		
 		return Bar
 	end
 	
@@ -729,6 +731,7 @@ do	--<< About Bar's Layout and Appearance >>--
 			if #self.DeletedBar > 0 then
 				Window.ContainedBar[BarNum] = self.DeletedBar[#self.DeletedBar]
 				Window.ContainedBar[BarNum]:Show()
+				wipe(Window.ContainedBar[BarNum].Data)
 				self.DeletedBar[#self.DeletedBar] = nil
 			else
 				Window.ContainedBar[BarNum] = self:Bar_Setup(CreateFrame('Frame'), Window)
@@ -787,7 +790,7 @@ do	--<< About Bar's Layout and Appearance >>--
 		if Bar then
 			Bar:SetAlpha(1)
 			Bar:SetScript('OnUpdate', nil)
-			Bar.Data = nil
+			wipe(Bar.Data)
 			Bar:Hide()
 			
 			self.DeletedBar[#self.DeletedBar + 1] = Window.ContainedBar[BarNum]
@@ -888,7 +891,7 @@ do	--<< About Icon >>--
 		Icon.Data = {}
 		
 		KF:TextSetting(Icon, nil, { FontSize = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Fontsize, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'BOTTOMRIGHT', -1, 2)
-		Icon.text:Point('LEFT', Icon)
+		--Icon.text:Point('LEFT', Icon)
 		
 		return Icon
 	end
@@ -901,7 +904,7 @@ do	--<< About Icon >>--
 			if #self.DeletedIcon > 0 then
 				Anchor.ContainedIcon[IconNum] = self.DeletedIcon[#self.DeletedIcon]
 				self.DeletedIcon[#self.DeletedIcon] = nil
-				
+				wipe(Anchor.ContainedIcon[IconNum].Data)
 				Anchor.ContainedIcon[IconNum]:Show()
 			else
 				Anchor.ContainedIcon[IconNum] = self:Icon_Setup(CreateFrame('Button'), Anchor)
@@ -924,6 +927,7 @@ do	--<< About Icon >>--
 		
 		if Icon then
 			Icon:SetScript('OnUpdate', nil)
+			wipe(Icon.Data)
 			Icon:Hide()
 			
 			self.DeletedIcon[#self.DeletedIcon + 1] = Anchor.ContainedIcon[IconNum]
@@ -936,23 +940,23 @@ do	--<< About Icon >>--
 		local Icon
 		local TexCoord = { unpack(E.TexCoords) }
 		
-		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth ~= KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight then
+		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width ~= KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height then
 			local Diff
-			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth > KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight then
-				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth / 2
+			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width > KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height then
+				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width / 2
 				TexCoord[3] = Diff
 				TexCoord[4] = 1 - Diff
 			else
-				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight / 2
+				Diff = (KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height - KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width) / KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height / 2
 				TexCoord[1] = Diff
-				TexCodrd[2] = 1 - Diff
+				TexCoord[2] = 1 - Diff
 			end
 		end
 		
 		for IconNum = (StartNum or 1), StartNum or #Anchor.ContainedIcon do
 			Icon = Anchor.ContainedIcon[IconNum]
 			
-			Icon:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+			Icon:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height)
 			Icon.SpellIcon:SetTexCoord(unpack(TexCoord))
 		end
 	end
@@ -1079,15 +1083,15 @@ do	--<< About Icon >>--
 		if not Anchor then
 			if #self.DeletedIcon > 0 then
 				KF.UIParent.ST_Icon[AnchorName] = self.DeletedAnchor[#self.DeletedIcon]
+				self.DeletedIcon[#self.DeletedIcon] = nil
 				
 				Anchor = KF.UIParent.ST_Icon[AnchorName]
 				
 				E.CreatedMovers[Anchor.mover.name] = Anchor.MoverData
 				Anchor.MoverData = nil
 				
+				wipe(Anchor.ContainedIcon)
 				Anchor:Show()
-				
-				self.DeletedIcon[#self.DeletedIcon] = nil
 			else
 				AnchorCount = AnchorCount + 1
 				
@@ -1096,6 +1100,7 @@ do	--<< About Icon >>--
 				Anchor:SetAlpha(0)
 				Anchor:Hide()
 				Anchor.Count = AnchorCount
+				Anchor.ContainedIcon = {}
 				
 				KF.UIParent.ST_Icon[AnchorName] = Anchor
 				
@@ -1108,7 +1113,6 @@ do	--<< About Icon >>--
 			
 			--초기화 여기서
 			Anchor.Name = AnchorName
-			Anchor.ContainedIcon = {}
 			
 			self:SetDisplay('Icon', 'ST_Icon', AnchorName, Anchor)
 			self:BuildTrackingSpellList(AnchorName)
@@ -1130,6 +1134,11 @@ do	--<< About Icon >>--
 		local Anchor = KF.UIParent.ST_Icon[AnchorName]
 		
 		if Anchor then
+			for i = 1, #Anchor.ContainedIcon do
+				ST:Icon_Delete(Anchor, i)
+			end
+			wipe(Anchor.ContainedIcon)
+			
 			Anchor:SetAlpha(0)
 			Anchor:Hide()
 			
@@ -1143,15 +1152,15 @@ do	--<< About Icon >>--
 		local SpellCount = #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList
 		
 		if SpellCount == 1 then
-			Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
-			Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+			Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height)
+			Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height)
 		elseif SpellCount > 1 then
 			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Orientation == 'Horizontal' then
-				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
-				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight)
+				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height)
+				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1), KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height)
 			else
-				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
-				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconWidth, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.IconHeight * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
+				Anchor:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
+				Anchor.mover:Size(KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Width, KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Icon_Height * SpellCount + KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Spacing * (SpellCount - 1))
 			end
 		elseif SpellCount == 0 then
 			Anchor:Size(0)
@@ -1527,22 +1536,23 @@ do	--<< System >>--
 				_, UserClass = UnitClass(UserName)
 			end
 			
-			if UserClass and Info.SmartTracker_Data[UserClass] and Info.SmartTracker_Data[UserClass][SpellID] and UserName and UserGUID and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) and
-			   (Info.SmartTracker_Data[UserClass][SpellID].Event and Info.SmartTracker_Data[UserClass][SpellID].Event[Event] or not Info.SmartTracker_Data[UserClass][SpellID].Event and DefaultEventList[Event]) then
-				if DestName then
-					if GetPlayerInfoByGUID(DestGUID) then
-						DestName = strsplit('-', DestName)
-						DestColor = KF:Color_Class(select(2, GetPlayerInfoByGUID(DestGUID)), nil)
+			if DestName then
+				if GetPlayerInfoByGUID(DestGUID) then
+					DestName = strsplit('-', DestName)
+					DestColor = KF:Color_Class(select(2, GetPlayerInfoByGUID(DestGUID)), nil)
+				else
+					DestFlag = bit.band(DestFlag, COMBATLOG_OBJECT_REACTION_MASK)
+					
+					if DestFlag == 16 then
+						DestColor = '|cff20ff20' --friendly
 					else
-						DestFlag = bit.band(DestFlag, COMBATLOG_OBJECT_REACTION_MASK)
-						
-						if DestFlag == 16 then
-							DestColor = '|cff20ff20' --friendly
-						else
-							DestColor = '|cffcd4c37' --hostile
-						end
+						DestColor = '|cffcd4c37' --hostile
 					end
 				end
+			end
+			
+			if UserClass and Info.SmartTracker_Data[UserClass] and Info.SmartTracker_Data[UserClass][SpellID] and UserName and UserGUID and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName == DestName) and
+			   (Info.SmartTracker_Data[UserClass][SpellID].Event and Info.SmartTracker_Data[UserClass][SpellID].Event[Event] or not Info.SmartTracker_Data[UserClass][SpellID].Event and DefaultEventList[Event]) then
 				
 				ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName, Info.SmartTracker_Data[UserClass][SpellID].NeedParameter and { select(15, ...) } or nil)
 			end
@@ -1641,7 +1651,6 @@ do	--<< System >>--
 		
 		if NeedRedistributing then
 			local NeedUpdatingWindow = {}
-			local NeedUpdatingIcon = {}
 			
 			for SpellID in pairs(NeedRedistributing) do
 				for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
@@ -1707,10 +1716,9 @@ do	--<< System >>--
 					Bar = ST:Bar_Create(Window, CurrentLine)
 					
 					if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'DOWN' and not NamePlateSet then
-						Bar.Data = {
-							FrameType = 'NamePlate',
-							GUID = UserGUID,
-						}
+						wipe(Bar.Data)
+						Bar.Data.FrameType = 'NamePlate'
+						Bar.Data.GUID = UserGUID
 						
 						if not Window.Reverse then
 							NamePlateSet = true
@@ -1735,10 +1743,11 @@ do	--<< System >>--
 							--print('이름세팅 4번', List[i].Name)
 							CurrentLine = CurrentLine - 1
 							
-							ST:Bar_Create(Window, CurrentLine).Data = {
-								FrameType = 'NamePlate',
-								GUID = UserGUID,
-							}
+							local NameBar = ST:Bar_Create(Window, CurrentLine)
+							
+							wipe(NameBar.Data)
+							NameBar.Data.FrameType = 'NamePlate'
+							NameBar.Data.GUID = UserGUID
 						end
 					--[[
 					elseif KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Bar_Direction == 'UP' then
@@ -1772,11 +1781,10 @@ do	--<< System >>--
 					if not Window.Reverse and NamePlateSet or Window.Reverse and not NamePlateSet then
 						BarExists = true
 						
-						Bar.Data = {
-							FrameType = 'CooldownBar',
-							GUID = UserGUID,
-							SpellID = SpellID,
-						}
+						wipe(Bar.Data)
+						Bar.Data.FrameType = 'CooldownBar'
+						Bar.Data.GUID = UserGUID
+						Bar.Data.SpellID = SpellID
 						
 						CurrentLine = CurrentLine + (Window.Reverse and -1 or 1)
 						
@@ -1891,6 +1899,26 @@ do	--<< System >>--
 	end
 	
 	
+	function ST:SaveCombatStartingTime()
+		if not ST.CombatStartingTime then
+			ST.CombatStartingTime = GetTime()
+			print('전투시작 시간기록 : ', ST.CombatStartingTime)
+		end
+	end
+	
+	KF:RegisterEventList('PLAYER_REGEN_DISABLED', function()
+		print('전투시작 : PLAYER_REGEN_DISABLED')
+		ST:SaveCombatStartingTime()
+	end)
+	
+	KF:RegisterEventList('PLAYER_REGEN_ENABLED', function()
+		if ST.CombatStartingTime then
+			print('전투 끝 / 전투기간 : ', GetTime() - ST.CombatStartingTime)
+			ST.CombatStartingTime = nil
+		end
+	end)
+	
+	
 	do	-- Callback : BossBattleStart
 		local CurrentMapID
 		
@@ -1901,6 +1929,8 @@ do	--<< System >>--
 				ST.NowBossBattle = CurrentMapID
 				ST.GroupTypeWhenBossBattleStart = KF:CheckGroupMode()
 			end
+			
+			ST:SaveCombatStartingTime()
 		end
 	end
 	
@@ -1921,6 +1951,11 @@ do	--<< System >>--
 			end
 			
 			print(L['KF']..' : '..L['Reset major cooltime that had used in previous boss battle.'])
+		end
+		
+		if ST.CombatStartingTime then
+			print('전투 끝 / 전투기간 : ', GetTime() - ST.CombatStartingTime)
+			ST.CombatStartingTime = nil
 		end
 	end
 end
@@ -2355,10 +2390,6 @@ end
 
 KF.Modules[#KF.Modules + 1] = 'SmartTracker'
 KF.Modules.SmartTracker = function(RemoveOrder)
-	for WindowName in pairs(KF.UIParent.ST_Window) do
-		ST:Window_Delete(WindowName, true)
-	end
-	
 	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false then
 		Info.SmartTracker_Activate = true
 		
@@ -2406,6 +2437,10 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		KF:RegisterEventList('READY_CHECK', function() ST:PrepareGroupInspect(true) end, 'SmartTracker_PrepareGroupInspect')
 	else
 		Info.SmartTracker_Activate = nil
+		
+		for WindowName in pairs(KF.UIParent.ST_Window) do
+			ST:Window_Delete(WindowName, true)
+		end
 		
 		wipe(ST.InspectOrder)
 		wipe(ST.InspectCache)

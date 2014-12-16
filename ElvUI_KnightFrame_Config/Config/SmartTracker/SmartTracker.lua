@@ -179,7 +179,7 @@ KF_Config.Options.args.SmartTracker = {
 		Window = {
 			type = 'group',
 			name = function() return TabColor()..L['Window Setting'] end,
-			order = 300,
+			order = 400,
 			childGroups = 'tab',
 			args = {
 				Space = {
@@ -254,9 +254,6 @@ KF_Config.Options.args.SmartTracker = {
 					name = function() return TabColor()..L['Appearance'] end,
 					order = 100,
 					get = function(info) return KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] end,
-					set = function(info, value)
-						KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
-					end,
 					args = {
 						Space = {
 							type = 'description',
@@ -268,8 +265,7 @@ KF_Config.Options.args.SmartTracker = {
 							name = function() return NameColor2('ffffff')..L['Cooldown Bar'] end,
 							order = 2,
 							guiInline = true,
-							disabled = true,
-							--disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 							args = {
 								Bar_Direction = {
 									type = 'select',
@@ -277,6 +273,7 @@ KF_Config.Options.args.SmartTracker = {
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
+									disabled = true,
 									values = function()
 										return { UP = L['Upper the tab'], DOWN = L['Below the tab'] }
 									end
@@ -287,6 +284,11 @@ KF_Config.Options.args.SmartTracker = {
 									order = 2,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
+										
+										ST:Window_Size(KF.UIParent.ST_Window[SelectedWindow])
+									end,
 									min = 8,
 									max = 30,
 									step = 1
@@ -297,6 +299,11 @@ KF_Config.Options.args.SmartTracker = {
 									order = 3,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
+										
+										ST:Bar_Rearrange(KF.UIParent.ST_Window[SelectedWindow])
+									end,
 									min = 6,
 									max = 28,
 									step = 1
@@ -305,6 +312,15 @@ KF_Config.Options.args.SmartTracker = {
 									type = 'range',
 									name = function() return ' '..NameColor()..L['Number of Target Display'] end,
 									order = 4,
+									set = function(info, r, g, b, a)
+										KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
+										
+										for i, Bar in ipairs(KF.UIParent.ST_Window[SelectedWindow].ContainedBar) do
+											if Bar.Data then
+												Bar.Data.SettingComplete = nil
+											end
+										end
+									end,
 									min = 1,
 									max = 6,
 									step = 1
@@ -321,14 +337,12 @@ KF_Config.Options.args.SmartTracker = {
 							name = function() return NameColor2('ffffff')..COLOR end,
 							order = 4,
 							guiInline = true,
-							disabled = true, --function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 							get = function(info)
-								local Red = KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][1]
-								local Green = KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][2]
-								local Blue = KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][3]
-								local Alpha = KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][4]
-								
-								return Red or 1, Green or 1, Blue or 1, Alpha or 1
+								return KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][1] or 1,
+									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][2] or 1,
+									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][3] or 1,
+									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][4] or 1
 							end,
 							set = function(info, r, g, b, a)
 								KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
@@ -338,17 +352,29 @@ KF_Config.Options.args.SmartTracker = {
 							args = {
 								Color_WindowTab = {
 									type = 'color',
-									name = L['Window Tab Color'],
-									--name = function() return ' '..NameColor()..L['Window Tab Color'] end,
+									name = function() return ' '..NameColor()..L['Window Tab Color'] end,
 									order = 1,
-									
+									set = function(info, r, g, b, a)
+										KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
+										
+										KF.UIParent.ST_Window[SelectedWindow].Tab:SetBackdropColor(r, g, b)
+									end,
 								},
 								Color_BehindBar = {
 									type = 'color',
-									name = L['Bar Background Color'],
-									--name = function() return ' '..NameColor()..L['Bar Background Color'] end,
+									name = function() return ' '..NameColor()..L['Bar Background Color'] end,
 									order = 2,
-								},
+									set = function(info, r, g, b, a)
+										KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
+										
+										for i, Bar in ipairs(KF.UIParent.ST_Window[SelectedWindow].ContainedBar) do
+											if Bar.Data then
+												Bar.Data.SettingComplete = nil
+											end
+										end
+									end,
+								}
+								--[[
 								Color_Charged1 = {
 									type = 'color',
 									name = function() return format(L['Charged Bar Color %d'], 1) end,
@@ -361,6 +387,7 @@ KF_Config.Options.args.SmartTracker = {
 									--name = function() return ' '..NameColor()..L['Window Tab Color'] end,
 									order = 4,
 								},
+								]]
 							}
 						},
 						CreditSpace = {
@@ -565,7 +592,7 @@ KF_Config.Options.args.SmartTracker = {
 		Icon = {
 			type = 'group',
 			name = function() return TabColor()..L['Icon Setting'] end,
-			order = 400,
+			order = 500,
 			childGroups = 'tab',
 			args = {
 				Space = {
@@ -654,8 +681,7 @@ KF_Config.Options.args.SmartTracker = {
 							name = function() return NameColor2('ffffff')..L['Spell Icon'] end,
 							order = 2,
 							guiInline = true,
-							disabled = true,
-							--disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 							args = {
 								Icon_Width = {
 									type = 'range',
@@ -663,6 +689,12 @@ KF_Config.Options.args.SmartTracker = {
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										ST:IconAnchor_Size(KF.UIParent.ST_Icon[SelectedIcon])
+										ST:Icon_Size(KF.UIParent.ST_Icon[SelectedIcon])
+									end,
 									min = 16,
 									max = 128,
 									step = 1
@@ -673,6 +705,12 @@ KF_Config.Options.args.SmartTracker = {
 									order = 2,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										ST:IconAnchor_Size(KF.UIParent.ST_Icon[SelectedIcon])
+										ST:Icon_Size(KF.UIParent.ST_Icon[SelectedIcon])
+									end,
 									min = 16,
 									max = 128,
 									step = 1
@@ -683,6 +721,12 @@ KF_Config.Options.args.SmartTracker = {
 									order = 3,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										ST:IconAnchor_Size(KF.UIParent.ST_Icon[SelectedIcon])
+										ST:Icon_Rearrange(KF.UIParent.ST_Icon[SelectedIcon])
+									end,
 									min = 0,
 									max = 50,
 									step = 1
@@ -693,6 +737,13 @@ KF_Config.Options.args.SmartTracker = {
 									order = 4,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										for i, Icon in ipairs(KF.UIParent.ST_Icon[SelectedIcon].ContainedIcon) do
+											Icon.text:SetFont(Icon.text:GetFont(), value, 'OUTLINE')
+										end
+									end,
 									min = 6,
 									max = 28,
 									step = 1
@@ -709,8 +760,7 @@ KF_Config.Options.args.SmartTracker = {
 							name = function() return NameColor2('ffffff')..L['Icon Arrangement'] end,
 							order = 4,
 							guiInline = true,
-							disabled = true,
-							--disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 							args = {
 								Orientation = {
 									type = 'select',
@@ -718,6 +768,18 @@ KF_Config.Options.args.SmartTracker = {
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										if KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Orientation == 'Horizontal' and (KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Top To Bottom' or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Bottom To Top') or
+											KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Orientation == 'Vertical' and (KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Left to Right' or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Right to Left') then
+											
+											KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement = 'Center'
+										end
+										
+										ST:Icon_Rearrange(KF.UIParent.ST_Icon[SelectedIcon])
+										ST:IconAnchor_Size(KF.UIParent.ST_Icon[SelectedIcon])
+									end,
 									values = {
 										Horizontal = L['Horizontal'],
 										Vertical = L['Vertical']
@@ -737,6 +799,17 @@ KF_Config.Options.args.SmartTracker = {
 										end
 										
 										return KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement
+									end,
+									set = function(info, value)
+										KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] = value
+										
+										if KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Orientation == 'Horizontal' and (KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Top To Bottom' or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Bottom To Top') or
+											KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Orientation == 'Vertical' and (KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Left to Right' or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement == 'Right to Left') then
+											
+											KF.db.Modules.SmartTracker.Icon[SelectedIcon].Appearance.Arrangement = 'Center'
+										end
+										
+										ST:Icon_Rearrange(KF.UIParent.ST_Icon[SelectedIcon])
 									end,
 									values = function()
 										local list = { Center = L['Center'] }
@@ -932,7 +1005,7 @@ end)
 for i, Class in ipairs(ClassTable) do
 	KF_Config.Options.args.SmartTracker.args.Window.args[Class] = {
 		type = 'group',
-		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..info[#info]..':16:16:0:0:64:64:7:58:7:58|t '..L[(info[#info])] end,
+		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..info[#info]..':16:16:0:0:64:64:7:58:7:58|t '..(KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and '|c'..RAID_CLASS_COLORS[strupper(Class)].colorStr or '')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
 		order = 299 + i,
 		desc = '',
 		descStyle = 'inline',

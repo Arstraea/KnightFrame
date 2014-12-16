@@ -44,6 +44,7 @@ do	-- Modules
 		L['Data Panel'] = '하단 탭'
 	end
 	
+	
 	do	-- FloatingDatatext
 		L['Floating Datatext'] = '독립형 정보문자'
 		L['Current Spec'] = '현재 전문화'
@@ -53,12 +54,14 @@ do	-- Modules
 		L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
 	end
 	
+	
 	do	-- SmartTracker
 		-- General
 			L['Smart Tracker'] = '스마트 추적기'
 			L['SmartTracker_MainWindow'] = '메인 창'
 			L['SmartTracker_WindowTag'] = '|cffffffff[|cffceff00'..'스마트추적기 창'..'|cffffffff]|r|n'
 			L['SmartTracker_IconTag'] = '|cffffffff[|cffceff00'..'스마트추적기 아이콘'..'|cffffffff]|r|n'
+			L['Enable to display'] = '표시가능한 바 개수'
 			L['Enable To Cast'] = '시전 가능'
 			L['Castable User'] = '시전가능 유저'
 			L['Remove this cooltime bar.'] = '해당 쿨타임 바 삭제'
@@ -77,9 +80,18 @@ do	-- Modules
 			L['Hunter_Now_FeignDeath'] = '죽은척 하는 중임 >ㅁ<'
 	end
 	
+	
+	do	-- Armory
+		L['Not Enchanted'] = '마부하지 않음'
+		L['Empty Socket'] = '개의 빈 소켓'
+		L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다.'
+	end
+	
+	
 	do	-- Secretary
 		L['Notice'] = '알림'
 	end
+	
 	
 	do	-- SynergyIndicator
 		L['Applied'] = '적용중'
@@ -121,13 +133,16 @@ do	-- Modules
 		L['Worms'] = '벌레'..Exotic
 	end
 	
+	
 	do	-- SwitchEquipment
 		L['You have equipped %s set.'] = '장비세트 %s 를 착용하였습니다.'
 	end
 	
+	
 	do	-- BossEngage
 		L['Hide Objectiveframe because of entering boss battle.'] = '보스와의 전투를 감지하여 임무창을 숨깁니다.'
 	end
+	
 	
 	do	-- in MISC
 		do	-- Calculator
@@ -215,32 +230,11 @@ do	--Extra Function
 	
 	
 	
-	
-	
-	
-	--<< Knight Armory >>--
-	L['Armory Mode'] = '전정실 모드'
-	L['Notice Missing'] = '에러 표시'
-	L['Average'] = '평균'
-	L['Not Enchanted'] = '마부하지 않음'
-	L['Missing Buckle'] = '죔쇠를 하지 않음'
-	L['Missing Socket'] = '소켓추가하지 않음'
-	L['Missing Tinkers'] = '땜질하지 않음'
-	L['This is not profession only.'] = '전문기술 전용 강화효과가 아님'
-	L['Empty Socket'] = '개의 빈 소켓'
-	L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다.'
-	
-	
-	--<< Secretary >>--
-	L['Notice'] = '알림'
-	
-	
+		
 	--<< RaidCooldown >>--
-	L['Enable to display'] = '표시가능한 바 개수'
+	
 	L['Inspect All Members.'] = '파티원 세팅 검사'
 	
-	L['Castable User'] = '시전 가능한 유저'
-	L['Enable To Cast'] = '시전 가능'
 	L['Resurrected User'] = '부활한 유저'
 	L['Brez Available'] = '전투부활 가능 수'
 end

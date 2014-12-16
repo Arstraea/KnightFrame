@@ -14,8 +14,7 @@ Info.Armory_Constants = {
 	},
 	
 	EnchantableSlots = {
-		ShoulderSlot = true, BackSlot = true, ChestSlot = true, WristSlot = true, HandsSlot = true,
-		LegsSlot = true, FeetSlot = true, MainHandSlot = true, SecondaryHandSlot = true
+		NeckSlot = true, BackSlot = true, Finger0Slot = true, Finger1Slot = true, MainHandSlot = true
 	},
 	
 	UpgradeColor = {
