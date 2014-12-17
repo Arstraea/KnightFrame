@@ -1899,26 +1899,6 @@ do	--<< System >>--
 	end
 	
 	
-	function ST:SaveCombatStartingTime()
-		if not ST.CombatStartingTime then
-			ST.CombatStartingTime = GetTime()
-			print('전투시작 시간기록 : ', ST.CombatStartingTime)
-		end
-	end
-	
-	KF:RegisterEventList('PLAYER_REGEN_DISABLED', function()
-		print('전투시작 : PLAYER_REGEN_DISABLED')
-		ST:SaveCombatStartingTime()
-	end)
-	
-	KF:RegisterEventList('PLAYER_REGEN_ENABLED', function()
-		if ST.CombatStartingTime then
-			print('전투 끝 / 전투기간 : ', GetTime() - ST.CombatStartingTime)
-			ST.CombatStartingTime = nil
-		end
-	end)
-	
-	
 	do	-- Callback : BossBattleStart
 		local CurrentMapID
 		
@@ -1929,8 +1909,6 @@ do	--<< System >>--
 				ST.NowBossBattle = CurrentMapID
 				ST.GroupTypeWhenBossBattleStart = KF:CheckGroupMode()
 			end
-			
-			ST:SaveCombatStartingTime()
 		end
 	end
 	
@@ -1951,11 +1929,6 @@ do	--<< System >>--
 			end
 			
 			print(L['KF']..' : '..L['Reset major cooltime that had used in previous boss battle.'])
-		end
-		
-		if ST.CombatStartingTime then
-			print('전투 끝 / 전투기간 : ', GetTime() - ST.CombatStartingTime)
-			ST.CombatStartingTime = nil
 		end
 	end
 end
