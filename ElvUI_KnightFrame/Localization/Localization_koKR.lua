@@ -68,8 +68,8 @@ do	-- Modules
 			L['Clear this spell config to forbid displaying.'] = '해당 주문 표시옵션 해제'
 		
 		-- Message
-			L['Lock Display Area.'] = '표시영역을 고정합니다.'
-			L['Unlock Display Area.'] = '표시영역 고정을 해제합니다.'
+			L['Lock Display Area.'] = '표시 창을 |cffceff00고정|r합니다.'
+			L['Unlock Display Area.'] = '표시 창을 |cffff5353고정 해제|r합니다.'
 			L["%s member's setting check start."] = '파티원 %s명의 세팅을 검사합니다.'
 			L["Now updating old member's setting."] = '기존 파티원의 세팅을 업데이트합니다.'
 			L['Inspect Complete'] = '검사 완료'
@@ -184,8 +184,7 @@ do	--Print Message
 	L['Mouseover Inspect is canceled because cursor left user to inspect.'] = '마우스가 살펴보던 마우스오버 대상에게서 이탈하여 |cffff5675살펴보기가 취소되었습니다|r.'
 	L['Inspect is canceled because target was lost or changed.'] = '타겟을 전환했거나 살펴보던 대상이 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
 	
-	L['Lock Display Area.'] = '표시 창을 |cffceff00고정|r합니다.'
-	L['Unlock Display Area.'] = '표시 창을 |cffff5353고정 해제|r합니다.'
+	
 	L['Reset skills that have a cool time more than 5 minutes'] = '5분 이상 쿨타임을 가진 스킬의 쿨타임바를 리셋합니다.'
 	L['Could not find the private channel been stored for the announcement. Channel setting will be chaged to the default.'] = '쿨타임 종료 알림을 위해 지정했었던던 채널을 찾을 수 없습니다. 기본값으로 변경합니다.'
 	L["%s's %s is available!!"] = '%s 님의 %s 재사용 가능!!'

@@ -592,11 +592,11 @@ do	--<< About Bar's Layout and Appearance >>--
 				
 				if #ST.CooldownCache[UserGUID].List[SpellID] > 1 then
 					if ST.CooldownCache[UserGUID].List[SpellID][2].ChargedColor then
-						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged1))
-						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged2))
+						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.ClassColor[strupper(ST.CooldownCache[UserGUID].Class)][1]))
+						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.ClassColor[strupper(ST.CooldownCache[UserGUID].Class)][2]))
 					else
-						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged2))
-						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Color_Charged1))
+						self.CooldownBar:SetStatusBarColor(unpack(KF.db.Modules.SmartTracker.ClassColor[strupper(ST.CooldownCache[UserGUID].Class)][2]))
+						self:SetBackdropColor(unpack(KF.db.Modules.SmartTracker.ClassColor[strupper(ST.CooldownCache[UserGUID].Class)][1]))
 					end
 					
 					if not ST.CooldownCache[UserGUID].List[SpellID][3] then

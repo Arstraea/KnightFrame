@@ -176,6 +176,38 @@ KF_Config.Options.args.SmartTracker = {
 				}
 			}
 		},
+		ClassColor = {
+			type = 'group',
+			name = function() return TabColor()..L['Class Color'] end,
+			order = 300,
+			get = function(info)
+				return KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])][1],
+					   KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])][2],
+					   KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])][3],
+					   KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])][4]
+			end,
+			set = function(info, r, g, b, a)
+				KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])] = { r, g, b, a }
+				
+				for i, Bar in ipairs(KF.UIParent.ST_Window[SelectedWindow].ContainedBar) do
+					if Bar.Data then
+						Bar.Data.SettingComplete = nil
+					end
+				end
+			end,
+			args = {
+				CreditSpace = {
+					type = 'description',
+					name = ' ',
+					order = 998
+				},
+				Credit = {
+					type = 'header',
+					name = KF_Config.Credit,
+					order = 999
+				}
+			}
+		},
 		Window = {
 			type = 'group',
 			name = function() return TabColor()..L['Window Setting'] end,
@@ -344,11 +376,6 @@ KF_Config.Options.args.SmartTracker = {
 									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][3] or 1,
 									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][4] or 1
 							end,
-							set = function(info, r, g, b, a)
-								KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
-								
-								--KnightRaidCooldown.Tab:SetBackdropColor(r, g, b)
-							end,
 							args = {
 								Color_WindowTab = {
 									type = 'color',
@@ -364,6 +391,7 @@ KF_Config.Options.args.SmartTracker = {
 									type = 'color',
 									name = function() return ' '..NameColor()..L['Bar Background Color'] end,
 									order = 2,
+									hasAlpha = true,
 									set = function(info, r, g, b, a)
 										KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
 										
@@ -374,20 +402,6 @@ KF_Config.Options.args.SmartTracker = {
 										end
 									end,
 								}
-								--[[
-								Color_Charged1 = {
-									type = 'color',
-									name = function() return format(L['Charged Bar Color %d'], 1) end,
-									--name = function() return ' '..NameColor()..L['Window Tab Color'] end,
-									order = 3,
-								},
-								Color_Charged2 = {
-									type = 'color',
-									name = function() return format(L['Charged Bar Color %d'], 2) end,
-									--name = function() return ' '..NameColor()..L['Window Tab Color'] end,
-									order = 4,
-								},
-								]]
 							}
 						},
 						CreditSpace = {
@@ -1003,6 +1017,34 @@ SpellTooltipHelper:SetScript('OnUpdate', function(self)
 end)
 
 for i, Class in ipairs(ClassTable) do
+	KF_Config.Options.args.SmartTracker.args.ClassColor.args['Space'..i] = {
+		type = 'description',
+		name = ' ',
+		order = i * 2 - 1
+	}
+	
+	KF_Config.Options.args.SmartTracker.args.ClassColor.args[strupper(Class)] = {
+		type = 'group',
+		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..Class..':16:16:0:0:64:64:7:58:7:58|t |c'..(KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and RAID_CLASS_COLORS[strupper(Class)].colorStr or 'ff787878')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
+		order = i * 2,
+		guiInline = true,
+		desc = '',
+		descStyle = 'inline',
+		disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+		args = {
+			['1'] = {
+				type = 'color',
+				name = function() return NameColor2()..format(L['Charged Bar Color %d'], 1) end,
+				order = 1,
+			},
+			['2'] = {
+				type = 'color',
+				name = function() return NameColor2()..format(L['Charged Bar Color %d'], 2) end,
+				order = 2,
+			}
+		}
+	}
+	
 	KF_Config.Options.args.SmartTracker.args.Window.args[Class] = {
 		type = 'group',
 		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..info[#info]..':16:16:0:0:64:64:7:58:7:58|t '..(KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and '|c'..RAID_CLASS_COLORS[strupper(Class)].colorStr or '')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,

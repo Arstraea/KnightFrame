@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
-if L['KF_LocalizedTimeFormat'] then
+if type(L['KF_LocalizedTimeFormat']) == 'table' then
 	local DefaultTimeFormat = E:CopyTable({}, E.TimeFormats)
 	local isReplaced
 	local A = E:GetModule('Auras')
