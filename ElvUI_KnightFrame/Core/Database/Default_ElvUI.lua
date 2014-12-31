@@ -203,7 +203,7 @@ if E.db.KnightFrame and E.db.KnightFrame.UseProfile == true then
 	P.unitframe.units.boss.debuffs.perrow = 14
 	P.unitframe.units.boss.debuffs.anchorPoint = 'TOPRIGHT'
 	P.unitframe.units.boss.debuffs.playerOnly = false
-	P.unitframe.units.boss.debuffs.yOffset = -12
+	P.unitframe.units.boss.debuffs.yOffset = 2
 	P.unitframe.units.boss.debuffs.sizeOverride = 0
 	P.unitframe.units.boss.castbar.width = 260
 	P.unitframe.units.boss.castbar.format = 'CURRENTMAX'

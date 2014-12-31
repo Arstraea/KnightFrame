@@ -12,6 +12,7 @@ KF.db.Modules.SmartTracker = {
 	Scan = {
 		AutoScanning = true,
 		UpdateInspectCache = true,
+		ScanWhenReadyCheck = true
 	},
 	
 	SortOrder = {
@@ -200,13 +201,15 @@ KF.db.Modules.SmartTracker = {
 	
 	Icon = {
 		RaidIcon = {
+			ShowBattleResurrectionIcon = true,
+			
 			Appearance = {
 				Location = 'TOPLEFTElvUIParentTOPLEFT11-186',
 				
 				Icon_Width = 35,
 				Icon_Height = 30,
 				Spacing = 5,
-				FontSize = 13,
+				FontSize = 10,
 				DisplayMax = true,
 				
 				Orientation = 'Horizontal',	-- Horizontal, Vertical
@@ -236,29 +239,31 @@ KF.db.Modules.SmartTracker = {
 			},
 			
 			SpellList = {
-				{ SpellID = 31821, Class = 'PALADIN' },
-				{ SpellID = 62618, Class = 'PRIEST' },
-				{ SpellID = 64843, Class = 'PRIEST' },
-				{ SpellID = 98008, Class = 'SHAMAN' },
-				{ SpellID = 108280, Class = 'SHAMAN' },
-				{ SpellID = 152256, Class = 'SHAMAN' },
-				{ SpellID = 115310, Class = 'MONK' },
-				{ SpellID = 740, Class = 'DRUID' },
-				{ SpellID = 97462, Class = 'WARRIOR' },
-				{ SpellID = 76577, Class = 'ROGUE' },
-				{ SpellID = 159916, Class = 'MAGE' },
-				{ SpellID = 172106, Class = 'HUNTER' },
-				{ SpellID = 15286, Class = 'PRIEST' }
+				{ [31821] = 'PALADIN' },
+				{ [62618] = 'PRIEST' },
+				{ [64843] = 'PRIEST' },
+				{ [98008] = 'SHAMAN' },
+				{ [108280] = 'SHAMAN' },
+				{ [152256] = 'SHAMAN' },
+				{ [115310] = 'MONK' },
+				{ [740] = 'DRUID' },
+				{ [97462] = 'WARRIOR' },
+				{ [76577] = 'ROGUE' },
+				{ [159916] = 'MAGE' },
+				{ [172106] = 'HUNTER' },
+				{ [15286] = 'PRIEST' }
 			},
 		},
 		SupportIcon = {
+			ShowBattleResurrectionIcon = false,
+			
 			Appearance = {
 				Location = 'BOTTOMElvUIParentBOTTOM0432',
 				
 				Icon_Width = 35,
 				Icon_Height = 30,
 				Spacing = 5,
-				FontSize = 13,
+				FontSize = 10,
 				DisplayMax = true,
 				
 				Orientation = 'Horizontal',	-- Horizontal, Vertical
@@ -288,12 +293,12 @@ KF.db.Modules.SmartTracker = {
 			},
 			
 			SpellList = {
-				{ SpellID = 6940, Class = 'PALADIN' },
-				{ SpellID = 33206, Class = 'PRIEST' },
-				{ SpellID = 47788, Class = 'PRIEST' },
-				{ SpellID = 116849, Class = 'MONK' },
-				{ SpellID = 102342, Class = 'DRUID' },
-				{ SpellID = 114030, Class = 'WARRIOR' }
+				{ [6940] = 'PALADIN' },
+				{ [33206] = 'PRIEST' },
+				{ [47788] = 'PRIEST' },
+				{ [116849] = 'MONK' },
+				{ [102342] = 'DRUID' },
+				{ [114030] = 'WARRIOR' }
 			},
 		}
 	}
@@ -366,11 +371,13 @@ Info.SmartTracker_Default_Window = {
 
 
 Info.SmartTracker_Default_Icon = {
+	ShowBattleResurrectionIcon = false,
+	
 	Appearance = {
 		Icon_Width = 35,
 		Icon_Height = 35,
 		Spacing = 5,
-		FontSize = 13,
+		FontSize = 10,
 		DisplayMax = true,
 		
 		Orientation = 'Horizontal',	-- Horizontal, Vertical

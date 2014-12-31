@@ -22,6 +22,16 @@ Info.SmartTracker_ResetCooldownMapID = {
 -----------------------------------------------------------
 -- [ Knight : Spell Data								]--
 -----------------------------------------------------------
+Info.SmartTracker_BattleResurrection = {
+	[61999] = 'DEATHKNIGHT',	-- 아군 되살리기
+	[20484] = 'DRUID',			-- Rebirth				환생
+	[20707] = 'WARLOCK',		-- Soul Stone			영혼석
+	[126393] = 'HUNTER'			-- Eternal Guardian		영원의 수호 (펫)
+}
+
+-----------------------------------------------------------
+-- [ Knight : Spell Data								]--
+-----------------------------------------------------------
 Info.SmartTracker_Data = {}
 Info.SmartTracker_ConvertSpell = {}
 Info.SmartTracker_SPELL_CAST_SUCCESS_Spell = {}
@@ -75,8 +85,8 @@ Info.SmartTracker_SPELL_CAST_SUCCESS_Spell = {}
 				    = SPELL_RESURRECT, SPELL_AURA_APPLIED, SPELL_AURA_REFRESH, SPELL_CAST_SUCCESS, SPELL_INTERRUPT, SPELL_SUMMON
 		},
 		
-		Func = function(Cooldown, CooldownCache, InspectCache, Event, UserGUID, UserName, UserClass, SpellID, DestName, ParamTable)
-			#NOTE: If spell needs specific calcurating by difficult condition then use func.
+		CooldownFunc = function(Cooldown, CooldownCache, InspectCache, Event, UserGUID, UserName, UserClass, SpellID, DestName, ParamTable)
+			#NOTE: If spell needs specific calcurating by difficult condition then use CooldownFunc.
 		end
 	}
 ]]
@@ -107,7 +117,7 @@ do	-- WARRIOR DATA
 		[176289] = { Time = 45, TalentID = 21206 },														-- 공성파쇄기
 		
 		[871] = { Time = 180, Level = 48, Spec = L['Spec_Warrior_Protection'],							-- 방패의 벽
-			Func = function(Cooldown, CooldownCache, _, _, _, UserName)
+			CooldownFunc = function(Cooldown, CooldownCache, _, _, _, UserName)
 				return Cooldown - (UnitLevel(UserName) and UnitLevel(UserName) >= 60 and 60 or 0)
 			end
 		},
@@ -145,7 +155,7 @@ do	-- WARRIOR DATA
 		},
 		
 		[6544] = { Time = 45, Level = 85,																-- 영웅의 도약
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if (InspectCache and InspectCache.Spec or CooldownCache.Spec) == L['Spec_Warrior_Protection'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157449]) and CooldownCache.List[355] then
 					CooldownCache.List[355][1].ActivateTime = GetTime() - 8 + SmartTracker.FADE_TIME
 				end 								-- 드레노어의 선물: 영웅의 도약 연마
@@ -160,7 +170,7 @@ do	-- WARRIOR DATA
 				SPELL_AURA_APPLIED = true,
 				SPELL_MISSED = true
 			},
-			Func = function(Cooldown, CooldownCache, _, _, _, _, _, SpellID)
+			CooldownFunc = function(Cooldown, CooldownCache, _, _, _, _, _, SpellID)
 				if CooldownCache.List[46968] and CooldownCache.List[SpellID][1].Count and CooldownCache.List[SpellID][1].Count >= 3 then
 					CooldownCache.List[46968][1].Cooltime = 20
 				end
@@ -192,7 +202,7 @@ do	-- HUNTER DATA
 		
 		[5384] = { Time = 360, Level = 32,																-- 죽은척하기
 			Text = L['Hunter_Now_FeignDeath'],
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, UserClass, SpellID)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, UserClass, SpellID)
 				if not CooldownCache.List[SpellID][2] then
 					CooldownCache.List[SpellID][2] = {
 						ForbidFadeIn = true,
@@ -238,7 +248,7 @@ do	-- HUNTER DATA
 			Event = {
 				SPELL_CAST_SUCCESS = true,
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, _, _, DestName)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, _, _, DestName)
 				if InspectCache then
 					if InspectCache.Glyph[361] then
 						if DestName == UnitName('pet') then
@@ -266,7 +276,7 @@ do	-- HUNTER DATA
 		},
 		
 		[34600] = { Time = 30, GlyphID = 1131,															-- 뱀 덫
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
 						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
@@ -280,7 +290,7 @@ do	-- HUNTER DATA
 		},
 		
 		[13813] = { Time = 30, Level = 38,																-- 폭발의 덫
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
 						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
@@ -294,7 +304,7 @@ do	-- HUNTER DATA
 		},
 		
 		[1499] = { Time = 30, Level = 28,																-- 빙결의 덫
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
 						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
@@ -308,7 +318,7 @@ do	-- HUNTER DATA
 		},
 		
 		[13809] = { Time = 30, Level = 46,																-- 얼음의 덫
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
 						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
@@ -318,6 +328,20 @@ do	-- HUNTER DATA
 				end
 				
 				return Cooldown, true
+			end
+		},
+		
+		[126393] = { Time = 600, Reset = true, Target = true, Hidden = true,							-- 영원의 수호 (펫 전부)
+			CooldownFunc = function(Cooldown)
+				local Time, Duration
+				
+				_, _, Time, Duration = GetSpellCharges(20484)
+				
+				if Time then
+					return Duration - (GetTime() - Time)
+				else
+					return Cooldown
+				end
 			end
 		}
 	}
@@ -352,7 +376,7 @@ do	-- SHAMAN DATA
 		[152256] = { Time = 300, Reset = true, TalentID = 21199 },										-- 폭풍의 정령 토템
 		[152255] = { Time = 45, TalentID = 21200 },														-- 마그마 분출
 		[157153] = { Time = 30, TalentID = 21674 },														-- 폭우의 토템
-		
+		[20608] = { Time = 1800 },																		-- 윤회
 		[30884] = { Time = 30, TalentID = 19262 },														-- 자연의 수호자
 		
 		[51886] = { Time = 8, Target = true, Level = 18, Spec = L['Spec_Shaman_Restoration'],			-- 영혼 정화
@@ -370,7 +394,7 @@ do	-- SHAMAN DATA
 		},
 		
 		[108285] = { Time = 180, TalentID = 19275,														-- 원소의 부름
-			Func = function(Cooldown, CooldownCache)
+			CooldownFunc = function(Cooldown, CooldownCache)
 				for _, SpellID in pairs({ 8177, 108273, 108270, 2484, 8143, 5394, 108269, 51485, 157153 }) do
 					if CooldownCache.List[SpellID] then
 						CooldownCache.List[SpellID][1].EraseThisCooltimeCache = true
@@ -407,7 +431,7 @@ do	-- SHAMAN DATA
 		},
 		
 		[58875] = { Time = 60, Level = 60, Spec = L['Spec_Shaman_Enhancement'],							-- 정령의 걸음
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown * (InspectCache.Glyph[214] and 3 / 4 or 1)
 				end
@@ -417,7 +441,7 @@ do	-- SHAMAN DATA
 		},
 		
 		[370] = { Time = 0, Target = true, Level = 12,													-- 정화
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown + (InspectCache.Glyph[216] and 6 or 0)
 				end
@@ -439,7 +463,7 @@ do	-- SHAMAN DATA
 		},
 		
 		[2894] = { Time = 300, Reset = true, Level = 66,												-- 불의 정령 토템
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown * (InspectCache.Glyph[217] and 1 / 2 or 1)
 				end
@@ -461,6 +485,7 @@ do	-- SHAMAN DATA
 		}
 	}
 	
+	Info.SmartTracker_ConvertSpell[21169] = 20608														-- 윤회
 	Info.SmartTracker_ConvertSpell[165339] = 114049														-- 지배력 (정기)
 	Info.SmartTracker_ConvertSpell[165341] = 114049														-- 지배력 (고양)
 	Info.SmartTracker_ConvertSpell[165344] = 114049														-- 지배력 (고양)
@@ -502,7 +527,7 @@ do	-- MONK DATA
 			Event = {
 				SPELL_DISPEL = true
 			},
-			Func = function(Cooldown, _, InspectCache)
+			CooldownFunc = function(Cooldown, _, InspectCache)
 				if InspectCache then
 					return Cooldown + (InspetCache.Glyph[1209] and 4 or 0)
 				end
@@ -512,7 +537,7 @@ do	-- MONK DATA
 		},
 		
 		[116849] = { Time = 120, Target = true, Level = 50, Spec = L['Spec_Monk_Mistweaver'],			-- 기의 고치
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Monk_Mistweaver'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157401]) then
 						return Cooldown - 20
@@ -526,7 +551,7 @@ do	-- MONK DATA
 		},
 		
 		[115080] = { Time = 90, Target = true, Level = 22,												-- 절명의 손길
-			Func = function(Cooldown, _, InspectCache)
+			CooldownFunc = function(Cooldown, _, InspectCache)
 				if InspectCache then
 					return Cooldown + (InspectCache.Glyph[1014] and 120 or 0)
 				end
@@ -596,7 +621,7 @@ do	-- ROGUE DATA
 				SPELL_CAST_SUCCESS = true,
 				SPELL_INTERRUPT = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, Event)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, Event)
 				if InspectCache then
 					if Event == 'SPELL_INTERRUPT' and InspectCache.Glyph[926] then
 						return Cooldown - 6
@@ -610,7 +635,7 @@ do	-- ROGUE DATA
 		},
 		
 		[14185] = { Time = 300, Reset = true, Level = 68,												-- 마음가짐
-			Func = function(Cooldown, CooldownCache)
+			CooldownFunc = function(Cooldown, CooldownCache)
 				for _, SpellID in pairs({ 2983, 1856, 5277 }) do
 					if CooldownCache.List[SpellID] then
 						CooldownCache.List[SpellID][1].EraseThisCooltimeCache = true
@@ -625,7 +650,7 @@ do	-- ROGUE DATA
 			Glyph = {
 				[1162] = -60						-- 문양: 사라짐
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Rogue_Subtlety'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157666]) then
 						return Cooldown - 30
@@ -647,7 +672,6 @@ do	-- DEATHKNIGHT DATA
 		[49222] = { Time = 60, Level = 78, Spec = L['Spec_DeathKnight_Blood'] },						-- 뼈의 보호막
 		[42650] = { Time = 600, Reset = true, Level = 80 },												-- 사자의 군대
 		[47568] = { Time = 300, Level = 76 },															-- 룬 무기 강화
-		[61999] = { Time = 600, Target = true, Level = 72 },											-- 아군 되살리기
 		[56222] = { Time = 8, Target = true, Level = 58, Spec = L['Spec_DeathKnight_Blood'] },			-- 어둠의 명령
 		[108194] = { Time = 30, Target = true, TalentID = 19223 },										-- 어둠의 질식
 		[48743] = { Time = 120, TalentID = 19226 },														-- 죽음의 서약
@@ -669,7 +693,7 @@ do	-- DEATHKNIGHT DATA
 			Glyph = {
 				[1115] = -10						-- 문양: 룬 전환
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_DeathKnight_Blood'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157336]) then
 						return Cooldown - 10
@@ -689,7 +713,7 @@ do	-- DEATHKNIGHT DATA
 		},
 		
 		[48792] = { Time = 180, Level = 62,																-- 얼음같은 인내력
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown * (InspectCache.Glyph[515] and 1 / 2 or 1)
 				end
@@ -709,7 +733,7 @@ do	-- DEATHKNIGHT DATA
 				SPELL_CAST_SUCCESS = true,
 				SPELL_MISSED = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, Event, _, _, _, _, _, ParamTable)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, Event, _, _, _, _, _, ParamTable)
 				if InspectCache then
 					if InspectCache.Glyph[553] and Event == 'SPELL_MISSED' and ParamTable[1] == 'IMMUNE' then
 						return 0
@@ -723,6 +747,20 @@ do	-- DEATHKNIGHT DATA
 				return Cooldown, true				-- 문양: 되돌아오는 손아귀
 			end
 		},
+		
+		[61999] = { Time = 600, Reset = true, Target = true, Level = 72,								-- 아군 되살리기
+			CooldownFunc = function(Cooldown)
+				local Time, Duration
+				
+				_, _, Time, Duration = GetSpellCharges(20484)
+				
+				if Time then
+					return Duration - (GetTime() - Time)
+				else
+					return Cooldown
+				end
+			end
+		}
 	}
 end
 
@@ -761,7 +799,7 @@ do	-- MAGE DATA
 		},
 		
 		[12051] = { Time = 120, Level = 40, Spec = L['Spec_Mage_Arcane'],								-- 환기
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Mage_Arcane'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157493]) then
 						return Cooldown - 30		-- 환기 연마
@@ -783,7 +821,7 @@ do	-- MAGE DATA
 			Event = {
 				SPELL_DAMAGE = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
 				if (InspectCache and InspectCache.Spec or CooldownCache.Spec) == L['Spec_Mage_Fire'] and InspectCache.Talent[21631] and ParamTable[7] and CooldownCache.List[11129] then
 					CooldownCache.List[11129][1].ActivateTime = CooldownCache.List[11129][1].ActivateTime - 1
 				end
@@ -795,7 +833,7 @@ do	-- MAGE DATA
 			Event = {
 				SPELL_DAMAGE = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
 				if (InspectCache and InspectCache.Spec or CooldownCache.Spec) == L['Spec_Mage_Fire'] and InspectCache.Talent[21631] and ParamTable[7] and CooldownCache.List[11129] then
 					CooldownCache.List[11129][1].ActivateTime = CooldownCache.List[11129][1].ActivateTime - 1
 				end
@@ -807,7 +845,7 @@ do	-- MAGE DATA
 			Event = {
 				SPELL_DAMAGE = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, _, _, _, _, ParamTable)
 				if (InspectCache and InspectCache.Spec or CooldownCache.Spec) == L['Spec_Mage_Fire'] and InspectCache.Talent[21631] and ParamTable[7] and CooldownCache.List[11129] then
 					CooldownCache.List[11129][1].ActivateTime = CooldownCache.List[11129][1].ActivateTime - 1
 				end
@@ -819,7 +857,7 @@ do	-- MAGE DATA
 			Event = {
 				SPELL_DAMAGE = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if (InspectCache and InspectCache.Spec or CooldownCache.Sped) == L['Spec_Mage_Fire'] and InspectCache.Talent[21631] and CooldownCache.List[11129] then
 					CooldownCache.List[11129][1].ActivateTime = CooldownCache.List[11129][1].ActivateTime - 1
 				end
@@ -859,7 +897,7 @@ do	-- MAGE DATA
 		},
 		
 		[11958] = { Time = 180, TalentID = 19029,														-- 매서운 한파
-			Func = function(Cooldown, CooldownCache)
+			CooldownFunc = function(Cooldown, CooldownCache)
 				for _, SpellID in pairs({ 45438, 12043, 122 }) do
 					if CooldownCache.List[SpellID] then
 						CooldownCache.List[SpellID][1].EraseThisCooltimeCache = true
@@ -878,7 +916,6 @@ do	-- DRUID DATA
 		[1850] = { Time = 180, Level = 24 },															-- 질주
 		[6795] = { Time = 8, Target = true, Level = 8 },												-- 포효
 		[5217] = { Time = 30, Level = 10, Spec = L['Spec_Druid_Feral'] },								-- 호랑이의 분노
-		[20484] = { Time = 600, Target = true, Reset = true, Level = 56 },								-- 환생
 		[77764] = { Time = 120, Level = 84 },															-- 쇄도의 포효
 		[112071] = { Time = 180, Level = 68, Spec = L['Spec_Druid_Balance'] },							-- 천체의 정렬
 		[78675] = { Time = 60, Target = true, Level = 28, Spec = L['Spec_Druid_Balance'] },				-- 태양 광선
@@ -959,6 +996,20 @@ do	-- DRUID DATA
 				SPELL_DISPEL = true
 			}
 		},
+		
+		[20484] = { Time = 600, Target = true, Reset = true, Level = 56,								-- 환생
+			CooldownFunc = function(Cooldown)
+				local Time, Duration
+				
+				_, _, Time, Duration = GetSpellCharges(20484)
+				
+				if Time then
+					return Duration - (GetTime() - Time)
+				else
+					return Cooldown
+				end
+			end
+		}
 	}
 	
 	Info.SmartTracker_ConvertSpell[50334] = 106952														-- 광폭화 (곰)
@@ -992,11 +1043,14 @@ do	-- PALADIN DATA
 				if SmartTracker.InspectCache[UserGUID] and  SmartTracker.InspectCache[UserGUID].Talent[17593] then
 					return 2						-- 특성: 온화함			
 				end
-			end
+			end,
+			Event = {
+				SPELL_CAST_SUCCESS = true
+			}
 		},
 		
 		[31850] = { Time = 180, Level = 70,																-- 헌신적인 수호자
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					if InspectCache.Glyph[1144] then
 						if GetTime() - CooldownCache.List[31850][1].ActivateTime < 10 then
@@ -1016,7 +1070,7 @@ do	-- PALADIN DATA
 			Event = {
 				SPELL_HEAL = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache and InspectCache.Glyph[1144] then
 					CooldownCache.List[31850][1].NeedCalculating = nil
 				end									-- 문양: 헌신적인 수호자
@@ -1030,7 +1084,10 @@ do	-- PALADIN DATA
 				if SmartTracker.InspectCache[UserGUID] and SmartTracker.InspectCache[UserGUID].Talent[17593] then
 					return 2						-- 특성: 온화함
 				end
-			end
+			end,
+			Event = {
+				SPELL_CAST_SUCCESS = true
+			}
 		},
 		
 		[6940] = { Time = 120, Target = true, Level = 80,												-- 희생의 손길
@@ -1039,7 +1096,10 @@ do	-- PALADIN DATA
 					return 2						-- 특성: 온화함
 				end
 			end,
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			Event = {
+				SPELL_CAST_SUCCESS = true
+			},
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Paladin_Retribution'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157493]) then
 						return Cooldown - 30
@@ -1058,7 +1118,10 @@ do	-- PALADIN DATA
 					return 2						-- 특성: 온화함
 				end
 			end,
-			Func = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, _, _, DestName)
+			Event = {
+				SPELL_CAST_SUCCESS = true
+			},
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache, _, _, UserName, _, _, DestName)
 				if InspectCache then
 					if InspectCache.Glyph[1147] and UserName ~= DestName then
 						return Cooldown - 5			-- 문양: 해방자
@@ -1104,7 +1167,7 @@ do	-- PALADIN DATA
 			Glyph = {
 				[198] = 120							-- 문양: 신앙
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown * (InspectCache.Talent[17591] and 1 / 2 or 1)
 				end
@@ -1128,7 +1191,7 @@ do	-- PALADIN DATA
 			Event = {
 				SPELL_DISPEL = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown + (InspectCache.Glyph[1208] and 4 or 0)
 				end
@@ -1258,7 +1321,18 @@ do	-- WARLOCK DATA
 			Event = {
 				SPELL_CAST_SUCCESS = true,
 				SPELL_RESURRECT = true
-			}
+			},
+			CooldownFunc = function(Cooldown)
+				local Time, Duration
+				
+				_, _, Time, Duration = GetSpellCharges(20484)
+				
+				if Time then
+					return Duration - (GetTime() - Time)
+				else
+					return Cooldown
+				end
+			end
 		},
 		
 		[80240] = { Time = 25, Target = true, Level = 36, Spec = L['Spec_Warlock_Destruction'],			-- 대혼란
@@ -1268,7 +1342,7 @@ do	-- WARLOCK DATA
 			Event = {
 				SPELL_CAST_SUCCESS = true
 			},
-			Func = function(Cooldown, CooldownCache, InspectCache)
+			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Warlock_Destruction'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157126]) then
 						return Cooldown - 5				-- 드레노어의 선물: 향상된 대혼란

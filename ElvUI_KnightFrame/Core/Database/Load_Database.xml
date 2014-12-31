@@ -1,5 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="DBConversion.lua"/>
+	
 	<Script file="Default_ElvUI.lua"/>
+	<Script file="AdditionalFilter.lua"/>
+	
 	<Script file="Default_KnightFrame.lua"/>
 </Ui>

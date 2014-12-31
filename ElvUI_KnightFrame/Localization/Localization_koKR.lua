@@ -66,6 +66,11 @@ do	-- Modules
 			L['Castable User'] = '시전가능 유저'
 			L['Remove this cooltime bar.'] = '해당 쿨타임 바 삭제'
 			L['Clear this spell config to forbid displaying.'] = '해당 주문 표시옵션 해제'
+			L['IconGroup %d'] = '%d번 그룹'
+			L['Battle Resurrection'] = '전투 부활'
+			L['Brez Available'] = '전투부활 가능 수'
+			L['Now Charging'] = '다음 충전까지'
+			L['Resurrected User'] = '부활한 유저'
 		
 		-- Message
 			L['Lock Display Area.'] = '표시 창을 |cffceff00고정|r합니다.'
@@ -234,8 +239,7 @@ do	--Extra Function
 	
 	L['Inspect All Members.'] = '파티원 세팅 검사'
 	
-	L['Resurrected User'] = '부활한 유저'
-	L['Brez Available'] = '전투부활 가능 수'
+	
 end
 ]]
 

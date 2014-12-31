@@ -3,6 +3,8 @@ local KF, Info, Timer = unpack(select(2, ...))
 
 local WindowCount = 0
 local AnchorCount = 0
+local Redemption = GetSpellInfo(27827)
+local FeignDeath = GetSpellInfo(5384)
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Smart Tracker											>>--
@@ -20,6 +22,9 @@ ST.WarriorRageTracker = {}
 ST.InspectOrder = {}
 ST.InspectCache = {}
 ST.CooldownCache = {}
+
+ST.DeadList = {}
+ST.ResurrectionList = {}
 
 ST.TAB_HEIGHT = 22
 ST.FADE_TIME = .4
@@ -446,6 +451,9 @@ do	--<< About Window's Layout and Appearance >>--
 		self.ToggleDisplayButton:SetScript('OnLeave', ST.ToggleDisplay_OnLeave)
 		self.ToggleDisplayButton:SetScript('OnClick', ST.ToggleDisplay_OnClick)
 		
+		self.BrezTracker = CreateFrame('Frame')
+		self.BrezTracker:SetScript('OnUpdate', ST.ResurrectionTracking)
+		
 		self.Setup_MainWindow = nil
 	end
 end
@@ -486,16 +494,9 @@ do	--<< About Bar's Layout and Appearance >>--
 				local Window = Bar:GetParent()
 				
 				do	-- Modify TrackingSpell List
-					local EraseTrackingSpell = true
-					
 					ST.TrackingSpell[Bar.Data.SpellID][Window] = nil
 					
-					for _ in pairs(ST.TrackingSpell[Bar.Data.SpellID]) do
-						EraseTrackingSpell = nil
-						break
-					end
-					
-					if EraseTrackingSpell then
+					if not next(ST.TrackingSpell[Bar.Data.SpellID]) then
 						ST.TrackingSpell[Bar.Data.SpellID] = nil
 					end
 				end
@@ -574,7 +575,7 @@ do	--<< About Bar's Layout and Appearance >>--
 				self.Data.SettingComplete = true
 			end
 			
-			--|TInterface\\AddOns\\ElvUI\\media\\textures\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t
+			--|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\arrow:10:10:-4:-1:64:64:0:64:0:64:206:255:0|t
 			self.Text:SetText('|cffceff00'..(self.Data.ArrowUp and '▲|r ' or '▼|r ')..KF:Color_Class(ST.CooldownCache[UserGUID].Class, ST.CooldownCache[UserGUID].Name)..ST:GetUserRoleIcon(UserGUID))
 		elseif self.Data.FrameType == 'CooldownBar' and ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].List[tonumber(self.Data.SpellID)] then
 			local Bar_Color = RAID_CLASS_COLORS[ST.CooldownCache[UserGUID].Class]
@@ -823,38 +824,81 @@ do	--<< About Icon >>--
 		if self.DisplayTooltip then
 			GameTooltip:ClearLines()
 			
-			if KF.db.Modules.SmartTracker.General.DetailSpellTooptip == true or IsShiftKeyDown() then
+			if self.Link and (KF.db.Modules.SmartTracker.General.DetailSpellTooptip == true or IsShiftKeyDown()) then
 				GameTooltip:SetHyperlink(self.Link)
-				GameTooltip:AddLine('|n|cff1784d1>>|r '..L['Castable User']..' |cff1784d1<<', 1, 1, 1)
-			else
+				GameTooltip:AddLine('|n|cff2eb7e4▶|r '..L['Castable User'], 1, 1, 1)
+			elseif self.SpellName then
 				GameTooltip:AddLine('|cff1784d1>>|r '..self.SpellName..' |cff1784d1<<', 1, 1, 1)
 			end
 		end
 		
-		local UserName, Text
-		local SpellNow, SpellCount, TotalNow, TotalCount = 0, 0, 0, 0
+		local UserName, TotalNow, TotalCount, MaxBrez, Time, ShortestTime
+		local SpellNow, SpellCount = 0, 0
 		local TimeNow = GetTime()
 		
-		for _, UserGUID in pairs(self.Data) do
-			if ST.InspectCache[UserGUID] then
-				UserName = ST.InspectCache[UserGUID].Name
+		TotalNow, MaxBrez, Time, ShortestTime = GetSpellCharges(20484)
+		
+		if self.SpellName == L['Battle Resurrection'] then
+			if TotalNow then
+				Time = ShortestTime - (GetTime() - Time)
+			
+				if self.DisplayTooltip then
+					GameTooltip:AddDoubleLine('  |cff2eb7e4'..L['Brez Available']..'|r :', (TotalNow == 0 and '|cffff5252' or '')..TotalNow, 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine('  |cff2eb7e4'..L['Now Charging']..'|r :', ST:GetTimeFormat(Time), 1, 1, 1, 1, 1, 1)
+				end
+			end
+			
+			if self.DisplayTooltip then
+				for i = 1, #ST.ResurrectionList do
+					if i == 1 then
+						GameTooltip:AddLine('|n|cff2eb7e4▶|r '..L['Resurrected User'], 1, 1, 1)
+					end
+					
+					GameTooltip:AddDoubleLine(' '..i..'. '..ST:GetUserRoleIcon(ST.ResurrectionList[i].DestGUID)..' '..ST.ResurrectionList[i].DestColor..ST.ResurrectionList[i].DestName
+											  ,
+											  'from '..KF:Color_Class(ST.ResurrectionList[i].UserClass, ST.ResurrectionList[i].UserName)..' '..ST:GetUserRoleIcon(ST.ResurrectionList[i].UserGUID)
+											  , 1, 1, 1, 1, 1, 1)
+				end
+			end
+		end
+		
+		if not (self.SpellName == L['Battle Resurrection'] and TotalNow) then
+			TotalNow, TotalCount, MaxBrez = 0, 0, nil
+			
+			for SpellID in pairs(self.Data) do
+				ShortestTime = nil
 				
-				SpellCount = ST:CheckSpellChargeCondition(UserGUID, UserName, ST.InspectCache[UserGUID].Class, self.SpellID) or 1
-				SpellNow = SpellCount
-				
-				if ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].List[self.SpellID] then
-					SpellNow = SpellNow - #ST.CooldownCache[UserGUID].List[self.SpellID]
+				if self.DisplayTooltip and not (self.Link and (KF.db.Modules.SmartTracker.General.DetailSpellTooptip == true or IsShiftKeyDown())) then
+					GameTooltip:AddLine(((self.SpellName or UserName) and '|n' or '')..'|cff2eb7e4▶|r '..GetSpellInfo(SpellID), 1, 1, 1)
 				end
 				
-				TotalNow = TotalNow + SpellNow
-				TotalCount = TotalCount + SpellCount
-				
-				if self.DisplayTooltip then
-					GameTooltip:AddDoubleLine(
-						' '..ST:GetUserRoleIcon(UserGUID)..' '..(UnitIsDeadOrGhost(UserName) and '|cff778899'..UserName..' ('..DEAD..')' or KF:Color_Class(ST.InspectCache[UserGUID].Class, UserName))
-						,
-						SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST:GetTimeFormat(ST.CooldownCache[UserGUID].List[self.SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[self.SpellID][1].Cooltime - TimeNow)
-					, 1, 1, 1, 1, 1, 1)
+				for _, UserGUID in pairs(self.Data[SpellID]) do
+					if ST.InspectCache[UserGUID] then
+						UserName = ST.InspectCache[UserGUID].Name
+						
+						SpellCount = ST:CheckSpellChargeCondition(UserGUID, UserName, ST.InspectCache[UserGUID].Class, SpellID) or 1
+						SpellNow = SpellCount
+						
+						if ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].List[SpellID] then
+							Time = ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow
+							SpellNow = SpellNow - #ST.CooldownCache[UserGUID].List[SpellID]
+							
+							if not ShortestTime or Time < ShortestTime then
+								ShortestTime = Time
+							end
+						end
+						
+						TotalNow = TotalNow + SpellNow
+						TotalCount = TotalCount + SpellCount
+						
+						if self.DisplayTooltip then
+							GameTooltip:AddDoubleLine(
+								'  '..ST:GetUserRoleIcon(UserGUID)..' '..(UnitIsDeadOrGhost(UserName) and '|cff778899'..UserName..' ('..DEAD..')' or KF:Color_Class(ST.InspectCache[UserGUID].Class, UserName))
+								,
+								SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST:GetTimeFormat(Time)
+							, 1, 1, 1, 1, 1, 1)
+						end
+					end
 				end
 			end
 		end
@@ -863,7 +907,15 @@ do	--<< About Icon >>--
 			ST:DistributeIconData(self:GetParent())
 		else
 			self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
-			self.text:SetText((TotalNow == 0 and '|cffb90624' or '')..TotalNow..(KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
+			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(Time) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
+			
+			if self.SpellName then
+				if TotalNow == 0 then
+					self:SetBackdropColor(1, .1, .1)
+				else
+					self:SetBackdropColor(.8, .8, .8)
+				end
+			end
 			
 			if self.DisplayTooltip then
 				GameTooltip:Show()
@@ -880,17 +932,28 @@ do	--<< About Icon >>--
 			insets = { left = 0, right = 0, top = 0, bottom = 0 }
 		})
 		Icon:SetFrameLevel(3)
-		Icon:SetBackdropColor(0, 0, 0, .8)
 		Icon:SetBackdropBorderColor(unpack(E.media.bordercolor))
 		Icon:SetScript('OnEnter', ST.Icon_OnEnter)
 		Icon:SetScript('OnLeave', ST.Icon_OnLeave)
 		
-		Icon.SpellIcon = Icon:CreateTexture(nil, 'OVERLAY')
+		Icon.SpellIconFrame = CreateFrame('Frame', nil, Icon)
+		Icon.SpellIconFrame:SetBackdrop({
+			bgFile = E.media.blankTex,
+			edgeFile = E.media.blankTex,
+			tile = false, tileSize = 0, edgeSize = E.mult,
+			insets = { left = 0, right = 0, top = 0, bottom = 0 }
+		})
+		Icon.SpellIconFrame:SetFrameLevel(4)
+		Icon.SpellIconFrame:SetBackdropColor(0, 0, 0)
+		Icon.SpellIconFrame:EnableMouse(false)
+		
+		Icon.SpellIcon = Icon.SpellIconFrame:CreateTexture(nil, 'OVERLAY')
 		Icon.SpellIcon:SetInside()
 		
 		Icon.Data = {}
 		
-		KF:TextSetting(Icon, nil, { FontSize = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.Fontsize, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'BOTTOMRIGHT', -1, 2)
+		KF:TextSetting(Icon.SpellIconFrame, nil, { FontSize = KF.db.Modules.SmartTracker.Icon[Anchor.Name].Appearance.FontSize, FontStyle = 'OUTLINE', directionH = 'RIGHT' }, 'BOTTOMRIGHT', Icon, -1, 2)
+		Icon.text = Icon.SpellIconFrame.text
 		--Icon.text:Point('LEFT', Icon)
 		
 		return Icon
@@ -1091,6 +1154,7 @@ do	--<< About Icon >>--
 				Anchor.MoverData = nil
 				
 				wipe(Anchor.ContainedIcon)
+				wipe(Anchor.Group)
 				Anchor:Show()
 			else
 				AnchorCount = AnchorCount + 1
@@ -1101,6 +1165,7 @@ do	--<< About Icon >>--
 				Anchor:Hide()
 				Anchor.Count = AnchorCount
 				Anchor.ContainedIcon = {}
+				Anchor.Group = {}
 				
 				KF.UIParent.ST_Icon[AnchorName] = Anchor
 				
@@ -1202,7 +1267,7 @@ do	--<< System >>--
 			if Spec == 'Tank' then
 				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:12:12:1:-1|t'
 			elseif Spec == 'Healer' then
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:1:-1|t'
+				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:1:0|t'
 			else
 				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:12:12:1:-1|t'
 			end
@@ -1243,8 +1308,8 @@ do	--<< System >>--
 		end
 		
 		-- If spell need more specific calcurating then run contained function.
-		if Info.SmartTracker_Data[UserClass][SpellID].Func then
-			Cooldown, NeedUpdating = Info.SmartTracker_Data[UserClass][SpellID].Func(Cooldown, self.CooldownCache[UserGUID], self.InspectCache[UserGUID], Event, UserGUID, UserName, UserClass, SpellID, DestName, ParamTable)
+		if Info.SmartTracker_Data[UserClass][SpellID].CooldownFunc then
+			Cooldown, NeedUpdating = Info.SmartTracker_Data[UserClass][SpellID].CooldownFunc(Cooldown, self.CooldownCache[UserGUID], self.InspectCache[UserGUID], Event, UserGUID, UserName, UserClass, SpellID, DestName, ParamTable)
 		end
 		
 		return Cooldown, NeedUpdating
@@ -1264,9 +1329,11 @@ do	--<< System >>--
 				end
 			elseif KF.UIParent.ST_Icon[TrackerName] then
 				for _, Data in pairs(KF.db.Modules.SmartTracker.Icon[TrackerName].SpellList) do
-					if not (self.TrackingSpell[Data.SpellID] and self.TrackingSpell[Data.SpellID][(KF.UIParent.ST_Icon[TrackerName])]) then
-						self.TrackingSpell[Data.SpellID] = self.TrackingSpell[Data.SpellID] or {}
-						self.TrackingSpell[Data.SpellID][(KF.UIParent.ST_Icon[TrackerName])] = 'Icon'
+					for SpellID in pairs(Data) do
+						if not (self.TrackingSpell[SpellID] and self.TrackingSpell[SpellID][(KF.UIParent.ST_Icon[TrackerName])]) then
+							self.TrackingSpell[SpellID] = self.TrackingSpell[SpellID] or {}
+							self.TrackingSpell[SpellID][(KF.UIParent.ST_Icon[TrackerName])] = 'Icon'
+						end
 					end
 				end
 			end
@@ -1286,9 +1353,11 @@ do	--<< System >>--
 			
 			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
 				for _, Data in pairs(KF.db.Modules.SmartTracker.Icon[AnchorName].SpellList) do
-					if not (self.TrackingSpell[Data.SpellID] and self.TrackingSpell[Data.SpellID][Anchor]) then
-						self.TrackingSpell[Data.SpellID] = self.TrackingSpell[Data.SpellID] or {}
-						self.TrackingSpell[Data.SpellID][Anchor] = 'Icon'
+					for SpellID in pairs(Data) do
+						if not (self.TrackingSpell[SpellID] and self.TrackingSpell[SpellID][Anchor]) then
+							self.TrackingSpell[SpellID] = self.TrackingSpell[SpellID] or {}
+							self.TrackingSpell[SpellID][Anchor] = 'Icon'
+						end
 					end
 				end
 			end
@@ -1348,12 +1417,6 @@ do	--<< System >>--
 	
 	function ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName, ParamTable)
 		local TimeNow = GetTime()
-		
-		--[[
-		if Event == 'SPELL_RESURRECT' and NowBossBattle then
-			Table['BattleResurrection_CastMember'][#Table['BattleResurrection_CastMember'] + 1] = { ['UserGUID'] = UserGUID, ['UserClass'] = UserClass, ['UserName'] = UserName, ['DestGUID'] = DestGUID, ['DestColor'] = DestColor, ['DestName'] = DestName, }
-		end
-		]]
 		
 		if not ST.CooldownCache[UserGUID] then
 			ST.CooldownCache[UserGUID] = {
@@ -1428,9 +1491,11 @@ do	--<< System >>--
 		
 		KF:RegisterTimer('RefreshCooldownCache', 'NewTicker', .1, ST.RefreshCooldownCache, nil, true)
 		
-		for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
-			if TrackerType == 'Window' then --and Tracker.NowDisplaying then
-				ST:RedistributeCooldownData(Tracker)
+		if ST.TrackingSpell[SpellID] then
+			for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
+				if TrackerType == 'Window' then --and Tracker.NowDisplaying then
+					ST:RedistributeCooldownData(Tracker)
+				end
 			end
 		end
 	end
@@ -1501,6 +1566,9 @@ do	--<< System >>--
 			TimeStamp, Event, _, UserGUID, UserName, UserFlag, _, DestGUID, DestName, DestFlag, _, SpellID = ...
 			SpellID = Info.SmartTracker_ConvertSpell[SpellID] or SpellID
 			
+			if SpellID == 20608 then
+				ST.DeadList[strsplit('-', UserName)] = nil
+			end
 			if ST.PrintEvent then
 				print(Event, UserName, DestGUID, DestName, GetSpellLink(SpellID))
 			end
@@ -1509,7 +1577,7 @@ do	--<< System >>--
 	--			print(Event, UserName, GetSpellLink(SpellID), '분노 : ', UnitPower(UserName))
 	--		end
 			
-			if not (SpellID and ST.TrackingSpell[SpellID]) or Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID] or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 then return end
+			if not (SpellID and ST.TrackingSpell[SpellID] or SpellID and Info.SmartTracker_BattleResurrection[SpellID]) or Info.SmartTracker_SPELL_CAST_SUCCESS_Spell[SpellID] or bit.band(UserFlag, (COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE)) == 0 then return end
 			
 			UserName = string.split('-', UserName)
 			
@@ -1551,11 +1619,32 @@ do	--<< System >>--
 				end
 			end
 			
+			if Event == 'SPELL_RESURRECT' then
+				ST.DeadList[DestName] = { UserGUID = UserGUID, UserClass = UserClass, UserName = UserName, DestGUID = DestGUID, DestColor = DestColor, DestName = DestName }
+				ST.BrezTracker:Show()
+			end
+			
 			if UserClass and Info.SmartTracker_Data[UserClass] and Info.SmartTracker_Data[UserClass][SpellID] and UserName and UserGUID and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName == DestName) and
 			   (Info.SmartTracker_Data[UserClass][SpellID].Event and Info.SmartTracker_Data[UserClass][SpellID].Event[Event] or not Info.SmartTracker_Data[UserClass][SpellID].Event and DefaultEventList[Event]) then
 				
 				ST:RegisterCooldown(TimeStamp, Event, UserGUID, UserClass, UserName, SpellID, DestGUID, DestColor, DestName, Info.SmartTracker_Data[UserClass][SpellID].NeedParameter and { select(15, ...) } or nil)
 			end
+		end
+	end
+	
+	
+	function ST:ResurrectionTracking()
+		if next(ST.DeadList) then
+			for DeadUser, Data in pairs(ST.DeadList) do
+				if not UnitExists(DeadUser) then
+					ST.DeadList[DeadUser] = nil
+				elseif not UnitIsDeadOrGhost(DeadUser) and UnitIsConnected(DeadUser) then	--and UnitAffectingCombat(DeadUser) then
+					tinsert(ST.ResurrectionList, Data)
+					ST.DeadList[DeadUser] = nil
+				end
+			end
+		else
+			self:Hide()
 		end
 	end
 	
@@ -1653,9 +1742,11 @@ do	--<< System >>--
 			local NeedUpdatingWindow = {}
 			
 			for SpellID in pairs(NeedRedistributing) do
-				for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
-					if TrackerType == 'Window' and Tracker.NowDisplaying then
-						NeedUpdatingWindow[Tracker.Name] = Tracker
+				if ST.TrackingSpell[SpellID] then
+					for Tracker, TrackerType in pairs(ST.TrackingSpell[SpellID]) do
+						if TrackerType == 'Window' and Tracker.NowDisplaying then
+							NeedUpdatingWindow[Tracker.Name] = Tracker
+						end
 					end
 				end
 			end
@@ -1855,35 +1946,114 @@ do	--<< System >>--
 		local TimeNow = GetTime()
 		local CurrentIconNum = 0
 		
-		local SpellID, Class, SpellTexture
+		local SpellID, Class
 		local Icon
 		
-		for i = 1, #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList do
-			SpellID = KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i].SpellID
-			Class = KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i].Class
-			
+		local GroupedUser = {}
+		
+		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].ShowBattleResurrectionIcon then
+			for SpellID, Class in pairs(Info.SmartTracker_BattleResurrection) do
+				for UserGUID, Data in pairs(ST.InspectCache) do
+					if not (Data.Class ~= Class or SpellID == 126393 or
+							(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
+						
+						if not Icon then
+							CurrentIconNum = CurrentIconNum + 1
+							
+							Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+							Icon.SpellName = L['Battle Resurrection']
+							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(83968)))
+							Icon.Link = nil
+							
+							Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
+							Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
+							Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
+							Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
+							
+							wipe(Icon.Data)
+						end
+						
+						Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+						tinsert(Icon.Data[SpellID], UserGUID)
+					end
+				end
+			end
+		end
+		
+		for i = 1, #Anchor.Group do
 			Icon = nil
 			
-			for UserGUID, Data in pairs(ST.InspectCache) do
-				if not ((Data.Class ~= Class) or 
-						(Info.SmartTracker_Data[Class][SpellID].Level and Info.SmartTracker_Data[Class][SpellID].Level > Data.Level) or
-						(Info.SmartTracker_Data[Class][SpellID].Spec and (type(Info.SmartTracker_Data[Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Class][SpellID].Spec ~= Data.Spec)) or
-						(Info.SmartTracker_Data[Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Class][SpellID].TalentID]) or
-						(Info.SmartTracker_Data[Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Class][SpellID].GlyphID])) then
-					
-					if not Icon then
-						CurrentIconNum = CurrentIconNum + 1
-						
-						Icon = ST:Icon_Create(Anchor, CurrentIconNum)
-						Icon.SpellID = SpellID
-						Icon.SpellName, _, SpellTexture = GetSpellInfo(SpellID)
-						Icon.Link = GetSpellLink(SpellID)
-						Icon.SpellIcon:SetTexture(SpellTexture)
-						
-						wipe(Icon.Data)
+			for SpellID, SpecificUserGUID in pairs(Anchor.Group[i]) do
+				if type(SpellID) == 'number' then
+					for UserGUID, Data in pairs(ST.InspectCache) do
+						if not ((UserGUID ~= SpecificUserGUID) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
+							
+							if not Icon then
+								CurrentIconNum = CurrentIconNum + 1
+								
+								Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+								Icon.SpellName = format(L['IconGroup %d'], i)
+								Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(Anchor.Group[i].Icon)))
+								Icon.Link = nil
+								
+								Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
+								Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
+								Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
+								Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
+								
+								wipe(Icon.Data)
+							end
+							
+							Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+							tinsert(Icon.Data[SpellID], UserGUID)
+							
+							GroupedUser[SpellID] = GroupedUser[SpellID] or {}
+							tinsert(GroupedUser[SpellID], UserGUID)
+						end
 					end
-					
-					tinsert(Icon.Data, UserGUID)
+				end
+			end
+		end
+		
+		for i = 1, #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList do
+			Icon = nil
+			
+			for SpellID, Class in pairs(KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i]) do
+				for UserGUID, Data in pairs(ST.InspectCache) do
+					if not ((Data.Class ~= Class) or
+							(GroupedUser[SpellID] and GroupUser[SpellID][UserGUID]) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
+							(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
+						
+						if not Icon then
+							CurrentIconNum = CurrentIconNum + 1
+							
+							Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+							Icon.SpellName = nil
+							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(SpellID)))
+							Icon.Link = GetSpellLink(SpellID)
+							
+							Icon:SetBackdropColor(0, 0, 0)
+							Icon.SpellIconFrame:Point('TOPLEFT', Icon)
+							Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon)
+							Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 0)
+							Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 0)
+							
+							wipe(Icon.Data)
+						end
+						
+						Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+						tinsert(Icon.Data[SpellID], UserGUID)
+					end
 				end
 			end
 		end
@@ -1899,9 +2069,25 @@ do	--<< System >>--
 	end
 	
 	
-	do	-- Callback : BossBattleStart
-		local CurrentMapID
+	function ST:ResetSpellCooldown(InArena)
+		local UserGUID
 		
+		for i = 1, #ST.CooldownCache do
+			UserGUID = ST.CooldownCache[i]
+			
+			for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
+				if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Reset or InArena == true then
+					for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
+						ST.CooldownCache[UserGUID].List[SpellID][i].EraseThisCooltimeCache = true
+					end
+				end
+			end
+		end
+	end
+	
+	
+	do	-- Boss Battle Parts
+		local CurrentMapID
 		function ST:BossBattleStart()
 			_, _, _, _, _, _, _, CurrentMapID = GetInstanceInfo()
 			
@@ -1909,26 +2095,35 @@ do	--<< System >>--
 				ST.NowBossBattle = CurrentMapID
 				ST.GroupTypeWhenBossBattleStart = KF:CheckGroupMode()
 			end
-		end
-	end
-	
-	
-	function ST:BossBattleEnd()
-		if not (IsInInstance() and ST.NowBossBattle ~= select(8, GetInstanceInfo())) and ST.GroupTypeWhenBossBattleStart == KF:CheckGroupMode() then
-			local UserGUID
-			for i = 1, #ST.CooldownCache do
-				UserGUID = ST.CooldownCache[i]
+			
+			if Info.InstanceType == 'raid' then
+				wipe(ST.DeadList)
+				wipe(ST.ResurrectionList)
 				
-				for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
-					if Info.SmartTracker_Data[ST.CooldownCache[UserGUID].Class][SpellID].Reset then
-						for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
-							ST.CooldownCache[UserGUID].List[SpellID][i].EraseThisCooltimeCache = true
+				for i = 1, #ST.CooldownCache do
+					UserGUID = ST.CooldownCache[i]
+					
+					for SpellID in pairs(ST.CooldownCache[UserGUID].List) do
+						if Info.SmartTracker_BattleResurrection[SpellID] then
+							for i = 1, #ST.CooldownCache[UserGUID].List[SpellID] do
+								ST.CooldownCache[UserGUID].List[SpellID][i].EraseThisCooltimeCache = true
+							end
 						end
 					end
 				end
 			end
+		end
+		
+		
+		function ST:BossBattleEnd()
+			wipe(ST.DeadList)
+			wipe(ST.ResurrectionList)
 			
-			print(L['KF']..' : '..L['Reset major cooltime that had used in previous boss battle.'])
+			if not (IsInInstance() and ST.NowBossBattle ~= select(8, GetInstanceInfo())) and ST.GroupTypeWhenBossBattleStart == KF:CheckGroupMode() then
+				ST:ResetSpellCooldown()
+				
+				print(L['KF']..' : '..L['Reset major cooltime that had used in previous boss battle.'])
+			end
 		end
 	end
 end
@@ -1937,10 +2132,27 @@ end
 do	--<< Inspect System >>--
 	ST.CheckPlayer = CreateFrame('Frame')
 	ST.CheckPlayer:Hide()
-	ST.CheckPlayer:SetScript('OnEvent', function(self, Event, ...)
-		if Event == 'ACTIVE_TALENT_GROUP_CHANGED' or Event == 'PLAYER_SPECIALIZATION_CHANGED' then
+	ST.CheckPlayer:SetScript('OnEvent', function(self, Event, arg1, ...)
+		if Event == 'ACTIVE_TALENT_GROUP_CHANGED' then
 			self.NeedCheckingSpec = true
 			self.NeedCheckingGlyph = true
+		elseif Event == 'PLAYER_SPECIALIZATION_CHANGED' then
+			if arg1 == 'player' then
+				self.NeedCheckingSpec = true
+				self.NeedCheckingGlyph = true
+			elseif arg1 then
+				arg1 = UnitName(arg1)
+				
+				if Info.CurrentGroupMode ~= 'NoGroup' and arg1 then
+					ST.InspectOrder[arg1] = 'Delayed'
+					
+					if not ST.NowInspecting then
+						ST.UpdateDataByChanging = true
+					end
+					self.GroupMemberCount = GetNumGroupMembers()
+					KF:RegisterTimer('SmartTracker_InspectGroup', 'NewTicker', 1, ST.InspectGroup, nil, true)
+				end
+			end
 		elseif Event == 'GLYPH_ADDED' or Event == 'GLYPH_REMOVED' or Event == 'GLYPH_UPDATED' then
 			self.NeedCheckingGlyph = true
 		elseif Event == 'PLAYER_TALENT_UPDATE' then
@@ -2211,11 +2423,11 @@ do	--<< Inspect System >>--
 				
 				--KnightRaidCooldown.InspectMembers.Number:SetText(nil)
 				
-				--if Value['Inspect_ScanByChanging'] == true then
-				--	Value['Inspect_ScanByChanging'] = nil
-				--else
+				if ST.UpdateDataByChanging then
+					ST.UpdateDataByChanging = nil
+				else
 					print(L['KF']..' : |cff2eb7e4'..L['Inspect Complete']..'|r. '..L["All members specialization, talent, glyph setting is saved. SmartTracker will calcurating each spell's cooltime by this data.|r"])
-				--end
+				end
 				
 				ST.NowInspecting = nil
 				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
@@ -2294,7 +2506,7 @@ do	--<< Inspect System >>--
 			KF:CancelTimer('SmartTracker_InspectGroup')
 			
 			wipe(self.InspectOrder)
-			self.NowInspectingMember = nil
+			self.CurrentInspectMemberUnitName = nil
 			
 			wipe(self.InspectCache)
 			E.myguid = E.myguid or UnitGUID('player')
@@ -2304,9 +2516,9 @@ do	--<< Inspect System >>--
 				Talent = {},
 				Glyph = {}
 			}
-			ST:CheckPlayerSpec()
-			ST:CheckPlayerGlyph()
-			ST:CheckPlayerLevel()
+			self:CheckPlayerSpec()
+			self:CheckPlayerGlyph()
+			self:CheckPlayerLevel()
 			
 			self.GroupMemberCount = 0
 			
@@ -2356,7 +2568,7 @@ do	--<< Inspect System >>--
 		end
 		
 		self.GroupMemberCount = GetNumGroupMembers()
-		KF:RegisterTimer('SmartTracker_CheckGroupMember', 'NewTicker', .5, ST.CheckGroupMember, nil, true)
+		KF:RegisterTimer('SmartTracker_CheckGroupMember', 'NewTicker', .5, self.CheckGroupMember, nil, true)
 	end
 end
 
@@ -2392,10 +2604,14 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		ST.CheckPlayer:RegisterEvent('PLAYER_TALENT_UPDATE')
 		ST.CheckPlayer:RegisterEvent('PLAYER_LEVEL_UP')
 		
-		ST:PrepareGroupInspect(true)
-		
 		KF:RegisterCallback('SpecChanged', ST.UpdateAllTrackersDisplay, 'SmartTracker')
-		KF:RegisterCallback('CurrentAreaChanged', ST.UpdateAllTrackersDisplay, 'SmartTracker')
+		KF:RegisterCallback('CurrentAreaChanged', function()
+			if Info.InstanceType == 'arena' then
+				ST:ResetSpellCooldown(true)
+			end
+			
+			ST:UpdateAllTrackersDisplay()
+		end, 'SmartTracker')
 		KF:RegisterCallback('GroupChanged', function() ST:PrepareGroupInspect() ST:UpdateAllTrackersDisplay() end, 'SmartTracker')
 		
 		KF:RegisterCallback('BossBattleStart', ST.BossBattleStart, 'SmartTracker')
@@ -2407,8 +2623,9 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', ST.UNIT_SPELLCAST_SUCCEEDED, 'SmartTracker')
 		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', ST.COMBAT_LOG_EVENT_UNFILTERED, 'SmartTracker')
 		KF:RegisterEventList('GROUP_ROSTER_UPDATE', function() ST:PrepareGroupInspect() end, 'SmartTracker_PrepareGroupInspect')
-		KF:RegisterEventList('READY_CHECK', function() ST:PrepareGroupInspect(true) end, 'SmartTracker_PrepareGroupInspect')
-	else
+		KF:RegisterEventList('READY_CHECK', function() if KF.db.Modules.SmartTracker.ScanWhenReadyCheck then ST:PrepareGroupInspect(true) end end, 'SmartTracker_PrepareGroupInspect')
+		KF:RegisterEventList('CHALLENGE_MODE_RESET', ST.ResetSpellCooldown, 'SmartTracker')
+	elseif Info.SmartTracker_Activate then
 		Info.SmartTracker_Activate = nil
 		
 		for WindowName in pairs(KF.UIParent.ST_Window) do
@@ -2418,6 +2635,8 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		wipe(ST.InspectOrder)
 		wipe(ST.InspectCache)
 		wipe(ST.CooldownCache)
+		wipe(ST.DeadList)
+		wipe(ST.ResurrectionList)
 		
 		ST.CheckPlayer:UnregisterAllEvents()
 		ST.CheckPlayer:Hide()
@@ -2433,6 +2652,7 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		KF:UnregisterEventList('COMBAT_LOG_EVENT_UNFILTERED', 'SmartTracker')
 		KF:UnregisterEventList('GROUP_ROSTER_UPDATE', 'SmartTracker_PrepareGroupInspect')
 		KF:UnregisterEventList('READY_CHECK', 'SmartTracker_PrepareGroupInspect')
+		KF:UnregisterEventList('CHALLENGE_MODE_RESET', 'SmartTracker')
 	end
 end
 

@@ -100,6 +100,8 @@ function KF_Config:Install_SubPackData_RaidDebuffs()
 		
 		-- Brackenspore
 		
+		-- 
+		RegistRaidDebuffSpell(162184)	-- 암흑
 		
 		-- Mar'gok
 		RegistRaidDebuffSpell(156225)	-- 낙인

@@ -18,11 +18,9 @@ function KF:UnregisterCallback(RegisterName, FunctionName)
 	else
 		KF.Callbacks[RegisterName][FunctionName] = nil
 		
-		for _ in pairs(KF.Callbacks[RegisterName]) do
-			return
+		if not next(KF.Callbacks[RegisterName]) then
+			KF.Callbacks[RegisterName] = nil
 		end
-		
-		KF.Callbacks[RegisterName] = nil
 	end
 end
 
@@ -63,13 +61,10 @@ function KF:UnregisterEventList(EventName, FunctionName)
 	else
 		KF.Events[EventName][FunctionName] = nil
 		
-		for _ in pairs (KF.Events[EventName]) do
-			return
+		if not next(KF.Events[EventName]) then
+			KF:UnregisterEvent(EventName)
+			KF.Events[EventName] = nil
 		end
-		
-		-- If there is a remain regist event, this is not worked.
-		KF:UnregisterEvent(EventName)
-		KF.Events[EventName] = nil
 	end
 end
 
@@ -454,11 +449,16 @@ Info.BossBattle_Exception = {
 	[EJ_GetEncounterInfo(742)] = 'friendly',	-- TSULONG
 }
 
-local function ClearKilledBossList(forced)
+local function ClearKilledBossList(Forced)
 	KF:CancelTimer('ClearKilledBossList')
 	
-	if not IsEncounterInProgress() or forced == true then
+	if not IsEncounterInProgress() or Forced == true then
 		Info.KilledBossList = {}
+		
+		if not Forced then
+			KF:RegisterEventList('ENCOUNTER_START', KF.CheckBossCombat, 'CheckBossCombat')
+			KF:RegisterEventList('PLAYER_REGEN_DISABLED', KF.CheckBossCombat, 'CheckBossCombat')
+		end
 	else
 		KF:RegisterTimer('ClearKilledBossList', 'NewTimer', 3, ClearKilledBossList)
 	end
@@ -481,6 +481,8 @@ KF.BossBattleStart = function(StartingType)
 	end
 	
 	ClearKilledBossList(true)
+	KF:UnregisterEventList('ENCOUNTER_START', 'CheckBossCombat')
+	KF:UnregisterEventList('PLAYER_REGEN_DISABLED', 'CheckBossCombat')
 	
 	KF:CallbackFire('BossBattleStart')
 end
@@ -538,6 +540,21 @@ function KF:CheckCombatEnd()
 end
 
 
+function KF:CheckBossCombatEnd()
+	if BossIsExists == true and not (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
+		BossIsExists = false
+	elseif BossIsExists == false and (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
+		BossIsExists = true
+	end
+	
+	EndType = KF:CheckCombatEnd()
+	if (IsEncounterInProgressOn and not IsEncounterInProgress() or not IsEncounterInProgressOn and EndType) and (BossIsExists == false or EndType == 'wipe') then
+		IsEncounterInProgressOn = nil
+		KF.BossBattleEnd(EndType)
+	end
+end
+
+
 function KF:BossExists(Unit)
 	local BossName = UnitName(Unit)
 	
@@ -562,19 +579,7 @@ function KF:CheckBossCombat()
 		
 		if BossIsExists or IsEncounterInProgressOn then
 			KF:CancelTimer('CheckCombatEnd')
-			KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, function()
-				if BossIsExists == true and not (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
-					BossIsExists = false
-				elseif BossIsExists == false and (KF:BossExists('boss1') or KF:BossExists('boss2') or KF:BossExists('boss3') or KF:BossExists('boss4') or KF:BossExists('boss5')) then
-					BossIsExists = true
-				end
-				
-				EndType = KF:CheckCombatEnd()
-				if (IsEncounterInProgressOn and not IsEncounterInProgress() or not IsEncounterInProgressOn and EndType) and (BossIsExists == false or EndType == 'wipe') then
-					IsEncounterInProgressOn = nil
-					KF.BossBattleEnd(EndType)
-				end
-			end)
+			KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombatEnd)
 			
 			KF.BossBattleStart()
 			return
@@ -594,12 +599,17 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 		
 		if BossName then
 			if Info.NowInBossBattle == nil and not Info.KilledBossList[BossName] then
-				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat)
-				KF:CheckBossCombat()
+				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat, nil, true)
 			end
 			
 			Info.KilledBossList[BossName] = true
 		end
+	end
+end)
+KF:RegisterCallback('CurrentAreaChanged', function()
+	if Info.InstanceType ~= 'field' then
+		KF:RegisterEventList('ENCOUNTER_START', KF.CheckBossCombat, 'CheckBossCombat')
+		KF:RegisterEventList('PLAYER_REGEN_DISABLED', KF.CheckBossCombat, 'CheckBossCombat')
 	end
 end)
 
