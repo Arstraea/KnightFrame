@@ -1,7 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
-if L['Command_Calculator'] then
+if type(L['Command_Calculator']) == 'table' then
 	function KF:Calculator(formula)
 		local origHandler = geterrorhandler()
 		

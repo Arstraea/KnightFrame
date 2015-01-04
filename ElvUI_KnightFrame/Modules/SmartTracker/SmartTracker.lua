@@ -3,13 +3,13 @@ local KF, Info, Timer = unpack(select(2, ...))
 
 local WindowCount = 0
 local AnchorCount = 0
-local Redemption = GetSpellInfo(27827)
-local FeignDeath = GetSpellInfo(5384)
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Smart Tracker											>>--
 --------------------------------------------------------------------------------
 local ST = SmartTracker or CreateFrame('Frame', 'SmartTracker', KF.UIParent)
+
+ST.DropDownInfo = {}
 
 ST.DeletedWindow = {}
 ST.DeletedBar = {}
@@ -454,6 +454,8 @@ do	--<< About Window's Layout and Appearance >>--
 		self.BrezTracker = CreateFrame('Frame')
 		self.BrezTracker:SetScript('OnUpdate', ST.ResurrectionTracking)
 		
+		self.Menu = CreateFrame('Frame', 'SmartTrackerDropDownMenu', E.UIParent, 'UIDropDownMenuTemplate')
+		
 		self.Setup_MainWindow = nil
 	end
 end
@@ -820,6 +822,23 @@ do	--<< About Icon >>--
 	end
 	
 	
+	function ST:Icon_OnClick(Button)
+		if Button == 'RightButton' then
+			CloseDropDownMenus()
+			
+			if SmartTrackerDropDownMenu.initialize ~= ST.IconDropdownMenu_Initialize then
+				SmartTrackerDropDownMenu.initialize = ST.IconDropdownMenu_Initialize
+			end
+			
+			SmartTrackerDropDownMenu.Icon = self
+			SmartTrackerDropDownMenu.SpellName = self.SpellName
+			SmartTrackerDropDownMenu.Anchor = self:GetParent()
+			
+			ToggleDropDownMenu(1, nil, SmartTrackerDropDownMenu, 'cursor', -10, 10, nil, nil, 1)
+		end
+	end
+	
+	
 	function ST:Icon_OnUpdate()
 		if self.DisplayTooltip then
 			GameTooltip:ClearLines()
@@ -828,7 +847,7 @@ do	--<< About Icon >>--
 				GameTooltip:SetHyperlink(self.Link)
 				GameTooltip:AddLine('|n|cff2eb7e4▶|r '..L['Castable User'], 1, 1, 1)
 			elseif self.SpellName then
-				GameTooltip:AddLine('|cff1784d1>>|r '..self.SpellName..' |cff1784d1<<', 1, 1, 1)
+				GameTooltip:AddLine(KF:Color_Value('>> ')..self.SpellName..KF:Color_Value(' <<'), 1, 1, 1)
 			end
 		end
 		
@@ -840,24 +859,25 @@ do	--<< About Icon >>--
 		
 		if self.SpellName == L['Battle Resurrection'] then
 			if TotalNow then
-				Time = ShortestTime - (GetTime() - Time)
+				ShortestTime = ShortestTime - (GetTime() - Time)
 			
 				if self.DisplayTooltip then
 					GameTooltip:AddDoubleLine('  |cff2eb7e4'..L['Brez Available']..'|r :', (TotalNow == 0 and '|cffff5252' or '')..TotalNow, 1, 1, 1, 1, 1, 1)
-					GameTooltip:AddDoubleLine('  |cff2eb7e4'..L['Now Charging']..'|r :', ST:GetTimeFormat(Time), 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine('  |cff2eb7e4'..L['Now Charging']..'|r :', ST:GetTimeFormat(ShortestTime), 1, 1, 1, 1, 1, 1)
 				end
 			end
 			
 			if self.DisplayTooltip then
 				for i = 1, #ST.ResurrectionList do
 					if i == 1 then
-						GameTooltip:AddLine('|n|cff2eb7e4▶|r '..L['Resurrected User'], 1, 1, 1)
+						GameTooltip:AddLine('|n|cff2eb7e4▶|r '..L['Resurrection Situation'], 1, 1, 1)
 					end
 					
-					GameTooltip:AddDoubleLine(' '..i..'. '..ST:GetUserRoleIcon(ST.ResurrectionList[i].DestGUID)..' '..ST.ResurrectionList[i].DestColor..ST.ResurrectionList[i].DestName
-											  ,
-											  'from '..KF:Color_Class(ST.ResurrectionList[i].UserClass, ST.ResurrectionList[i].UserName)..' '..ST:GetUserRoleIcon(ST.ResurrectionList[i].UserGUID)
-											  , 1, 1, 1, 1, 1, 1)
+					GameTooltip:AddDoubleLine(
+						' '..i..'. '..ST:GetUserRoleIcon(ST.ResurrectionList[i].DestGUID)..' '..ST.ResurrectionList[i].DestColor..ST.ResurrectionList[i].DestName
+						,
+						'from '..KF:Color_Class(ST.ResurrectionList[i].UserClass, ST.ResurrectionList[i].UserName)..' '..ST:GetUserRoleIcon(ST.ResurrectionList[i].UserGUID)
+					, 1, 1, 1, 1, 1, 1)
 				end
 			end
 		end
@@ -907,7 +927,7 @@ do	--<< About Icon >>--
 			ST:DistributeIconData(self:GetParent())
 		else
 			self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
-			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(Time) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
+			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(ShortestTime) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
 			
 			if self.SpellName then
 				if TotalNow == 0 then
@@ -935,6 +955,8 @@ do	--<< About Icon >>--
 		Icon:SetBackdropBorderColor(unpack(E.media.bordercolor))
 		Icon:SetScript('OnEnter', ST.Icon_OnEnter)
 		Icon:SetScript('OnLeave', ST.Icon_OnLeave)
+		Icon:SetScript('OnClick', ST.Icon_OnClick)
+		Icon:RegisterForClicks('RightButtonUp')
 		
 		Icon.SpellIconFrame = CreateFrame('Frame', nil, Icon)
 		Icon.SpellIconFrame:SetBackdrop({
@@ -1532,19 +1554,6 @@ do	--<< System >>--
 			end
 			_, UserClass = UnitClass(UserName)
 			
-			--[[
-			elseif KF.db.Modules.SmartTracker.Scan.CheckChanging == true and (SpellID == 63644 or SpellID == 63645 or SpellID == 113873 or SpellID == 111621) then
-				--Change Specialization or talent or glyph
-				Table['Inspect_InspectOrder'][UserName] = nil
-				Table['Inspect_InspectDelayed'][UserName] = nil
-				
-				if not KF.Update['RaidCooldownInspect']['Condition']() then
-					Value['Inspect_ScanByChanging'] = true
-					KF.Update['CheckGroupMembersNumber']['Condition'] = true
-				end
-			end
-			]]
-			
 			if UserClass and Info.SmartTracker_Data[UserClass] and Info.SmartTracker_Data[UserClass][SpellID] and not (Info.SmartTracker_Data[UserClass][SpellID].NotToMe and UserName ~= E.myname) then
 				ST:RegisterCooldown(nil, Event, UserGUID, UserClass, UserName, SpellID)
 			end
@@ -1619,7 +1628,9 @@ do	--<< System >>--
 				end
 			end
 			
-			if Event == 'SPELL_RESURRECT' then
+			if Event == 'UNIT_DIED' and UnitIsPlayer(DestName) and UnitIsDeadOrGhost(DestName) then
+				ST.DeadList[DestName] = true
+			elseif Info.SmartTracker_BattleResurrection[SpellID] and (Event == 'SPELL_RESURRECT' or Event == 'SPELL_CAST_SUCCESS') then
 				ST.DeadList[DestName] = { UserGUID = UserGUID, UserClass = UserClass, UserName = UserName, DestGUID = DestGUID, DestColor = DestColor, DestName = DestName }
 				ST.BrezTracker:Show()
 			end
@@ -1633,18 +1644,229 @@ do	--<< System >>--
 	end
 	
 	
-	function ST:ResurrectionTracking()
-		if next(ST.DeadList) then
-			for DeadUser, Data in pairs(ST.DeadList) do
-				if not UnitExists(DeadUser) then
-					ST.DeadList[DeadUser] = nil
-				elseif not UnitIsDeadOrGhost(DeadUser) and UnitIsConnected(DeadUser) then	--and UnitAffectingCombat(DeadUser) then
-					tinsert(ST.ResurrectionList, Data)
-					ST.DeadList[DeadUser] = nil
+	do	-- Resurrection Tracking
+		local SoulStone = GetSpellInfo(20707)
+		function ST:ResurrectionTracking()
+			if next(ST.DeadList) then
+				for DeadUser, Data in pairs(ST.DeadList) do
+					if not UnitExists(DeadUser) then
+						ST.DeadList[DeadUser] = nil
+					elseif not UnitIsDeadOrGhost(DeadUser) and UnitIsConnected(DeadUser) and not UnitBuff(DeadUser, SoulStone) then	--and UnitAffectingCombat(DeadUser) then
+						tinsert(ST.ResurrectionList, Data)
+						ST.ResurrectionList[Data.UserGUID] = #ST.ResurrectionList
+						
+						ST.DeadList[DeadUser] = nil
+					end
+				end
+			else
+				self:Hide()
+			end
+		end
+	end
+	
+	
+	do	-- DropDownMenu
+		function ST:IconDropDownMenu_Close()
+			if UIDROPDOWNMENU_OPEN_MENU == SmartTrackerDropDownMenu then
+				CloseDropDownMenus()
+			end
+		end
+		
+		
+		function ST:IconDropDownMenu_Clear(Index)
+			ST:IconDropDownMenu_Close()
+			
+			if self.Icon.GroupNum then
+				local SpellID, UserGUID = strsplit('/', Index)
+				SpellID = tonumber(SpellID)
+				
+				if UserGUID then
+					self.Anchor.Group[self.Icon.GroupNum][SpellID][UserGUID] = nil
+					
+					if next(self.Anchor.Group[self.Icon.GroupNum][SpellID]) then
+						return
+					end
+				end
+				
+				self.Anchor.Group[self.Icon.GroupNum][SpellID] = nil
+				
+				if self.Anchor.Group[self.Icon.GroupNum].Icon == SpellID then
+					self.Anchor.Group[self.Icon.GroupNum].Icon = nil
+				end
+				
+				local NextIndex = next(self.Anchor.Group[self.Icon.GroupNum])
+				if NextIndex then
+					if NextIndex ~= 'Icon' and not self.Anchor.Group[self.Icon.GroupNum].Icon then
+						self.Anchor.Group[self.Icon.GroupNum].Icon = NextIndex
+						self.Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(NextIndex)))
+					end
+				else
+					tremove(self.Anchor.Group, self.Icon.GroupNum)
+				end
+				
+				ST:DistributeIconData(self.Anchor)
+			elseif self.Icon.SpellListIndex then
+				KF.db.Modules.SmartTracker.Icon[self.Anchor.Name].SpellList[self.Icon.SpellListIndex][Index] = nil
+				
+				if not next(KF.db.Modules.SmartTracker.Icon[self.Anchor.Name].SpellList[self.Icon.SpellListIndex]) then
+					tremove(KF.db.Modules.SmartTracker.Icon[self.Anchor.Name].SpellList, self.Icon.SpellListIndex)
+					
+					ST:DistributeIconData(self.Anchor)
 				end
 			end
-		else
-			self:Hide()
+		end
+		
+		
+		function ST:IconDropDownMenu_AssignGroup(GroupNum, SpellID, UserGUID)
+			ST:IconDropDownMenu_Close()
+			
+			self.Anchor.Group[GroupNum] = self.Anchor.Group[GroupNum] or { Icon = SpellID }
+			self.Anchor.Group[GroupNum][SpellID] = self.Anchor.Group[GroupNum][SpellID] or {}
+			self.Anchor.Group[GroupNum][SpellID][UserGUID] = true
+			
+			ST:DistributeIconData(self.Anchor)
+		end
+		
+		
+		function ST:IconDropdownMenu_Initialize(Level)
+			if self.SpellName == L['Battle Resurrection'] then return end
+			
+			local info = ST.DropDownInfo
+			
+			wipe(info)
+			
+			if Level == 1 then
+				if self.SpellName then
+					info.text = KF:Color_Value('>> ')..'|cffffffff'..self.SpellName..KF:Color_Value(' <<')
+					info.disabled = 1
+					info.notCheckable = 1
+					UIDropDownMenu_AddButton(info, Level)
+					wipe(info)
+					
+					info.text = ' '
+					info.disabled = 1
+					info.notCheckable = 1
+					UIDropDownMenu_AddButton(info, Level)
+					wipe(info)
+				end
+				
+				local UserGUID
+				for SpellID in pairs(self.Icon.Data) do
+					info.text = KF:Color_Value('▶')..' |cff71d5ff['..GetSpellInfo(SpellID)..']'
+					info.hasArrow = true
+					info.value = SpellID
+					info.notCheckable = 1
+					UIDropDownMenu_AddButton(info, Level)
+					wipe(info)
+					
+					for i = 1, #self.Icon.Data[SpellID] do
+						UserGUID = self.Icon.Data[SpellID][i]
+						
+						info.text = '  '..ST:GetUserRoleIcon(UserGUID)..' '..KF:Color_Class(ST.InspectCache[UserGUID].Class, ST.InspectCache[UserGUID].Name)
+						info.hasArrow = true
+						info.value = SpellID..'/'..UserGUID
+						info.notCheckable = 1
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+					end
+					
+					info.text = ' '
+					info.disabled = 1
+					info.notCheckable = 1
+					UIDropDownMenu_AddButton(info, Level)
+					wipe(info)
+				end
+				
+				info.text = KF:Color_Value('▶')..' '..CLOSE
+				info.notCheckable = 1
+				info.func = ST.IconDropDownMenu_Close
+				UIDropDownMenu_AddButton(info, Level)
+			elseif Level == 2 then
+				if type(UIDROPDOWNMENU_MENU_VALUE) == 'number' then
+					if self.SpellName and self.Anchor.Group[self.Icon.GroupNum].Icon ~= UIDROPDOWNMENU_MENU_VALUE then
+						info.text = L["Show this spell's icon in frame."]
+						info.notCheckable = 1
+						info.func = function()
+							self.Anchor.Group[self.Icon.GroupNum].Icon = UIDROPDOWNMENU_MENU_VALUE
+							self.Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(UIDROPDOWNMENU_MENU_VALUE)))
+							
+							ST:IconDropDownMenu_Close()
+						end
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+						
+						info.text = ' '
+						info.disabled = 1
+						info.notCheckable = 1
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+					end
+					
+					
+					info.text = format(self.SpellName and L['Exclude all %s from this group.'] or L['Exclude %s from Icon tracking list.'], '|cff71d5ff['..GetSpellInfo(UIDROPDOWNMENU_MENU_VALUE)..']|r')
+					info.notCheckable = 1
+					info.func = function() ST.IconDropDownMenu_Clear(self, UIDROPDOWNMENU_MENU_VALUE) end
+					UIDropDownMenu_AddButton(info, Level)
+				else
+					local SpellID, UserGUID = strsplit('/', UIDROPDOWNMENU_MENU_VALUE)
+					SpellID = tonumber(SpellID)
+					
+					for i = 1, #self.Anchor.Group do
+						info.text = '|cffffffff'..format(L['Assign to %s.'], KF:Color_Value(format(L['IconGroup %d'], i))..'|cffffffff')
+						info.checked = function() return self.Icon.GroupNum == i end
+						info.func = function() if self.Icon.GroupNum ~= i then ST.IconDropDownMenu_AssignGroup(self, i, SpellID, UserGUID) end end
+						UIDropDownMenu_AddButton(info, Level)
+						
+						if self.Icon.GroupNum == i then
+							info.disabled = true
+						end
+						
+						wipe(info)
+					end
+					
+					if #self.Anchor.Group > 0 then
+						info.text = ' '
+						info.disabled = 1
+						info.notCheckable = 1
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+					end
+					
+					if not self.SpellName then
+						info.text = format(L['Make a new %s and assign to it.'], KF:Color_Value(format(L['IconGroup %d'], #self.Anchor.Group + 1)))
+						info.notCheckable = 1
+						info.func = function() ST.IconDropDownMenu_AssignGroup(self, #self.Anchor.Group + 1, SpellID, UserGUID) end
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+					else
+						for Index, GUIDTable in pairs(self.Anchor.Group[self.Icon.GroupNum]) do
+							if Index ~= 'Icon' and Index ~= SpellID then
+								info.text = format(L['Make a new %s and assign to it.'], KF:Color_Value(format(L['IconGroup %d'], #self.Anchor.Group + 1)))
+								info.notCheckable = 1
+								info.func = function()
+									ST.IconDropDownMenu_Clear(self, UIDROPDOWNMENU_MENU_VALUE)
+									ST.IconDropDownMenu_AssignGroup(self, #self.Anchor.Group + 1, SpellID, UserGUID)
+								end
+								UIDropDownMenu_AddButton(info, Level)
+								wipe(info)
+								
+								info.text = ' '
+								info.disabled = 1
+								info.notCheckable = 1
+								UIDropDownMenu_AddButton(info, Level)
+								wipe(info)
+								
+								break
+							end
+						end
+						
+						info.text = L['Exclude from this group and revert it.']
+						info.notCheckable = 1
+						info.func = function() ST.IconDropDownMenu_Clear(self, UIDROPDOWNMENU_MENU_VALUE) end
+						UIDropDownMenu_AddButton(info, Level)
+					end
+				end
+			end
 		end
 	end
 	
@@ -1705,6 +1927,11 @@ do	--<< System >>--
 					while ST.CooldownCache[UserGUID].List[SpellID][1] and (ST.CooldownCache[UserGUID].List[SpellID][1].EraseThisCooltimeCache or ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime - TimeNow <= 0) do
 						if #ST.CooldownCache[UserGUID].List[SpellID] > 1 then
 							ST.CooldownCache[UserGUID].List[SpellID][2].ActivateTime = ST.CooldownCache[UserGUID].List[SpellID][1].EraseThisCooltimeCache and TimeNow or ST.CooldownCache[UserGUID].List[SpellID][1].ActivateTime + ST.CooldownCache[UserGUID].List[SpellID][1].Cooltime
+						end
+						
+						if Info.SmartTracker_BattleResurrection[SpellID] and ST.ResurrectionList[UserGUID] then
+							tremove(ST.ResurrectionList, ST.ResurrectionList[UserGUID])
+							ST.ResurrectionList[UserGUID] = nil
 						end
 						
 						--if KF.db.Modules.SmartTracker[Table['Cooldown_Cache'][UserGUID]['Class'] ][SpellID] == 3 and not ST.CooldownCache[UserGUID].List[SpellID][1].NoAnnounce then
@@ -1967,6 +2194,8 @@ do	--<< System >>--
 							Icon.SpellName = L['Battle Resurrection']
 							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(83968)))
 							Icon.Link = nil
+							Icon.GroupNum = nil
+							Icon.SpellListIndex = nil
 							
 							Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
 							Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
@@ -1986,39 +2215,62 @@ do	--<< System >>--
 		for i = 1, #Anchor.Group do
 			Icon = nil
 			
-			for SpellID, SpecificUserGUID in pairs(Anchor.Group[i]) do
-				if type(SpellID) == 'number' then
-					for UserGUID, Data in pairs(ST.InspectCache) do
-						if not ((UserGUID ~= SpecificUserGUID) or
-								(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
-								(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
-								(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
-								(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
-							
-							if not Icon then
-								CurrentIconNum = CurrentIconNum + 1
+			for SpellID, GUIDTable in pairs(Anchor.Group[i]) do
+				if type(SpellID) == 'number' and type(GUIDTable) == 'table' then
+					for UserGUID in pairs(GUIDTable) do
+						if ST.InspectCache[UserGUID] then
+							if not ((Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level > ST.InspectCache[UserGUID].Level) or
+									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec and (type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec[ST.InspectCache[UserGUID].Spec] or type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec ~= ST.InspectCache[UserGUID].Spec)) or
+									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID]) or
+									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID])) then
 								
-								Icon = ST:Icon_Create(Anchor, CurrentIconNum)
-								Icon.SpellName = format(L['IconGroup %d'], i)
-								Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(Anchor.Group[i].Icon)))
-								Icon.Link = nil
+								if not Icon then
+									CurrentIconNum = CurrentIconNum + 1
+									
+									Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+									Icon.SpellName = format(L['IconGroup %d'], i)
+									Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(Anchor.Group[i].Icon)))
+									Icon.Link = nil
+									Icon.GroupNum = i
+									Icon.SpellListIndex = nil
+									
+									Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
+									Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
+									Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
+									Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
+									
+									wipe(Icon.Data)
+								end
 								
-								Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
-								Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
-								Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
-								Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
+								Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+								tinsert(Icon.Data[SpellID], UserGUID)
 								
-								wipe(Icon.Data)
+								GroupedUser[SpellID] = GroupedUser[SpellID] or {}
+								GroupedUser[SpellID][UserGUID] = true
 							end
-							
-							Icon.Data[SpellID] = Icon.Data[SpellID] or {}
-							tinsert(Icon.Data[SpellID], UserGUID)
-							
-							GroupedUser[SpellID] = GroupedUser[SpellID] or {}
-							tinsert(GroupedUser[SpellID], UserGUID)
+						else
+							Anchor.Group[i][SpellID][UserGUID] = nil
+						end
+					end
+					
+					if not next(Anchor.Group[i][SpellID]) then
+						Anchor.Group[i][SpellID] = nil
+						
+						if Anchor.Group[i].Icon == SpellID then
+							Anchor.Group[i].Icon = nil
 						end
 					end
 				end
+			end
+			
+			local NextIndex = next(Anchor.Group[i])
+			if NextIndex then
+				if NextIndex ~= 'Icon' and not Anchor.Group[i].Icon then
+					Anchor.Group[i].Icon = NextIndex
+					Icon.SpellIcon:SetTexture(select(3, NextIndex))
+				end
+			else
+				tremove(Anchor.Group, i)
 			end
 		end
 		
@@ -2028,7 +2280,7 @@ do	--<< System >>--
 			for SpellID, Class in pairs(KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i]) do
 				for UserGUID, Data in pairs(ST.InspectCache) do
 					if not ((Data.Class ~= Class) or
-							(GroupedUser[SpellID] and GroupUser[SpellID][UserGUID]) or
+							(GroupedUser[SpellID] and GroupedUser[SpellID][UserGUID]) or
 							(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
 							(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
 							(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
@@ -2041,6 +2293,8 @@ do	--<< System >>--
 							Icon.SpellName = nil
 							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(SpellID)))
 							Icon.Link = GetSpellLink(SpellID)
+							Icon.GroupNum = nil
+							Icon.SpellListIndex = i
 							
 							Icon:SetBackdropColor(0, 0, 0)
 							Icon.SpellIconFrame:Point('TOPLEFT', Icon)
@@ -2535,6 +2789,12 @@ do	--<< Inspect System >>--
 				
 				self:RefreshCooldownCache()
 			end
+			
+			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
+				wipe(Anchor.Group)
+				self:DistributeIconData(Anchor)
+			end
+			
 			return
 		elseif ForceUpdateAll then
 			wipe(self.InspectOrder)
@@ -2565,6 +2825,10 @@ do	--<< Inspect System >>--
 		
 		if NeedRefresh then
 			self:RefreshCooldownCache()
+			
+			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
+				self:DistributeIconData(Anchor)
+			end
 		end
 		
 		self.GroupMemberCount = GetNumGroupMembers()
@@ -2657,6 +2921,8 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 end
 
 
+KF:RegisterEventList('SELF_RES_SPELL_CHANGED', function(...) print(...) end)
+
 function KF:Test()
-	ST.PrintEvent = not ST.PrintEvent
+	--ST.PrintEvent = not ST.PrintEvent
 end
