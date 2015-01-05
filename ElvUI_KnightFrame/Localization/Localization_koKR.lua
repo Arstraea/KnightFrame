@@ -75,7 +75,7 @@ do	-- Modules
 				L['Assign spell to this group'] = '이 그룹에 주문 배정'
 				L['Erase assigned spell'] = '배정한 주문 삭제'
 				L['Create New Group'] = '새로운 그룹 생성'
-				L['Erase this Icon'] = '이 아이콘 제거'
+				L['Disband this group'] = '그룹 해체'
 				L["Show this spell's icon in frame."] = '이 주문의 아이콘으로 표시'
 				L['Exclude %s from Icon tracking list.'] = '%s 를 아이콘 추적 목록에서 제외'
 				L['Exclude all %s from this group.'] = '%s 를 이 그룹에서 모두 제외'

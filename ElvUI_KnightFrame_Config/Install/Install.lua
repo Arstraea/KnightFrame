@@ -6,7 +6,7 @@ local PANEL_HEIGHT = 22
 local SPACING = 3
 
 local CURRENT_PAGE = 1
-local MAX_PAGE = 6
+local MAX_PAGE = 5
 
 
 local function InstallWindow_Close()
@@ -483,21 +483,6 @@ function KF_Config:InstallWindow_SetPage(Page)
 		KnightFrame_InstallWindow.MainButton:SetScript('OnClick', function() if not KF_Config.InstallProfile then KF_Config.InstallProfile = true else KF_Config.InstallProfile = nil end PlaySoundFile('Sound\\Interface\\LevelUp.wav') KF_Config:InstallWindow_SetPage(4) end)
 		KnightFrame_InstallWindow.MainButton:Show()
 	elseif Page == 5 then
-		KnightFrame_InstallWindow.SubTitle:SetText('|cffffdc3c'..L['Sub Install'])
-		KnightFrame_InstallWindow.text:SetText(L['KnightFrame provides sub-install. Check explanation of sub-install and this is completely optional, so If you want not, just go onto the next step.'])
-		KnightFrame_InstallWindow.State:SetText('|cff1784d1>> |cff93daff'..L['Current Order']..' |cff1784d1<<|r|n|n'..L['Do not install any sub-install.'])
-		
-		KnightFrame_InstallWindow.OptionPanel1.Tag:SetText('- |cff2eb7e4'..L['Add Important Raid Debuff']..'|r -')
-		KnightFrame_InstallWindow.OptionPanel1.text:SetText(L['Add some of missing important raid debuff to unitframe filter.'])
-		
-		if KF_Config.InstallOption1 then
-			KnightFrame_InstallWindow.OptionButton1.text:SetTextColor(.18, .72, .89)
-			KnightFrame_InstallWindow.OptionButton1.textcolor = { hr = .58, hg = .85, hb = 1, r = .18, g = .72, b = .89 }
-			KnightFrame_InstallWindow.State:SetText('|cff1784d1>> |cff93daff'..L['Current Order']..' |cff1784d1<<|r|n|n|cffceff00'..L['Add Important Raid Debuff'])
-		end
-		
-		KnightFrame_InstallWindow.OptionPanel1BG:Show()
-	elseif Page == 6 then
 		KnightFrame_InstallWindow.SubTitle:SetText('|cffffdc3c'..L['Installation Complete'])
 		KnightFrame_InstallWindow.text:SetText(L['Now installation precess is end. If you click the button below then KnightFrame will overwrite your current config profile for constructing UI layout theme and then reload.']..'|n|n|n|n'..L['If you have any suggestion, please send an email to me: qjr2513@naver.com'])
 		KnightFrame_InstallWindow.State:SetText(nil)

@@ -851,7 +851,7 @@ do	--<< About Icon >>--
 			end
 		end
 		
-		local UserName, TotalNow, TotalCount, MaxBrez, Time, ShortestTime
+		local UserName, TotalNow, TotalCount, MaxBrez, Time, ShortestTime, IconTexture
 		local SpellNow, SpellCount = 0, 0
 		local TimeNow = GetTime()
 		
@@ -1773,6 +1773,19 @@ do	--<< System >>--
 					info.text = ' '
 					info.disabled = 1
 					info.notCheckable = 1
+					UIDropDownMenu_AddButton(info, Level)
+					wipe(info)
+				end
+				
+				if self.SpellName then
+					info.text = KF:Color_Value('▶')..' '..L['Disband this group']
+					info.notCheckable = 1
+					info.func = function()
+						ST:IconDropDownMenu_Close()
+						wipe(self.Anchor.Group)
+						
+						ST:DistributeIconData(self.Anchor)
+					end
 					UIDropDownMenu_AddButton(info, Level)
 					wipe(info)
 				end

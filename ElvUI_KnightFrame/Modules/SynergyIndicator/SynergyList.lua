@@ -50,7 +50,8 @@ Info.SynergyIndicator_Filters = {
 	Versatility = { -- 유연성
 		{ 1126, 'Druid' },									-- Mark of The Wild						야생의 징표
 		{ 167187, 'Paladin/Retribution' },					-- Sanctity Aura						신성한 오라
-		{ 167188, 'Warrior/Arms/Fury', true },				-- Inspiring Presence					고무적인 
+		{ 167188, 'Warrior/Arms/Fury', true },				-- Inspiring Presence					고무적인 존재
+		{ 55610, 'DeathKnight/Frost/Unholy' },				-- Improved Icy Talons					부정의 오라
 		true,
 		{ 172967, 'Hunter' },								-- Lone Wolf: Versatility of the Ravager	고독한 늑대: 갈퀴발톱의 유연성
 		true,
