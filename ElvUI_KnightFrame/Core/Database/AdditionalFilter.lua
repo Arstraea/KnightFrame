@@ -4,10 +4,32 @@ local KF, Info, Timer = unpack(select(2, ...))
 local function RegistFilter(Filter, SpellID, Priority)
 	local SpellName = GetSpellInfo(SpellID)
 	
-	if G.unitframe.aurafilters[Filter] then
+	if SpellName and G.unitframe.aurafilters[Filter] then
 		G.unitframe.aurafilters[Filter].spells[SpellName] = { enable = true, priority = Priority or 0 }
 	end
 end
+
+
+do	-- GENERAL
+	-- WHITELIST
+	RegistFilter('Whitelist', 172106)		-- 여우의 상		Aspect of the Fox
+	
+	-- AuraBarColors
+	G.unitframe.AuraBarColors[GetSpellInfo(172106)] = {									-- 여우의 상		Aspect of the Fox
+		r = RAID_CLASS_COLORS.HUNTER.r,
+		g = RAID_CLASS_COLORS.HUNTER.g,
+		b = RAID_CLASS_COLORS.HUNTER.b
+	}
+	G.unitframe.AuraBarColors[GetSpellInfo(156990)] = { r = 1, g = .8, b = 0 }			-- 마라아드의 진실	Maraad's Truth
+	G.unitframe.AuraBarColors[GetSpellInfo(156989)] = { r = .18, g = .72, b = .89 }		-- 리아드린의 정의	Liadrin's Righteousness
+	G.unitframe.AuraBarColors[GetSpellInfo(156987)] = { r = 1, g = .3, b = .3 }			-- 투랄리온의 응징	Uther's Insight
+	G.unitframe.AuraBarColors[GetSpellInfo(156988)] = {									-- 우서의 통찰		Uther's Insight
+		r = RAID_CLASS_COLORS.PALADIN.r,
+		g = RAID_CLASS_COLORS.PALADIN.g,
+		b = RAID_CLASS_COLORS.PALADIN.b
+	}
+end
+
 
 do	-- MIST OF PANDARIA
 	-- Mogu'shan Vaults
@@ -88,11 +110,20 @@ do	-- WARLORD OF DRAENORE
 		-- Ko'ragh
 		RegistFilter('RaidDebuffs', 162186)			-- 마법 방출: 비전		Expel Magic: Arcane
 		RegistFilter('RaidDebuffs', 162184)			-- 마법 방출: 암흑		Expel Magic: Shadow
-		RegistFilter('RaidDebuffs', 172886)			-- 무효화의 징표		Mark of Nullification
+		RegistFilter('RaidDebuffs', 172886, 1)		-- 무효화의 징표		Mark of Nullification
 		
 		-- Mar'gok
 		RegistFilter('RaidDebuffs', 156225)			-- 낙인					Branded
 		RegistFilter('RaidDebuffs', 164004)			-- 낙인: 변위			Branded: Displacement
 		RegistFilter('RaidDebuffs', 164005)			-- 낙인: 경화			Branded: Fortification
 		RegistFilter('RaidDebuffs', 164006)			-- 낙인: 복제			Branded: Replication
+end
+
+
+do	-- BuffWatch
+	tinsert(G.unitframe.buffwatch.PALADIN, {		-- 신념의 봉화			Beacon of Faith
+		enabled = true, id = 156910, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 }, 
+		style = 'coloredIcon', displayText = false, decimalThreshold = 5,
+		textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
+	})
 end

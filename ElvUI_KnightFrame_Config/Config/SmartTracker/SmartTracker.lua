@@ -13,18 +13,18 @@ local SelectedWindow = L['SmartTracker_MainWindow']
 local SelectedIcon = 'RaidIcon'
 
 
-local function NameColor(Color)
-	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or ''
+local function Color(TrueColor, FalseColor)
+	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
 end
 
 
-local function NameColor2(Color)
-	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and (Color and '|cff'..Color or KF:Color_Value()) or '|cff787878'
+local function WindowColor(TrueColor, FalseColor)
+	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and KF.db.Modules.SmartTracker.Window[SelectedWindow] and KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
 end
 
 
-local function TabColor()
-	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and '' or '|cff787878'
+local function IconColor(TrueColor, FalseColor)
+	return KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and KF.db.Modules.SmartTracker.Icon[SelectedIcon] and KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
 end
 
 
@@ -47,13 +47,13 @@ KF_Config.Options.args.SmartTracker = {
 			set = function(_, value)
 				KF.db.Modules.SmartTracker.Enable = value
 				
-				--KF.Modules.SmartTracker()
+				KF.Modules.SmartTracker()
 			end,
 			width = 'full',
 		},
 		General = {
 			type = 'group',
-			name = function() return TabColor()..L['General'] end,
+			name = function() return Color('', 'ff787878')..L['General'] end,
 			order = 100,
 			get = function(info) return KF.db.Modules.SmartTracker[(info[#info - 1])][(info[#info])] end,
 			set = function(info, value)
@@ -67,21 +67,21 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				General = {
 					type = 'group',
-					name = function() return NameColor2('ffffff')..L['General Setting'] end,
+					name = function() return Color('ffffffff', 'ff787878')..L['General Setting'] end,
 					order = 2,
 					guiInline = true,
 					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 					args = {
 						DetailSpellTooltip = {
 							type = 'toggle',
-							name = function() return ' '..NameColor()..L['Detail SpellTooltip'] end,
+							name = function() return ' '..Color()..L['Detail SpellTooltip'] end,
 							order = 1,
 							desc = '',
 							descStyle = 'inline',
 						},
 						EraseWhenUserLeftGroup = {
 							type = 'toggle',
-							name = function() return ' '..NameColor()..L['Erase leaved user'] end,
+							name = function() return ' '..Color()..L['Erase leaved user'] end,
 							order = 2,
 							desc = L["Erase specific user's all cooltime bar who left group."],
 						}
@@ -94,22 +94,29 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				Scan = {
 					type = 'group',
-					name = function() return NameColor2('ffffff')..L['Inspect Parts'] end,
+					name = function() return Color('ffffffff', 'ff787878')..L['Inspect Parts'] end,
 					order = 4,
 					guiInline = true,
 					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 					args = {
 						AutoScanning = {
 							type = 'toggle',
-							name = function() return ' '..NameColor()..L['Auta Scanning'] end,
+							name = function() return ' '..Color()..L['Auta Scanning'] end,
 							order = 1,
 							desc = L["SmartTracker will check new member of groups automatically."],
 						},
 						UpdateInspectCache = {
 							type = 'toggle',
-							name = function() return ' '..NameColor()..L['Update old data'] end,
+							name = function() return ' '..Color()..L['Update old data'] end,
 							order = 2,
 							desc = L["After new member's scanning, scan old member's setting for updating."],
+						},
+						ScanWhenReadyCheck = {
+							type = 'toggle',
+							name = function() return ' '..Color()..L['Update all when ready check.'] end,
+							order = 3,
+							desc = '',
+							descStyle = 'inline',
 						}
 					}
 				},
@@ -127,7 +134,7 @@ KF_Config.Options.args.SmartTracker = {
 		},
 		SortOrder = {
 			type = 'group',
-			name = function() return TabColor()..L['Sort Order'] end,
+			name = function() return Color('', 'ff787878')..L['Sort Order'] end,
 			order = 200,
 			get = function(info) return KF.db.Modules.SmartTracker[(info[#info - 1])][(info[#info])] end,
 			set = function(info, value)
@@ -141,7 +148,7 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				Role = {
 					type = 'group',
-					name = function() return NameColor2('ffffff')..L['By Role'] end,
+					name = function() return Color('ffffffff', 'ff787878')..L['By Role'] end,
 					order = 2,
 					guiInline = true,
 					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
@@ -156,7 +163,7 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				Class = {
 					type = 'group',
-					name = function() return NameColor2('ffffff')..L['By Class'] end,
+					name = function() return Color('ffffffff', 'ff787878')..L['By Class'] end,
 					order = 4,
 					guiInline = true,
 					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
@@ -178,7 +185,7 @@ KF_Config.Options.args.SmartTracker = {
 		},
 		ClassColor = {
 			type = 'group',
-			name = function() return TabColor()..L['Class Color'] end,
+			name = function() return Color('', 'ff787878')..L['Class Color'] end,
 			order = 300,
 			get = function(info)
 				return KF.db.Modules.SmartTracker[(info[#info - 2])][(info[#info - 1])][tonumber(info[#info])][1],
@@ -210,18 +217,18 @@ KF_Config.Options.args.SmartTracker = {
 		},
 		Window = {
 			type = 'group',
-			name = function() return TabColor()..L['Window Setting'] end,
+			name = function() return Color('', 'ff787878')..L['Window Setting'] end,
 			order = 400,
 			childGroups = 'tab',
 			args = {
-				Space = {
+				Space1 = {
 					type = 'description',
 					name = ' ',
 					order = 1
 				},
 				SelectWindow = {
 					type = 'select',
-					name = function() return ' '..NameColor2()..L['Select'] end,
+					name = function() return ' '..Color(nil, 'ff787878')..L['Select'] end,
 					order = 2,
 					get = function() return SelectedWindow end,
 					set = function(_, value)
@@ -248,24 +255,41 @@ KF_Config.Options.args.SmartTracker = {
 					end,
 					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end
 				},
-				--[[
-				Space = {
+				Space2 = {
 					type = 'description',
 					name = ' ',
 					order = 3,
 					width = 'half'
 				},
+				Enable = {
+					type = 'toggle',
+					name = function() return ' '..Color('ffffffff', 'ff787878')..L['Enable']..' : '..Color(nil, 'ff787878')..SelectedWindow end,
+					order = 4,
+					get = function() return KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable end,
+					set = function(_, value)
+						KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable = value
+						
+						ST:Window_Create(SelectedWindow)
+					end,
+					hidden = function() return SelectedWindow == '0' end,
+				},
+				Space3 = {
+					type = 'description',
+					name = ' ',
+					order = 50,
+				},
+				--[[
 				Description = {
 					type = 'description',
 					name = function() return Message or ' ' end,
-					order = 4,
+					order = 5,
 					width = 'double',
 					hidden = function() return SelectedWindow == '0' and (TrackerInfo.Name == '' or not TrackerInfo.Name) end
 				},
 				Name_NewTracker = {
 					type = 'input',
 					name = function() return ' '..NameColor2()..L['Input New Name'] end,
-					order = 5,
+					order = 6,
 					desc = '',
 					descStyle = 'inline',
 					get = function() return '' end,
@@ -283,7 +307,7 @@ KF_Config.Options.args.SmartTracker = {
 				]]
 				Appearance = {
 					type = 'group',
-					name = function() return TabColor()..L['Appearance'] end,
+					name = function() return WindowColor('', 'ff787878')..L['Appearance'] end,
 					order = 100,
 					get = function(info) return KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] end,
 					args = {
@@ -294,14 +318,14 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Bar = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Cooldown Bar'] end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..L['Cooldown Bar'] end,
 							order = 2,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							args = {
 								Bar_Direction = {
 									type = 'select',
-									name = function() return ' '..NameColor()..L['Bar Direction'] end,
+									name = function() return ' '..WindowColor()..L['Bar Direction'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
@@ -312,7 +336,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Bar_Height = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Bar Height'] end,
+									name = function() return ' '..WindowColor()..L['Bar Height'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline',
@@ -327,7 +351,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Bar_FontSize = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Bar Fontsize'] end,
+									name = function() return ' '..WindowColor()..L['Bar Fontsize'] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline',
@@ -342,7 +366,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Count_TargetUser = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Number of Target Display'] end,
+									name = function() return ' '..WindowColor()..L['Number of Target Display'] end,
 									order = 4,
 									set = function(info, r, g, b, a)
 										KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
@@ -366,10 +390,10 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Color = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..COLOR end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..COLOR end,
 							order = 4,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							get = function(info)
 								return KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][1] or 1,
 									   KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])][2] or 1,
@@ -379,7 +403,7 @@ KF_Config.Options.args.SmartTracker = {
 							args = {
 								Color_WindowTab = {
 									type = 'color',
-									name = function() return ' '..NameColor()..L['Window Tab Color'] end,
+									name = function() return ' '..WindowColor()..L['Window Tab Color'] end,
 									order = 1,
 									set = function(info, r, g, b, a)
 										KF.db.Modules.SmartTracker.Window[SelectedWindow].Appearance[(info[#info])] = { r, g, b, a }
@@ -389,7 +413,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Color_BehindBar = {
 									type = 'color',
-									name = function() return ' '..NameColor()..L['Bar Background Color'] end,
+									name = function() return ' '..WindowColor()..L['Bar Background Color'] end,
 									order = 2,
 									hasAlpha = true,
 									set = function(info, r, g, b, a)
@@ -418,7 +442,7 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				Display = {
 					type = 'group',
-					name = function() return TabColor()..L['Display Condition'] end,
+					name = function() return WindowColor('', 'ff787878')..L['Display Condition'] end,
 					order = 200,
 					get = function(info) return KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info - 1])][(info[#info])] end,
 					set = function(info, value)
@@ -434,21 +458,21 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Situation = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Group Situation'] end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..L['Group Situation'] end,
 							order = 2,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							args = {
 								Solo = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Solo Playing'] end,
+									name = function() return ' '..WindowColor()..L['Solo Playing'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Group = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Group Playing'] end,
+									name = function() return ' '..WindowColor()..L['Group Playing'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
@@ -462,35 +486,35 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Location = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Location Condition'] end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..L['Location Condition'] end,
 							order = 4,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							args = {
 								Field = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In Field'] end,
+									name = function() return ' '..WindowColor()..L['In Field'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Instance = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In Instance'] end,
+									name = function() return ' '..WindowColor()..L['In Instance'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
 								},
 								RaidDungeon = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In RaidDungeon'] end,
+									name = function() return ' '..WindowColor()..L['In RaidDungeon'] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline'
 								},
 								PvPGround = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In PvPGround'] end,
+									name = function() return ' '..WindowColor()..L['In PvPGround'] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
@@ -504,42 +528,42 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						AmICondition = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Player Condition'] end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..L['Player Condition'] end,
 							order = 6,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							args = {
 								Tank = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Tank"] end,
+									name = function() return ' '..WindowColor()..L["When I'm Tank"] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Healer = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Healer"] end,
+									name = function() return ' '..WindowColor()..L["When I'm Healer"] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Caster = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Caster"] end,
+									name = function() return ' '..WindowColor()..L["When I'm Caster"] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Melee = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Melee"] end,
+									name = function() return ' '..WindowColor()..L["When I'm Melee"] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
 								},
 								GroupLeader = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm GroupLeader"] end,
+									name = function() return ' '..WindowColor()..L["When I'm GroupLeader"] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
@@ -553,35 +577,35 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Filter = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Filtering by Role'] end,
+							name = function() return WindowColor('ffffffff', 'ff787878')..L['Filtering by Role'] end,
 							order = 8,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 							args = {
 								Tank = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Display Tank'] end,
+									name = function() return ' '..WindowColor()..L['Display Tank'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Healer = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Display Healer'] end,
+									name = function() return ' '..WindowColor()..L['Display Healer'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Caster = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Display Caster'] end,
+									name = function() return ' '..WindowColor()..L['Display Caster'] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Melee = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Display Melee'] end,
+									name = function() return ' '..WindowColor()..L['Display Melee'] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
@@ -599,24 +623,23 @@ KF_Config.Options.args.SmartTracker = {
 							order = 999
 						}
 					}
-				},
-				
+				}
 			}
 		},
 		Icon = {
 			type = 'group',
-			name = function() return TabColor()..L['Icon Setting'] end,
+			name = function() return Color('', 'ff787878')..L['Icon Setting'] end,
 			order = 500,
 			childGroups = 'tab',
 			args = {
-				Space = {
+				Space1 = {
 					type = 'description',
 					name = ' ',
 					order = 1
 				},
 				SelectIcon = {
 					type = 'select',
-					name = function() return ' '..NameColor2()..L['Select'] end,
+					name = function() return ' '..Color(nil, 'ff787878')..L['Select'] end,
 					order = 2,
 					get = function() return SelectedIcon end,
 					set = function(_, value)
@@ -640,23 +663,32 @@ KF_Config.Options.args.SmartTracker = {
 						end
 						
 						return list
-					end,
-					disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end
+					end
 				},
-				--[[
-				Space = {
+				Space2 = {
 					type = 'description',
 					name = ' ',
 					order = 3,
 					width = 'half'
 				},
-				Description = {
-					type = 'description',
-					name = function() return Message or ' ' end,
+				Enable = {
+					type = 'toggle',
+					name = function() return ' '..Color('ffffffff', 'ff787878')..L['Enable']..' : '..Color(nil, 'ff787878')..SelectedIcon end,
 					order = 4,
-					width = 'double',
-					hidden = function() return SelectedWindow == '0' and (TrackerInfo.Name == '' or not TrackerInfo.Name) end
+					get = function() return KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable end,
+					set = function(_, value)
+						KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable = value
+						
+						ST:IconAnchor_Create(SelectedIcon)
+					end,
+					hidden = function() return SelectedIcon == '0' end,
 				},
+				Space3 = {
+					type = 'description',
+					name = ' ',
+					order = 50,
+				},
+				--[[
 				Name_NewTracker = {
 					type = 'input',
 					name = function() return ' '..NameColor2()..L['Input New Name'] end,
@@ -678,7 +710,7 @@ KF_Config.Options.args.SmartTracker = {
 				]]
 				Appearance = {
 					type = 'group',
-					name = function() return TabColor()..L['Appearance'] end,
+					name = function() return IconColor('', 'ff787878')..L['Appearance'] end,
 					order = 100,
 					get = function(info) return KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info])] end,
 					set = function(info, value)
@@ -692,14 +724,14 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Icon = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Spell Icon'] end,
+							name = function() return IconColor('ffffffff', 'ff787878')..L['Spell Icon'] end,
 							order = 2,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable == false end,
 							args = {
 								Icon_Width = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Icon Width'] end,
+									name = function() return ' '..IconColor()..L['Icon Width'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
@@ -715,7 +747,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Icon_Height = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Icon Height'] end,
+									name = function() return ' '..IconColor()..L['Icon Height'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline',
@@ -731,7 +763,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Spacing = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Icon Spacing'] end,
+									name = function() return ' '..IconColor()..L['Icon Spacing'] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline',
@@ -747,7 +779,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								FontSize = {
 									type = 'range',
-									name = function() return ' '..NameColor()..L['Count FontSize'] end,
+									name = function() return ' '..IconColor()..L['Count FontSize'] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline',
@@ -771,14 +803,14 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Arrangement = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Icon Arrangement'] end,
+							name = function() return IconColor('ffffffff', 'ff787878')..L['Icon Arrangement'] end,
 							order = 4,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable == false end,
 							args = {
 								Orientation = {
 									type = 'select',
-									name = function() return ' '..NameColor()..L['Icon Orientation'] end,
+									name = function() return ' '..IconColor()..L['Icon Orientation'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline',
@@ -801,7 +833,7 @@ KF_Config.Options.args.SmartTracker = {
 								},
 								Arrangement = {
 									type = 'select',
-									name = function() return ' '..NameColor()..L['Icon Align'] end,
+									name = function() return ' '..IconColor()..L['Icon Align'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline',
@@ -838,7 +870,7 @@ KF_Config.Options.args.SmartTracker = {
 										
 										return list
 									end,
-								},
+								}
 							}
 						},
 						CreditSpace = {
@@ -855,7 +887,7 @@ KF_Config.Options.args.SmartTracker = {
 				},
 				Display = {
 					type = 'group',
-					name = function() return TabColor()..L['Display Condition'] end,
+					name = function() return IconColor('', 'ff787878')..L['Display Condition'] end,
 					order = 200,
 					get = function(info) return KF.db.Modules.SmartTracker.Icon[SelectedIcon][(info[#info - 2])][(info[#info - 1])][(info[#info])] end,
 					set = function(info, value)
@@ -871,21 +903,21 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Situation = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Group Situation'] end,
+							name = function() return IconColor('ffffffff', 'ff787878')..L['Group Situation'] end,
 							order = 2,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable == false end,
 							args = {
 								Solo = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Solo Playing'] end,
+									name = function() return ' '..IconColor()..L['Solo Playing'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Group = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['Group Playing'] end,
+									name = function() return ' '..IconColor()..L['Group Playing'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
@@ -899,39 +931,39 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						Location = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Location Condition'] end,
+							name = function() return IconColor('ffffffff', 'ff787878')..L['Location Condition'] end,
 							order = 4,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable == false end,
 							args = {
 								Field = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In Field'] end,
+									name = function() return ' '..IconColor()..L['In Field'] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Instance = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In Instance'] end,
+									name = function() return ' '..IconColor()..L['In Instance'] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
 								},
 								RaidDungeon = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In RaidDungeon'] end,
+									name = function() return ' '..IconColor()..L['In RaidDungeon'] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline'
 								},
 								PvPGround = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L['In PvPGround'] end,
+									name = function() return ' '..IconColor()..L['In PvPGround'] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
-								},
+								}
 							}
 						},
 						Space3 = {
@@ -941,42 +973,42 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						AmICondition = {
 							type = 'group',
-							name = function() return NameColor2('ffffff')..L['Player Condition'] end,
+							name = function() return IconColor('ffffffff', 'ff787878')..L['Player Condition'] end,
 							order = 6,
 							guiInline = true,
-							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
+							disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] or KF.db.Modules.SmartTracker.Icon[SelectedIcon].Enable == false end,
 							args = {
 								Tank = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Tank"] end,
+									name = function() return ' '..IconColor()..L["When I'm Tank"] end,
 									order = 1,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Healer = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Healer"] end,
+									name = function() return ' '..IconColor()..L["When I'm Healer"] end,
 									order = 2,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Caster = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Caster"] end,
+									name = function() return ' '..IconColor()..L["When I'm Caster"] end,
 									order = 3,
 									desc = '',
 									descStyle = 'inline'
 								},
 								Melee = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm Melee"] end,
+									name = function() return ' '..IconColor()..L["When I'm Melee"] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
 								},
 								GroupLeader = {
 									type = 'toggle',
-									name = function() return ' '..NameColor()..L["When I'm GroupLeader"] end,
+									name = function() return ' '..IconColor()..L["When I'm GroupLeader"] end,
 									order = 4,
 									desc = '',
 									descStyle = 'inline'
@@ -994,11 +1026,10 @@ KF_Config.Options.args.SmartTracker = {
 							order = 999
 						}
 					}
-				},
-				
+				}
 			}
 		}
-	},
+	}
 }
 
 local SpellCount
@@ -1025,7 +1056,7 @@ for i, Class in ipairs(ClassTable) do
 	
 	KF_Config.Options.args.SmartTracker.args.ClassColor.args[strupper(Class)] = {
 		type = 'group',
-		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..Class..':16:16:0:0:64:64:7:58:7:58|t |c'..(KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and RAID_CLASS_COLORS[strupper(Class)].colorStr or 'ff787878')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
+		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..Class..':16:16:0:0:64:64:7:58:7:58|t '..Color(RAID_CLASS_COLORS[strupper(Class)].colorStr, 'ff787878')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
 		order = i * 2,
 		guiInline = true,
 		desc = '',
@@ -1034,12 +1065,12 @@ for i, Class in ipairs(ClassTable) do
 		args = {
 			['1'] = {
 				type = 'color',
-				name = function() return NameColor2()..format(L['Charged Bar Color %d'], 1) end,
+				name = function() return Color(nil, 'ff787878')..format(L['Charged Bar Color %d'], 1) end,
 				order = 1,
 			},
 			['2'] = {
 				type = 'color',
-				name = function() return NameColor2()..format(L['Charged Bar Color %d'], 2) end,
+				name = function() return Color(nil, 'ff787878')..format(L['Charged Bar Color %d'], 2) end,
 				order = 2,
 			}
 		}
@@ -1047,11 +1078,10 @@ for i, Class in ipairs(ClassTable) do
 	
 	KF_Config.Options.args.SmartTracker.args.Window.args[Class] = {
 		type = 'group',
-		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..info[#info]..':16:16:0:0:64:64:7:58:7:58|t '..(KF.db.Enable ~= false and KF.db.Modules.SmartTracker.Enable ~= false and '|c'..RAID_CLASS_COLORS[strupper(Class)].colorStr or '')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
+		name = function(info) return '|TInterface\\ICONS\\ClassIcon_'..info[#info]..':16:16:0:0:64:64:7:58:7:58|t '..WindowColor(RAID_CLASS_COLORS[strupper(Class)].colorStr, 'ff787878')..LOCALIZED_CLASS_NAMES_MALE[string.upper(Class)] end,
 		order = 299 + i,
 		desc = '',
 		descStyle = 'inline',
-		disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false end,
 		args = {
 			Space = {
 				type = 'description',
@@ -1066,7 +1096,7 @@ for i, Class in ipairs(ClassTable) do
 		if not Info.SmartTracker_Data[strupper(Class)][SpellID].Hidden then
 			KF_Config.Options.args.SmartTracker.args.Window.args[Class].args[tostring(SpellID)] = {
 				type = 'toggle',
-				name = function() return ' |T'..GetSpellTexture(SpellID)..':20:20:0:0:64:64:7:57:7:57|t '..NameColor('2eb7e4')..GetSpellInfo(SpellID)..(Info.SmartTracker_Data[strupper(Class)][SpellID].Desc or '') end,
+				name = function() return ' |T'..GetSpellTexture(SpellID)..':20:20:0:0:64:64:7:57:7:57|t '..WindowColor('ff2eb7e4')..GetSpellInfo(SpellID)..(Info.SmartTracker_Data[strupper(Class)][SpellID].Desc or '') end,
 				order = SpellCount,
 				desc = function()
 					SpellTooltipHelper.SpellID = SpellID
@@ -1079,6 +1109,7 @@ for i, Class in ipairs(ClassTable) do
 					ST:BuildTrackingSpellList(SelectedWindow)
 					ST:RedistributeCooldownData(KF.UIParent.ST_Window[SelectedWindow])
 				end,
+				disabled = function() return KF.db.Enable == false or KF.db.Modules.SmartTracker.Enable == false or not KF.db.Modules.SmartTracker.Window[SelectedWindow] or KF.db.Modules.SmartTracker.Window[SelectedWindow].Enable == false end,
 			}
 			SpellCount = SpellCount + 1
 		end

@@ -663,6 +663,8 @@ do	-- ROGUE DATA
 			end
 		},
 	}
+	
+	Info.SmartTracker_ConvertSpell[45181] = 31230														-- 구사일생
 end
 
 

@@ -201,6 +201,7 @@ KF.db.Modules.SmartTracker = {
 	
 	Icon = {
 		RaidIcon = {
+			Enable = true,
 			ShowBattleResurrectionIcon = true,
 			
 			Appearance = {
@@ -255,6 +256,7 @@ KF.db.Modules.SmartTracker = {
 			},
 		},
 		SupportIcon = {
+			Enable = true,
 			ShowBattleResurrectionIcon = false,
 			
 			Appearance = {
@@ -371,6 +373,7 @@ Info.SmartTracker_Default_Window = {
 
 
 Info.SmartTracker_Default_Icon = {
+	Enable = true,
 	ShowBattleResurrectionIcon = false,
 	
 	Appearance = {

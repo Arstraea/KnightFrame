@@ -237,7 +237,7 @@ do	-- Modules
 		L['Check Changing'] = '변경 시 재검사'
 			L['If group member CHANGE his setting(specialization or talent or glyph), reinspect him.|n|nThis function works only when that member is near you.'] = '파티원이 전문화나 특성, 문양을 |cffff0000변경|r하면 해당 유저를 다시 검사합니다.|n|n이 기능은 그 유저가 당신 근처에 있을 때에만 작동합니다.'
 		L['Update After Scanning'] = '검사 후 업데이트'
-			
+		L['Update all when ready check.'] = '전투준비 때 모두 업데이트'
 	
 	L['Cooltime Bar'] = '쿨타임 바'
 			

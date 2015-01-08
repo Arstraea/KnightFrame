@@ -286,7 +286,7 @@ do	--<< About Window's Layout and Appearance >>--
 	
 	
 	function ST:SetWindowDisplayingStatus(Window)
-		if KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
+		if KF.db.Modules.SmartTracker.Window[Window.Name].Enable and KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
 			Window.DisplayArea:Show()
 			Window.DisplayArea:SetAlpha(Window:GetAlpha())
 		else
@@ -312,6 +312,7 @@ do	--<< About Window's Layout and Appearance >>--
 				
 				E.CreatedMovers[Window.mover.name] = Window.MoverData
 				Window.MoverData = nil
+				
 				wipe(Window.ContainedBar)
 				
 				Window:Show()
@@ -327,7 +328,6 @@ do	--<< About Window's Layout and Appearance >>--
 				E:CreateMover(Window, 'ST_Window_'..Window.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 				Window:SetScript('OnSizeChanged', self.OnSizeChanged)
 			end
-			
 			E.CreatedMovers[Window.mover.name].point = E:HasMoverBeenMoved(WindowName) and E.db.movers[WindowName] or KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Location or 'CENTERElvUIParent'
 			Window.mover:ClearAllPoints()
 			Window.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Window.mover.name].point)}))
@@ -414,12 +414,29 @@ do	--<< About Window's Layout and Appearance >>--
 		local Window = KF.UIParent.ST_Window[WindowName]
 		
 		if Window then
-			Window:SetAlpha(0)
-			Window:Hide()
+			self:SetDisplay('Window', 'ST_Window', WindowName, Window)
+			self:SetWindowDisplayingStatus(Window)
+			
+			local moverData = E.CreatedMovers[Window.mover.name]
+			Window.MoverData = moverData
+			E.CreatedMovers[Window.mover.name] = nil
+			
+			if SaveProfile then
+				E:SaveMoverPosition(Window.mover.name)
+				E.db.movers[WindowName] = E.db.movers[Window.mover.name]
+			else
+				E.db.movers[WindowName] = nil
+			end
+			E.db.movers[Window.mover.name] = nil
+			
+			self.DeletedWindow[#self.DeletedWindow + 1] = Window
+			KF.UIParent.ST_Window[WindowName] = nil
+			
+			self:BuildTrackingSpellList()
 		end
 	end
-
-
+	
+	
 	function ST:Setup_MainWindow()
 		KF.UIParent.ST_Window[(L['SmartTracker_MainWindow'])] = self:Window_Setup(self, 1)
 		
@@ -1166,9 +1183,8 @@ do	--<< About Icon >>--
 		local Anchor = KF.UIParent.ST_Icon[AnchorName]
 		
 		if not Anchor then
-			if #self.DeletedIcon > 0 then
-				KF.UIParent.ST_Icon[AnchorName] = self.DeletedAnchor[#self.DeletedIcon]
-				self.DeletedIcon[#self.DeletedIcon] = nil
+			if #self.DeletedAnchor > 0 then
+				KF.UIParent.ST_Icon[AnchorName] = self.DeletedAnchor[#self.DeletedAnchor]
 				
 				Anchor = KF.UIParent.ST_Icon[AnchorName]
 				
@@ -1177,7 +1193,10 @@ do	--<< About Icon >>--
 				
 				wipe(Anchor.ContainedIcon)
 				wipe(Anchor.Group)
+				
 				Anchor:Show()
+				
+				self.DeletedAnchor[#self.DeletedAnchor] = nil
 			else
 				AnchorCount = AnchorCount + 1
 				
@@ -1221,15 +1240,24 @@ do	--<< About Icon >>--
 		local Anchor = KF.UIParent.ST_Icon[AnchorName]
 		
 		if Anchor then
-			for i = 1, #Anchor.ContainedIcon do
-				ST:Icon_Delete(Anchor, i)
+			self:SetDisplay('Icon', 'ST_Icon', AnchorName, Anchor)
+			
+			local moverData = E.CreatedMovers[Anchor.mover.name]
+			Anchor.MoverData = moverData
+			E.CreatedMovers[Anchor.mover.name] = nil
+			
+			if SaveProfile then
+				E:SaveMoverPosition(Anchor.mover.name)
+				E.db.movers[AnchorName] = E.db.movers[Anchor.mover.name]
+			else
+				E.db.movers[AnchorName] = nil
 			end
-			wipe(Anchor.ContainedIcon)
+			E.db.movers[Anchor.mover.name] = nil
 			
-			Anchor:SetAlpha(0)
-			Anchor:Hide()
+			self.DeletedAnchor[#self.DeletedAnchor + 1] = Anchor
+			KF.UIParent.ST_Icon[AnchorName] = nil
 			
-			Anchor.CurrentIconNum = nil
+			self:BuildTrackingSpellList()
 		end
 	end
 	
@@ -1388,7 +1416,9 @@ do	--<< System >>--
 	
 	
 	function ST:SetDisplay(TrackerType, TrackerTable, TrackerName, Tracker)
-		if (Info.CurrentGroupMode == 'NoGroup' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Situation.Solo ~= false or
+		if	KF.db.Modules.SmartTracker.Enable and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Enable and
+			
+			(Info.CurrentGroupMode == 'NoGroup' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Situation.Solo ~= false or
 			Info.CurrentGroupMode ~= 'NoGroup' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Situation.Group ~= false)
 			
 			and (Info.InstanceType == 'field' and KF.db.Modules.SmartTracker[TrackerType][TrackerName].Display.Location.Field ~= false or
@@ -1405,16 +1435,29 @@ do	--<< System >>--
 				E:UIFrameFadeIn(Tracker, 1)
 				
 				if TrackerType == 'Window' then
-					ST:RedistributeCooldownData(Tracker)
+					self:RedistributeCooldownData(Tracker)
 				else
-					ST:DistributeIconData(Tracker)
+					self:DistributeIconData(Tracker)
 				end
 			end
 		else
 			if Tracker.NowDisplaying then
 				Tracker.NowDisplaying = nil
 				E:UIFrameFadeOut(Tracker, 1)
-				Tracker.fadeInfo.finishedFunc = function() Tracker:Hide() end
+				Tracker.fadeInfo.finishedFunc = function()
+					if TrackerType == 'Window' then
+						for BarNum = 1, #Tracker.ContainedBar do
+							self:Bar_Delete(Tracker, BarNum)
+						end
+					elseif TrackerType == 'Icon' then
+						for IconNum = 1, #Tracker.ContainedIcon do
+							self:Icon_Delete(Tracker, IconNum)
+						end
+						Tracker.CurrentIconNum = nil
+					end
+					
+					Tracker:Hide()
+				end
 			end
 		end
 	end
@@ -1816,7 +1859,12 @@ do	--<< System >>--
 					end
 					
 					
-					info.text = format(self.SpellName and L['Exclude all %s from this group.'] or L['Exclude %s from Icon tracking list.'], '|cff71d5ff['..GetSpellInfo(UIDROPDOWNMENU_MENU_VALUE)..']|r')
+					info.text = format(self.SpellName and L['Exclude all %s from this group.'] or '|cff808080'..L['Exclude %s from Icon tracking list.']..' (작업중)', '|cff71d5ff['..GetSpellInfo(UIDROPDOWNMENU_MENU_VALUE)..']|r')
+					
+					if not self.SpellName then
+						info.disabled = 1
+					end
+					
 					info.notCheckable = 1
 					info.func = function() ST.IconDropDownMenu_Clear(self, UIDROPDOWNMENU_MENU_VALUE) end
 					UIDropDownMenu_AddButton(info, Level)
@@ -2909,6 +2957,10 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 			ST:Window_Delete(WindowName, true)
 		end
 		
+		for AnchorName in pairs(KF.UIParent.ST_Icon) do
+			ST:IconAnchor_Delete(AnchorName, true)
+		end
+		
 		wipe(ST.InspectOrder)
 		wipe(ST.InspectCache)
 		wipe(ST.CooldownCache)
@@ -2934,7 +2986,7 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 end
 
 
-KF:RegisterEventList('SELF_RES_SPELL_CHANGED', function(...) print(...) end)
+--KF:RegisterEventList('SELF_RES_SPELL_CHANGED', function(...) print(...) end)
 
 function KF:Test()
 	--ST.PrintEvent = not ST.PrintEvent
