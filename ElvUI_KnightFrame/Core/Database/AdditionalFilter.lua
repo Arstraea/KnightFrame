@@ -12,9 +12,19 @@ end
 
 do	-- GENERAL
 	-- WHITELIST
+	RegistFilter('Whitelist', 146555)		-- 분노의 북		Drums of Rage
+	RegistFilter('Whitelist', 178207)		-- 격노의 북		Drums of Fury
 	RegistFilter('Whitelist', 172106)		-- 여우의 상		Aspect of the Fox
+	RegistFilter('Whitelist', 102342)		-- 무쇠 껍질		Ironbark
+	RegistFilter('Whitelist', 114030)		-- 경계				Vigilance
 	
 	-- AuraBarColors
+	G.unitframe.AuraBarColors[GetSpellInfo(2825)] = { r = .09, g = .51, b = .82 }		-- 피의 욕망		Bloodlust
+	G.unitframe.AuraBarColors[GetSpellInfo(32182)] = { r = .09, g = .51, b = .82 }		-- 영웅심			Heroism
+	G.unitframe.AuraBarColors[GetSpellInfo(80353)] = { r = .09, g = .51, b = .82 }		-- 고대의 격분		Ancient Hysteria
+	G.unitframe.AuraBarColors[GetSpellInfo(90355)] = { r = .09, g = .51, b = .82 }		-- 시간 왜곡		Ancient Hysteria
+	G.unitframe.AuraBarColors[GetSpellInfo(146555)] = { r = .09, g = .51, b = .82 }		-- 분노의 북		Drums of Rage
+	G.unitframe.AuraBarColors[GetSpellInfo(178207)] = { r = .09, g = .51, b = .82 }		-- 격노의 북		Drums of Fury
 	G.unitframe.AuraBarColors[GetSpellInfo(172106)] = {									-- 여우의 상		Aspect of the Fox
 		r = RAID_CLASS_COLORS.HUNTER.r,
 		g = RAID_CLASS_COLORS.HUNTER.g,
@@ -28,6 +38,18 @@ do	-- GENERAL
 		g = RAID_CLASS_COLORS.PALADIN.g,
 		b = RAID_CLASS_COLORS.PALADIN.b
 	}
+	
+	-- Raid Utility Filter Group
+	G.unitframe.aurafilters[(L['Raid Utility Filter'])] = {
+		type = 'whitelist',
+		spells = {}
+	}
+	RegistFilter(L['Raid Utility Filter'], 31821)	-- 헌오
+	RegistFilter(L['Raid Utility Filter'], 98007)	-- 정신의 고리 토템
+	
+	RegistFilter(L['Raid Utility Filter'], 156430)	-- 드레나이 방어도 물약
+	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약
+	
 end
 
 
@@ -99,13 +121,22 @@ do	-- WARLORD OF DRAENORE
 	-- Highmoul
 		-- Kargath Bladefist
 		RegistFilter('RaidDebuffs', 159178)			-- 꿰뚫기				Open Wounds
+		RegistFilter('RaidDebuffs', 162497)			-- 추적 사냥			On the Hunt
 		
 		-- The Butcher
 		RegistFilter('RaidDebuffs', 156152, 2)		-- 상처 출혈			Gushing Wounds
 		RegistFilter('RaidDebuffs', 156147)			-- 식칼					The Cleaver
 		RegistFilter('RaidDebuffs', 156151, 1)		-- 고기다지개			The Tenderizer
 		
+		-- Tectus
+		RegistFilter('RaidDebuffs', 172066)			-- 독 방출 중			Radiating Poison
+		
 		-- Brackenspore
+		
+		-- Twin Ogron
+		RegistFilter('RaidDebuffs', 163372)			-- 불안정한 비전		Arcane Volatility
+		RegistFilter('RaidDebuffs', 158026, 1)		-- 약화의 포효			Enfeebling Roar
+		RegistFilter('RaidDebuffs', 158241, 2)		-- 태우기				Blaze
 		
 		-- Ko'ragh
 		RegistFilter('RaidDebuffs', 162186)			-- 마법 방출: 비전		Expel Magic: Arcane
@@ -117,6 +148,21 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 164004)			-- 낙인: 변위			Branded: Displacement
 		RegistFilter('RaidDebuffs', 164005)			-- 낙인: 경화			Branded: Fortification
 		RegistFilter('RaidDebuffs', 164006)			-- 낙인: 복제			Branded: Replication
+	
+	
+	-- Blackrock Foundry
+		-- Oregorger
+		RegistFilter('RaidDebuffs', 156297)			-- 산성 격류			Acid Torrent
+		
+		-- Blast Furnace
+		RegistFilter('RaidDebuffs', 155225, 1)		-- 융해					Melt
+		
+		-- Ka'graz
+		RegistFilter('RaidDebuffs', 155277, 1)		-- 타오르는 광휘		Blazing Radiance
+		
+		-- Blackhand
+		RegistFilter('RaidDebuffs', 175583)			-- 살아있는 불길		Living Blaze
+		RegistFilter('RaidDebuffs', 156743, 1)		-- 관통상				Impaled
 end
 
 

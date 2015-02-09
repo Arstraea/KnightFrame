@@ -736,7 +736,7 @@ if not AISM.Revision or AISM.Revision < Revision then
 			end
 			
 			for funcName, func in pairs(self.RegisteredFunction) do
-				func(Sender, Message)
+				func(Sender, Prefix, Message)
 			end
 		else
 			local TableToSave, NeedResponse, Group, stringTable
@@ -880,7 +880,7 @@ if not AISM.Revision or AISM.Revision < Revision then
 				
 				if Message == '' then
 					for funcName, func in pairs(self.RegisteredFunction) do
-						func(Sender, TableToSave)
+						func(Sender, Prefix, TableToSave)
 					end
 					
 					Message = nil
@@ -962,8 +962,8 @@ if not AISM.Revision or AISM.Revision < Revision then
 		if type(Func) == 'function' then
 			funcName = funcName or #self.RegisteredFunction + 1
 			
-			self.RegisteredFunction[funcName] = function(User, UserData)
-				if Func(User, UserData) then
+			self.RegisteredFunction[funcName] = function(User, Prefix, UserData)
+				if Func(User, Prefix, UserData) then
 					if not PreserveFunction then
 						self.RegisteredFunction[funcName] = nil
 					end

@@ -56,6 +56,36 @@ IA.Default_CurrentInspectData = {
 	Profession = { [1] = {}, [2] = {} },
 	PvP = {}
 }
+IA.MainStats = {	-- STR, INT, AGI, 
+	WARRIOR = STR,
+	HUNTER = AGI,
+	SHAMAN = {
+		[(L['Spec_Shaman_Elemental'])] = INT,
+		[(L['Spec_Shaman_Enhancement'])] = AGI,
+		[(L['Spec_Shaman_Restoration'])] = INT
+	},
+	MONK = {
+		[(L['Spec_Monk_Brewmaster'])] = AGI,
+		[(L['Spec_Monk_Mistweaver'])] = INT,
+		[(L['Spec_Monk_Windwalker'])] = AGI
+	},
+	ROGUE = AGI,
+	DEATHKNIGHT = STR,
+	MAGE = INT,
+	DRUID = {
+		[(L['Spec_Druid_Balance'])] = INT,
+		[(L['Spec_Druid_Feral'])] = AGI,
+		[(L['Spec_Druid_Guardian'])] = AGI,
+		[(L['Spec_Druid_Restoration'])] = INT
+	},
+	PALADIN = {
+		[(L['Spec_Paladin_Holy'])] = INT,
+		[(L['Spec_Paladin_Protection'])] = STR,
+		[(L['Spec_Paladin_Retribution'])] = STR
+	},
+	PRIEST = INT,
+	WARLOCK = INT
+}
 
 
 do --<< Button Script >>--
@@ -223,13 +253,9 @@ do --<< Button Script >>--
 			if type(Parent.GemItemID) == 'number' then
 				if GetItemInfo(Parent.GemItemID) then
 					GameTooltip:SetHyperlink(select(2, GetItemInfo(Parent.GemItemID)))
+					self:SetScript('OnUpdate', nil)
 				else
-					self:SetScript('OnUpdate', function()
-						if GetItemInfo(Parent.GemItemID) then
-							IA.GemSocket_OnEnter(self)
-							self:SetScript('OnUpdate', nil)
-						end
-					end)
+					self:SetScript('OnUpdate', IA.GemSocket_OnEnter)
 					return
 				end
 			else
@@ -270,16 +296,12 @@ do --<< Button Script >>--
 		
 		if self.Link then
 			if GetItemInfo(self.Link) then
+				self:SetScript('OnUpdate', nil)
 				GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT')
 				GameTooltip:SetHyperlink(select(2, GetItemInfo(self.Link)))
 				GameTooltip:Show()
 			else
-				self:SetScript('OnUpdate', function()
-					if GetItemInfo(self.Link) then
-						IA.Transmogrify_OnEnter(self)
-						self:SetScript('OnUpdate', nil)
-					end
-				end)
+				self:SetScript('OnUpdate', IA.Transmogrify_OnEnter)
 			end
 		end
 	end
@@ -572,8 +594,8 @@ function IA:CreateInspectFrame()
 					EndX, EndY = GetCursorPosition()
 					
 					Z, X, Y = self:GetPosition(Z, X, Y)
-					x = (EndX - self.StartX) / 45 + x
-					y = (EndY - self.StartY) / 45 + y
+					X = (EndX - self.StartX) / 45 + X
+					Y = (EndY - self.StartY) / 45 + Y
 					
 					self:SetPosition(Z, X, Y)
 					self.StartX, self.StartY = GetCursorPosition()
@@ -586,7 +608,7 @@ function IA:CreateInspectFrame()
 		self.Model:SetScript('OnMouseWheel', function(self, spining)
 			local Z, X, Y = self:GetPosition()
 			
-			z = (spining > 0 and z + 0.5 or z - 0.5)
+			Z = (spining > 0 and Z + 0.5 or Z - 0.5)
 			
 			self:SetPosition(Z, X, Y)
 		end)
@@ -704,7 +726,7 @@ function IA:CreateInspectFrame()
 					Slot.TransmogrifyAnchor = CreateFrame('Button', nil, Slot.Gradation)
 					Slot.TransmogrifyAnchor:Size(12)
 					Slot.TransmogrifyAnchor:SetFrameLevel(CORE_FRAME_LEVEL + 4)
-					Slot.TransmogrifyAnchor:Point('BOTTOM'..Slot.Direction, Slot)
+					Slot.TransmogrifyAnchor:Point('BOTTOM'..Slot.Direction, Slot, Slot.Direction == 'LEFT' and -3 or 3, -3)
 					Slot.TransmogrifyAnchor:SetScript('OnEnter', self.Transmogrify_OnEnter)
 					Slot.TransmogrifyAnchor:SetScript('OnLeave', self.Transmogrify_OnLeave)
 					
@@ -1271,8 +1293,8 @@ function IA:CreateInspectFrame()
 				}
 				
 				local TableIndex = self.Data.TableIndex
-				AISM:RegisterInspectDataRequest(function(User, UserData)
-					if User == TableIndex then
+				AISM:RegisterInspectDataRequest(function(User, Prefix, UserData)
+					if Prefix == 'AISM_Inspect' and User == TableIndex then
 						E:CopyTable(IA.CurrentInspectData, UserData)
 						IA:ShowFrame(IA.CurrentInspectData)
 						
@@ -1365,7 +1387,7 @@ function IA:CreateInspectFrame()
 					
 					--print(isSending)
 					if isSending then
-						AISM:RegisterInspectDataRequest(function(User, Message)
+						AISM:RegisterInspectDataRequest(function(User, _, Message)
 							if User == DataTable.TableIndex and Message == isSending then
 								InspectArmory_UnitPopup.CreateDropDownButton(Button, DataTable)
 								
@@ -1611,7 +1633,8 @@ IA.InspectUnit = function(UnitID)
 	else
 		UnitID = NotifyInspect(UnitID, true) or UnitID
 		
-		IA.CurrentInspectData = E:CopyTable({}, IA.Default_CurrentInspectData)
+		wipe(IA.CurrentInspectData)
+		E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
 		
 		IA.CurrentInspectData.UnitID = UnitID
 		IA.CurrentInspectData.UnitGUID = UnitGUID(UnitID)
@@ -1638,7 +1661,9 @@ function IA:ShowFrame(DataTable)
 	
 	for _, SlotName in pairs(Info.Armory_Constants.GearList) do
 		if DataTable.Gear[SlotName] and DataTable.Gear[SlotName].ItemLink and not GetItemInfo(DataTable.Gear[SlotName].ItemLink) then
-			self.GET_ITEM_INFO_RECEIVED = function() self:ShowFrame(DataTable) end
+			if not self.GET_ITEM_INFO_RECEIVED then
+				self.GET_ITEM_INFO_RECEIVED = function() self:ShowFrame(DataTable) end
+			end
 		end
 	end
 	
@@ -1893,6 +1918,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 							end
 							]]
 						end
+						
+						--print(SlotName, Slot.Link, TrueItemLevel, ItemTotal)
 					else
 						NeedUpdate = true
 					end
@@ -1942,6 +1969,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 		
 		self.SetItem = E:CopyTable({}, self.CurrentInspectData.SetItem)
 		self.Character.AverageItemLevel:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
+		--print(ItemCount, ItemTotal/ItemCount)
 	end
 	
 	if NeedUpdateList then
@@ -2281,6 +2309,7 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 		self.Spec['Glyph'..i].text:SetJustifyH('LEFT')
 		self.Spec['Glyph'..i].text:SetText(Name)
 		self.Spec['Glyph'..i].Icon.Texture:SetTexture(Texture)
+		--print(Group, i, DataTable.Glyph[Group], DataTable.Glyph[Group]['Glyph'..i..'ID'])
 		self.Spec['Glyph'..i].Tooltip.Link = DataTable.Glyph[Group]['Glyph'..i..'ID'] ~= 0 and GetGlyphLinkByID(DataTable.Glyph[Group]['Glyph'..i..'ID'])
 		
 		if DataTable.Glyph[Group]['Glyph'..i..'SpellID'] ~= 0 then

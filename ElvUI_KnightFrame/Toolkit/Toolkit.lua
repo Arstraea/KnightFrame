@@ -37,6 +37,24 @@ function KF:TextSetting(self, Text, Style, ...)
 end
 
 
+function KF:CompareTable(MainTable, TableToCompare, DB, DeleteSameValue)
+	for Index, Value in pairs(MainTable) do
+		if type(Value) == 'table' and TableToCompare[Index] ~= nil and type(TableToCompare[Index]) == 'table' then
+			DB[Index] = DB[Index] or {}
+			KF:CompareTable(MainTable[Index], TableToCompare[Index], DB[Index])
+			
+			if not next(DB[Index]) then
+				DB[Index] = nil
+			end
+		elseif not TableToCompare[Index] or Value ~= TableToCompare[Index] or type(Value) ~= type(TableToCompare[Index]) then
+			DB[Index] = Value
+		else
+			DB[Index] = nil
+		end
+	end
+end
+
+
 function KF:GetPanelData(key)
 	local Panel, panelType, panelTab, IsTabEnabled, panelDP, IsDPEnabled
 	

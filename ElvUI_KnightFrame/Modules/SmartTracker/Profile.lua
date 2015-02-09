@@ -200,109 +200,7 @@ KF.db.Modules.SmartTracker = {
 	},
 	
 	Icon = {
-		RaidIcon = {
-			Enable = true,
-			ShowBattleResurrectionIcon = true,
-			
-			Appearance = {
-				Location = 'TOPLEFTElvUIParentTOPLEFT11-186',
-				
-				Icon_Width = 35,
-				Icon_Height = 30,
-				Spacing = 5,
-				FontSize = 10,
-				DisplayMax = true,
-				
-				Orientation = 'Horizontal',	-- Horizontal, Vertical
-				Arrangement = 'Left to Right'	-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
-			},
-			
-			Display = {
-				Situation = {
-					Solo = false,
-					Group = true,
-				},
-				
-				Location = {
-					Field = true,
-					Instance = true,
-					RaidDungeon = true,
-					PvPGround = true
-				},
-				
-				AmICondition = {
-					Tank = true,
-					Healer = true,
-					Caster = true,
-					Melee = true,
-					GroupLeader = true
-				},
-			},
-			
-			SpellList = {
-				{ [31821] = 'PALADIN' },
-				{ [62618] = 'PRIEST' },
-				{ [64843] = 'PRIEST' },
-				{ [98008] = 'SHAMAN' },
-				{ [108280] = 'SHAMAN' },
-				{ [152256] = 'SHAMAN' },
-				{ [115310] = 'MONK' },
-				{ [740] = 'DRUID' },
-				{ [97462] = 'WARRIOR' },
-				{ [76577] = 'ROGUE' },
-				{ [159916] = 'MAGE' },
-				{ [172106] = 'HUNTER' },
-				{ [15286] = 'PRIEST' }
-			},
-		},
-		SupportIcon = {
-			Enable = true,
-			ShowBattleResurrectionIcon = false,
-			
-			Appearance = {
-				Location = 'BOTTOMElvUIParentBOTTOM0432',
-				
-				Icon_Width = 35,
-				Icon_Height = 30,
-				Spacing = 5,
-				FontSize = 10,
-				DisplayMax = true,
-				
-				Orientation = 'Horizontal',	-- Horizontal, Vertical
-				Arrangement = 'Center'		-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
-			},
-			
-			Display = {
-				Situation = {
-					Solo = false,
-					Group = true,
-				},
-				
-				Location = {
-					Field = false,
-					Instance = true,
-					RaidDungeon = true,
-					PvPGround = true
-				},
-				
-				AmICondition = {
-					Tank = true,
-					Healer = true,
-					Caster = true,
-					Melee = true,
-					GroupLeader = true
-				},
-			},
-			
-			SpellList = {
-				{ [6940] = 'PALADIN' },
-				{ [33206] = 'PRIEST' },
-				{ [47788] = 'PRIEST' },
-				{ [116849] = 'MONK' },
-				{ [102342] = 'DRUID' },
-				{ [114030] = 'WARRIOR' }
-			},
-		}
+		
 	}
 }
 
@@ -436,7 +334,7 @@ KF.DBFunction.SmartTracker = {
 	Save = function()
 		for WindowName, IsWindowData in pairs(KF.db.Modules.SmartTracker.Window) do
 			if type(IsWindowData) == 'table' then
-				KF.db.Modules.SmartTracker.Window[WindowName] = KF:CompareTable(IsWindowData, Info.SmartTracker_Default_Window)
+				KF:CompareTable(IsWindowData, Info.SmartTracker_Default_Window, KF.db.Modules.SmartTracker.Window[WindowName])
 				
 				if KF.db.Modules.SmartTracker.Window[WindowName] == nil then
 					KF.db.Modules.SmartTracker.Window[WindowName] = {}
@@ -446,7 +344,7 @@ KF.DBFunction.SmartTracker = {
 		
 		for IconName, IsIconData in pairs(KF.db.Modules.SmartTracker.Icon) do
 			if type(IsIconData) == 'table' then
-				KF.db.Modules.SmartTracker.Icon[IconName] = KF:CompareTable(IsIconData, Info.SmartTracker_Default_Icon)
+				KF:CompareTable(IsIconData, Info.SmartTracker_Default_Icon, KF.db.Modules.SmartTracker.Icon[IconName])
 				
 				if KF.db.Modules.SmartTracker.Icon[IconName] == nil then
 					KF.db.Modules.SmartTracker.Icon[IconName] = {}

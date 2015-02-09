@@ -76,7 +76,7 @@ KF.InitializeFunction.LoadDB = function()
 	P.KnightFrame = E:CopyTable({}, KF.db)
 	
 	if E.db.KnightFrame then
-		KF:DBConversions(E.db.KnightFrame)
+		KF:DBConversions(E.db)
 		
 		for ModuleName, Function in pairs(KF.DBFunction) do
 			if type(Function.Load) == 'function' then
@@ -107,7 +107,7 @@ KF.InitializeFunction.LoadDB = function()
 			local Default = E:CopyTable({}, P.KnightFrame)
 			
 			if ElvDB.profiles[NewProfileKey] and ElvDB.profiles[NewProfileKey].KnightFrame then
-				KF:DBConversions(ElvDB.profiles[NewProfileKey].KnightFrame)
+				KF:DBConversions(ElvDB.profiles[NewProfileKey])
 				
 				for ModuleName, Function in pairs(KF.DBFunction) do
 					if type(Function.Load) == 'function' then
@@ -151,29 +151,6 @@ end
 
 
 -- Save Profile
-function KF:CompareTable(MainTable, TableToCompare)
-	local RemainValueTable = {}
-	local RemainValue
-	
-	for option, value in pairs(MainTable) do
-		RemainValue = nil
-		
-		if type(value) == 'table' and TableToCompare[option] ~= nil and type(TableToCompare[option]) == 'table' then
-			RemainValue = KF:CompareTable(MainTable[option], TableToCompare[option])
-		elseif value ~= TableToCompare[option] or TableToCompare[option] == nil or type(value) ~= type(TableToCompare[option]) then
-			RemainValue = value
-		end
-		
-		if RemainValue ~= nil then
-			RemainValueTable[option] = RemainValue
-		end
-	end
-	
-	for _ in pairs(RemainValueTable) do
-		return RemainValueTable
-	end
-end
-
 KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
 	if TargetTable and ElvDB.profiles[TargetTable].KnightFrame then
 		for ModuleName, Function in pairs(KF.DBFunction) do
@@ -182,7 +159,7 @@ KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
 			end
 		end
 		
-		ElvDB.profiles[TargetTable].KnightFrame = KF:CompareTable(KF.db, P.KnightFrame)
+		KF:CompareTable(KF.db, P.KnightFrame, ElvDB.profiles[TargetTable].KnightFrame)
 	elseif E.db.KnightFrame then
 		for ModuleName, Function in pairs(KF.DBFunction) do
 			if type(Function.Save) == 'function' then
@@ -190,9 +167,14 @@ KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
 			end
 		end
 		
-		E.db.KnightFrame = KF:CompareTable(KF.db, P.KnightFrame)
+		KF:CompareTable(KF.db, P.KnightFrame, E.db.KnightFrame)
 	end
 end, 'KnightFrame_SaveDB')
+
+function KF:Test()
+	KF:CompareTable(KF.db, P.KnightFrame, E.db.KnightFrame)
+	PrintTable(E.db.KnightFrame.Modules.EmbedMeter)
+end
 
 
 

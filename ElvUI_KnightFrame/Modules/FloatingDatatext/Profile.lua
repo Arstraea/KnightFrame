@@ -51,7 +51,7 @@ KF.DBFunction.FloatingDatatext = {
 	Save = function()
 		for datatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 			if type(IsDatatextData) == 'table' then
-				KF.db.Modules.FloatingDatatext[datatextName] = KF:CompareTable(IsDatatextData, Info.FloatingDatatext_Default)
+				KF:CompareTable(IsDatatextData, Info.FloatingDatatext_Default, KF.db.Modules.FloatingDatatext[datatextName])
 				
 				if KF.db.Modules.FloatingDatatext[datatextName] == nil then
 					KF.db.Modules.FloatingDatatext[datatextName] = {}

@@ -46,7 +46,7 @@ KF.DBFunction.CustomPanel = {
 	Save = function()
 		for panelName, IsPanelData in pairs(KF.db.Modules.CustomPanel) do
 			if type(IsPanelData) == 'table' then
-				KF.db.Modules.CustomPanel[panelName] = KF:CompareTable(IsPanelData, Info.CustomPanel_Default)
+				KF:CompareTable(IsPanelData, Info.CustomPanel_Default, KF.db.Modules.CustomPanel[panelName])
 				
 				if KF.db.Modules.CustomPanel[panelName] == nil then
 					KF.db.Modules.CustomPanel[panelName] = {}

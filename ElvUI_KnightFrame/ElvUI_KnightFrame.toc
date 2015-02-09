@@ -1,13 +1,13 @@
 ## Interface: 60000
 ## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3
 ## Author: Arstraea
-## Version: 3.1_12
+## Version: 3.1_13
 ## eMail: qjr2513@naver.com
 ## RequiredDeps: ElvUI
 ## OptionalDeps: ACP, Skada, SkadaU, Recount, Omen, BlueItemInfo3, DBM-Core, Findparty, InvenCraftInfo2, Examiner
 ## DefaultState: Enabled
 ## Notes: Custom User Interface of Elv UI 6.0 version by Arstraea
-## SavedVariables: KF_InspectInfoDB
+## SavedVariables: KnightFrame_ArmoryDB
 
 Initialize.lua
 Toolkit\Load_Toolkit.xml

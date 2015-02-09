@@ -368,7 +368,7 @@ KF_Config.Options.args.SmartTracker = {
 									type = 'range',
 									name = function() return ' '..WindowColor()..L['Number of Target Display'] end,
 									order = 4,
-									set = function(info, r, g, b, a)
+									set = function(info, value)
 										KF.db.Modules.SmartTracker.Window[SelectedWindow][(info[#info - 2])][(info[#info])] = value
 										
 										for i, Bar in ipairs(KF.UIParent.ST_Window[SelectedWindow].ContainedBar) do

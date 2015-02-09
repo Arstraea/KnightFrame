@@ -1821,16 +1821,29 @@ do	--<< System >>--
 				end
 				
 				if self.SpellName then
-					info.text = KF:Color_Value('▶')..' '..L['Disband this group']
+					info.text = KF:Color_Value('▶')..' '..L['Disband this group.']
 					info.notCheckable = 1
 					info.func = function()
 						ST:IconDropDownMenu_Close()
-						wipe(self.Anchor.Group)
+						tremove(self.Anchor.Group, self.Icon.GroupNum)
 						
 						ST:DistributeIconData(self.Anchor)
 					end
 					UIDropDownMenu_AddButton(info, Level)
 					wipe(info)
+					
+					if #self.Anchor.Group > 1 then
+						info.text = KF:Color_Value('▶')..' '..L['Disband all groups.']
+						info.notCheckable = 1
+						info.func = function()
+							ST:IconDropDownMenu_Close()
+							wipe(self.Anchor.Group)
+							
+							ST:DistributeIconData(self.Anchor)
+						end
+						UIDropDownMenu_AddButton(info, Level)
+						wipe(info)
+					end
 				end
 				
 				info.text = KF:Color_Value('▶')..' '..CLOSE

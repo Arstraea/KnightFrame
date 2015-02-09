@@ -92,6 +92,13 @@ function KF:CancelTimer(TimerName)
 end
 
 
+--[[
+KNIGHTFRAME_ADS_MESSAGE = '1시까지 용광로막넴 개인룻 트라이팟 [딜1(흑,조,근딜x)] 템렙귓주세요 668++'
+KF:RegisterTimer('광고', 'NewTicker', 30, function()
+	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
+end, nil, true)
+]]
+--/run ElvUI_KnightFrame[1]:CancelTimer('광고')
 
 
 --------------------------------------------------------------------------------
@@ -453,7 +460,7 @@ local function ClearKilledBossList(Forced)
 	KF:CancelTimer('ClearKilledBossList')
 	
 	if not IsEncounterInProgress() or Forced == true then
-		Info.KilledBossList = {}
+		wipe(Info.KilledBossList)
 		
 		if not Forced then
 			KF:RegisterEventList('ENCOUNTER_START', KF.CheckBossCombat, 'CheckBossCombat')

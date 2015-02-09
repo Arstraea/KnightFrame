@@ -24,6 +24,8 @@ do	-- General
 	CRIT_ABBR = '크리'
 	MANA_REGEN = '마젠'
 	
+	L['Raid Utility Filter'] = '공대생존기 필터'
+	
 	L['Creater of this addon, %s is in %s group. Please whisper me about opinion of %s addon.'] = '본 애드온 제작자인 제가 %s 아이디로 %s 안에 있습니다! 귓속말로 %s 에 대하여 의견을 이야기해주세요.' 
 	L['You canceled KnightFrame install ago. If you wants to run KnightFrame install process again, please type /kf_install command.'] = '과거에 |cff1784d1KnightFrame|r 설치를 하지 않고 설치창을 닫았습니다. 다시 설치를 하고 싶으시면 |cff1784d1/kf_install|r 명령어를 입력하세요.'
 end
@@ -75,7 +77,8 @@ do	-- Modules
 				L['Assign spell to this group'] = '이 그룹에 주문 배정'
 				L['Erase assigned spell'] = '배정한 주문 삭제'
 				L['Create New Group'] = '새로운 그룹 생성'
-				L['Disband this group'] = '그룹 해체'
+				L['Disband this group.'] = '이 그룹 해체'
+				L['Disband all groups.'] = '모든 그룹 해체'
 				L["Show this spell's icon in frame."] = '이 주문의 아이콘으로 표시'
 				L['Exclude %s from Icon tracking list.'] = '%s 를 아이콘 추적 목록에서 제외'
 				L['Exclude all %s from this group.'] = '%s 를 이 그룹에서 모두 제외'

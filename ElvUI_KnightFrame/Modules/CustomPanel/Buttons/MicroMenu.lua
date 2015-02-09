@@ -95,7 +95,20 @@ KF.UIParent.Button.MicroMenu = {
 			
 			CreateMiniButton(Button1, -93, -6, '|cff1784d1'..CHARACTER_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleCharacter('PaperDollFrame') Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button2, -62, -6, '|cff228b22'..SPELLBOOK_ABILITIES_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) if not SpellBookFrame:IsShown() then ShowUIPanel(SpellBookFrame) else HideUIPanel(SpellBookFrame) end Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button3, -31, -6, '|cff1784d1'..TALENTS_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) if not PlayerTalentFrame then LoadAddOn('Blizzard_TalentUI') end if not GlyphFrame then LoadAddOn('Blizzard_GlyphUI') end PlayerTalentFrame_Toggle() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button3, -31, -6, '|cff1784d1'..TALENTS_BUTTON, function()
+				ToggleFrame(KF_MicroMenuHolder)
+				
+				if not PlayerTalentFrame then TalentFrame_LoadUI() end
+				if not GlyphFrame then GlyphFrame_LoadUI() end
+				
+				if not PlayerTalentFrame:IsShown() then
+					ShowUIPanel(PlayerTalentFrame)
+				else
+					HideUIPanel(PlayerTalentFrame)
+				end
+				
+				Button.text:SetText(KF.UIParent.Button.MicroMenu.Text)
+			end)
 			CreateMiniButton(Button4, 0, -6, '|cff228b22'..QUESTLOG_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleFrame(QuestLogFrame) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button5, 31, -6, '|cff228b22'..MOUNTS_AND_PETS, function() ToggleFrame(KF_MicroMenuHolder) TogglePetJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button6, 62, -6, '|cff1784d1'..ACHIEVEMENT_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleAchievementFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
