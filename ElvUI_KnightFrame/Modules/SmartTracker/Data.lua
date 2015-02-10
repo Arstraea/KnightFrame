@@ -6,6 +6,7 @@ local KF, Info, Timer = unpack(select(2, ...))
 -----------------------------------------------------------
 Info.SmartTracker_ResetCooldownMapID = {
 	-- WARLORD OF DRAENORE
+	[1205] = 'Blackrock Foundry',
 	[1228] = 'HighMoul',
 	
 	-- MIST OF PANDARIA
@@ -23,7 +24,7 @@ Info.SmartTracker_ResetCooldownMapID = {
 -- [ Knight : Spell Data								]--
 -----------------------------------------------------------
 Info.SmartTracker_BattleResurrection = {
-	[61999] = 'DEATHKNIGHT',	-- 아군 되살리기
+	[61999] = 'DEATHKNIGHT',	-- Raise Ally			아군 되살리기
 	[20484] = 'DRUID',			-- Rebirth				환생
 	[20707] = 'WARLOCK',		-- Soul Stone			영혼석
 	[126393] = 'HUNTER'			-- Eternal Guardian		영원의 수호 (펫)

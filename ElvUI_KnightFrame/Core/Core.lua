@@ -456,13 +456,13 @@ Info.BossBattle_Exception = {
 	[EJ_GetEncounterInfo(742)] = 'friendly',	-- TSULONG
 }
 
-local function ClearKilledBossList(Forced)
+local function ClearKilledBossList(Force)
 	KF:CancelTimer('ClearKilledBossList')
 	
-	if not IsEncounterInProgress() or Forced == true then
+	if not IsEncounterInProgress() or Force == true then
 		wipe(Info.KilledBossList)
 		
-		if not Forced then
+		if not Force then
 			KF:RegisterEventList('ENCOUNTER_START', KF.CheckBossCombat, 'CheckBossCombat')
 			KF:RegisterEventList('PLAYER_REGEN_DISABLED', KF.CheckBossCombat, 'CheckBossCombat')
 		end
@@ -496,6 +496,7 @@ end
 
 
 KF.BossBattleEnd = function(EndingType)
+	--print('보스전 끝 : ', EndingType)
 	--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
 		KF:CancelTimer('ClearKilledBossList')
 		KF:RegisterTimer('ClearKilledBossList', 'NewTimer', 5, ClearKilledBossList)
@@ -566,6 +567,8 @@ function KF:BossExists(Unit)
 	local BossName = UnitName(Unit)
 	
 	if BossName and BossName ~= UNKNOWNOBJECT and BossName ~= COMBATLOG_UNKNOWN_UNIT and not UnitIsDead(Unit) and not (Info.BossBattle_Exception[BossName] and (Info.BossBattle_Exception[BossName] == 'friendly' and UnitIsFriend('player', Unit) or UnitIsEnemy('player', Unit))) then
+		Info.KilledBossList[BossName] = true
+		
 		return BossName
 	end
 end
@@ -604,12 +607,8 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 	for i = 1, 5 do
 		BossName = KF:BossExists('boss'..i)
 		
-		if BossName then
-			if Info.NowInBossBattle == nil and not Info.KilledBossList[BossName] then
-				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat, nil, true)
-			end
-			
-			Info.KilledBossList[BossName] = true
+		if BossName and Info.NowInBossBattle == nil and not Info.KilledBossList[BossName] then
+			KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat, nil, true)
 		end
 	end
 end)

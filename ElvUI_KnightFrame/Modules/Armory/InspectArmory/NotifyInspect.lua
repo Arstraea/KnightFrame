@@ -1,4 +1,4 @@
-﻿local Revision = 1.1
+﻿local Revision = 1.2
 local ENI = _G['EnhancedNotifyInspect'] or CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
 
 if not ENI.Revision or ENI.Revision < Revision then
@@ -18,7 +18,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 	end)
 	ENI:Hide()
 	
-	local playerRealm = GetRealmName()
+	local playerRealm = gsub(GetRealmName(),'[%s%-]','')
 	
 	local UnitID
 	ENI.TryInspect = function()
@@ -46,7 +46,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 		end
 	end
 	
-	ENI.NotifyInspect = function(Unit, InspectFirst)
+	ENI.NotifyInspect = function(Unit, Reservation)
 		if Unit ~= 'target' and UnitIsUnit(Unit, 'target') then
 			Unit = 'target'
 		end
@@ -63,7 +63,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 			local TableIndex = GetUnitName(Unit, true)
 			
 			if not ENI.InspectList[TableIndex] then
-				if InspectFirst then
+				if not Reservation then
 					tinsert(ENI.InspectList, 1, TableIndex)
 				else
 					tinsert(ENI.InspectList, TableIndex)
@@ -71,7 +71,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 				
 				ENI.InspectList[TableIndex] = {
 					UnitID = Unit,
-					CancelInspectByManual = InspectFirst
+					CancelInspectByManual = Reservation
 				}
 				
 				if not ENI.NowInspecting or ENI.NowInspecting._cancelled then
@@ -79,9 +79,9 @@ if not ENI.Revision or ENI.Revision < Revision then
 				end
 				
 				ENI:Show()
-			elseif InspectFirst and ENI.InspectList[TableIndex] then
+			elseif not Reservation then
 				ENI.CancelInspect(TableIndex)
-				ENI.NotifyInspect(Unit, InspectFirst)
+				ENI.NotifyInspect(Unit)
 			end
 		end
 		
@@ -90,17 +90,13 @@ if not ENI.Revision or ENI.Revision < Revision then
 	
 	ENI.CancelInspect = function(Unit)
 		if ENI.InspectList[Unit] then
-			local Index
-			
 			for i = 1, #ENI.InspectList do
 				if ENI.InspectList[i] == Unit then
-					Index = i
-					break
+					tremove(ENI.InspectList, i)
+					ENI.InspectList[Unit] = nil
+					return
 				end
 			end
-			
-			tremove(ENI.InspectList, Index)
-			ENI.InspectList[Unit] = nil
 		end
 	end
 	

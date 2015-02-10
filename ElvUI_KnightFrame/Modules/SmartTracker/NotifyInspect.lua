@@ -20,19 +20,14 @@ if not ENI.Revision or ENI.Revision < Revision then
 	
 	local playerRealm = gsub(GetRealmName(),'[%s%-]','')
 	
-	local UnitID, Count
+	local UnitID
 	ENI.TryInspect = function()
 		for i = 1, #ENI.InspectList do
 			if ENI.InspectList[(ENI.InspectList[i])] then
 				UnitID = ENI.InspectList[(ENI.InspectList[i])].UnitID
-				Count = ENI.InspectList[(ENI.InspectList[i])].InspectTryCount
 				
-				if UnitID and UnitIsConnected(UnitID) and CanInspect(UnitID) and not (Count and Count <= 0) then
+				if UnitID and UnitIsConnected(UnitID) and CanInspect(UnitID) then
 					ENI.CurrentInspectUnitGUID = UnitGUID(UnitID)
-					
-					if Count then
-						ENI.InspectList[(ENI.InspectList[i])].InspectTryCount = ENI.InspectList[(ENI.InspectList[i])].InspectTryCount - 1
-					end
 					
 					ENI.Original_BlizzardNotifyInspect(UnitID)
 					
@@ -51,7 +46,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 		end
 	end
 	
-	ENI.NotifyInspect = function(Unit, InspectFirst, InspectTryCount)
+	ENI.NotifyInspect = function(Unit, Reservation)
 		if Unit ~= 'target' and UnitIsUnit(Unit, 'target') then
 			Unit = 'target'
 		end
@@ -68,7 +63,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 			local TableIndex = GetUnitName(Unit, true)
 			
 			if not ENI.InspectList[TableIndex] then
-				if InspectFirst then
+				if not Reservation then
 					tinsert(ENI.InspectList, 1, TableIndex)
 				else
 					tinsert(ENI.InspectList, TableIndex)
@@ -76,8 +71,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 				
 				ENI.InspectList[TableIndex] = {
 					UnitID = Unit,
-					InspectTryCount = InspectTryCount,
-					CancelInspectByManual = InspectFirst
+					CancelInspectByManual = Reservation
 				}
 				
 				if not ENI.NowInspecting or ENI.NowInspecting._cancelled then
@@ -85,9 +79,9 @@ if not ENI.Revision or ENI.Revision < Revision then
 				end
 				
 				ENI:Show()
-			elseif InspectFirst and ENI.InspectList[TableIndex] then
+			elseif not Reservation then
 				ENI.CancelInspect(TableIndex)
-				ENI.NotifyInspect(Unit, InspectFirst, InspectTryCount)
+				ENI.NotifyInspect(Unit)
 			end
 		end
 		
@@ -99,11 +93,10 @@ if not ENI.Revision or ENI.Revision < Revision then
 			for i = 1, #ENI.InspectList do
 				if ENI.InspectList[i] == Unit then
 					tremove(ENI.InspectList, i)
-					break
+					ENI.InspectList[Unit] = nil
+					return
 				end
 			end
-			
-			ENI.InspectList[Unit] = nil
 		end
 	end
 	

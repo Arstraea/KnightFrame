@@ -160,6 +160,9 @@ do	-- WARLORD OF DRAENORE
 		-- Ka'graz
 		RegistFilter('RaidDebuffs', 155277, 1)		-- 타오르는 광휘		Blazing Radiance
 		
+		-- Beastlord Darmac
+		RegistFilter('RaidDebuffs', 154960, 1)		-- 봉쇄됨				Pinned Down
+		
 		-- Blackhand
 		RegistFilter('RaidDebuffs', 175583)			-- 살아있는 불길		Living Blaze
 		RegistFilter('RaidDebuffs', 156743, 1)		-- 관통상				Impaled

@@ -2997,10 +2997,3 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		KF:UnregisterEventList('CHALLENGE_MODE_RESET', 'SmartTracker')
 	end
 end
-
-
---KF:RegisterEventList('SELF_RES_SPELL_CHANGED', function(...) print(...) end)
-
-function KF:Test()
-	--ST.PrintEvent = not ST.PrintEvent
-end
