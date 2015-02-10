@@ -42,7 +42,7 @@ KF_Config.Install_Layout_Data.Moonlight.Default = {
 	ElvAB_4 = 'RIGHTUIParentRIGHT-40',
 	ElvAB_5 = 'BOTTOMUIParentBOTTOM288188',
 	ElvAB_6 = 'BOTTOMUIParentBOTTOM0600',
-	ShiftAB = 'BOTTOMLEFTUIParentBOTTOM-383257',
+	ShiftAB = 'BOTTOMLEFTUIParentBOTTOM-383277',
 	PetAB = 'BOTTOMElvUIParentBOTTOM0256',
 }
 

@@ -847,8 +847,6 @@ function IA:CreateInspectFrame()
 			self.Info[CategoryType].Tooltip:SetFrameLevel(CORE_FRAME_LEVEL + 5)
 			self.Info[CategoryType].Tooltip:SetScript('OnClick', IA.Category_OnClick)
 			
-			KF:TextSetting(self.Info[CategoryType].Tab, CategoryType, { FontSize = 10 }, 'LEFT', 6, 1)
-			
 			self.Info[CategoryType].Page = CreateFrame('Frame', nil, self.Info[CategoryType])
 			self.Info[CategoryType]:SetScrollChild(self.Info[CategoryType].Page)
 			self.Info[CategoryType].Page:SetFrameLevel(CORE_FRAME_LEVEL + 3)
@@ -857,6 +855,7 @@ function IA:CreateInspectFrame()
 		end
 		
 		do -- Profession Part
+			KF:TextSetting(self.Info.Profession.Tab, TRADE_SKILLS, { FontSize = 10 }, 'LEFT', 6, 1)
 			self.Info.Profession.CategoryHeight = INFO_TAB_SIZE + 34 + SPACING * 3
 			self.Info.Profession.Icon:SetTexture('Interface\\Icons\\Trade_BlackSmithing')
 			
@@ -905,6 +904,7 @@ function IA:CreateInspectFrame()
 		end
 		
 		do -- PvP Category
+			KF:TextSetting(self.Info.PvP.Tab, PVP, { FontSize = 10 }, 'LEFT', 6, 1)
 			self.Info.PvP.CategoryHeight = 90
 			self.Info.PvP.Icon:SetTexture('Interface\\Icons\\achievement_bg_killxenemies_generalsroom')
 			
@@ -981,6 +981,7 @@ function IA:CreateInspectFrame()
 		end
 		
 		do -- Guild Category
+			KF:TextSetting(self.Info.Guild.Tab, GUILD, { FontSize = 10 }, 'LEFT', 6, 1)
 			self.Info.Guild.CategoryHeight = INFO_TAB_SIZE + 66 + SPACING * 3
 			self.Info.Guild.Icon:SetTexture('Interface\\Icons\\ACHIEVEMENT_GUILDPERK_MASSRESURRECTION')
 			
@@ -1841,7 +1842,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 							ItemTotal = ItemTotal + TrueItemLevel
 							
 							Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..TrueItemLevel)
-							Slot.Gradation.ItemLevel:SetText((Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
+							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
 						end
 						
 						--[[
@@ -2245,6 +2246,8 @@ end
 
 
 function IA:ToggleSpecializationTab(Group, DataTable)
+	if not DataTable.Specialization[Group].SpecializationID then return end
+	
 	local R, G, B
 	self.LastActiveSpec = DataTable.Specialization.ActiveSpec or 1
 	
@@ -2309,7 +2312,6 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 		self.Spec['Glyph'..i].text:SetJustifyH('LEFT')
 		self.Spec['Glyph'..i].text:SetText(Name)
 		self.Spec['Glyph'..i].Icon.Texture:SetTexture(Texture)
-		--print(Group, i, DataTable.Glyph[Group], DataTable.Glyph[Group]['Glyph'..i..'ID'])
 		self.Spec['Glyph'..i].Tooltip.Link = DataTable.Glyph[Group]['Glyph'..i..'ID'] ~= 0 and GetGlyphLinkByID(DataTable.Glyph[Group]['Glyph'..i..'ID'])
 		
 		if DataTable.Glyph[Group]['Glyph'..i..'SpellID'] ~= 0 then
