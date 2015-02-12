@@ -8,6 +8,7 @@ local AnchorCount = 0
 --<< KnightFrame : Smart Tracker											>>--
 --------------------------------------------------------------------------------
 local ST = SmartTracker or CreateFrame('Frame', 'SmartTracker', KF.UIParent)
+local ENI = _G['EnhancedNotifyInspect'] or { CancelInspect = function() end }
 
 ST.DropDownInfo = {}
 
@@ -2571,14 +2572,14 @@ do	--<< Inspect System >>--
 	
 	
 	do	-- Event : INSPECT_READY
-		local UnitID, UserClass, UserName, Spec, Talent, IsSelected, GlyphID
+		local UnitID, UserClass, UserName, UserRealm, Spec, Talent, IsSelected, GlyphID
 		function ST:INSPECT_READY(UserGUID)
 			if Info.CurrentGroupMode == 'NoGroup' then
 				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 				return
 			end
 			
-			_, UserClass, _, _, _, UserName = GetPlayerInfoByGUID(UserGUID)
+			_, UserClass, _, _, _, UserName, UserRealm = GetPlayerInfoByGUID(UserGUID)
 			
 			if UserName == E.myname or not UnitExists(UserName) then return end
 			
@@ -2625,6 +2626,7 @@ do	--<< Inspect System >>--
 			ST.InspectCache[UserGUID].Level = UnitLevel(UserName)
 			
 			ST.InspectOrder[UserName] = true
+			ENI.CancelInspect(UserName..(UserRealm and UserRealm ~= '' and UserRealm ~= Info.MyRealm and '-'..UserRealm or ''))
 			
 			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
 				ST:DistributeIconData(Anchor)
@@ -2763,7 +2765,7 @@ do	--<< Inspect System >>--
 			else
 				--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
 				KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
-				NotifyInspect(ST.CurrentInspectMemberUnitName, nil, 3)
+				NotifyInspect(ST.CurrentInspectMemberUnitName, true, 3)
 			end
 		end
 	end

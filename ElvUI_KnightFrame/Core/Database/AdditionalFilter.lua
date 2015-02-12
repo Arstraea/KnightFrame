@@ -41,14 +41,19 @@ do	-- GENERAL
 	
 	-- Raid Utility Filter Group
 	G.unitframe.aurafilters[(L['Raid Utility Filter'])] = {
-		type = 'whitelist',
+		type = 'Whitelist',
 		spells = {}
 	}
-	RegistFilter(L['Raid Utility Filter'], 31821)	-- 헌오
-	RegistFilter(L['Raid Utility Filter'], 98007)	-- 정신의 고리 토템
+	RegistFilter(L['Raid Utility Filter'], 97463)	-- 재집결의 함성			Rallying Cry
+	RegistFilter(L['Raid Utility Filter'], 98007)	-- 정신의 고리 토템			Spirit Link Totem
+	RegistFilter(L['Raid Utility Filter'], 145629)	-- 대마법 지대				Anti-Magic Shell
+	RegistFilter(L['Raid Utility Filter'], 31821)	-- 헌신의 오라				Devotion Aura
+	RegistFilter(L['Raid Utility Filter'], 81782)	-- 신의 권능: 방벽			Power Word: Barrier
 	
-	RegistFilter(L['Raid Utility Filter'], 156430)	-- 드레나이 방어도 물약
-	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약
+	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약		Draenic Agility Potion
+	RegistFilter(L['Raid Utility Filter'], 156426)	-- 드레나이 지능 물약		Draenic Intellect Potion
+	RegistFilter(L['Raid Utility Filter'], 156428)	-- 드레나이 힘 물약			Draenic Strength Potion
+	RegistFilter(L['Raid Utility Filter'], 156430)	-- 드레나이 방어도 물약		Draenic Armor Potion
 	
 end
 
@@ -130,8 +135,10 @@ do	-- WARLORD OF DRAENORE
 		
 		-- Tectus
 		RegistFilter('RaidDebuffs', 172066)			-- 독 방출 중			Radiating Poison
+		RegistFilter('RaidDebuffs', 162346)			-- 수정 포화			Crystalline Barrage
 		
 		-- Brackenspore
+		RegistFilter('RaidDebuffs', 159220)			-- 괴저 숨결			Necrotic Breath
 		
 		-- Twin Ogron
 		RegistFilter('RaidDebuffs', 163372)			-- 불안정한 비전		Arcane Volatility

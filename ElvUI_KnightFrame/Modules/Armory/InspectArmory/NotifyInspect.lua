@@ -1,4 +1,4 @@
-﻿local Revision = 1.2
+﻿local Revision = 1.3
 local ENI = _G['EnhancedNotifyInspect'] or CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
 
 if not ENI.Revision or ENI.Revision < Revision then
@@ -20,14 +20,19 @@ if not ENI.Revision or ENI.Revision < Revision then
 	
 	local playerRealm = gsub(GetRealmName(),'[%s%-]','')
 	
-	local UnitID
+	local UnitID, Count
 	ENI.TryInspect = function()
 		for i = 1, #ENI.InspectList do
 			if ENI.InspectList[(ENI.InspectList[i])] then
 				UnitID = ENI.InspectList[(ENI.InspectList[i])].UnitID
+				Count = ENI.InspectList[(ENI.InspectList[i])].InspectTryCount
 				
-				if UnitID and UnitIsConnected(UnitID) and CanInspect(UnitID) then
+				if UnitID and UnitIsConnected(UnitID) and CanInspect(UnitID) and not (Count and Count <= 0) then
 					ENI.CurrentInspectUnitGUID = UnitGUID(UnitID)
+					
+					if Count then
+						ENI.InspectList[(ENI.InspectList[i])].InspectTryCount = ENI.InspectList[(ENI.InspectList[i])].InspectTryCount - 1
+					end
 					
 					ENI.Original_BlizzardNotifyInspect(UnitID)
 					
@@ -46,7 +51,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 		end
 	end
 	
-	ENI.NotifyInspect = function(Unit, Reservation)
+	ENI.NotifyInspect = function(Unit, Reservation, InspectTryCount)
 		if Unit ~= 'target' and UnitIsUnit(Unit, 'target') then
 			Unit = 'target'
 		end
@@ -71,6 +76,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 				
 				ENI.InspectList[TableIndex] = {
 					UnitID = Unit,
+					InspectTryCount = InspectTryCount,
 					CancelInspectByManual = Reservation
 				}
 				
@@ -79,9 +85,9 @@ if not ENI.Revision or ENI.Revision < Revision then
 				end
 				
 				ENI:Show()
-			elseif not Reservation then
+			elseif not Reservation and ENI.InspectList[TableIndex] then
 				ENI.CancelInspect(TableIndex)
-				ENI.NotifyInspect(Unit)
+				ENI.NotifyInspect(Unit, Reservation, InspectTryCount)
 			end
 		end
 		

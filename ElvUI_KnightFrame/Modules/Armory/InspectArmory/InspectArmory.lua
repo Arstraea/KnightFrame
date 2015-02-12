@@ -373,7 +373,7 @@ function IA:CreateInspectFrame()
 			PlaySound('igCharacterInfoClose')
 			
 			if self.CurrentInspectData.Name then
-				local TableIndex = self.CurrentInspectData.Name..(IA.CurrentInspectData.Realm and '-'..IA.CurrentInspectData.Realm or '')
+				local TableIndex = self.CurrentInspectData.Name..(IA.CurrentInspectData.Realm and IA.CurrentInspectData.Realm ~= '' and IA.CurrentInspectData.Realm ~= Info.MyRealm and '-'..IA.CurrentInspectData.Realm or '')
 				
 				if AISM then
 					AISM.RegisteredFunction.InspectArmory = nil
