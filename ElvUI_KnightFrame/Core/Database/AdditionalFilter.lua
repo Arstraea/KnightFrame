@@ -165,7 +165,11 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 155225, 1)		-- 융해					Melt
 		
 		-- Ka'graz
+		RegistFilter('RaidDebuffs', 154932, 1)		-- 녹아내린 격류		Molten Torrent
 		RegistFilter('RaidDebuffs', 155277, 1)		-- 타오르는 광휘		Blazing Radiance
+		
+		-- Kromog
+		RegistFilter('RaidDebuffs', 157059, 1)		-- 휘감는 대지의 룬		Rune of Grasping Earth
 		
 		-- Beastlord Darmac
 		RegistFilter('RaidDebuffs', 154960, 1)		-- 봉쇄됨				Pinned Down

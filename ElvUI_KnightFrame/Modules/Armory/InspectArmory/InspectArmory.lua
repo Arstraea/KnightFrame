@@ -1355,7 +1355,7 @@ function IA:CreateInspectFrame()
 					Unit = UnitExists(Menu.name) and Menu.name or Unit,
 					Realm = Menu.server ~= '' and Menu.server or Info.MyRealm
 				}
-				DataTable.TableIndex = DataTable.Unit and GetUnitName(DataTable.Unit, 1) or DataTable.Name..(DataTable.Realm ~= Info.MyRealm and '-'..DataTable.Realm or '')
+				DataTable.TableIndex = DataTable.Unit and GetUnitName(DataTable.Unit, 1) or DataTable.Name..(DataTable.Realm and DataTable.Realm ~= '' and DataTable.Realm ~= Info.MyRealm and '-'..DataTable.Realm or '')
 				
 				if DataTable.Name == E.myname or DataTable.Unit and (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) then
 					if AISM then
@@ -1845,6 +1845,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
 						end
 						
+						--print(Slot.Link, BasicItemLevel, TrueItemLevel)
+						
 						--[[
 						-- Check Error
 						if (not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName]) or ((SlotName == 'Finger0Slot' or SlotName == 'Finger1Slot') and (DataTable.Profession[1].Name == GetSpellInfo(110400) and DataTable.Profession[1].Level >= 550 or DataTable.Profession[2].Name == GetSpellInfo(110400) and DataTable.Profession[2].Level >= 550) and not IsEnchanted) then
@@ -1970,7 +1972,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 		
 		self.SetItem = E:CopyTable({}, self.CurrentInspectData.SetItem)
 		self.Character.AverageItemLevel:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
-		--print(ItemCount, ItemTotal/ItemCount)
+		--print(ItemCount, '|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
 	end
 	
 	if NeedUpdateList then

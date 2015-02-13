@@ -467,7 +467,7 @@ local function ClearCheckedBossList(Force)
 			KF:RegisterEventList('PLAYER_REGEN_DISABLED', KF.CheckBossCombat, 'CheckBossCombat')
 		end
 	else
-		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 3, ClearCheckedBossList)
+		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 2, ClearCheckedBossList)
 	end
 end
 KF:RegisterCallback('GroupChanged', ClearCheckedBossList)
@@ -475,7 +475,7 @@ KF:RegisterCallback('CurrentAreaChanged', ClearCheckedBossList)
 
 
 KF.BossBattleStart = function(StartingType)
-	if Info.NowInBossBattle ~= nil then return end
+	if Info.NowInBossBattle ~= nil or next(Info.CheckedBossList) then return end
 	
 	if StartingType == 'pull' then
 		Info.NowInBossBattle = 'DBM'
@@ -491,23 +491,34 @@ KF.BossBattleStart = function(StartingType)
 	KF:UnregisterEventList('ENCOUNTER_START', 'CheckBossCombat')
 	KF:UnregisterEventList('PLAYER_REGEN_DISABLED', 'CheckBossCombat')
 	
+	local BossName
+	for i = 1, 5 do
+		BossName = KF:BossExists('boss'..i)
+		
+		if BossName and not Info.CheckedBossList[BossName] then
+			Info.CheckedBossList[BossName] = true
+		end
+	end
+	
 	KF:CallbackFire('BossBattleStart')
 end
 
 
 KF.BossBattleEnd = function(EndingType)
-	--print('보스전 끝 : ', EndingType)
-	--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
-		KF:CancelTimer('ClearCheckedBossList')
-		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 5, ClearCheckedBossList)
-	--end
-	
-	KF:CancelTimer('CheckCombatEnd')
-	
-	Info.NowInBossBattle = nil
-	BossIsExists = nil
-	
-	KF:CallbackFire('BossBattleEnd')
+	if Info.NowInBossBattle then
+		--print('보스전 끝 : ', EndingType)
+		--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
+			KF:CancelTimer('ClearCheckedBossList')
+			KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 4, ClearCheckedBossList)
+		--end
+		
+		KF:CancelTimer('CheckCombatEnd')
+		
+		Info.NowInBossBattle = nil
+		BossIsExists = nil
+		
+		KF:CallbackFire('BossBattleEnd')
+	end
 end
 
 
@@ -578,12 +589,10 @@ function KF:CheckBossCombat()
 			IsEncounterInProgressOn = true
 		end
 		
-		local BossName
 		for i = 1, 5 do
-			BossName = KF:BossExists('boss'..i)
-			if BossName then
-				Info.CheckedBossList[BossName] = true
+			if KF:BossExists('boss'..i) then
 				BossIsExists = true
+				break
 			end
 		end
 		
