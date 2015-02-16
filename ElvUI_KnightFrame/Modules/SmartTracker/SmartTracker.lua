@@ -2626,7 +2626,7 @@ do	--<< Inspect System >>--
 			ST.InspectCache[UserGUID].Level = UnitLevel(UserName)
 			
 			ST.InspectOrder[UserName] = true
-			ENI.CancelInspect(UserName..(UserRealm and UserRealm ~= '' and UserRealm ~= Info.MyRealm and '-'..UserRealm or ''))
+			ENI.CancelInspect(UserName..(UserRealm and UserRealm ~= '' and UserRealm ~= Info.MyRealm and '-'..UserRealm or ''), 'SmartTracker')
 			
 			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
 				ST:DistributeIconData(Anchor)
@@ -2765,7 +2765,7 @@ do	--<< Inspect System >>--
 			else
 				--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
 				KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
-				NotifyInspect(ST.CurrentInspectMemberUnitName, true, 3)
+				NotifyInspect(ST.CurrentInspectMemberUnitName, { Reservation = true, InspectTryCount = 3, CancelInspectByManual = 'SmartTracker' })
 			end
 		end
 	end

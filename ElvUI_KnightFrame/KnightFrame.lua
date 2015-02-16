@@ -159,7 +159,7 @@ KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
 			end
 		end
 		
-		KF:CompareTable(KF.db, P.KnightFrame, ElvDB.profiles[TargetTable].KnightFrame)
+		KF:CompareTable(KF.db, P.KnightFrame, ElvDB.profiles[TargetTable].KnightFrame, true)
 	elseif E.db.KnightFrame then
 		for ModuleName, Function in pairs(KF.DBFunction) do
 			if type(Function.Save) == 'function' then
@@ -167,14 +167,9 @@ KF:RegisterEventList('PLAYER_LOGOUT', function(_, TargetTable)
 			end
 		end
 		
-		KF:CompareTable(KF.db, P.KnightFrame, E.db.KnightFrame)
+		KF:CompareTable(KF.db, P.KnightFrame, E.db.KnightFrame, true)
 	end
 end, 'KnightFrame_SaveDB')
-
-function KF:Test()
-	KF:CompareTable(KF.db, P.KnightFrame, E.db.KnightFrame)
-	PrintTable(E.db.KnightFrame.Modules.EmbedMeter)
-end
 
 
 

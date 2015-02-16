@@ -50,4 +50,4 @@ function KF:CustomPanel_Button_RegisterLDB()
 	end
 end
 
-KF:RegisterEventList('ADDON_LOADED', KF.CustomPanelButton_RegisterLDB)
+KF:RegisterEventList('ADDON_LOADED', KF.CustomPanel_Button_RegisterLDB)

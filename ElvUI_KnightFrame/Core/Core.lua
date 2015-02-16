@@ -91,9 +91,8 @@ function KF:CancelTimer(TimerName)
 	end
 end
 
-
 --[[
-KNIGHTFRAME_ADS_MESSAGE = '1시까지 용광로 일반막넴 1/1무득분 [전딜or딜술] 15인팟 템렙귓주세요 668++'
+KNIGHTFRAME_ADS_MESSAGE = '높망 영웅 [탱1][힐4][딜16] 손님4분 받습니다 1/1 3탐'
 KF:RegisterTimer('광고', 'NewTicker', 30, function()
 	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
 end, nil, true)

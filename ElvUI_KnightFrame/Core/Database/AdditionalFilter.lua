@@ -125,6 +125,7 @@ end
 do	-- WARLORD OF DRAENORE
 	-- Highmoul
 		-- Kargath Bladefist
+		RegistFilter('RaidDebuffs', 158986)			-- 광전사의 돌격		Berserker Rush
 		RegistFilter('RaidDebuffs', 159178)			-- 꿰뚫기				Open Wounds
 		RegistFilter('RaidDebuffs', 162497)			-- 추적 사냥			On the Hunt
 		

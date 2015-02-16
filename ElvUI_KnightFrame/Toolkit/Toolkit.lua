@@ -48,7 +48,7 @@ function KF:CompareTable(MainTable, TableToCompare, DB, DeleteSameValue)
 			end
 		elseif not TableToCompare[Index] or Value ~= TableToCompare[Index] or type(Value) ~= type(TableToCompare[Index]) then
 			DB[Index] = Value
-		else
+		elseif TableToCompare[Index] == value and DeleteSameValue then
 			DB[Index] = nil
 		end
 	end

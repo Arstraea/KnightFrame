@@ -1288,7 +1288,8 @@ function IA:CreateInspectFrame()
 				IA:UnregisterEvent('INSPECT_READY')
 				
 				IA.NeedModelSetting = true
-				IA.CurrentInspectData = E:CopyTable({}, IA.Default_CurrentInspectData)
+				wipe(IA.CurrentInspectData)
+				E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
 				AISM.CurrentInspectData[self.Data.TableIndex] = {
 					UnitID = self.Data.Unit,
 				}
@@ -1304,7 +1305,7 @@ function IA:CreateInspectFrame()
 				end, 'InspectArmory', true)
 				SendAddonMessage('AISM_Inspect', 'AISM_DataRequestForInspecting:'..self.Data.Name..'-'..self.Data.Realm, SendChannel, self.Data.TableIndex)
 			elseif self.Data.Unit then
-				IA.InspectUnit(self.Data.Unit)
+				IA.InspectUnit(self.Data.Unit, { CancelInspectByManual = 'KnightInspect' })
 			end
 			
 			DropDownList1:Hide()
@@ -1445,7 +1446,9 @@ function IA:INSPECT_HONOR_UPDATE()
 		IA:InspectFrame_PvPSetting(IA.CurrentInspectData)
 	end
 end
-
+function KF:Test()
+	PrintTable(ENI.InspectList)
+end
 
 function IA:INSPECT_READY(InspectedUnitGUID)
 	local TableIndex = IA.CurrentInspectData.Name..(IA.CurrentInspectData.Realm and '-'..IA.CurrentInspectData.Realm or '')
@@ -1461,12 +1464,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 		_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
 	end
 	
-	if not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm and IA.CurrentInspectData.UnitGUID == InspectedUnitGUID) then
-		if UnitGUID(UnitID) ~= IA.CurrentInspectData.UnitGUID then
-			ENI.CancelInspect(TableIndex)
-			IA:UnregisterEvent('INSPECT_READY')
-			IA:UnregisterEvent('INSPECT_HONOR_UPDATE')
-		end
+	if not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm) then
 		return
 	elseif HasInspectHonorData() then
 		IA:INSPECT_HONOR_UPDATE()
@@ -1593,7 +1591,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	local SpellID, GlyphID
 	for i = 1, NUM_GLYPH_SLOTS do
 		_, _, _, SpellID, _, GlyphID = GetGlyphSocketInfo(i, nil, true, UnitID)
-
+		
 		IA.CurrentInspectData.Glyph[1]['Glyph'..i..'SpellID'] = SpellID or 0
 		IA.CurrentInspectData.Glyph[1]['Glyph'..i..'ID'] = GlyphID or 0
 	end
@@ -1612,13 +1610,13 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	if IA.ReinspectCount > 0 then
 		IA.ReinspectCount = IA.ReinspectCount - 1
 	else
-		ENI.CancelInspect(TableIndex)
+		ENI.CancelInspect(TableIndex, 'KnightInspect')
 		IA:UnregisterEvent('INSPECT_READY')
 	end
 end
 
 
-IA.InspectUnit = function(UnitID)
+IA.InspectUnit = function(UnitID, Properties)
 	if UnitID == 'mouseover' and not UnitExists('mouseover') and UnitExists('target') then
 		UnitID = 'target'
 	end
@@ -1632,13 +1630,12 @@ IA.InspectUnit = function(UnitID)
 		
 		return
 	else
-		UnitID = NotifyInspect(UnitID, true) or UnitID
+		UnitID = NotifyInspect(UnitID, Properties) or UnitID
 		
 		wipe(IA.CurrentInspectData)
 		E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
 		
 		IA.CurrentInspectData.UnitID = UnitID
-		IA.CurrentInspectData.UnitGUID = UnitGUID(UnitID)
 		IA.CurrentInspectData.Title = UnitPVPName(UnitID)
 		IA.CurrentInspectData.Level = UnitLevel(UnitID)
 		IA.CurrentInspectData.Name, IA.CurrentInspectData.Realm = UnitFullName(UnitID)
@@ -1845,7 +1842,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
 						end
 						
-						--print(Slot.Link, BasicItemLevel, TrueItemLevel)
+						--print(SlotName..':', Slot.Link, BasicItemLevel, TrueItemLevel)
 						
 						--[[
 						-- Check Error
@@ -2278,9 +2275,10 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 	self.Spec.RightBorder:SetTexture(R, G, B)
 	
 	local LevelTable = CLASS_TALENT_LEVELS[DataTable.Class] or CLASS_TALENT_LEVELS.DEFAULT
+	
 	for i = 1, MAX_TALENT_TIERS do
 		for k = 1, NUM_TALENT_COLUMNS do
-			TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1])
+			TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1], 1)
 			
 			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon.Texture:SetTexture(Texture)
 			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].text:SetText(Name)

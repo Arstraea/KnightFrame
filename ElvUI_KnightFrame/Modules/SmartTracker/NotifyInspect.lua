@@ -1,4 +1,4 @@
-﻿local Revision = 1.3
+﻿local Revision = 1.5
 local ENI = _G['EnhancedNotifyInspect'] or CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
 
 if not ENI.Revision or ENI.Revision < Revision then
@@ -39,10 +39,12 @@ if not ENI.Revision or ENI.Revision < Revision then
 					if ENI.InspectList[(ENI.InspectList[i])].CancelInspectByManual then
 						RequestInspectHonorData()
 					end
-				else
+					
+					return
+				elseif Count and Count <= 0 or not ENI.InspectList[(ENI.InspectList[i])].CancelInspectByManual then
 					ENI.CancelInspect(ENI.InspectList[i])
+					return
 				end
-				return
 			end
 		end
 		
@@ -51,7 +53,14 @@ if not ENI.Revision or ENI.Revision < Revision then
 		end
 	end
 	
-	ENI.NotifyInspect = function(Unit, Reservation, InspectTryCount)
+	--[[
+		Properties = {
+			Reservation = boolean,
+			InspectTryCount = number,
+			CancelInspectByManual = Canceller,
+		}
+	]]
+	ENI.NotifyInspect = function(Unit, Properties)
 		if Unit ~= 'target' and UnitIsUnit(Unit, 'target') then
 			Unit = 'target'
 		end
@@ -68,38 +77,40 @@ if not ENI.Revision or ENI.Revision < Revision then
 			local TableIndex = GetUnitName(Unit, true)
 			
 			if not ENI.InspectList[TableIndex] then
-				if not Reservation then
+				if not (Properties and Properties.Reservation) then
 					tinsert(ENI.InspectList, 1, TableIndex)
 				else
 					tinsert(ENI.InspectList, TableIndex)
 				end
 				
-				ENI.InspectList[TableIndex] = {
-					UnitID = Unit,
-					InspectTryCount = InspectTryCount,
-					CancelInspectByManual = Reservation
-				}
+				ENI.InspectList[TableIndex] = { UnitID = Unit }
+				
+				if Properties then
+					ENI.InspectList[TableIndex].InspectTryCount = Properties.InspectTryCount
+					ENI.InspectList[TableIndex].CancelInspectByManual = Properties.CancelInspectByManual
+				end
 				
 				if not ENI.NowInspecting or ENI.NowInspecting._cancelled then
 					ENI.NowInspecting = C_Timer.NewTicker(ENI.UpdateInterval, ENI.TryInspect)
 				end
 				
 				ENI:Show()
-			elseif not Reservation and ENI.InspectList[TableIndex] then
+			elseif not (Properties and Properties.Reservation) then
 				ENI.CancelInspect(TableIndex)
-				ENI.NotifyInspect(Unit, Reservation, InspectTryCount)
+				ENI.NotifyInspect(Unit, Properties)
 			end
 		end
 		
 		return Unit
 	end
 	
-	ENI.CancelInspect = function(Unit)
+	ENI.CancelInspect = function(Unit, Canceller)
 		if ENI.InspectList[Unit] then
 			for i = 1, #ENI.InspectList do
-				if ENI.InspectList[i] == Unit then
+				if ENI.InspectList[i] == Unit and not (Canceller and ENI.InspectList[Unit].CancelInspectByManual and ENI.InspectList[Unit].CancelInspectByManual ~= Canceller) then
 					tremove(ENI.InspectList, i)
 					ENI.InspectList[Unit] = nil
+					
 					return
 				end
 			end
@@ -107,24 +118,20 @@ if not ENI.Revision or ENI.Revision < Revision then
 	end
 	
 	ENI.INSPECT_READY = function(InspectedUnitGUID)
-		if InspectedUnitGUID == ENI.CurrentInspectUnitGUID then
-			local Name, Realm
+		local Name, Realm
+		
+		_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
+		
+		if Name then
+			Name = Name..(Realm and Realm ~= '' and Realm ~= playerRealm and '-'..Realm or '')
 			
-			_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
-			
-			if Name then
-				Name = Name..(Realm and Realm ~= '' and Realm ~= playerRealm and '-'..Realm or '')
-				
-				if ENI.InspectList[Name] then
-					if ENI.InspectList[Name].CancelInspectByManual then
-						return
-					end
-					
-					ENI.CancelInspect(Name)
+			if ENI.InspectList[Name] then
+				if ENI.InspectList[Name].CancelInspectByManual then
+					return
 				end
+				
+				ENI.CancelInspect(Name, 'INSPECT_READY')
 			end
-			
-			ENI.CurrentInspectUnitGUID = nil
 		end
 	end
 	ENI:RegisterEvent('INSPECT_READY')
