@@ -1,57 +1,9 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
-
-function KF:DBConversions(Data)
-	if Data.KnightFrame then
-		if Data.KnightFrame.Layout then
-			Data.KnightFrame.Modules = Data.KnightFrame.Modules or {}
-			E:CopyTable(Data.KnightFrame.Modules, Data.KnightFrame.Layout)
-			Data.KnightFrame.Layout = nil
-		end
-		
-		if Data.KnightFrame.Extra_Functions then
-			Data.KnightFrame.Modules = Data.KnightFrame.Modules or {}
-			E:CopyTable(Data.KnightFrame.Modules, Data.KnightFrame.Extra_Functions)
-			Data.KnightFrame.Extra_Functions = nil
-		end
-		
-		if Data.KnightFrame.Modules then
-			if Data.KnightFrame.Modules.AuraTracker ~= nil then
-				Data.KnightFrame.Modules.SynergyTracker = Data.KnightFrame.Modules.AuraTracker
-				Data.KnightFrame.Modules.AuraTracker = nil
-			end
-			
-			if Data.KnightFrame.Modules.RaidCooldown ~= nil then
-				Data.KnightFrame.Modules.SmartTracker = Data.KnightFrame.Modules.RaidCooldown
-				Data.KnightFrame.Modules.RaidCooldown = nil
-			end
-			
-			if Data.KnightFrame.Modules.FloatingDatatext then
-				local NeedErase
-				for DatatextName in pairs(Data.KnightFrame.Modules.FloatingDatatext) do
-					if type(Data.KnightFrame.Modules.FloatingDatatext[DatatextName]) == 'table' and Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display then
-						NeedErase = 0
-						
-						for Mode, datatextType in pairs(Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display) do
-							if datatextType == 'DPS Utility |cff2eb7e4(KF)' then
-								NeedErase = NeedErase + 1
-								
-								Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display[Mode] = ''
-							elseif datatextType ~= '0' and datatextType ~= '' then
-								NeedErase = NeedErase - 1
-							end
-						end
-						
-						if NeedErase > 0 then
-							Data.KnightFrame.Modules.FloatingDatatext[DatatextName] = nil
-						end
-					end
-				end
-			end
-		end
-		
-		if Data.KnightFrame.UseProfile then
+if ElvDB and ElvDB.profiles then
+	for ProfileKey in pairs(ElvDB.profiles) do
+		if ElvDB.profiles[ProfileKey].KnightFrame and ElvDB.profiles[ProfileKey].KnightFrame.UseProfile then
 			-- Profile parts
 			KF:CompareTable({
 				general = {
@@ -626,23 +578,60 @@ function KF:DBConversions(Data)
 						}
 					}
 				}
-			}, ElvDB.profiles[(ElvDB.profileKeys[E.myname..' - '..E.myrealm])], E.db)
+			}, ElvDB.profiles[ProfileKey], ElvDB.profiles[ProfileKey])
 			
-			--[[ Private Parts
-			KF:CompareTable({
-				general = {
-					chatBubbles = 'disabled'
-				},
-				bags = {
-					enable = false,
-					bagBar = true
-				}
-			}, ElvPrivateDB.profiles[(ElvPrivateDB.profileKeys[E.myname..' - '..E.myrealm])], E.private)
-			]]
+			ElvDB.profiles[ProfileKey].KnightFrame.UseProfile = nil
+		end
+	end
+end
+
+function KF:DBConversions(Data)
+	if Data.KnightFrame then
+		if Data.KnightFrame.Layout then
+			Data.KnightFrame.Modules = Data.KnightFrame.Modules or {}
+			E:CopyTable(Data.KnightFrame.Modules, Data.KnightFrame.Layout)
+			Data.KnightFrame.Layout = nil
+		end
+		
+		if Data.KnightFrame.Extra_Functions then
+			Data.KnightFrame.Modules = Data.KnightFrame.Modules or {}
+			E:CopyTable(Data.KnightFrame.Modules, Data.KnightFrame.Extra_Functions)
+			Data.KnightFrame.Extra_Functions = nil
+		end
+		
+		if Data.KnightFrame.Modules then
+			if Data.KnightFrame.Modules.AuraTracker ~= nil then
+				Data.KnightFrame.Modules.SynergyTracker = Data.KnightFrame.Modules.AuraTracker
+				Data.KnightFrame.Modules.AuraTracker = nil
+			end
 			
-			Data.KnightFrame.UseProfile = nil
+			if Data.KnightFrame.Modules.RaidCooldown ~= nil then
+				Data.KnightFrame.Modules.SmartTracker = Data.KnightFrame.Modules.RaidCooldown
+				Data.KnightFrame.Modules.RaidCooldown = nil
+			end
 			
-			KF:RegisterTimer('EnhanceDB', 'NewTimer', .1, function() E:UpdateAll() end)
+			if Data.KnightFrame.Modules.FloatingDatatext then
+				local NeedErase
+				for DatatextName in pairs(Data.KnightFrame.Modules.FloatingDatatext) do
+					if type(Data.KnightFrame.Modules.FloatingDatatext[DatatextName]) == 'table' and Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display then
+						NeedErase = 0
+						
+						for Mode, datatextType in pairs(Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display) do
+							if datatextType == 'DPS Utility |cff2eb7e4(KF)' then
+								NeedErase = NeedErase + 1
+								
+								Data.KnightFrame.Modules.FloatingDatatext[DatatextName].Display[Mode] = ''
+							elseif datatextType ~= '0' and datatextType ~= '' then
+								NeedErase = NeedErase - 1
+							end
+						end
+						
+						if NeedErase > 0 then
+							Data.KnightFrame.Modules.FloatingDatatext[DatatextName] = nil
+						end
+					end
+				end
+			end
 		end
 	end
 end

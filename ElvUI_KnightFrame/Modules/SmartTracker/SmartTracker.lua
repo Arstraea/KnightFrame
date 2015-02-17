@@ -2252,136 +2252,137 @@ do	--<< System >>--
 		local Icon
 		
 		local GroupedUser = {}
-		
-		if KF.db.Modules.SmartTracker.Icon[Anchor.Name].ShowBattleResurrectionIcon then
-			for SpellID, Class in pairs(Info.SmartTracker_BattleResurrection) do
-				for UserGUID, Data in pairs(ST.InspectCache) do
-					if not (Data.Class ~= Class or SpellID == 126393 or
-							(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
-						
-						if not Icon then
-							CurrentIconNum = CurrentIconNum + 1
+		if Info.SmartTracker_Activate and KF.db.Modules.SmartTracker.Icon[Anchor.Name] then
+			if KF.db.Modules.SmartTracker.Icon[Anchor.Name].ShowBattleResurrectionIcon then
+				for SpellID, Class in pairs(Info.SmartTracker_BattleResurrection) do
+					for UserGUID, Data in pairs(ST.InspectCache) do
+						if not (Data.Class ~= Class or SpellID == 126393 or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
 							
-							Icon = ST:Icon_Create(Anchor, CurrentIconNum)
-							Icon.SpellName = L['Battle Resurrection']
-							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(83968)))
-							Icon.Link = nil
-							Icon.GroupNum = nil
-							Icon.SpellListIndex = nil
-							
-							Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
-							Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
-							Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
-							Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
-							
-							wipe(Icon.Data)
-						end
-						
-						Icon.Data[SpellID] = Icon.Data[SpellID] or {}
-						tinsert(Icon.Data[SpellID], UserGUID)
-					end
-				end
-			end
-		end
-		
-		for i = 1, #Anchor.Group do
-			Icon = nil
-			
-			for SpellID, GUIDTable in pairs(Anchor.Group[i]) do
-				if type(SpellID) == 'number' and type(GUIDTable) == 'table' then
-					for UserGUID in pairs(GUIDTable) do
-						if ST.InspectCache[UserGUID] then
-							if not ((Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level > ST.InspectCache[UserGUID].Level) or
-									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec and (type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec[ST.InspectCache[UserGUID].Spec] or type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec ~= ST.InspectCache[UserGUID].Spec)) or
-									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID]) or
-									(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID])) then
+							if not Icon then
+								CurrentIconNum = CurrentIconNum + 1
 								
-								if not Icon then
-									CurrentIconNum = CurrentIconNum + 1
-									
-									Icon = ST:Icon_Create(Anchor, CurrentIconNum)
-									Icon.SpellName = format(L['IconGroup %d'], i)
-									Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(Anchor.Group[i].Icon)))
-									Icon.Link = nil
-									Icon.GroupNum = i
-									Icon.SpellListIndex = nil
-									
-									Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
-									Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
-									Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
-									Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
-									
-									wipe(Icon.Data)
-								end
+								Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+								Icon.SpellName = L['Battle Resurrection']
+								Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(83968)))
+								Icon.Link = nil
+								Icon.GroupNum = nil
+								Icon.SpellListIndex = nil
 								
-								Icon.Data[SpellID] = Icon.Data[SpellID] or {}
-								tinsert(Icon.Data[SpellID], UserGUID)
+								Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
+								Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
+								Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
+								Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
 								
-								GroupedUser[SpellID] = GroupedUser[SpellID] or {}
-								GroupedUser[SpellID][UserGUID] = true
+								wipe(Icon.Data)
 							end
-						else
-							Anchor.Group[i][SpellID][UserGUID] = nil
-						end
-					end
-					
-					if not next(Anchor.Group[i][SpellID]) then
-						Anchor.Group[i][SpellID] = nil
-						
-						if Anchor.Group[i].Icon == SpellID then
-							Anchor.Group[i].Icon = nil
+							
+							Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+							tinsert(Icon.Data[SpellID], UserGUID)
 						end
 					end
 				end
 			end
 			
-			local NextIndex = next(Anchor.Group[i])
-			if NextIndex then
-				if NextIndex ~= 'Icon' and not Anchor.Group[i].Icon then
-					Anchor.Group[i].Icon = NextIndex
-					Icon.SpellIcon:SetTexture(select(3, NextIndex))
-				end
-			else
-				tremove(Anchor.Group, i)
-			end
-		end
-		
-		for i = 1, #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList do
-			Icon = nil
-			
-			for SpellID, Class in pairs(KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i]) do
-				for UserGUID, Data in pairs(ST.InspectCache) do
-					if not ((Data.Class ~= Class) or
-							(GroupedUser[SpellID] and GroupedUser[SpellID][UserGUID]) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
-							(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
-						
-						if not Icon then
-							CurrentIconNum = CurrentIconNum + 1
-							
-							Icon = ST:Icon_Create(Anchor, CurrentIconNum)
-							Icon.SpellName = nil
-							Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(SpellID)))
-							Icon.Link = GetSpellLink(SpellID)
-							Icon.GroupNum = nil
-							Icon.SpellListIndex = i
-							
-							Icon:SetBackdropColor(0, 0, 0)
-							Icon.SpellIconFrame:Point('TOPLEFT', Icon)
-							Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon)
-							Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 0)
-							Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 0)
-							
-							wipe(Icon.Data)
+			for i = 1, #Anchor.Group do
+				Icon = nil
+				
+				for SpellID, GUIDTable in pairs(Anchor.Group[i]) do
+					if type(SpellID) == 'number' and type(GUIDTable) == 'table' then
+						for UserGUID in pairs(GUIDTable) do
+							if ST.InspectCache[UserGUID] then
+								if not ((Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Level > ST.InspectCache[UserGUID].Level) or
+										(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec and (type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec[ST.InspectCache[UserGUID].Spec] or type(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].Spec ~= ST.InspectCache[UserGUID].Spec)) or
+										(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].TalentID]) or
+										(Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID and not ST.InspectCache[UserGUID].Talent[Info.SmartTracker_Data[ST.InspectCache[UserGUID].Class][SpellID].GlyphID])) then
+									
+									if not Icon then
+										CurrentIconNum = CurrentIconNum + 1
+										
+										Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+										Icon.SpellName = format(L['IconGroup %d'], i)
+										Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(Anchor.Group[i].Icon)))
+										Icon.Link = nil
+										Icon.GroupNum = i
+										Icon.SpellListIndex = nil
+										
+										Icon.SpellIconFrame:Point('TOPLEFT', Icon, 3, -3)
+										Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon, -3, 3)
+										Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 1)
+										Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 1)
+										
+										wipe(Icon.Data)
+									end
+									
+									Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+									tinsert(Icon.Data[SpellID], UserGUID)
+									
+									GroupedUser[SpellID] = GroupedUser[SpellID] or {}
+									GroupedUser[SpellID][UserGUID] = true
+								end
+							else
+								Anchor.Group[i][SpellID][UserGUID] = nil
+							end
 						end
 						
-						Icon.Data[SpellID] = Icon.Data[SpellID] or {}
-						tinsert(Icon.Data[SpellID], UserGUID)
+						if not next(Anchor.Group[i][SpellID]) then
+							Anchor.Group[i][SpellID] = nil
+							
+							if Anchor.Group[i].Icon == SpellID then
+								Anchor.Group[i].Icon = nil
+							end
+						end
+					end
+				end
+				
+				local NextIndex = next(Anchor.Group[i])
+				if NextIndex then
+					if NextIndex ~= 'Icon' and not Anchor.Group[i].Icon then
+						Anchor.Group[i].Icon = NextIndex
+						Icon.SpellIcon:SetTexture(select(3, NextIndex))
+					end
+				else
+					tremove(Anchor.Group, i)
+				end
+			end
+			
+			for i = 1, #KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList do
+				Icon = nil
+				
+				for SpellID, Class in pairs(KF.db.Modules.SmartTracker.Icon[Anchor.Name].SpellList[i]) do
+					for UserGUID, Data in pairs(ST.InspectCache) do
+						if not ((Data.Class ~= Class) or
+								(GroupedUser[SpellID] and GroupedUser[SpellID][UserGUID]) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Level and Info.SmartTracker_Data[Data.Class][SpellID].Level > Data.Level) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].Spec and (type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) == 'table' and not Info.SmartTracker_Data[Data.Class][SpellID].Spec[Data.Spec] or type(Info.SmartTracker_Data[Data.Class][SpellID].Spec) ~= 'table' and Info.SmartTracker_Data[Data.Class][SpellID].Spec ~= Data.Spec)) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].TalentID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].TalentID]) or
+								(Info.SmartTracker_Data[Data.Class][SpellID].GlyphID and not Data.Talent[Info.SmartTracker_Data[Data.Class][SpellID].GlyphID])) then
+							
+							if not Icon then
+								CurrentIconNum = CurrentIconNum + 1
+								
+								Icon = ST:Icon_Create(Anchor, CurrentIconNum)
+								Icon.SpellName = nil
+								Icon.SpellIcon:SetTexture(select(3, GetSpellInfo(SpellID)))
+								Icon.Link = GetSpellLink(SpellID)
+								Icon.GroupNum = nil
+								Icon.SpellListIndex = i
+								
+								Icon:SetBackdropColor(0, 0, 0)
+								Icon.SpellIconFrame:Point('TOPLEFT', Icon)
+								Icon.SpellIconFrame:Point('BOTTOMRIGHT', Icon)
+								Icon.SpellIconFrame:SetBackdropColor(0, 0, 0, 0)
+								Icon.SpellIconFrame:SetBackdropBorderColor(0, 0, 0, 0)
+								
+								wipe(Icon.Data)
+							end
+							
+							Icon.Data[SpellID] = Icon.Data[SpellID] or {}
+							tinsert(Icon.Data[SpellID], UserGUID)
+						end
 					end
 				end
 			end

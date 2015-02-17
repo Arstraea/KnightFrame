@@ -37,18 +37,30 @@ function KF:TextSetting(self, Text, Style, ...)
 end
 
 
-function KF:CompareTable(MainTable, TableToCompare, DB, DeleteSameValue)
+function KF:CompareTable(MainTable, TableToCompare, DB, Properties)
+	--[[
+		Properties = {
+			ReplaceDifferentValue = boolean,
+			DeleteSameValue = boolean,
+		}
+	]]
+	
 	for Index, Value in pairs(MainTable) do
 		if type(Value) == 'table' and TableToCompare[Index] ~= nil and type(TableToCompare[Index]) == 'table' then
-			DB[Index] = DB[Index] or {}
-			KF:CompareTable(MainTable[Index], TableToCompare[Index], DB[Index])
+			local CreateTable
+			if not DB[Index] then
+				DB[Index] = {}
+				CreateTable = true
+			end
 			
-			if not next(DB[Index]) then
+			KF:CompareTable(MainTable[Index], TableToCompare[Index], DB[Index], Properties)
+			
+			if CreateTable and not next(DB[Index]) then
 				DB[Index] = nil
 			end
-		elseif not TableToCompare[Index] or Value ~= TableToCompare[Index] or type(Value) ~= type(TableToCompare[Index]) then
+		elseif not TableToCompare[Index] or Properties and Properties.ReplaceDifferentValue and (Value ~= TableToCompare[Index] or type(Value) ~= type(TableToCompare[Index])) then
 			DB[Index] = Value
-		elseif TableToCompare[Index] == value and DeleteSameValue then
+		elseif Properties and Properties.DeleteSameValue and TableToCompare[Index] == value then
 			DB[Index] = nil
 		end
 	end

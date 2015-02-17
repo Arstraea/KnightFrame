@@ -1446,9 +1446,7 @@ function IA:INSPECT_HONOR_UPDATE()
 		IA:InspectFrame_PvPSetting(IA.CurrentInspectData)
 	end
 end
-function KF:Test()
-	PrintTable(ENI.InspectList)
-end
+
 
 function IA:INSPECT_READY(InspectedUnitGUID)
 	local TableIndex = IA.CurrentInspectData.Name..(IA.CurrentInspectData.Realm and '-'..IA.CurrentInspectData.Realm or '')

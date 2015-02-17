@@ -130,7 +130,7 @@ if not ENI.Revision or ENI.Revision < Revision then
 					return
 				end
 				
-				ENI.CancelInspect(Name, 'INSPECT_READY')
+				ENI.CancelInspect(Name)
 			end
 		end
 	end
