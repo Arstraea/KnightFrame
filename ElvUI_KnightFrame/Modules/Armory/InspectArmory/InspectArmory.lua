@@ -1682,11 +1682,11 @@ end
 
 
 function IA:InspectFrame_DataSetting(DataTable)
-	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
+	local Slot, ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
+	local ItemCount, ItemTotal = 0, 0
 	
-	do --<< Equipment Slot and Enchant, Gem Setting >>--
-		local ItemCount, ItemTotal = 0, 0
-		local Slot, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
+	do	--<< Equipment Slot and Enchant, Gem Setting >>--
+		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
 		
 		-- Setting except shirt and tabard
 		for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
@@ -1697,6 +1697,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 					NeedUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, ItemUpgradeID, ItemTexture, R, G, B = nil, nil, nil, nil, nil, nil, 0, 0, 0
 					
 					Slot.Link = nil
+					Slot.ILvL = nil
 					Slot.ItemLevel:SetText(nil)
 					Slot.Gradation.ItemLevel:SetText(nil)
 					Slot.Gradation.ItemEnchant:SetText(nil)
@@ -1824,8 +1825,6 @@ function IA:InspectFrame_DataSetting(DataTable)
 						
 						--<< ItemLevel Parts >>--
 						if BasicItemLevel then
-							ItemCount = ItemCount + 1
-							
 							if ItemUpgradeID then
 								if ItemUpgradeID == '0' then
 									ItemUpgradeID = nil
@@ -1834,7 +1833,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 								end
 							end
 							
-							ItemTotal = ItemTotal + TrueItemLevel
+							Slot.ILvL = TrueItemLevel or BasicItemLevel
 							
 							Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..TrueItemLevel)
 							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
@@ -1966,8 +1965,6 @@ function IA:InspectFrame_DataSetting(DataTable)
 		end
 		
 		self.SetItem = E:CopyTable({}, self.CurrentInspectData.SetItem)
-		self.Character.AverageItemLevel:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
-		--print(ItemCount, '|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
 	end
 	
 	if NeedUpdateList then
@@ -1977,9 +1974,23 @@ function IA:InspectFrame_DataSetting(DataTable)
 	end
 	self.GearUpdated = nil
 	
+	do	--<< Average ItemLevel >>--
+		for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
+			if SlotName ~= 'ShirtSlot' and SlotName ~= 'TabardSlot' then
+				Slot = self[SlotName]
+				
+				if Slot.ILvL then
+					ItemCount = ItemCount + 1
+					ItemTotal = ItemTotal + Slot.ILvL
+				end
+			end
+		end
+		self.Character.AverageItemLevel:SetText('|c'..RAID_CLASS_COLORS[DataTable.Class].colorStr..STAT_AVERAGE_ITEM_LEVEL..'|r : '..format('%.2f', ItemTotal / ItemCount))
+	end
+	
 	R, G, B = RAID_CLASS_COLORS[DataTable.Class].r, RAID_CLASS_COLORS[DataTable.Class].g, RAID_CLASS_COLORS[DataTable.Class].b
 	
-	do --<< Basic Information >>--
+	do	--<< Basic Information >>--
 		local Realm = DataTable.Realm and DataTable.Realm ~= Info.MyRealm and DataTable.Realm or ''
 		local Title = DataTable.Title and string.gsub(DataTable.Title, DataTable.Name, '') or ''
 		
@@ -1987,8 +1998,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 		self.Guild:SetText(DataTable.guildName and '<|cff2eb7e4'..DataTable.guildName..'|r>  [|cff2eb7e4'..DataTable.guildRankName..'|r]' or '')
 	end
 	
-	do --<< Information Page Setting >>--
-		do -- Profession
+	do	--<< Information Page Setting >>--
+		do	-- Profession
 			for i = 1, 2 do
 				if DataTable.Profession[i].Name then
 					self.Info.Profession:Show()
@@ -2010,7 +2021,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 			end
 		end
 		
-		do -- Guild
+		do	-- Guild
 			if DataTable.guildName and DataTable.guildPoint and DataTable.guildNumMembers then
 				self.Info.Guild:Show()
 				self.Info.Guild.Banner.Name:SetText('|cff2eb7e4'..DataTable.guildName)
@@ -2024,7 +2035,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 		self:ReArrangeCategory()
 	end
 	
-	do --<< Specialization Page Setting >>--
+	do	--<< Specialization Page Setting >>--
 		local SpecGroup, TalentID, Name, Color, Texture, SpecRole
 		
 		if DataTable.Specialization.ActiveSpec then
@@ -2078,7 +2089,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 		end
 	end
 	
-	do --<< Model and Frame Setting When InspectUnit Changed >>--
+	do	--<< Model and Frame Setting When InspectUnit Changed >>--
 		if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) and self.NeedModelSetting then
 			self.Model:SetUnit(DataTable.UnitID)
 			
