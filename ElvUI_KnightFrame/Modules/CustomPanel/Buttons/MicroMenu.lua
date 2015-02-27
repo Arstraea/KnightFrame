@@ -109,8 +109,8 @@ KF.UIParent.Button.MicroMenu = {
 				
 				Button.text:SetText(KF.UIParent.Button.MicroMenu.Text)
 			end)
-			CreateMiniButton(Button4, 0, -6, '|cff228b22'..QUESTLOG_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleFrame(QuestLogFrame) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button5, 31, -6, '|cff228b22'..MOUNTS_AND_PETS, function() ToggleFrame(KF_MicroMenuHolder) TogglePetJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button4, 0, -6, '|cff228b22'..QUESTLOG_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleQuestLog() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button5, 31, -6, '|cff228b22'..COLLECTIONS, function() ToggleFrame(KF_MicroMenuHolder) ToggleCollectionsJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button6, 62, -6, '|cff1784d1'..ACHIEVEMENT_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleAchievementFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button7, 93, -6, '|cff228b22'..SOCIAL_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleFriendsFrame(1) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 			CreateMiniButton(Button8, -93, -24, '|cff1784d1'..ACHIEVEMENTS_GUILD_TAB, function() ToggleFrame(KF_MicroMenuHolder) if IsInGuild() then if not GuildFrame then LoadAddOn('Blizzard_GuildUI') end GuildFrame_Toggle() else if not LookingForGuildFrame then LoadAddOn('Blizzard_LookingForGuildUI') end if not LookingForGuildFrame then return end LookingForGuildFrame_Toggle() end Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)

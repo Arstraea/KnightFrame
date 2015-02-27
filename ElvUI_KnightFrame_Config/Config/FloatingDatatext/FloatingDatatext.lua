@@ -140,7 +140,7 @@ KF_Config.Options.args.FloatingDatatext = {
 				
 				KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 			end,
-			hidden = function() return  KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false or SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
+			hidden = function() return  KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or SelectedDatatext == '' or DatatextInfo.Name == '' or not DatatextInfo.Name end,
 			args = {
 				Name = {
 					type = 'input',
@@ -258,6 +258,9 @@ KF_Config.Options.args.FloatingDatatext = {
 						if Message ~= format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedDatatext)..' '..L['Datatext']) then
 							Message = format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedDatatext)..' '..L['Datatext'])
 						else
+							if E.db.KnightFrame and E.db.KnightFrame.Modules and E.db.KnightFrame.Modules.FloatingDatatext then
+								E.db.KnightFrame.Modules.FloatingDatatext[SelectedDatatext] = nil
+							end
 							KF.db.Modules.FloatingDatatext[SelectedDatatext] = nil
 							
 							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedDatatext))
@@ -303,7 +306,8 @@ KF_Config.Options.args.FloatingDatatext = {
 					name = function() return ' '..(DatatextInfo.Enable ~= false and NameColor() or '')..L['Ignore Cursor'] end,
 					order = 12,
 					desc = '',
-					descStyle = 'inline'
+					descStyle = 'inline',
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
 				},
 				Space3 = {
 					type = 'description',
@@ -316,7 +320,8 @@ KF_Config.Options.args.FloatingDatatext = {
 					name = function() return ' '..(DatatextInfo.Enable ~= false and NameColor() or '')..L['Hide when PetBattle'] end,
 					order = 14,
 					desc = '',
-					descStyle = 'inline'
+					descStyle = 'inline',
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end
 				},
 				Space4 = {
 					type = 'description',
@@ -340,6 +345,7 @@ KF_Config.Options.args.FloatingDatatext = {
 						
 						KF:FloatingDatatext_Create(SelectedDatatext == '0' and 0 or SelectedDatatext, DatatextInfo)
 					end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.FloatingDatatext.Enable == false or DatatextInfo.Enable == false end,
 					args = {
 						Mode = {
 							type = 'select',

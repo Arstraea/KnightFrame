@@ -160,10 +160,12 @@ do	-- WARLORD OF DRAENORE
 	
 	-- Blackrock Foundry
 		-- Oregorger
+		RegistFilter('RaidDebuffs', 159632)			-- 끝없는 허기			Insatiable Hunger
 		RegistFilter('RaidDebuffs', 156297)			-- 산성 격류			Acid Torrent
 		
 		-- Blast Furnace
 		RegistFilter('RaidDebuffs', 155225, 1)		-- 융해					Melt
+		RegistFilter('RaidDebuffs', 176121, 1)		-- 변덕스러운 불		Volatile Fire
 		
 		-- Ka'graz
 		RegistFilter('RaidDebuffs', 154932, 1)		-- 녹아내린 격류		Molten Torrent

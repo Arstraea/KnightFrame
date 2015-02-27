@@ -111,7 +111,7 @@ do	-- WARRIOR DATA
 		[114028] = { Time = 30, TalentID = 15765 },														-- 대규모 주문 반사
 		[114029] = { Time = 30, Target = true, NotToMe = true, TalentID = 15766 },						-- 수비대장
 		[114030] = { Time = 120, Target = true, NotToMe = true, TalentID = 19676 },						-- 경계
-		[107574] = { Time = 180, TalentID = 19138 },													-- 투신
+		[107574] = { Time = 90, TalentID = 19138 },														-- 투신
 		[12292] = { Time = 60, TalentID = 19139 },														-- 피범벅
 		[46924] = { Time = 60, TalentID = 19140 },														-- 칼날폭풍
 		[152277] = { Time = 60, TalentID = 21205 },														-- 쇠날발톱
@@ -280,7 +280,7 @@ do	-- HUNTER DATA
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
-						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
+						return Cooldown * 33 / 100	-- 드레노어의 선물: 향상된 덫
 					else
 						return Cooldown
 					end
@@ -294,7 +294,7 @@ do	-- HUNTER DATA
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
-						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
+						return Cooldown * 33 / 100	-- 드레노어의 선물: 향상된 덫
 					else
 						return Cooldown
 					end
@@ -308,7 +308,7 @@ do	-- HUNTER DATA
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
-						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
+						return Cooldown * 33 / 100	-- 드레노어의 선물: 향상된 덫
 					else
 						return Cooldown
 					end
@@ -322,7 +322,7 @@ do	-- HUNTER DATA
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache or CooldownCache.Spec then
 					if (InspectCache.Spec or CooldownCache.Spec) == L['Spec_Huner_Survival'] and (UnitLevel(CooldownCache.Name) >= 100 or InspectCache and InspectCache.DraenorePerks and InspectCache.DraenorePerks[157751]) then
-						return Cooldown / 2			-- 드레노어의 선물: 향상된 덫
+						return Cooldown * 33 / 100	-- 드레노어의 선물: 향상된 덫
 					else
 						return Cooldown
 					end
@@ -368,7 +368,6 @@ do	-- SHAMAN DATA
 		[108269] = { Time = 45, Level = 63 },															-- 축전 토템
 		[2825] = { Time = 300, Reset = true, Level = 70 },												-- 피의 욕망
 		[114049] = { Time = 180, Level = 87 },															-- 지배력
-		[98008] = { Time = 180, Level = 70, Spec = L['Spec_Shaman_Restoration'] },						-- 정신의 고리 토템
 		[108280] = { Time = 180, Level = 65, Spec = L['Spec_Shaman_Restoration'] },						-- 치유의 해일 토템
 		[108271] = { Time = 90, TalentID = 19264 },														-- 영혼 이동
 		[51485] = { Time = 30, TalentID = 19260 },														-- 구속의 토템
@@ -483,6 +482,14 @@ do	-- SHAMAN DATA
 			Glyph = {
 				[1168] = 60							-- 문양: 주술의 결의
 			}
+		},
+		
+		[98008] = { Time = 180, Level = 70, Spec = L['Spec_Shaman_Restoration'],						-- 정신의 고리 토템
+			Charge = function(UserGUID)
+				if SmartTracker.InspectCache[UserGUID] and SmartTracker.InspectCache[UserGUID].Talent[19273] then
+					return 2						-- 정기의 메아리
+				end
+			end
 		}
 	}
 	
@@ -786,7 +793,7 @@ do	-- MAGE DATA
 		[43987] = { Time = 60, Level = 72 },															-- 원기 회복의 식탁 창조
 		[157913] = { Time = 45, TalentID = 21689 },														-- 무의 존재
 		[108843] = { Time = 25, TalentID = 16012 },														-- 타오르는 속도
-		[108978] = { Time = 90, TalentID = 16023 },														-- 시간 돌리기
+		[108978] = { Time = 60, TalentID = 16023 },														-- 시간 돌리기
 		[111264] = { Time = 20, Target = true, TalentID = 16020 },										-- 얼음 수호물
 		[102051] = { Time = 20, Target = true, TalentID = 16021 },										-- 서리투성이 턱
 		[55342] = { Time = 120, TalentID = 16031 },														-- 환영 복제
@@ -936,7 +943,7 @@ do	-- DRUID DATA
 		[5211] = { Time = 50, TalentID = 18583 },														-- 거센 강타
 		[108292] = { Time = 360, Reset = true, TalentID = 18584 },										-- 야생의 정수
 		[124974] = { Time = 90, TalentID = 18586 },														-- 자연의 경계
-		[155835] = { Time = 60, TalentID = 21654 },														-- 뻣뻣한 털
+		[155835] = { Time = 30, TalentID = 21654 },														-- 뻣뻣한 털
 		
 		[106839] = { Time = 15, Target = true, Level = 64,												-- 두개골 강타
 			Spec = {
@@ -1223,7 +1230,7 @@ do	-- PRIEST DATA
 		[32375] = { Time = 15, Level = 72 },															-- 대규모 무효화
 		[10060] = { Time = 120, TalentID = 19765 },														-- 마력 주입
 		[73325] = { Time = 90, Target = true, Level = 84 },												-- 신의의 도약
-		[8122] = { Time = 45, TalentID = 19768 },														-- 영혼의 절규
+		[8122] = { Time = 30, TalentID = 19768 },														-- 영혼의 절규
 		[15286] = { Time = 180, Level = 78, Spec = L['Spec_Priest_Shadow'] },							-- 흡혈의 선물
 		[108945] = { Time = 45, TalentID = 19754 },														-- 천사의 보루
 		[33206] = { Time = 180, Target = true, Level = 58, Spec = L['Spec_Priest_Discipline'] },		-- 고통 억제
@@ -1313,7 +1320,7 @@ do	-- WARLOCK DATA
 		[111397] = { Time = 60, TalentID = 19290 },														-- 핏빛 두려움
 		[108482] = { Time = 120, TalentID = 19292 },													-- 해방된 의지
 		[108501] = { Time = 120, TalentID = 19294 },													-- 흑마법서: 봉사
-		[137587] = { Time = 60, TalentID = 19297 },														-- 킬제덴의 교활함
+		[137587] = { Time = 35, TalentID = 19297 },														-- 킬제덴의 교활함
 		[108508] = { Time = 60, TalentID = 19298 },														-- 만노로스의 분노
 		[119899] = { Time = 30, Level = 56 },															-- 임프: 상처지지기
 		[17767] = { Time = 120, Level = 55 },															-- 공허방랑자: 어둠의 보루

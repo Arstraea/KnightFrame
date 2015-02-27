@@ -579,7 +579,6 @@ end
 
 function KF:EmbedMeter_ClearSettingByPanel(panelName, PreserveSetting)
 	for Key in pairs(PanelLink) do
-		print(Key, Key == panelName)
 		if Key == panelName then
 			for Direction in pairs(PanelLink[Key]) do
 				if type(PanelLink[Key][Direction]) == 'table' and PanelLink[Key][Direction].AddOn == 'Skada' then

@@ -280,6 +280,9 @@ KF_Config.Options.args.CustomPanel = {
 						if Message ~= format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedPanel)..' '..L['Panel']) then
 							Message = format(L['Are you sure you want to delete this %s?|nIf yes, press the Delete button again.'], KF:Color_Value(SelectedPanel)..' '..L['Panel'])
 						else
+							if E.db.KnightFrame and E.db.KnightFrame.Modules and E.db.KnightFrame.Modules.CustomPanel then
+								E.db.KnightFrame.Modules.CustomPanel[SelectedPanel] = nil
+							end
 							KF.db.Modules.CustomPanel[SelectedPanel] = nil
 							
 							Message = format(L['%s has been deleted.'], KF:Color_Value(SelectedPanel))
@@ -376,8 +379,8 @@ KF_Config.Options.args.CustomPanel = {
 							order = 1,
 							desc = '',
 							descStyle = 'inline',
-							min = 150,
-							max = 700,
+							min = 50,
+							max = 1400,
 							step = 1
 						},
 						Height = {
@@ -386,8 +389,8 @@ KF_Config.Options.args.CustomPanel = {
 							order = 2,
 							desc = '',
 							descStyle = 'inline',
-							min = 150,
-							max = 600,
+							min = 50,
+							max = 1000,
 							step = 1
 						}
 					}

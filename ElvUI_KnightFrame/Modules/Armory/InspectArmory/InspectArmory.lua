@@ -1304,7 +1304,9 @@ function IA:CreateInspectFrame()
 					end
 				end, 'InspectArmory', true)
 				SendAddonMessage('AISM_Inspect', 'AISM_DataRequestForInspecting:'..self.Data.Name..'-'..self.Data.Realm, SendChannel, self.Data.TableIndex)
-			elseif self.Data.Unit then
+			end
+			
+			if self.Data.Unit then
 				IA.InspectUnit(self.Data.Unit, { CancelInspectByManual = 'KnightInspect' })
 			end
 			
@@ -1376,7 +1378,7 @@ function IA:CreateInspectFrame()
 				
 				if AISM and not (AISM.AISMUserList[DataTable.TableIndex] or AISM.GroupMemberData[DataTable.TableIndex]) then
 					local isSending
-					--print('전송준비')
+					
 					if DataTable.Unit and not (UnitCanAttack('player', DataTable.Unit) or not UnitIsConnected(DataTable.Unit) or not UnitIsPlayer(DataTable.Unit)) then
 						if DataTable.Realm == Info.MyRealm or Info.CurrentGroupMode ~= 'NoGroup' then
 							isSending = 'AISM_CheckResponse'
@@ -1385,9 +1387,11 @@ function IA:CreateInspectFrame()
 					elseif Menu.which == 'GUILD' then
 						isSending = 'AISM_GUILD_CheckResponse'
 						SendAddonMessage('AISM', 'AISM_GUILD_Check', DataTable.Realm == Info.MyRealm and 'WHISPER' or 'GUILD', DataTable.Name)
+					elseif DataTable.Realm == Info.MyRealm then
+						isSending = 'AISM_CheckResponse'
+						SendAddonMessage('AISM', 'AISM_Check', 'WHISPER', DataTable.Name)
 					end
 					
-					--print(isSending)
 					if isSending then
 						AISM:RegisterInspectDataRequest(function(User, _, Message)
 							if User == DataTable.TableIndex and Message == isSending then
@@ -1809,6 +1813,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 								TrueItemLevel = tonumber(CurrentLineText:match(Info.Armory_Constants.ItemLevelKey))
 							elseif CurrentLineText:find(Info.Armory_Constants.EnchantKey) then
 								CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
+								
 								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
 								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
 								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STAMINA_SHORT, STA)

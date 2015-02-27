@@ -681,7 +681,7 @@ KF_Config.Options.args.SmartTracker = {
 						
 						ST:IconAnchor_Create(SelectedIcon)
 					end,
-					hidden = function() return SelectedIcon == '0' end,
+					hidden = function() return SelectedIcon == '0' or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] end,
 				},
 				Space3 = {
 					type = 'description',
@@ -883,7 +883,8 @@ KF_Config.Options.args.SmartTracker = {
 							name = KF_Config.Credit,
 							order = 999
 						}
-					}
+					},
+					hidden = function() return SelectedIcon == '0' or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] end
 				},
 				Display = {
 					type = 'group',
@@ -1025,7 +1026,8 @@ KF_Config.Options.args.SmartTracker = {
 							name = KF_Config.Credit,
 							order = 999
 						}
-					}
+					},
+					hidden = function() return SelectedIcon == '0' or not KF.db.Modules.SmartTracker.Icon[SelectedIcon] end
 				}
 			}
 		}

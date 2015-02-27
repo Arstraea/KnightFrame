@@ -428,7 +428,10 @@ do	--<< About Window's Layout and Appearance >>--
 			else
 				E.db.movers[WindowName] = nil
 			end
-			E.db.movers[Window.mover.name] = nil
+			
+			if WindowName ~= L['SmartTracker_MainWindow'] then
+				E.db.movers[Window.mover.name] = nil
+			end
 			
 			self.DeletedWindow[#self.DeletedWindow + 1] = Window
 			KF.UIParent.ST_Window[WindowName] = nil
@@ -869,7 +872,7 @@ do	--<< About Icon >>--
 			end
 		end
 		
-		local UserName, TotalNow, TotalCount, MaxBrez, Time, ShortestTime, IconTexture
+		local UserName, TotalNow, TotalCount, MaxBrez, Time, ShortestTime, Disable, IsUnitDead
 		local SpellNow, SpellCount = 0, 0
 		local TimeNow = GetTime()
 		
@@ -928,13 +931,18 @@ do	--<< About Icon >>--
 						
 						TotalNow = TotalNow + SpellNow
 						TotalCount = TotalCount + SpellCount
+						IsUnitDead = UnitIsDeadOrGhost(UserName)
 						
 						if self.DisplayTooltip then
 							GameTooltip:AddDoubleLine(
-								'  '..ST:GetUserRoleIcon(UserGUID)..' '..(UnitIsDeadOrGhost(UserName) and '|cff778899'..UserName..' ('..DEAD..')' or KF:Color_Class(ST.InspectCache[UserGUID].Class, UserName))
+								'  '..ST:GetUserRoleIcon(UserGUID)..' '..(IsUnitDead and '|cff778899'..UserName..' ('..DEAD..')' or KF:Color_Class(ST.InspectCache[UserGUID].Class, UserName))
 								,
 								SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST:GetTimeFormat(Time)
 							, 1, 1, 1, 1, 1, 1)
+						end
+						
+						if not Disable then
+							Disable = IsUnitDead
 						end
 					end
 				end
@@ -946,6 +954,7 @@ do	--<< About Icon >>--
 		else
 			self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
 			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(ShortestTime) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
+			self.SpellIcon:SetDesaturated(Disable)
 			
 			if self.SpellName then
 				if TotalNow == 0 then

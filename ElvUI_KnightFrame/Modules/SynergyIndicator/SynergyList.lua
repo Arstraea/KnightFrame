@@ -17,6 +17,7 @@ Info.SynergyIndicator_Filters = {
 		{ 24604, 'Wolves/Hunter' },							-- Furious Howl							사나운 울음소리
 		{ 160052, 'Raptors/Hunter' },						-- Strength of the Pack					무리의 힘
 		{ 126373, 'Quilen/Hunter' },						-- Fearless Roar						용맹한 울음소리
+		{ 128997, 'Spirit Beasts/Hunter' },					-- Spirit Beast Blessing				야수 정령의 축복
 		{ 90363, 'Shale Spider/Hunter' },					-- Embrace of the Shale Spider			혈암거미의 은총
 		{ 126309, 'Water Striders/Hunter' },				-- Still Water							잔잔한 물
 		{ 90309, 'Devilsaurs/Hunter' }						-- Terrifying Roar						공포의 포효

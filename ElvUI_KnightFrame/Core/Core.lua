@@ -505,12 +505,8 @@ end
 
 KF.BossBattleEnd = function(EndingType)
 	if Info.NowInBossBattle then
-		--print('보스전 끝 : ', EndingType)
-		--if EndingType == 'wipe' or EndingType == 'BigWigs_OnBossWipe' then
-			KF:CancelTimer('ClearCheckedBossList')
-			KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 4, ClearCheckedBossList)
-		--end
-		
+		KF:CancelTimer('ClearCheckedBossList')
+		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 4, ClearCheckedBossList)
 		KF:CancelTimer('CheckCombatEnd')
 		
 		Info.NowInBossBattle = nil
