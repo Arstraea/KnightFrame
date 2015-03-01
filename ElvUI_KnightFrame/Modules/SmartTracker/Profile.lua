@@ -334,7 +334,7 @@ KF.DBFunction.SmartTracker = {
 	Save = function()
 		for WindowName, IsWindowData in pairs(KF.db.Modules.SmartTracker.Window) do
 			if type(IsWindowData) == 'table' then
-				KF:CompareTable(IsWindowData, Info.SmartTracker_Default_Window, KF.db.Modules.SmartTracker.Window[WindowName], { ReplaceDifferentValue = true, DeleteSameValue = true })
+				KF:CompareTable(IsWindowData, Info.SmartTracker_Default_Window, KF.db.Modules.SmartTracker.Window[WindowName], { ReplaceDifferentValue = true })
 				
 				if KF.db.Modules.SmartTracker.Window[WindowName] == nil then
 					KF.db.Modules.SmartTracker.Window[WindowName] = {}
@@ -344,7 +344,7 @@ KF.DBFunction.SmartTracker = {
 		
 		for IconName, IsIconData in pairs(KF.db.Modules.SmartTracker.Icon) do
 			if type(IsIconData) == 'table' then
-				KF:CompareTable(IsIconData, Info.SmartTracker_Default_Icon, KF.db.Modules.SmartTracker.Icon[IconName], { ReplaceDifferentValue = true, DeleteSameValue = true })
+				KF:CompareTable(IsIconData, Info.SmartTracker_Default_Icon, KF.db.Modules.SmartTracker.Icon[IconName], { ReplaceDifferentValue = true })
 				
 				if KF.db.Modules.SmartTracker.Icon[IconName] == nil then
 					KF.db.Modules.SmartTracker.Icon[IconName] = {}

@@ -42,3 +42,7 @@ KF:RegisterEventList('ADDON_LOADED', function(Event, AddOnName)
 		KF:UnregisterEventList('ADDON_LOADED', 'GarrisonUpgrade')
 	end
 end, 'GarrisonUpgrade')
+
+
+-- Fix blizzard bug that when user check his dead reason then tooltip's width is locked.
+GameTooltip:HookScript("OnTooltipCleared", function(self) self:SetMinimumWidth(0) end)

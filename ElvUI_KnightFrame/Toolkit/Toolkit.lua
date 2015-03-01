@@ -60,7 +60,7 @@ function KF:CompareTable(MainTable, TableToCompare, DB, Properties)
 			end
 		elseif not TableToCompare[Index] or Properties and Properties.ReplaceDifferentValue and (Value ~= TableToCompare[Index] or type(Value) ~= type(TableToCompare[Index])) then
 			DB[Index] = Value
-		elseif Properties and Properties.DeleteSameValue and TableToCompare[Index] == value then
+		elseif Properties and Properties.DeleteSameValue and TableToCompare[Index] == Value then
 			DB[Index] = nil
 		end
 	end

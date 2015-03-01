@@ -940,10 +940,11 @@ do	--<< About Icon >>--
 								SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST:GetTimeFormat(Time)
 							, 1, 1, 1, 1, 1, 1)
 						end
-						
-						if not Disable then
-							Disable = IsUnitDead
+						--[[
+						if SpellNow > 0 and not Disable then
+							Disable = not IsUnitDead
 						end
+						]]
 					end
 				end
 			end
@@ -952,10 +953,16 @@ do	--<< About Icon >>--
 		if TotalCount == 0 then
 			ST:DistributeIconData(self:GetParent())
 		else
-			self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
 			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(ShortestTime) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
-			self.SpellIcon:SetDesaturated(Disable)
 			
+			--if Disable == nil then
+				self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
+			--[[	self.SpellIcon:SetDesaturated(false)
+			else
+				self.SpellIcon:SetAlpha(Disable == true and 1 or .5)
+				self.SpellIcon:SetDesaturated(not Disable)
+			end
+			]]
 			if self.SpellName then
 				if TotalNow == 0 then
 					self:SetBackdropColor(1, .1, .1)
