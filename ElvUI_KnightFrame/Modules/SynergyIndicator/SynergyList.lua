@@ -32,7 +32,8 @@ Info.SynergyIndicator_Filters = {
 		true,
 		{ 160074, 'Wasp/Hunter' },							-- Speed of the Swarm					무리의 속도
 		{ 135678, 'Sporebats/Hunter' },						-- Energizing Spores					활력의 포자
-		{ 128432, 'Hyenas/Hunter' }							-- Cackling Howl						불쾌한 울음소리
+		{ 128432, 'Hyenas/Hunter' },						-- Cackling Howl						불쾌한 울음소리
+		{ 160003, 'Rylak/Hunter' }							-- Savage Vigor							야생의 활력
 	},
 	MultiStrike = { -- 연속타격
 		{ 113742, 'Rogue', true },							-- Swiftblade's Cunning					스위프트블레이드의 간교함
@@ -42,6 +43,7 @@ Info.SynergyIndicator_Filters = {
 		true,
 		{ 172968, 'Hunter' },								-- Lone Wolf: Quickness of the Dragonhawk	고독한 늑대: 용매의 민첩함
 		true,
+		{ 50519, 'Bat/Hunter' },							-- Sonic Focus							음파 집중
 		{ 34889, 'Dragonhawk/Hunter' },						-- Spry Attacks							날렵한 공격
 		{ 24844, 'Wind Serpents/Hunter' },					-- Breath of the Winds					바람 숨결
 		{ 57386, 'Clefthooves/Hunter' },					-- Wild Strength						야생의 힘
@@ -59,6 +61,7 @@ Info.SynergyIndicator_Filters = {
 		{ 159735, 'Birds of Prey/Hunter' },					-- Tenacity								강인함
 		{ 173035, 'Stags/Hunter' },							-- Grace								우아함
 		{ 35290, 'Boars/Hunter' },							-- Indomitable							백절불굴
+		{ 160045, 'Porcupine/Hunter' },						-- Defensive Quills						방어형 가시
 		{ 50518, 'Ravagers/Hunter' },						-- Chitinous Armor						키틴질 방어구
 		{ 57386, 'Clefthooves/Hunter' },					-- Wild Strength						야생의 힘
 		{ 160077, 'Worms/Hunter' }							-- Strength of the Earth				대지의 힘
@@ -73,6 +76,7 @@ Info.SynergyIndicator_Filters = {
 		{ 160206, 'Hunter' },								-- Lone Wolf: Power of the Primates		고독한 늑대: 야생의 힘
 		true,
 		{ 160017, 'Gorillas/Hunter' },						-- Blessing of Kongs					유인원의 축복
+		{ 159988, 'Dog/Hunter' },							-- Bark of the Wild						야생의 울부짖음
 		{ 160077, 'Worms/Hunter' },							-- Strength of the Earth				대지의 힘
 		{ 90363, 'Shale Spider/Hunter' }					-- Embrace of the Shale Spider			혈암거미의 은총
 	},
@@ -115,6 +119,7 @@ Info.SynergyIndicator_Filters = {
 		true,
 		{ 50256, 'Bears/Hunter' },							-- Invigorating Roar					활기의 포효
 		{ 160014, 'Goats/Hunter' },							-- Sturdiness							건강함
+		{ 160003, 'Rylak/Hunter' },							-- Savage Vigor							야생의 활력
 		{ 90364, 'Silithids/Hunter' }						-- Qiraji Fortitude						퀴라지의 인내
 	},
 	---------------------------------------------------------------------------------------------------------------------

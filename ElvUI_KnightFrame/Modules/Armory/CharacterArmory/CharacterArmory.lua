@@ -207,8 +207,8 @@ function CA:Setup_CharacterArmory()
 	
 	--<< Background >>--
 	self.BG = self:CreateTexture(nil, 'OVERLAY')
-	self.BG:SetInside()
-	self.BG:SetTexture(KF.db.Modules.Armory.Character.BackgroundImage)
+	self.BG:SetPoint('TOPLEFT', self, -7, -20)
+	self.BG:SetPoint('BOTTOMRIGHT', self, 7, 2)
 	
 	--<< Change Model Frame's frameLevel >>--
 	CharacterModelFrame:SetFrameLevel(self:GetFrameLevel() + 2)
@@ -237,24 +237,53 @@ function CA:Setup_CharacterArmory()
 		-- Gradation
 		Slot.Gradation = Slot:CreateTexture(nil, 'OVERLAY')
 		Slot.Gradation:SetInside()
-		Slot.Gradation:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Gradation')
+		Slot.Gradation:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\Gradation')
 		if Slot.Direction == 'LEFT' then
 			Slot.Gradation:SetTexCoord(0, 1, 0, 1)
 		else
 			Slot.Gradation:SetTexCoord(1, 0, 0, 1)
 		end
 		
+		if not KF.db.Modules.Armory.Character.Gradation.DisplayGradation then
+			Slot.Gradation:Hide()
+		end
+		
 		if SlotName ~= 'ShirtSlot' and SlotName ~= 'TabardSlot' then
 			-- Item Level
-			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel', FontSize = 10, directionH = Slot.Direction }, 'TOP'..Slot.Direction, _G['Character'..SlotName], 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
+			KF:TextSetting(Slot, nil, { Tag = 'ItemLevel',
+				Font = KF.db.Modules.Armory.Character.Level.Font,
+				FontSize = KF.db.Modules.Armory.Character.Level.FontSize,
+				FontStyle = KF.db.Modules.Armory.Character.Level.FontStyle,
+				directionH = Slot.Direction
+			}, 'TOP'..Slot.Direction, _G['Character'..SlotName], 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
+			
+			if not KF.db.Modules.Armory.Character.Level.DisplayLevel then
+				Slot.ItemLevel:Hide()
+			end
 			
 			-- Enchantment Name
-			KF:TextSetting(Slot, nil, { Tag = 'ItemEnchant', FontSize = 8, directionH = Slot.Direction }, Slot.Direction, _G['Character'..SlotName], Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
+			KF:TextSetting(Slot, nil, { Tag = 'ItemEnchant',
+				Font = KF.db.Modules.Armory.Character.Enchant.Font,
+				FontSize = KF.db.Modules.Armory.Character.Enchant.FontSize,
+				FontStyle = KF.db.Modules.Armory.Character.Enchant.FontStyle,
+				directionH = Slot.Direction
+			}, Slot.Direction, _G['Character'..SlotName], Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
+			
+			if KF.db.Modules.Armory.Character.DisplayWhenMouseoverOnly then
+				Slot.ItemEnchant:SetDrawLayer('HIGHLIGHT')
+			else
+				Slot.ItemEnchant:SetDrawLayer('OVERLAY')
+			end
+			
+			if not KF.db.Modules.Armory.Character.Enchant.DisplayEnchant then
+				Slot.ItemEnchat:Hide()
+			end
+			
 			Slot.EnchantWarning = CreateFrame('Button', nil, Slot)
-			Slot.EnchantWarning:Size(12)
+			Slot.EnchantWarning:Size(KF.db.Modules.Armory.Character.Enchant.WarningSize)
 			Slot.EnchantWarning.Texture = Slot.EnchantWarning:CreateTexture(nil, 'OVERLAY')
 			Slot.EnchantWarning.Texture:SetInside()
-			Slot.EnchantWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Warning-Small')
+			Slot.EnchantWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\Warning-Small')
 			Slot.EnchantWarning:Point(Slot.Direction, Slot.ItemEnchant, Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 3 or -3, 0)
 			Slot.EnchantWarning:SetScript('OnEnter', self.OnEnter)
 			Slot.EnchantWarning:SetScript('OnLeave', self.OnLeave)
@@ -265,7 +294,7 @@ function CA:Setup_CharacterArmory()
 			-- Gem Socket
 			for i = 1, MAX_NUM_SOCKETS do
 				Slot['Socket'..i] = CreateFrame('Frame', nil, Slot)
-				Slot['Socket'..i]:Size(12)
+				Slot['Socket'..i]:Size(KF.db.Modules.Armory.Character.Gem.SocketSize)
 				Slot['Socket'..i]:SetBackdrop({
 					bgFile = E.media.blankTex,
 					edgeFile = E.media.blankTex,
@@ -302,11 +331,11 @@ function CA:Setup_CharacterArmory()
 			Slot.Socket3:Point(Slot.Direction, Slot.Socket2, Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 1 or -1, 0)
 			
 			Slot.SocketWarning = CreateFrame('Button', nil, Slot)
-			Slot.SocketWarning:Size(12)
+			Slot.SocketWarning:Size(KF.db.Modules.Armory.Character.Gem.WarningSize)
 			Slot.SocketWarning:RegisterForClicks('AnyUp')
 			Slot.SocketWarning.Texture = Slot.SocketWarning:CreateTexture(nil, 'OVERLAY')
 			Slot.SocketWarning.Texture:SetInside()
-			Slot.SocketWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Warning-Small')
+			Slot.SocketWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\Warning-Small')
 			Slot.SocketWarning:SetScript('OnEnter', self.OnEnter)
 			Slot.SocketWarning:SetScript('OnLeave', self.OnLeave)
 			
@@ -322,7 +351,7 @@ function CA:Setup_CharacterArmory()
 				
 				Slot.TransmogrifyAnchor.Texture = Slot.TransmogrifyAnchor:CreateTexture(nil, 'OVERLAY')
 				Slot.TransmogrifyAnchor.Texture:SetInside()
-				Slot.TransmogrifyAnchor.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Anchor')
+				Slot.TransmogrifyAnchor.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\Anchor')
 				Slot.TransmogrifyAnchor.Texture:SetVertexColor(1, .5, 1)
 				
 				if Slot.Direction == 'LEFT' then
@@ -338,6 +367,8 @@ function CA:Setup_CharacterArmory()
 		SlotIDList[Slot.ID] = SlotName
 		self[SlotName] = Slot
 	end
+	
+	self:UpdateArmoryAppearance()
 	
 	-- GameTooltip for counting gem sockets and getting enchant effects
 	self.ScanTT = CreateFrame('GameTooltip', 'Knight_CharacterArmory_ScanTT', nil, 'GameTooltipTemplate')
@@ -412,7 +443,7 @@ function CA:Update_Gear()
 	if Prof2 and Info.Armory_Constants.ProfessionList[Prof2] then self.PlayerProfession[(Info.Armory_Constants.ProfessionList[Prof2].Key)] = Prof2_Level end
 	]]
 	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
-	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
+	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, IsEnchanted, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
 	
 	for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
 		if not (SlotName == 'ShirtSlot' or SlotName == 'TabardSlot') then
@@ -420,7 +451,7 @@ function CA:Update_Gear()
 			ItemLink = GetInventoryItemLink('player', Slot.ID)
 			
 			do --<< Clear Setting >>--
-				NeedUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemTexture = nil, nil, nil, nil, nil, nil, nil
+				NeedUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, UsableEffect, ItemUpgradeID, ItemType, ItemTexture = nil, nil, nil, nil, nil, nil, nil, nil
 				
 				Slot.ItemLevel:SetText(nil)
 				Slot.ItemEnchant:SetText(nil)
@@ -498,9 +529,12 @@ function CA:Update_Gear()
 							end
 							
 							if ItemTexture or GemID then
-								Slot['Socket'..i]:Show()
+								if KF.db.Modules.Armory.Character.Gem.DisplaySocket then
+									Slot['Socket'..i]:Show()
+									Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
+								end
+								
 								GemCount_Now = GemCount_Now + 1
-								Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 								
 								if GemID then
 									GemCount = GemCount + 1
@@ -523,7 +557,7 @@ function CA:Update_Gear()
 						end
 					end
 					
-					_, _, ItemRarity, BasicItemLevel, _, _, _, _, _, ItemTexture = GetItemInfo(ItemLink)
+					_, _, ItemRarity, BasicItemLevel, _, _, _, _, ItemType, ItemTexture = GetItemInfo(ItemLink)
 					R, G, B = GetItemQualityColor(ItemRarity)
 					
 					ItemUpgradeID = ItemLink:match(':(%d+)\124h%[')
@@ -537,16 +571,24 @@ function CA:Update_Gear()
 						elseif CurrentLineText:find(Info.Armory_Constants.ItemLevelKey) then
 							TrueItemLevel = tonumber(CurrentLineText:match(Info.Armory_Constants.ItemLevelKey))
 						elseif CurrentLineText:find(Info.Armory_Constants.EnchantKey) then
-							CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STAMINA_SHORT, STA)
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STRENGTH_SHORT, STR)
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_INTELLECT_SHORT, INT)
-							CurrentLineText = gsub(CurrentLineText, ITEM_MOD_CRIT_RATING_SHORT, CRIT_ABBR) -- Critical is too long
-							CurrentLineText = gsub(CurrentLineText, ' + ', '+') -- Remove space
-							
-							Slot.ItemEnchant:SetText('|cffceff00'..CurrentLineText)
+							if KF.db.Modules.Armory.Character.Enchant.DisplayEnchant then
+								CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STAMINA_SHORT, STA)
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STRENGTH_SHORT, STR)
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_INTELLECT_SHORT, INT)
+								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_CRIT_RATING_SHORT, CRIT_ABBR) -- Critical is too long
+								CurrentLineText = gsub(CurrentLineText, ' + ', '+') -- Remove space
+								
+								if L.Armory_ReplaceEnchantString and type(L.Armory_ReplaceEnchantString) == 'table' then
+									for Old, New in pairs(L.Armory_ReplaceEnchantString) do
+										CurrentLineText = gsub(CurrentLineText, Old, New)
+									end
+								end
+								
+								Slot.ItemEnchant:SetText('|cffceff00'..CurrentLineText)
+							end
 							
 							IsEnchanted = true
 						elseif CurrentLineText:find(ITEM_SPELL_TRIGGER_ONUSE) then
@@ -568,7 +610,7 @@ function CA:Update_Gear()
 					end
 					
 					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
-						if not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] then
+						if not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] and (SlotName ~= 'SecondaryHandSlot' or ItemType == 'INVTYPE_WEAPON' and ItemType == 'INVTYPE_WEAPONOFFHAND' and ItemType == 'INVTYPE_RANGEDRIGHT') then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
@@ -687,7 +729,7 @@ function CA:Update_Gear()
 			if ErrorDetected and KF.db.Modules.Armory.Character.NoticeMissing ~= false then
 				Slot.Gradation:SetVertexColor(1, 0, 0)
 			else
-				Slot.Gradation:SetVertexColor(unpack(KF.db.Modules.Armory.Character.GradationColor))
+				Slot.Gradation:SetVertexColor(unpack(KF.db.Modules.Armory.Character.Gradation.Color))
 			end
 			
 			if NeedUpdate then
@@ -705,6 +747,17 @@ function CA:Update_Gear()
 	end
 	
 	self.GearUpdated = true
+end
+
+
+function CA:UpdateArmoryAppearance()
+	if KF.db.Modules.Armory.Character.Background.SelectedBG == 'HIDE' then
+		self.BG:SetTexture(nil)
+	elseif KF.db.Modules.Armory.Character.Background.SelectedBG == 'CUSTOM' then
+		self.BG:SetTexture(KF.db.Modules.Armory.Character.Background.CustomAddress)
+	else
+		self.BG:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Character.Background.SelectedBG)
+	end
 end
 
 

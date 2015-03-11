@@ -96,7 +96,7 @@ do	-- WARRIOR DATA
 	Info.SmartTracker_Data.WARRIOR = {
 		[355] = { Time = 8, Target = true, Level = 12 },												-- 도발
 		[2565] = { Time = 12, Charge = 2, Level = 18, Spec = L['Spec_Warrior_Protection'] },			-- 방패 막기
-		[12975] = { Time = 180, Level = 38, Spec = L['Spec_Warrior_Protection'] },						-- 최후의 저항
+		[12975] = { Time = 180, Reset = true, Level = 38, Spec = L['Spec_Warrior_Protection'] },		-- 최후의 저항
 		[5246] = { Time = 90, Level = 52 },																-- 위협의 외침
 		[103840] = { Time = 30, TalentID = 15758 },														-- 예견된 승리
 		[6552] = { Time = 15, Target = true, Level = 24 },												-- 자루 공격
@@ -104,7 +104,7 @@ do	-- WARRIOR DATA
 		[1160] = { Time = 60, Level = 56, Spec = L['Spec_Warrior_Protection'] },						-- 사기의 외침
 		[23920] = { Time = 25, Level = 66 },															-- 주문 반사
 		[3411] = { Time = 30, Target = true, NotToMe = true, Level = 72 },								-- 가로막기
-		[114192] = { Time = 180, Level = 87, Spec = L['Spec_Warrior_Protection'] },						-- 도발 깃발
+		[114192] = { Time = 180, Reset = true, Level = 87, Spec = L['Spec_Warrior_Protection'] },		-- 도발 깃발
 		[55694] = { Time = 60, TalentID = 16036 },														-- 격노의 재생력
 		[107570] = { Time = 30, Target = true, TalentID = 15759 },										-- 폭풍망치
 		[118000] = { Time = 60, TalentID = 16037 },														-- 용의 포효
@@ -117,13 +117,13 @@ do	-- WARRIOR DATA
 		[152277] = { Time = 60, TalentID = 21205 },														-- 쇠날발톱
 		[176289] = { Time = 45, TalentID = 21206 },														-- 공성파쇄기
 		
-		[871] = { Time = 180, Level = 48, Spec = L['Spec_Warrior_Protection'],							-- 방패의 벽
+		[871] = { Time = 180, Reset = true, Level = 48, Spec = L['Spec_Warrior_Protection'],			-- 방패의 벽
 			CooldownFunc = function(Cooldown, CooldownCache, _, _, _, UserName)
 				return Cooldown - (UnitLevel(UserName) and UnitLevel(UserName) >= 60 and 60 or 0)
 			end
 		},
 		
-		[1719] = { Time = 180, Level = 87,																-- 무모한 희생
+		[1719] = { Time = 180, Reset = true, Level = 87,												-- 무모한 희생
 			Spec = {
 				[(L['Spec_Warrior_Arms'])] = true,
 				[(L['Spec_Warrior_Fury'])] = true
@@ -137,7 +137,7 @@ do	-- WARRIOR DATA
 			},
 		},
 		
-		[97462] = { Time = 180, Level = 83,																-- 재집결의 함성
+		[97462] = { Time = 180, Reset = true, Level = 83,												-- 재집결의 함성
 			Spec = { 
 				[(L['Spec_Warrior_Arms'])] = true,
 				[(L['Spec_Warrior_Fury'])] = true
@@ -191,7 +191,7 @@ do	-- HUNTER DATA
 		[20736] = { Time = 8, Target = true, Level = 52 },												-- 견제 사격
 		[147362] = { Time = 24, Target = true, Level = 22 },											-- 반격의 사격
 		[1543] = { Time = 20, Level = 38 },																-- 섬광
-		[172106] = { Time = 180, Level = 84 },															-- 여우의 상
+		[172106] = { Time = 180, Reset = true, Level = 84 },											-- 여우의 상
 		[51753] = { Time = 60, Level = 85 },															-- 위장술
 		[19577] = { Time = 60, TalentID = 19359 },														-- 위협
 		[54216] = { Time = 45, Target = true, Level = 74 },												-- 주인의 부름
@@ -239,7 +239,7 @@ do	-- HUNTER DATA
 		},
 		
 		
-		[19263] = { Time = 180, Charge = 2, Level = 78,													-- 공격 저지
+		[19263] = { Time = 180, Reset = true, Charge = 2, Level = 78,									-- 공격 저지
 			Talent = {
 				[19364] = -60						-- 특성: 웅크린 호랑이, 숨은 키메라
 			}
@@ -367,8 +367,8 @@ do	-- SHAMAN DATA
 		[2062] = { Time = 300, Reset = true, Level = 58 },												-- 대지의 정령 토템
 		[108269] = { Time = 45, Level = 63 },															-- 축전 토템
 		[2825] = { Time = 300, Reset = true, Level = 70 },												-- 피의 욕망
-		[114049] = { Time = 180, Level = 87 },															-- 지배력
-		[108280] = { Time = 180, Level = 65, Spec = L['Spec_Shaman_Restoration'] },						-- 치유의 해일 토템
+		[114049] = { Time = 180, Reset = true, Level = 87 },											-- 지배력
+		[108280] = { Time = 180, Reset = true, Level = 65, Spec = L['Spec_Shaman_Restoration'] },		-- 치유의 해일 토템
 		[108271] = { Time = 90, TalentID = 19264 },														-- 영혼 이동
 		[51485] = { Time = 30, TalentID = 19260 },														-- 구속의 토템
 		[16166] = { Time = 120, TalentID = 19271 },														-- 정기의 깨달음
@@ -393,7 +393,7 @@ do	-- SHAMAN DATA
 			}
 		},
 		
-		[108285] = { Time = 180, TalentID = 19275,														-- 원소의 부름
+		[108285] = { Time = 180, Reset = true, TalentID = 19275,										-- 원소의 부름
 			CooldownFunc = function(Cooldown, CooldownCache)
 				for _, SpellID in pairs({ 8177, 108273, 108270, 2484, 8143, 5394, 108269, 51485, 157153 }) do
 					if CooldownCache.List[SpellID] then
@@ -484,7 +484,7 @@ do	-- SHAMAN DATA
 			}
 		},
 		
-		[98008] = { Time = 180, Level = 70, Spec = L['Spec_Shaman_Restoration'],						-- 정신의 고리 토템
+		[98008] = { Time = 180, Reset = true, Level = 70, Spec = L['Spec_Shaman_Restoration'],			-- 정신의 고리 토템
 			Charge = function(UserGUID)
 				if SmartTracker.InspectCache[UserGUID] and SmartTracker.InspectCache[UserGUID].Talent[19273] then
 					return 2						-- 정기의 메아리
@@ -515,7 +515,7 @@ do	-- MONK DATA
 		[115176] = { Time = 180, Level = 82, Spec = L['Spec_Monk_Brewmaster'] },						-- 명상
 		--[101643] = { Time = 45, Level = 87 },															-- 해탈
 		[116680] = { Time = 45, Level = 66, Spec = L['Spec_Monk_Mistweaver'] },							-- 집중의 천둥 차
-		[115310] = { Time = 180, Level = 78, Spec = L['Spec_Monk_Mistweaver'] },						-- 재활
+		[115310] = { Time = 180, Reset = true, Level = 78, Spec = L['Spec_Monk_Mistweaver'] },			-- 재활
 		[115399] = { Time = 60, Charge = 2, TalentID = 19772 },											-- 원기주
 		[116844] = { Time = 45, Target = true, TalentID = 19993 },										-- 평화의 고리
 		[119392] = { Time = 30, TalentID = 19994 },														-- 황소 쇄도
@@ -681,7 +681,7 @@ do	-- DEATHKNIGHT DATA
 		[48707] = { Time = 45, Level = 68 },															-- 대마법 보호막
 		[49222] = { Time = 60, Level = 78, Spec = L['Spec_DeathKnight_Blood'] },						-- 뼈의 보호막
 		[42650] = { Time = 600, Reset = true, Level = 80 },												-- 사자의 군대
-		[47568] = { Time = 300, Level = 76 },															-- 룬 무기 강화
+		[47568] = { Time = 300, Reset = true, Level = 76 },												-- 룬 무기 강화
 		[56222] = { Time = 8, Target = true, Level = 58, Spec = L['Spec_DeathKnight_Blood'] },			-- 어둠의 명령
 		[108194] = { Time = 30, Target = true, TalentID = 19223 },										-- 어둠의 질식
 		[48743] = { Time = 120, TalentID = 19226 },														-- 죽음의 서약
@@ -689,7 +689,7 @@ do	-- DEATHKNIGHT DATA
 		[49028] = { Time = 90, Level = 74, Spec = L['Spec_DeathKnight_Blood'] },						-- 춤추는 룬 무기
 		[51271] = { Time = 60, Level = 68, Spec = L['Spec_DeathKnight_Frost'] },						-- 얼음 기둥
 		[47476] = { Time = 60, Target = true, Level = 58 },												-- 질식시키기
-		[49206] = { Time = 180, Level = 74, Spec = L['Spec_DeathKnight_Unholy'] },						-- 가고일 부르기
+		[49206] = { Time = 180, Reset = true, Level = 74, Spec = L['Spec_DeathKnight_Unholy'] },		-- 가고일 부르기
 		[115989] = { Time = 90, TalentID = 19217 },														-- 부정의 파멸충
 		[49039] = { Time = 120, TalentID = 19218 },														-- 리치의 혼
 		[51052] = { Time = 120, TalentID = 19219 },														-- 대마법 지대
@@ -722,7 +722,7 @@ do	-- DEATHKNIGHT DATA
 			}
 		},
 		
-		[48792] = { Time = 180, Level = 62,																-- 얼음같은 인내력
+		[48792] = { Time = 180, Reset = true, Level = 62,												-- 얼음같은 인내력
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					return Cooldown * (InspectCache.Glyph[515] and 1 / 2 or 1)
@@ -786,10 +786,10 @@ do	-- MAGE DATA
 		[157980] = { Time = 25, Charge = 2, TalentID = 19301 },											-- 초신성
 		[157981] = { Time = 25, Charge = 2, TalentID = 21692 },											-- 화염 폭풍
 		[11426] = { Time = 25, TalentID = 16025 },														-- 얼음 보호막
-		[12472] = { Time = 180, Level = 36, Spec = L['Spec_Mage_Frost'] },								-- 얼음 핏줄
+		[12472] = { Time = 180, Reset = true, Level = 36, Spec = L['Spec_Mage_Frost'] },				-- 얼음 핏줄
 		[80353] = { Time = 300, Reset = true, Level = 84 },												-- 시간 왜곡
 		[108839] = { Time = 20, Charge = 3, TalentID = 16013 },											-- 얼음발
-		[45438] = { Time = 300, Level = 15 },															-- 얼음 방패
+		[45438] = { Time = 300, Reset = true, Level = 15 },												-- 얼음 방패
 		[43987] = { Time = 60, Level = 72 },															-- 원기 회복의 식탁 창조
 		[157913] = { Time = 45, TalentID = 21689 },														-- 무의 존재
 		[108843] = { Time = 25, TalentID = 16012 },														-- 타오르는 속도
@@ -906,7 +906,7 @@ do	-- MAGE DATA
 			}
 		},
 		
-		[11958] = { Time = 180, TalentID = 19029,														-- 매서운 한파
+		[11958] = { Time = 180, Reset = true, TalentID = 19029,											-- 매서운 한파
 			CooldownFunc = function(Cooldown, CooldownCache)
 				for _, SpellID in pairs({ 45438, 12043, 122 }) do
 					if CooldownCache.List[SpellID] then
@@ -927,7 +927,7 @@ do	-- DRUID DATA
 		[6795] = { Time = 8, Target = true, Level = 8 },												-- 포효
 		[5217] = { Time = 30, Level = 10, Spec = L['Spec_Druid_Feral'] },								-- 호랑이의 분노
 		[77764] = { Time = 120, Level = 84 },															-- 쇄도의 포효
-		[112071] = { Time = 180, Level = 68, Spec = L['Spec_Druid_Balance'] },							-- 천체의 정렬
+		[112071] = { Time = 180, Reset = true, Level = 68, Spec = L['Spec_Druid_Balance'] },			-- 천체의 정렬
 		[78675] = { Time = 60, Target = true, Level = 28, Spec = L['Spec_Druid_Balance'] },				-- 태양 광선
 		[62606] = { Time = 12, Charge = 2, Level = 10, Spec = L['Spec_Druid_Guardian'] },				-- 야생의 방어
 		[102342] = { Time = 60, Target = true, Level = 64, Spec = L['Spec_Druid_Restoration'] },		-- 무쇠껍질
@@ -973,17 +973,17 @@ do	-- DRUID DATA
 			}
 		},
 		
-		[106952] = { Time = 180, Level = 48,															-- 광폭화
+		[106952] = { Time = 180, Reset = true, Level = 48,												-- 광폭화
 			Spec = {
 				[(L['Spec_Druid_Feral'])] = true,
 				[(L['Spec_Druid_Guardian'])] = true
 			}
 		},
 		
-		[102558] = { Time = 180, TalentID = 21706 },													-- 화신: 우르속의 자손 (수호)
-		[102543] = { Time = 180, TalentID = 21705 },													-- 화신: 밀림의 왕 (야성)
-		[102560] = { Time = 180, TalentID = 18579 },													-- 화신: 엘룬의 선택 (조화)
-		[33891] = { Time = 180, TalentID = 21707 },														-- 화신: 생명의 나무 (회복)
+		[102558] = { Time = 180, Reset = true, TalentID = 21706 },										-- 화신: 우르속의 자손 (수호)
+		[102543] = { Time = 180, Reset = true, TalentID = 21705 },										-- 화신: 밀림의 왕 (야성)
+		[102560] = { Time = 180, Reset = true, TalentID = 18579 },										-- 화신: 엘룬의 선택 (조화)
+		[33891] = { Time = 180, Reset = true, TalentID = 21707 },										-- 화신: 생명의 나무 (회복)
 		
 		[102706] = { Time = 20, Charge = 2, TalentID = 21709 },											-- 자연의 군대 (수호)
 		[102703] = { Time = 20, Charge = 2, TalentID = 21708 },											-- 자연의 군대 (야성)
@@ -1046,7 +1046,7 @@ do	-- PALADIN DATA
 		[114039] = { Time = 30, Target = true, TalentID = 17589 },										-- 정화의 손길
 		[114158] = { Time = 60, TalentID = 17607 },														-- 빛의 망치
 		[114157] = { Time = 60, Target = true, TalentID = 17609 },										-- 사형 선고
-		[86659] = { Time = 180, Level = 75, Spec = L['Spec_Paladin_Protection'] },						-- 고대 왕의 수호자
+		[86659] = { Time = 180, Reset = true, Level = 75, Spec = L['Spec_Paladin_Protection'] },		-- 고대 왕의 수호자
 		
 		[1022] = { Time = 300, Reset = true, Target = true, Level = 48,									-- 보호의 손길
 			Charge = function(UserGUID)
@@ -1059,7 +1059,7 @@ do	-- PALADIN DATA
 			}
 		},
 		
-		[31850] = { Time = 180, Level = 70,																-- 헌신적인 수호자
+		[31850] = { Time = 180, Reset = true, Level = 70,												-- 헌신적인 수호자
 			CooldownFunc = function(Cooldown, CooldownCache, InspectCache)
 				if InspectCache then
 					if InspectCache.Glyph[1144] then
@@ -1144,7 +1144,7 @@ do	-- PALADIN DATA
 			end
 		},
 		
-		[31821] = { Time = 180, Level = 60,	Spec = L['Spec_Paladin_Holy'],								-- 헌신의 오라
+		[31821] = { Time = 180, Reset = true, Level = 60,	Spec = L['Spec_Paladin_Holy'],				-- 헌신의 오라
 			Glyph = {
 				[184] = -60							-- 문양: 헌신의 오라
 			}
@@ -1154,7 +1154,7 @@ do	-- PALADIN DATA
 			Desc = ' ('..L['Spec_Paladin_Retribution']..')'
 		},
 		
-		[31842] = { Time = 180, Level = 72, Spec = L['Spec_Paladin_Holy'],								-- 응징의 격노 (신기)
+		[31842] = { Time = 180, Reset = true, Level = 72, Spec = L['Spec_Paladin_Holy'],				-- 응징의 격노 (신기)
 			Glyph = {
 				[1203] = - 90						-- 문양: 자비로운 격노
 			},
@@ -1231,15 +1231,15 @@ do	-- PRIEST DATA
 		[10060] = { Time = 120, TalentID = 19765 },														-- 마력 주입
 		[73325] = { Time = 90, Target = true, Level = 84 },												-- 신의의 도약
 		[8122] = { Time = 30, TalentID = 19768 },														-- 영혼의 절규
-		[15286] = { Time = 180, Level = 78, Spec = L['Spec_Priest_Shadow'] },							-- 흡혈의 선물
+		[15286] = { Time = 180, Reset = true, Level = 78, Spec = L['Spec_Priest_Shadow'] },				-- 흡혈의 선물
 		[108945] = { Time = 45, TalentID = 19754 },														-- 천사의 보루
 		[33206] = { Time = 180, Target = true, Level = 58, Spec = L['Spec_Priest_Discipline'] },		-- 고통 억제
 		[81700] = { Time = 30, Level = 50, Spec = L['Spec_Priest_Discipline'] },						-- 대천사
-		[62618] = { Time = 180, Level = 70, Spec = L['Spec_Priest_Discipline'] },						-- 신의 권능: 방벽
-		[126135] = { Time = 180, Level = 36, Spec = L['Spec_Priest_Holy'] },							-- 빛샘
+		[62618] = { Time = 180, Reset = true, Level = 70, Spec = L['Spec_Priest_Discipline'] },			-- 신의 권능: 방벽
+		[126135] = { Time = 180, Reset = true, Level = 36, Spec = L['Spec_Priest_Holy'] },				-- 빛샘
 		[88625] = { Time = 30, Target = true, Level = 10, Spec = L['Spec_Priest_Holy'] },				-- 빛의 권능: 응징
-		[47788] = { Time = 180, Target = true, Level = 70, Spec = L['Spec_Priest_Holy'] },				-- 수호 영혼
-		[64843] = { Time = 180, Level = 78, Spec = L['Spec_Priest_Holy'] },								-- 천상의 찬가
+		[47788] = { Time = 180, Reset = true, Target = true, Level = 70, Spec = L['Spec_Priest_Holy'] },-- 수호 영혼
+		[64843] = { Time = 180, Reset = true, Level = 78, Spec = L['Spec_Priest_Holy'] },				-- 천상의 찬가
 		[19236] = { Time = 120, TalentID = 19752 },														-- 구원의 기도
 		[112833] = { Time = 30, TalentID = 19753 },														-- 유령의 가면
 		[123040] = { Time = 60, TalentID = 19769 },														-- 환각의 마귀

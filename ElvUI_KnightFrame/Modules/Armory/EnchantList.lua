@@ -2,6 +2,7 @@
 local KF, Info, Timer = unpack(select(2, ...))
 
 Info.Armory_EnchantList = {
+	--[[
 	Profession_Inscription = {
 		['4912'] = 600, -- 비밀 소뿔 새김무늬			Secret Ox Horn Inscription
 		['4913'] = 600, -- 비밀 학날개 새김무늬		Secret Crane Wing Inscription
@@ -21,4 +22,5 @@ Info.Armory_EnchantList = {
 		['4893'] = 550, -- 암흑빛 자수					Darkglow Embroidery
 		['4894'] = 550 -- 칼날 자수					Swordguard Embroidery
 	}
+	]]
 }

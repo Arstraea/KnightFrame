@@ -109,7 +109,7 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:Tab_OnMouseUp()
 		local Window = self:GetParent()
 		
-		if Window.DisplayArea:GetAlpha() > 0 then
+		if Window.DisplayArea:IsVisible() then
 			Window:StopMovingOrSizing()
 			local Point, _, SecondaryPoint, X, Y = Window:GetPoint()
 			Window.mover:ClearAllPoints()
@@ -124,7 +124,7 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:Tab_OnMouseDown()
 		local Window = self:GetParent()
 		
-		if Window.DisplayArea:GetAlpha() > 0 then
+		if Window.DisplayArea:IsVisible() then
 			Window:StartMoving()
 		end
 	end
@@ -180,7 +180,7 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:ResizeGrip_OnMouseUp()
 		local Window = self:GetParent():GetParent()
 		
-		if Window.DisplayArea:GetAlpha() > 0 then
+		if Window.DisplayArea:IsVisible() then
 			Window:StopMovingOrSizing()
 			Window:SetResizable(false)
 			
@@ -199,7 +199,7 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:ResizeGrip_OnMouseDown()
 		local Window = self:GetParent():GetParent()
 		
-		if Window.DisplayArea:GetAlpha() > 0 then
+		if Window.DisplayArea:IsVisible() then
 			Window:SetResizable(true)
 			local x, y = Window.mover:GetLeft(), Window.mover:GetBottom()
 			
@@ -289,9 +289,9 @@ do	--<< About Window's Layout and Appearance >>--
 	function ST:SetWindowDisplayingStatus(Window)
 		if KF.db.Modules.SmartTracker.Window[Window.Name].Enable and KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
 			Window.DisplayArea:Show()
-			Window.DisplayArea:SetAlpha(Window:GetAlpha())
+			--Window.DisplayArea:SetAlpha(Window:GetAlpha())	--이부분 고쳐야된다
 		else
-			Window.DisplayArea:SetAlpha(0)
+			--Window.DisplayArea:SetAlpha(0)
 			Window.DisplayArea:Hide()
 		end
 	end
@@ -940,11 +940,10 @@ do	--<< About Icon >>--
 								SpellNow > 0 and '|cff2eb7e4'..L['Enable To Cast']..(SpellCount > 1 and '|r ('..SpellNow..')' or '') or ST:GetTimeFormat(Time)
 							, 1, 1, 1, 1, 1, 1)
 						end
-						--[[
+						
 						if SpellNow > 0 and not Disable then
 							Disable = not IsUnitDead
 						end
-						]]
 					end
 				end
 			end
@@ -955,14 +954,14 @@ do	--<< About Icon >>--
 		else
 			self.text:SetText(TotalNow == 0 and '|cffff5252'..ST:GetTimeFormat(ShortestTime) or TotalNow..(not MaxBrez and KF.db.Modules.SmartTracker.Icon[self:GetParent().Name].Appearance.DisplayMax ~= false and '/'..TotalCount or ''))
 			
-			--if Disable == nil then
-				self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .3)
-			--[[	self.SpellIcon:SetDesaturated(false)
+			if Disable == nil then
+				self.SpellIcon:SetAlpha(TotalNow > 0 and 1 or .5)
+				self.SpellIcon:SetDesaturated(false)
 			else
-				self.SpellIcon:SetAlpha(Disable == true and 1 or .5)
+				self.SpellIcon:SetAlpha(Disable == true and 1 or .3)
 				self.SpellIcon:SetDesaturated(not Disable)
 			end
-			]]
+			
 			if self.SpellName then
 				if TotalNow == 0 then
 					self:SetBackdropColor(1, .1, .1)

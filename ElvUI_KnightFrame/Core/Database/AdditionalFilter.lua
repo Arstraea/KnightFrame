@@ -17,6 +17,9 @@ do	-- GENERAL
 	RegistFilter('Whitelist', 172106)		-- 여우의 상		Aspect of the Fox
 	RegistFilter('Whitelist', 102342)		-- 무쇠 껍질		Ironbark
 	RegistFilter('Whitelist', 114030)		-- 경계				Vigilance
+	RegistFilter('Whitelist', 77764)		-- 쇄도의 포효		Stampeding Roar
+	RegistFilter('Whitelist', 77761)		-- 쇄도의 포효		Stampeding Roar
+	RegistFilter('Whitelist', 106898)		-- 쇄도의 포효		Stampeding Roar
 	
 	-- AuraBarColors
 	G.unitframe.AuraBarColors[GetSpellInfo(2825)] = { r = .09, g = .51, b = .82 }		-- 피의 욕망		Bloodlust
@@ -37,6 +40,21 @@ do	-- GENERAL
 		r = RAID_CLASS_COLORS.PALADIN.r,
 		g = RAID_CLASS_COLORS.PALADIN.g,
 		b = RAID_CLASS_COLORS.PALADIN.b
+	}
+	G.unitframe.AuraBarColors[GetSpellInfo(77764)] = {									-- 쇄도의 포효		Stampeding Roar
+		r = RAID_CLASS_COLORS.DRUID.r,
+		g = RAID_CLASS_COLORS.DRUID.g,
+		b = RAID_CLASS_COLORS.DRUID.b
+	}
+	G.unitframe.AuraBarColors[GetSpellInfo(77761)] = {									-- 쇄도의 포효		Stampeding Roar
+		r = RAID_CLASS_COLORS.DRUID.r,
+		g = RAID_CLASS_COLORS.DRUID.g,
+		b = RAID_CLASS_COLORS.DRUID.b
+	}
+	G.unitframe.AuraBarColors[GetSpellInfo(106898)] = {									-- 쇄도의 포효		Stampeding Roar
+		r = RAID_CLASS_COLORS.DRUID.r,
+		g = RAID_CLASS_COLORS.DRUID.g,
+		b = RAID_CLASS_COLORS.DRUID.b
 	}
 	
 	-- Raid Utility Filter Group
@@ -164,7 +182,9 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 156297)			-- 산성 격류			Acid Torrent
 		
 		-- Blast Furnace
-		RegistFilter('RaidDebuffs', 155225, 1)		-- 융해					Melt
+		RegistFilter('RaidDebuffs', 156934, 2)		-- 파열					Rupture
+		RegistFilter('RaidDebuffs', 155225, 2)		-- 융해					Melt
+		RegistFilter('RaidDebuffs', 155192, 1)		-- 폭탄					Bomb
 		RegistFilter('RaidDebuffs', 176121, 1)		-- 변덕스러운 불		Volatile Fire
 		
 		-- Ka'graz

@@ -14,7 +14,7 @@ Info.Armory_Constants = {
 	},
 	
 	EnchantableSlots = {
-		NeckSlot = true, BackSlot = true, Finger0Slot = true, Finger1Slot = true, MainHandSlot = true
+		NeckSlot = true, BackSlot = true, Finger0Slot = true, Finger1Slot = true, MainHandSlot = true, SecondaryHandSlot = true
 	},
 	
 	UpgradeColor = {
@@ -56,7 +56,6 @@ Info.Armory_Constants = {
 	ProfessionList = {}
 }
 	
-local ProfessionName, ProfessionTexture
 for ProfessionID, ProfessionKey in pairs({
 	[105206] = 'Alchemy',
 	[110396] = 'BlackSmithing',
@@ -71,11 +70,10 @@ for ProfessionID, ProfessionKey in pairs({
 	[102161] = 'Mining',
 	[102216] = 'Skinning'
 }) do
-	ProfessionName, _, ProfessionTexture = GetSpellInfo(ProfessionID)
+	local ProfessionName, _, ProfessionTexture = GetSpellInfo(ProfessionID)
 	
 	Info.Armory_Constants.ProfessionList[ProfessionName] = {
 		Key = ProfessionKey,
 		Texture = ProfessionTexture
 	}
 end
-ProfessionName, ProfessionTexture = nil, nil

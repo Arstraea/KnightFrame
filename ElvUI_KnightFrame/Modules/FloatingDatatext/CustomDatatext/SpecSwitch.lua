@@ -119,7 +119,14 @@ local menuList = {
 }
 local function OnClick(self, button)
 	if button == 'LeftButton' and IsShiftKeyDown() then
-		ToggleTalentFrame()
+		if not PlayerTalentFrame then TalentFrame_LoadUI() end
+		if not GlyphFrame then GlyphFrame_LoadUI() end
+		
+		if not PlayerTalentFrame:IsShown() then
+			ShowUIPanel(PlayerTalentFrame)
+		else
+			HideUIPanel(PlayerTalentFrame)
+		end
 	elseif button == 'LeftButton' and GetNumSpecGroups() > 1 then
 		SetActiveSpecGroup(ActiveSpecGroup == 1 and 2 or 1)
 	elseif button == 'RightButton' and UnitLevel('player') >= SHOW_SPEC_LEVEL then

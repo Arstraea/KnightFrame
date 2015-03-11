@@ -5,8 +5,40 @@ KF.db.Modules.Armory = KF.db.Modules.Armory or {}
 	
 KF.db.Modules.Armory.Character = {
 	Enable = true,
+	
 	NoticeMissing = true,
 	
-	GradationColor = { .41, .83, 1 },
-	BackgroundImage = 'Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Space'
+	Background = {
+		SelectedBG = 'Space',
+		CustomAddress = ''
+	},
+	
+	Gradation = {
+		DisplayGradation = true,
+		Color = { .41, .83, 1 }
+	},
+	
+	Level = {
+		DisplayLevel = true,
+		
+		Font = nil,
+		FontSize = 10,
+		FontStyle = nil
+	},
+	
+	Enchant = {
+		DisplayEnchant = true,
+		DisplayWhenMouseoverOnly = false,
+		WarningSize = 12,
+		
+		Font = nil,
+		FontSize = 8,
+		FontStyle = nil
+	},
+	
+	Gem = {
+		DisplaySocket = true,
+		SocketSize = 12,
+		WarningSize = 12
+	}
 }

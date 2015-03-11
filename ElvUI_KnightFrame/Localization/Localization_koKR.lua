@@ -120,15 +120,18 @@ do	-- Modules
 		L['Bloodlust Debuff'] = '블러드 디버프'
 		L['Resurrection Debuff'] = '부활 디버프'
 		
+		L['Bat'] = '박쥐'
 		L['Bears'] = '곰'
 		L['Birds of Prey'] = '맹금'
 		L['Boars'] = '멧돼지'
 		L['Cats'] = '살쾡이'
+		L['Dog'] = '개'
 		L['Dragonhawk'] = '용매'
 		L['Goats'] = '염소'
 		L['Gorillas'] = '고릴라'
 		L['Hydras'] = '히드라'
 		L['Hyenas'] = '하이에나'
+		L['Porcupine'] = '호저'
 		L['Raptors'] = '랩터'
 		L['Ravagers'] = '칼날발톱'
 		L['Serpents'] = '뱀'
@@ -145,6 +148,7 @@ do	-- Modules
 		L['Core Hounds'] = '심장부사냥개'..Exotic
 		L['Devilsaurs'] = '데빌사우루스'..Exotic
 		L['Quilen'] = '기렌'..Exotic
+		L['Rylak'] = '라일라크'..Exotic
 		L['Silithids'] = '실리시드'..Exotic
 		L['Shale Spider'] = '혈암거미'..Exotic
 		L['Spirit Beasts'] = '야수정령'..Exotic
