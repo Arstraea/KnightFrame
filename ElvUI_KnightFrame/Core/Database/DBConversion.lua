@@ -87,7 +87,8 @@ if ElvDB and ElvDB.profiles then
 					separateSizes = false,
 					panelWidth = 424,
 					panelTabBackdrop = true,
-					panelTabTransparency = true
+					panelTabTransparency = true,
+					fadeUndockedTabs = false
 				},
 				datatexts = {
 					fontOutline = 'OUTLINE',
@@ -462,6 +463,9 @@ if ElvDB and ElvDB.profiles then
 								size = 10,
 								fontSize = 15
 							}
+						},
+						bodyguard = {
+							enable = false,
 						},
 						tank = {
 							enable = false,

@@ -7,6 +7,7 @@ KF.db.Modules.Armory.Character = {
 	Enable = true,
 	
 	NoticeMissing = true,
+	ShowDurabilityWhenDamagedOnly = false,
 	
 	Background = {
 		SelectedBG = 'Space',
@@ -19,7 +20,8 @@ KF.db.Modules.Armory.Character = {
 	},
 	
 	Level = {
-		DisplayLevel = true,
+		DisplayLevel = 'Always', -- Always, MouseoverOnly, Hide
+		ShowUpgradeLevel = false,
 		
 		Font = nil,
 		FontSize = 10,
@@ -27,9 +29,9 @@ KF.db.Modules.Armory.Character = {
 	},
 	
 	Enchant = {
-		DisplayEnchant = true,
-		DisplayWhenMouseoverOnly = false,
+		DisplayEnchant = 'Always', -- Always, MouseoverOnly, Hide
 		WarningSize = 12,
+		WarningIconOnly = false,
 		
 		Font = nil,
 		FontSize = 8,
@@ -37,7 +39,7 @@ KF.db.Modules.Armory.Character = {
 	},
 	
 	Gem = {
-		DisplaySocket = true,
+		DisplaySocket = 'Always', -- Always, MouseoverOnly, Hide
 		SocketSize = 12,
 		WarningSize = 12
 	}

@@ -92,12 +92,12 @@ function KF:CancelTimer(TimerName)
 	end
 end
 
---[[
-KNIGHTFRAME_ADS_MESSAGE = '1시까지 용광로영웅 가열로 트라이 [전탱or양조] [흑or암사] 개인룻 템렙경험 귓주세요'
-KF:RegisterTimer('광고', 'NewTicker', 40, function()
+
+KNIGHTFRAME_ADS_MESSAGE = '금토 9시~1시 고정공대 [조드,죽탱] 구합니다. 675인근 2셋이상 상담귓주세요'
+KF:RegisterTimer('광고', 'NewTicker', 120, function()
 	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
 end, nil, true)
-]]
+
 --/run ElvUI_KnightFrame[1]:CancelTimer('광고')
 
 
@@ -457,33 +457,30 @@ Info.BossBattle_Exception = {
 }
 
 local function ClearCheckedBossList(Force)
-	print('ClearCheckedBossList')
 	KF:CancelTimer('ClearCheckedBossList')
 	
 	if not IsEncounterInProgress() or Force == true then
-		print('보스리스트 초기화')
 		wipe(Info.CheckedBossList)
+		
+		if next(Info.CheckedBossList) then
+			print('와이프가 잘 안먹히네')
+			Info.CheckedBossList = {}
+		end
 		
 		if not Force then
 			KF:RegisterEventList('ENCOUNTER_START', KF.CheckBossCombat, 'CheckBossCombat')
 			KF:RegisterEventList('PLAYER_REGEN_DISABLED', KF.CheckBossCombat, 'CheckBossCombat')
 		end
 	else
-		print('안끝났네')
 		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 2, ClearCheckedBossList)
 	end
 end
 KF:RegisterCallback('GroupChanged', ClearCheckedBossList)
 KF:RegisterCallback('CurrentAreaChanged', ClearCheckedBossList)
 
-function KF:Test()
-	print('현재 전투중? : ', Info.NowInBossBattle)
-	PrintTable(Info.CheckedBossList)
-end
-
 
 KF.BossBattleStart = function(StartingType)
-	if Info.NowInBossBattle ~= nil or next(Info.CheckedBossList) then print('시작리턴됨 ㅡㅡ') KF:Test() return end
+	if Info.NowInBossBattle ~= nil or next(Info.CheckedBossList) then return end
 	
 	if StartingType == 'pull' then
 		Info.NowInBossBattle = 'DBM'
@@ -513,7 +510,6 @@ end
 
 
 KF.BossBattleEnd = function(EndingType)
-	print('BossBattleEnd 호출, 엔딩타입 : ', EndingType, '/ NowInBossBattle : ', Info.NowInBossBattle)
 	if Info.NowInBossBattle then
 		KF:CancelTimer('ClearCheckedBossList')
 		KF:RegisterTimer('ClearCheckedBossList', 'NewTimer', 4, ClearCheckedBossList)
@@ -574,6 +570,7 @@ function KF:CheckBossCombatEnd()
 	EndType = KF:CheckCombatEnd()
 	if (IsEncounterInProgressOn and not IsEncounterInProgress() or not IsEncounterInProgressOn and EndType) and (BossIsExists == false or EndType == 'wipe') then
 		IsEncounterInProgressOn = nil
+		KF:CancelTimer('CheckCombatEnd')
 		KF.BossBattleEnd(EndType)
 	end
 end
@@ -622,18 +619,18 @@ KF:RegisterEventList('INSTANCE_ENCOUNTER_ENGAGE_UNIT', function()
 		BossName = KF:BossExists('boss'..i)
 		
 		if BossName and not Info.CheckedBossList[BossName] then
-			Info.CheckedBossList[BossName] = true
-			
 			if Info.NowInBossBattle == nil then
 				KF:RegisterTimer('CheckCombatEnd', 'NewTicker', .1, KF.CheckBossCombat, nil, true)
 			end
+			
+			Info.CheckedBossList[BossName] = true
 		end
 	end
 end)
 KF:RegisterEventList('BOSS_KILL', function(_, _, BossName)
 	Info.CheckedBossList[BossName] = true
 	
-	KF.BossBattleEnd()
+	KF.BossBattleEnd(true)
 end)
 KF:RegisterCallback('CurrentAreaChanged', function()
 	if Info.InstanceType ~= 'field' then
