@@ -313,6 +313,22 @@ do --<< Button Script >>--
 		
 		GameTooltip:Hide()
 	end
+	
+	
+	function IA:Transmogrify_OnClick(Button)
+		local ItemName, ItemLink = GetItemInfo(self.Link)
+		
+		if not IsShiftKeyDown() then
+			SetItemRef(ItemLink, ItemLink, 'LeftButton')
+		else
+			if HandleModifiedItemClick(ItemLink) then
+			elseif BrowseName and BrowseName:IsVisible() then
+				AuctionFrameBrowse_Reset(BrowseResetButton)
+				BrowseName:SetText(ItemName)
+				BrowseName:SetFocus()
+			end
+		end
+	end
 end
 
 
@@ -390,6 +406,10 @@ function IA:CreateInspectFrame()
 		self:SetScript('OnShow', function() self.Model:Point('TOPRIGHT', self.HandsSlot) end)
 		self:SetScript('OnEvent', function(self, Event, ...) if self[Event] then self[Event](Event, ...) end end)
 		UIPanelWindows.InspectArmory = { area = 'left', pushable = 1, whileDead = 1 }
+		
+		self.DisplayUpdater = CreateFrame('Frame', nil, self)
+		self.DisplayUpdater:SetScript('OnUpdate', function() if Info.InspectArmory_Activate then  self:Update_Display() end end)
+		self.DisplayUpdater:Hide()
 	end
 	
 	do --<< Tab >>--
@@ -490,7 +510,6 @@ function IA:CreateInspectFrame()
 		self.BG = self:CreateTexture(nil, 'OVERLAY')
 		self.BG:Point('TOPLEFT', self.Tab, 'BOTTOMLEFT', 0, -38)
 		self.BG:Point('BOTTOMRIGHT', self.BP, 'TOPRIGHT')
-		self.BG:SetTexture(KF.db.Modules.Armory.Inspect.BackgroundImage)
 	end
 	
 	do --<< Buttons >>--
@@ -577,6 +596,7 @@ function IA:CreateInspectFrame()
 		self.Model:TryOn(HeadSlotItem)
 		self.Model:TryOn(BackSlotItem)
 		self.Model:Undress()
+		self.Model:SetScript('OnEnter', function() if Info.InspectArmory_Activate then self.DisplayUpdater:Show() end end)
 		self.Model:SetScript('OnMouseDown', function(self, button)
 			self.StartX, self.StartY = GetCursorPosition()
 			
@@ -664,14 +684,37 @@ function IA:CreateInspectFrame()
 				Slot.Gradation.Texture:SetTexCoord(1, 0, 0, 1)
 			end
 			
+			if not KF.db.Modules.Armory.Inspect.Gradation.Display then
+				Slot.Gradation.Texture:Hide()
+			end
+			
 			if not (SlotName == 'ShirtSlot' or SlotName == 'TabardSlot') then
 				-- Item Level
-				KF:TextSetting(Slot.Gradation, nil, { Tag = 'ItemLevel', FontSize = 10, directionH = Slot.Direction, }, 'TOP'..Slot.Direction, Slot, 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
+				KF:TextSetting(Slot.Gradation, nil, { Tag = 'ItemLevel',
+					Font = KF.db.Modules.Armory.Inspect.Level.Font,
+					FontSize = KF.db.Modules.Armory.Inspect.Level.FontSize,
+					FontStyle = KF.db.Modules.Armory.Inspect.Level.FontStyle,
+					directionH = Slot.Direction
+				}, 'TOP'..Slot.Direction, Slot, 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
+				
+				if KF.db.Modules.Armory.Inspect.Level.Display == 'Hide' then
+					Slot.Gradation.ItemLevel:Hide()
+				end
 				
 				-- Enchantment
-				KF:TextSetting(Slot.Gradation, nil, { Tag = 'ItemEnchant', FontSize = 8, directionH = Slot.Direction, }, Slot.Direction, Slot, Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 2)
+				KF:TextSetting(Slot.Gradation, nil, { Tag = 'ItemEnchant',
+					Font = KF.db.Modules.Armory.Inspect.Enchant.Font,
+					FontSize = KF.db.Modules.Armory.Inspect.Enchant.FontSize,
+					FontStyle = KF.db.Modules.Armory.Inspect.Enchant.FontStyle,
+					directionH = Slot.Direction
+				}, Slot.Direction, Slot, Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
+				
+				if KF.db.Modules.Armory.Inspect.Enchant.Display == 'Hide' then
+					Slot.Gradation.ItemEnchant:Hide()
+				end
+				
 				Slot.EnchantWarning = CreateFrame('Button', nil, Slot.Gradation)
-				Slot.EnchantWarning:Size(12)
+				Slot.EnchantWarning:Size(KF.db.Modules.Armory.Inspect.Enchant.WarningSize)
 				Slot.EnchantWarning.Texture = Slot.EnchantWarning:CreateTexture(nil, 'OVERLAY')
 				Slot.EnchantWarning.Texture:SetInside()
 				Slot.EnchantWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Warning-Small')
@@ -682,7 +725,7 @@ function IA:CreateInspectFrame()
 				-- Gem Socket
 				for i = 1, MAX_NUM_SOCKETS do
 					Slot['Socket'..i] = CreateFrame('Frame', nil, Slot.Gradation)
-					Slot['Socket'..i]:Size(12)
+					Slot['Socket'..i]:Size(KF.db.Modules.Armory.Inspect.Gem.SocketSize)
 					Slot['Socket'..i]:SetBackdrop({
 						bgFile = E.media.blankTex,
 						edgeFile = E.media.blankTex,
@@ -715,7 +758,7 @@ function IA:CreateInspectFrame()
 				Slot.Socket3:Point(Slot.Direction, Slot.Socket2, Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 1 or -1, 0)
 				
 				Slot.SocketWarning = CreateFrame('Button', nil, Slot.Gradation)
-				Slot.SocketWarning:Size(12)
+				Slot.SocketWarning:Size(KF.db.Modules.Armory.Inspect.Gem.WarningSize)
 				Slot.SocketWarning.Texture = Slot.SocketWarning:CreateTexture(nil, 'OVERLAY')
 				Slot.SocketWarning.Texture:SetInside()
 				Slot.SocketWarning.Texture:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\Warning-Small')
@@ -729,6 +772,7 @@ function IA:CreateInspectFrame()
 					Slot.TransmogrifyAnchor:Point('BOTTOM'..Slot.Direction, Slot, Slot.Direction == 'LEFT' and -3 or 3, -3)
 					Slot.TransmogrifyAnchor:SetScript('OnEnter', self.Transmogrify_OnEnter)
 					Slot.TransmogrifyAnchor:SetScript('OnLeave', self.Transmogrify_OnLeave)
+					Slot.TransmogrifyAnchor:SetScript('OnClick', self.Transmogrify_OnClick)
 					
 					Slot.TransmogrifyAnchor.Texture = Slot.TransmogrifyAnchor:CreateTexture(nil, 'OVERLAY')
 					Slot.TransmogrifyAnchor.Texture:SetInside()
@@ -1690,18 +1734,19 @@ function IA:InspectFrame_DataSetting(DataTable)
 	local ItemCount, ItemTotal = 0, 0
 	
 	do	--<< Equipment Slot and Enchant, Gem Setting >>--
-		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemTexture, IsEnchanted, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
+		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
 		
 		-- Setting except shirt and tabard
-		for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
+		for _, SlotName in pairs(type(self.GearUpdated) == 'table' and self.GearUpdated or Info.Armory_Constants.GearList) do
+			Slot = self[SlotName]
+			
 			if SlotName ~= 'ShirtSlot' and SlotName ~= 'TabardSlot' then
-				Slot = self[SlotName]
-				
 				do --<< Clear Setting >>--
-					NeedUpdate, ErrorDetected, TrueItemLevel, IsEnchanted, ItemUpgradeID, ItemTexture, R, G, B = nil, nil, nil, nil, nil, nil, 0, 0, 0
+					NeedUpdate, ErrorDetected, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, R, G, B = nil, nil, nil, nil, nil, nil, 0, 0, 0
 					
 					Slot.Link = nil
 					Slot.ILvL = nil
+					Slot.IsEnchanted = nil
 					Slot.ItemLevel:SetText(nil)
 					Slot.Gradation.ItemLevel:SetText(nil)
 					Slot.Gradation.ItemEnchant:SetText(nil)
@@ -1717,6 +1762,10 @@ function IA:InspectFrame_DataSetting(DataTable)
 					Slot.SocketWarning:Hide()
 					Slot.SocketWarning.Link = nil
 					Slot.SocketWarning.Message = nil
+					if Slot.TransmogrifyAnchor then
+						Slot.TransmogrifyAnchor.Link = nil
+						Slot.TransmogrifyAnchor:Hide()
+					end
 				end
 				
 				if DataTable.Gear[SlotName].ItemLink then
@@ -1777,9 +1826,12 @@ function IA:InspectFrame_DataSetting(DataTable)
 								CurrentLineText = DataTable.Gear[SlotName]['Gem'..i] or CurrentLineText ~= self.ScanTT and CurrentLineText.GetText and CurrentLineText:GetText():gsub('|cff......', ''):gsub('|r', '') or nil
 								
 								if CurrentLineText then
-									Slot['Socket'..i]:Show()
+									if KF.db.Modules.Armory.Inspect.Gem.Display == 'Always' or KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly' and Slot.Mouseovered or KF.db.Modules.Armory.Inspect.Gem.Display == 'MissingOnly' then
+										Slot['Socket'..i]:Show()
+										Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
+									end
+									
 									GemCount_Now = GemCount_Now + 1
-									Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 									
 									ItemTexture = ItemTexture or DataTable.Gear[SlotName]['Gem'..i] and select(10, GetItemInfo(DataTable.Gear[SlotName]['Gem'..i])) or nil
 									
@@ -1798,7 +1850,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 							end
 						end
 						
-						_, _, ItemRarity, BasicItemLevel, _, _, _, _, _, ItemTexture = GetItemInfo(Slot.Link)
+						_, _, ItemRarity, BasicItemLevel, _, _, _, _, ItemType, ItemTexture = GetItemInfo(Slot.Link)
 						R, G, B = GetItemQualityColor(ItemRarity)
 						
 						ItemUpgradeID = Slot.Link:match(':(%d+)\124h%[')
@@ -1812,19 +1864,30 @@ function IA:InspectFrame_DataSetting(DataTable)
 							elseif CurrentLineText:find(Info.Armory_Constants.ItemLevelKey) then
 								TrueItemLevel = tonumber(CurrentLineText:match(Info.Armory_Constants.ItemLevelKey))
 							elseif CurrentLineText:find(Info.Armory_Constants.EnchantKey) then
-								CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
+								if KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Hide' then
+									CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STAMINA_SHORT, STA)
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STRENGTH_SHORT, STR)
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_INTELLECT_SHORT, INT)
+									CurrentLineText = gsub(CurrentLineText, ITEM_MOD_CRIT_RATING_SHORT, CRIT_ABBR) -- Critical is too long
+									CurrentLineText = gsub(CurrentLineText, ' + ', '+') -- Remove space
+									
+									if L.Armory_ReplaceEnchantString and type(L.Armory_ReplaceEnchantString) == 'table' then
+										for Old, New in pairs(L.Armory_ReplaceEnchantString) do
+											CurrentLineText = gsub(CurrentLineText, Old, New)
+										end
+									end
+									
+									for Old, New in pairs(KnightFrame_ArmoryDB.EnchantString) do
+										CurrentLineText = gsub(CurrentLineText, Old, New)
+									end
+									
+									Slot.Gradation.ItemEnchant:SetText('|cffceff00'..CurrentLineText)
+								end
 								
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STAMINA_SHORT, STA)
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_STRENGTH_SHORT, STR)
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_INTELLECT_SHORT, INT)
-								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_CRIT_RATING_SHORT, CRIT_ABBR) -- Critical is too long
-								CurrentLineText = gsub(CurrentLineText, ' + ', '+') -- Remove space
-								
-								Slot.Gradation.ItemEnchant:SetText('|cffceff00'..CurrentLineText)
-								
-								IsEnchanted = true
+								Slot.IsEnchanted = true
 							end
 						end
 						
@@ -1841,14 +1904,18 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.ILvL = TrueItemLevel or BasicItemLevel
 							
 							Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..TrueItemLevel)
-							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel or '')..(ItemUpgradeID and (Slot.Direction == 'LEFT' and ' ' or '')..(Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r'..(Slot.Direction == 'RIGHT' and ' ' or '') or '')..(Slot.Direction == 'RIGHT' and TrueItemLevel or ''))
+							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or ''))
+							
+							if KF.db.Modules.Armory.Inspect.Level.Display == 'Always' or KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' and Slot.Mouseovered then
+								Slot.Gradation.ItemLevel:Show()
+							end
 						end
 						
 						--print(SlotName..':', Slot.Link, BasicItemLevel, TrueItemLevel)
 						
 						--[[
 						-- Check Error
-						if (not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName]) or ((SlotName == 'Finger0Slot' or SlotName == 'Finger1Slot') and (DataTable.Profession[1].Name == GetSpellInfo(110400) and DataTable.Profession[1].Level >= 550 or DataTable.Profession[2].Name == GetSpellInfo(110400) and DataTable.Profession[2].Level >= 550) and not IsEnchanted) then
+						if (not Slot.IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName]) or ((SlotName == 'Finger0Slot' or SlotName == 'Finger1Slot') and (DataTable.Profession[1].Name == GetSpellInfo(110400) and DataTable.Profession[1].Level >= 550 or DataTable.Profession[2].Name == GetSpellInfo(110400) and DataTable.Profession[2].Level >= 550) and not Slot.IsEnchanted) then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
@@ -1866,106 +1933,113 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.EnchantWarning.Message = '|cff71d5ff'..GetSpellInfo(110426)..'|r : '..L['This is not profession only.']
 						end
 						]]
-						if not IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] then
-							ErrorDetected = true
-							Slot.EnchantWarning:Show()
-							Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
-						end
-						
-						if GemCount_Enable > GemCount_Now or GemCount_Enable > GemCount or GemCount_Now > GemCount then
-							ErrorDetected = true
-							
-							Slot.SocketWarning:Show()
-							Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
-							--[[
-							if GemCount_Enable > GemCount_Now then
-								if SlotName == 'WaistSlot' then
-									if TrueItemLevel < 300 then
-										_, Slot.SocketWarning.Link = GetItemInfo(41611)	
-									elseif TrueItemLevel < 417 then
-										_, Slot.SocketWarning.Link = GetItemInfo(55054)
-									else
-										_, Slot.SocketWarning.Link = GetItemInfo(90046)
-									end
-									
-									Slot.SocketWarning.Message = L['Missing Buckle']
-									
-									Slot.SocketWarning:SetScript('OnClick', function(self)
-										local itemName, itemLink
-										
-										if TrueItemLevel < 300 then
-											itemName, itemLink = GetItemInfo(41611)
-										elseif TrueItemLevel < 417 then
-											itemName, itemLink = GetItemInfo(55054)
-										else
-											itemName, itemLink = GetItemInfo(90046)
-										end
-										
-										if HandleModifiedItemClick(itemLink) then
-										elseif IsShiftKeyDown() and BrowseName and BrowseName:IsVisible() then
-											AuctionFrameBrowse_Reset(BrowseResetButton)
-											BrowseName:SetText(itemName)
-											BrowseName:SetFocus()
-										end
-									end)
-								elseif SlotName == 'HandsSlot' then
-									Slot.SocketWarning.Link = GetSpellLink(114112)
-									Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
-								elseif SlotName == 'WristSlot' then
-									Slot.SocketWarning.Link = GetSpellLink(113263)
-									Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
-								end
-							else
-								Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
+						if KF.db.Modules.Armory.Inspect.NoticeMissing ~= false then
+							if not Slot.IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] and not (SlotName == 'SecondaryHandSlot' and ItemType ~= 'INVTYPE_WEAPON' and ItemType ~= 'INVTYPE_WEAPONOFFHAND' and ItemType ~= 'INVTYPE_RANGEDRIGHT') then
+								ErrorDetected = true
+								Slot.EnchantWarning:Show()
+								Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
 							end
-							]]
+							
+							if GemCount_Enable > GemCount_Now or GemCount_Enable > GemCount or GemCount_Now > GemCount then
+								ErrorDetected = true
+								
+								Slot.SocketWarning:Show()
+								Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
+								--[[
+								if GemCount_Enable > GemCount_Now then
+									if SlotName == 'WaistSlot' then
+										if TrueItemLevel < 300 then
+											_, Slot.SocketWarning.Link = GetItemInfo(41611)	
+										elseif TrueItemLevel < 417 then
+											_, Slot.SocketWarning.Link = GetItemInfo(55054)
+										else
+											_, Slot.SocketWarning.Link = GetItemInfo(90046)
+										end
+										
+										Slot.SocketWarning.Message = L['Missing Buckle']
+										
+										Slot.SocketWarning:SetScript('OnClick', function(self)
+											local itemName, itemLink
+											
+											if TrueItemLevel < 300 then
+												itemName, itemLink = GetItemInfo(41611)
+											elseif TrueItemLevel < 417 then
+												itemName, itemLink = GetItemInfo(55054)
+											else
+												itemName, itemLink = GetItemInfo(90046)
+											end
+											
+											if HandleModifiedItemClick(itemLink) then
+											elseif IsShiftKeyDown() and BrowseName and BrowseName:IsVisible() then
+												AuctionFrameBrowse_Reset(BrowseResetButton)
+												BrowseName:SetText(itemName)
+												BrowseName:SetFocus()
+											end
+										end)
+									elseif SlotName == 'HandsSlot' then
+										Slot.SocketWarning.Link = GetSpellLink(114112)
+										Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
+									elseif SlotName == 'WristSlot' then
+										Slot.SocketWarning.Link = GetSpellLink(113263)
+										Slot.SocketWarning.Message = '|cff71d5ff'..GetSpellInfo(110396)..'|r : '..L['Missing Socket']
+									end
+								else
+									Slot.SocketWarning.Message = '|cffff5678'..(GemCount_Now - GemCount)..'|r '..L['Empty Socket']
+								end
+								]]
+							end
 						end
 						
-						--print(SlotName, Slot.Link, TrueItemLevel, ItemTotal)
+						if Slot.TransmogrifyAnchor then --<< Transmogrify Parts >>--
+							Slot.TransmogrifyAnchor.Link = DataTable.Gear[SlotName].Transmogrify ~= 'NotDisplayed' and DataTable.Gear[SlotName].Transmogrify
+							
+							if type(Slot.TransmogrifyAnchor.Link) == 'number' then
+								Slot.TransmogrifyAnchor:Show()
+							end
+						end
 					else
 						NeedUpdate = true
 					end
 				end
 				
-				if Slot.TransmogrifyAnchor then --<< Transmogrify Parts >>--
-					Slot.TransmogrifyAnchor.Link = DataTable.Gear[SlotName].Transmogrify ~= 'NotDisplayed' and DataTable.Gear[SlotName].Transmogrify
-					
-					if type(Slot.TransmogrifyAnchor.Link) == 'number' then
-						Slot.TransmogrifyAnchor:Show()
-					else
-						Slot.TransmogrifyAnchor:Hide()
-					end
-				end
-				
-				-- Change Gradation
-				if ErrorDetected and KF.db.Modules.Armory.Inspect.NoticeMissing ~= false then
-					Slot.Gradation.Texture:SetVertexColor(1, 0, 0)
-				else
-					Slot.Gradation.Texture:SetVertexColor(unpack(KF.db.Modules.Armory.Inspect.GradationColor))
-				end
-				
 				Slot.Texture:SetTexture(ItemTexture or Slot.EmptyTexture)
-				Slot:SetBackdropBorderColor(R, G, B)
 				
 				if NeedUpdate then
 					NeedUpdateList = NeedUpdateList or {}
 					NeedUpdateList[#NeedUpdateList + 1] = SlotName
 				end
+			else
+				ItemRarity, ItemTexture, R, G, B = nil, nil, 0, 0, 0
+				
+				Slot.Link = DataTable.Gear[SlotName].ItemLink
+				
+				if Slot.Link then
+					_, _, ItemRarity, _, _, _, _, _, _, ItemTexture = GetItemInfo(Slot.Link)
+					
+					if ItemRarity then
+						R, G, B = GetItemQualityColor(ItemRarity)
+					else
+						NeedUpdateList = NeedUpdateList or {}
+						NeedUpdateList[#NeedUpdateList + 1] = SlotName
+					end
+				end
+				
+				Slot.Texture:SetTexture(ItemTexture or self[SlotName].EmptyTexture)
 			end
-		end
-		
-		for _, SlotName in pairs({ 'ShirtSlot', 'TabardSlot' }) do
-			Slot = self[SlotName]
-			ItemRarity, ItemTexture, R, G, B = nil, nil, 0, 0, 0
 			
-			Slot.Link = DataTable.Gear[SlotName].ItemLink
-			
-			if Slot.Link then
-				_, _, ItemRarity, _, _, _, _, _, _, ItemTexture = GetItemInfo(Slot.Link)
-				R, G, B = GetItemQualityColor(ItemRarity)
+			-- Change Gradation
+			if Slot.Link and KF.db.Modules.Armory.Inspect.Gradation.Display then
+				Slot.Gradation.Texture:Show()
+			else
+				Slot.Gradation.Texture:Hide()
 			end
 			
-			Slot.Texture:SetTexture(ItemTexture or self[SlotName].EmptyTexture)
+			if ErrorDetected and KF.db.Modules.Armory.Inspect.NoticeMissing then
+				Slot.Gradation.Texture:SetVertexColor(1, 0, 0)
+				Slot.Gradation.Texture:Show()
+			else
+				Slot.Gradation.Texture:SetVertexColor(unpack(KF.db.Modules.Armory.Inspect.Gradation.Color))
+			end
 			Slot:SetBackdropBorderColor(R, G, B)
 		end
 		
@@ -2161,6 +2235,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 	end
 	
 	self.LastDataSetting = DataTable.Name..(DataTable.Realm and '-'..DataTable.Realm or '')
+	
+	self:Update_Display(true)
 end
 
 
@@ -2361,6 +2437,64 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 end
 
 
+function IA:Update_BG()
+	if KF.db.Modules.Armory.Inspect.Background.SelectedBG == 'HIDE' then
+		self.BG:SetTexture(nil)
+	elseif KF.db.Modules.Armory.Inspect.Background.SelectedBG == 'CUSTOM' then
+		self.BG:SetTexture(KF.db.Modules.Armory.Inspect.Background.CustomAddress)
+	else
+		self.BG:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Inspect.Background.SelectedBG)
+	end
+end
+
+
+function IA:Update_Display(Force)
+	if (self.Model:IsMouseOver() or Force) and (KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly') then
+		for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+			if self[SlotName]:IsMouseOver() or Force == SlotName then
+				if self[SlotName].Gradation.ItemLevel and KF.db.Modules.Armory.Inspect.Level.Display ~= 'Hide' then
+					self[SlotName].Gradation.ItemLevel:Show()
+				end
+				
+				if self[SlotName].Gradation.ItemEnchant and KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Hide' then
+					self[SlotName].Gradation.ItemEnchant:Show()
+				end
+				
+				for i = 1, MAX_NUM_SOCKETS do
+					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Inspect.Gem.Display ~= 'Hide' then
+						if self[SlotName]['Socket'..i].GemType then
+							self[SlotName]['Socket'..i]:Show()
+						end
+					else
+						break
+					end
+				end
+			else
+				if self[SlotName].Gradation.ItemLevel and KF.db.Modules.Armory.Inspect.Level.Display ~= 'Always' then
+					self[SlotName].Gradation.ItemLevel:Hide()
+				end
+				
+				if self[SlotName].Gradation.ItemEnchant and KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Always' and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not self[SlotName].IsEnchanted) then
+					self[SlotName].Gradation.ItemEnchant:Hide()
+				end
+				
+				for i = 1, MAX_NUM_SOCKETS do
+					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Inspect.Gem.Display ~= 'Always' then
+						if self[SlotName]['Socket'..i].GemType and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not self[SlotName]['Socket'..i].GemItemID) then
+							self[SlotName]['Socket'..i]:Hide()
+						end
+					else
+						break
+					end
+				end
+			end
+		end
+	else
+		self.DisplayUpdater:Hide()
+	end
+end
+
+
 KF.Modules[#KF.Modules + 1] = 'InspectArmory'
 KF.Modules.InspectArmory = function(RemoveOrder)
 	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.Armory and KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable ~= false and not Info.InspectArmory_Activate then
@@ -2370,6 +2504,7 @@ KF.Modules.InspectArmory = function(RemoveOrder)
 		if IA.CreateInspectFrame then
 			IA:CreateInspectFrame()
 		end
+		IA:Update_BG()
 		
 		NotifyInspect = ENI.NotifyInspect or NotifyInspect
 		InspectUnit = IA.InspectUnit

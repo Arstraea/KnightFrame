@@ -39,4 +39,10 @@ Engine[3] = Timer
 
 _G[AddOnName] = Engine
 
+if type(KnightFrame_ArmoryDB) ~= 'table' then
+	KnightFrame_ArmoryDB = {
+		EnchantString = {}
+	}
+end
+
 --local KF, Info, Timer = unpack(select(2, ...))

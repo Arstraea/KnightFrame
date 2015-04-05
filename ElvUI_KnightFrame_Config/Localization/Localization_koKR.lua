@@ -171,6 +171,22 @@ do	-- Modules
 				L['Icon Align'] = '정렬방법'
 	end
 	
+	do -- Armory
+		L['Armory'] = '전투정보실'
+		L['Character Armory'] = '캐릭터 전정실'
+		L['Inspect Armory'] = '살펴보기 전정실'
+		
+		L['Enchant String'] = '마법부여'
+			L['Replacing List'] = '교체 목록'
+			L['There is no replacing order.'] = '지정한 교체 요청이 없습니다.'
+			L['Add New Replacing Order'] = '마법부여 글자 추가'
+			L['Target Enchant'] = '대상 마법부여'
+			L['String To Replacing'] = '교체할 글자'
+			L['Add New Order'] = '새로운 주문 입력'
+			L['You must input string that target and new both.'] = '대상 마법부여와 교체할 글자 두개 다 입력해야 합니다.'
+			L['Delete Replacing Order'] = '교체주문 삭제'
+	end
+	
 	do -- Secretary
 	
 	end

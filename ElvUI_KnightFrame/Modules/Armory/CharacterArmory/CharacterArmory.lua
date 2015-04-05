@@ -253,7 +253,7 @@ function CA:Setup_CharacterArmory()
 			Slot.Gradation:SetTexCoord(1, 0, 0, 1)
 		end
 		
-		if not KF.db.Modules.Armory.Character.Gradation.DisplayGradation then
+		if not KF.db.Modules.Armory.Character.Gradation.Display then
 			Slot.Gradation:Hide()
 		end
 		
@@ -266,7 +266,7 @@ function CA:Setup_CharacterArmory()
 				directionH = Slot.Direction
 			}, 'TOP'..Slot.Direction, _G['Character'..SlotName], 'TOP'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, -1)
 			
-			if KF.db.Modules.Armory.Character.Level.DisplayLevel == 'Hide' then
+			if KF.db.Modules.Armory.Character.Level.Display == 'Hide' then
 				Slot.ItemLevel:Hide()
 			end
 			
@@ -278,7 +278,7 @@ function CA:Setup_CharacterArmory()
 				directionH = Slot.Direction
 			}, Slot.Direction, _G['Character'..SlotName], Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT', Slot.Direction == 'LEFT' and 2 or -2, 1)
 			
-			if KF.db.Modules.Armory.Character.Enchant.DisplayEnchant == 'Hide' then
+			if KF.db.Modules.Armory.Character.Enchant.Display == 'Hide' then
 				Slot.ItemEnchant:Hide()
 			end
 			
@@ -406,7 +406,7 @@ function CA:Update_Durability()
 		Slot = self[SlotName]
 		CurrentDurability, MaxDurability = GetInventoryItemDurability(Slot.ID)
 		
-		if CurrentDurability and MaxDurability and not (KF.db.Modules.Armory.Character.ShowDurabilityWhenDamagedOnly and CurrentDurability == MaxDurability) then
+		if CurrentDurability and MaxDurability and not (KF.db.Modules.Armory.Character.Durability.Display == 'DamagedOnly' and CurrentDurability == MaxDurability) then
 			R, G, B = E:ColorGradient((CurrentDurability / MaxDurability), 1, 0, 0, 1, 1, 0, 0, 1, 0)
 			Slot.Durability:SetFormattedText("%s%.0f%%|r", E:RGBToHex(R, G, B), (CurrentDurability / MaxDurability) * 100)
 			Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, -2)
@@ -447,7 +447,7 @@ function CA:Update_Gear()
 	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
 	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
 	
-	for _, SlotName in pairs(self.GearUpdated or Info.Armory_Constants.GearList) do
+	for _, SlotName in pairs(type(self.GearUpdated) == 'table' and self.GearUpdated or Info.Armory_Constants.GearList) do
 		Slot = self[SlotName]
 		ItemLink = GetInventoryItemLink('player', Slot.ID)
 		ErrorDetected = nil
@@ -533,7 +533,7 @@ function CA:Update_Gear()
 							end
 							
 							if ItemTexture or GemID then
-								if KF.db.Modules.Armory.Character.Gem.DisplaySocket == 'Always' or KF.db.Modules.Armory.Character.Gem.DisplaySocket == 'MouseoverOnly' and Slot.Mouseovered or KF.db.Modules.Armory.Character.Gem.DisplaySocket == 'MissingOnly' then
+								if KF.db.Modules.Armory.Character.Gem.Display == 'Always' or KF.db.Modules.Armory.Character.Gem.Display == 'MouseoverOnly' and Slot.Mouseovered or KF.db.Modules.Armory.Character.Gem.Display == 'MissingOnly' then
 									Slot['Socket'..i]:Show()
 									Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 								end
@@ -575,7 +575,7 @@ function CA:Update_Gear()
 						elseif CurrentLineText:find(Info.Armory_Constants.ItemLevelKey) then
 							TrueItemLevel = tonumber(CurrentLineText:match(Info.Armory_Constants.ItemLevelKey))
 						elseif CurrentLineText:find(Info.Armory_Constants.EnchantKey) then
-							if KF.db.Modules.Armory.Character.Enchant.DisplayEnchant ~= 'Hide' then
+							if KF.db.Modules.Armory.Character.Enchant.Display ~= 'Hide' then
 								CurrentLineText = CurrentLineText:match(Info.Armory_Constants.EnchantKey) -- Get enchant string
 								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_AGILITY_SHORT, AGI)
 								CurrentLineText = gsub(CurrentLineText, ITEM_MOD_SPIRIT_SHORT, SPI)
@@ -589,6 +589,10 @@ function CA:Update_Gear()
 									for Old, New in pairs(L.Armory_ReplaceEnchantString) do
 										CurrentLineText = gsub(CurrentLineText, Old, New)
 									end
+								end
+								
+								for Old, New in pairs(KnightFrame_ArmoryDB.EnchantString) do
+									CurrentLineText = gsub(CurrentLineText, Old, New)
 								end
 								
 								Slot.ItemEnchant:SetText('|cffceff00'..CurrentLineText)
@@ -612,13 +616,13 @@ function CA:Update_Gear()
 						
 						Slot.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or ''))
 						
-						if KF.db.Modules.Armory.Character.Level.DisplayLevel == 'Always' or KF.db.Modules.Armory.Character.Level.DisplayLevel == 'MouseoverOnly' and Slot.Mouseovered then
+						if KF.db.Modules.Armory.Character.Level.Display == 'Always' or KF.db.Modules.Armory.Character.Level.Display == 'MouseoverOnly' and Slot.Mouseovered then
 							Slot.ItemLevel:Show()
 						end
 					end
 					
 					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
-						if not Slot.IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] and (SlotName ~= 'SecondaryHandSlot' or ItemType == 'INVTYPE_WEAPON' and ItemType == 'INVTYPE_WEAPONOFFHAND' and ItemType == 'INVTYPE_RANGEDRIGHT') then
+						if not Slot.IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] and not (SlotName == 'SecondaryHandSlot' and ItemType ~= 'INVTYPE_WEAPON' and ItemType ~= 'INVTYPE_WEAPONOFFHAND' and ItemType ~= 'INVTYPE_RANGEDRIGHT') then
 							ErrorDetected = true
 							Slot.EnchantWarning:Show()
 							
@@ -743,7 +747,7 @@ function CA:Update_Gear()
 		end
 		
 		-- Change Gradation
-		if ItemLink and KF.db.Modules.Armory.Character.Gradation.DisplayGradation then
+		if ItemLink and KF.db.Modules.Armory.Character.Gradation.Display then
 			Slot.Gradation:Show()
 		else
 			Slot.Gradation:Hide()
@@ -779,19 +783,24 @@ end
 
 
 function CA:Update_Display(Force)
-	if (PaperDollFrame:IsMouseOver() or Force) and (KF.db.Modules.Armory.Character.Level.DisplayLevel == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Enchant.DisplayEnchant == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Gem.DisplaySocket == 'MouseoverOnly') then
+	-- 이부분 고쳐야한다.
+	if (PaperDollFrame:IsMouseOver() and (KF.db.Modules.Armory.Character.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Durability.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Gem.Display == 'MouseoverOnly')) or Force then
 		for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-			if self[SlotName]:IsMouseOver() or Force == SlotName then
-				if self[SlotName].ItemLevel and KF.db.Modules.Armory.Character.Level.DisplayLevel ~= 'Hide' then
+			if self[SlotName]:IsMouseOver() or Force == true or Force == SlotName then
+				if self[SlotName].ItemLevel and KF.db.Modules.Armory.Character.Level.Display ~= 'Hide' then
 					self[SlotName].ItemLevel:Show()
 				end
 				
-				if self[SlotName].ItemEnchant and KF.db.Modules.Armory.Character.Enchant.DisplayEnchant ~= 'Hide' then
+				if self[SlotName].ItemEnchant and KF.db.Modules.Armory.Character.Enchant.Display ~= 'Hide' then
 					self[SlotName].ItemEnchant:Show()
 				end
 				
+				if self[SlotName].Durability and KF.db.Modules.Armory.Character.Durability.Display ~= 'Hide' then
+					self[SlotName].Durability:Show()
+				end
+				
 				for i = 1, MAX_NUM_SOCKETS do
-					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Character.Gem.DisplaySocket ~= 'Hide' then
+					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Character.Gem.Display ~= 'Hide' then
 						if self[SlotName]['Socket'..i].GemType then
 							self[SlotName]['Socket'..i]:Show()
 						end
@@ -800,16 +809,20 @@ function CA:Update_Display(Force)
 					end
 				end
 			else
-				if self[SlotName].ItemLevel and KF.db.Modules.Armory.Character.Level.DisplayLevel ~= 'Always' then
+				if self[SlotName].ItemLevel and KF.db.Modules.Armory.Character.Level.Display ~= 'Always' then
 					self[SlotName].ItemLevel:Hide()
 				end
 				
-				if self[SlotName].ItemEnchant and KF.db.Modules.Armory.Character.Enchant.DisplayEnchant ~= 'Always' and not (KF.db.Modules.Armory.Character.NoticeMissing and not self[SlotName].IsEnchanted) then
+				if self[SlotName].ItemEnchant and KF.db.Modules.Armory.Character.Enchant.Display ~= 'Always' and not (KF.db.Modules.Armory.Character.NoticeMissing and not self[SlotName].IsEnchanted) then
 					self[SlotName].ItemEnchant:Hide()
 				end
 				
+				if self[SlotName].Durability and KF.db.Modules.Armory.Character.Durability.Display ~= 'Always' and KF.db.Modules.Armory.Character.Durability.Display ~= 'DamagedOnly' then
+					self[SlotName].Durability:Hide()
+				end
+				
 				for i = 1, MAX_NUM_SOCKETS do
-					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Character.Gem.DisplaySocket ~= 'Always' then
+					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Character.Gem.Display ~= 'Always' then
 						if self[SlotName]['Socket'..i].GemType and not (KF.db.Modules.Armory.Character.NoticeMissing and not self[SlotName]['Socket'..i].GemItemID) then
 							self[SlotName]['Socket'..i]:Hide()
 						end
@@ -845,6 +858,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 			CA:Show()
 		end
 		CA:ScanData()
+		CA:Update_BG()
 		
 		-- Model Frame
 		CharacterModelFrame:ClearAllPoints()
