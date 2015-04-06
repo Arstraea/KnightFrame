@@ -408,8 +408,8 @@ function IA:CreateInspectFrame()
 		UIPanelWindows.InspectArmory = { area = 'left', pushable = 1, whileDead = 1 }
 		
 		self.DisplayUpdater = CreateFrame('Frame', nil, self)
+		self.DisplayUpdater:SetScript('OnShow', function() if Info.InspectArmory_Activate then  self:Update_Display(true) end end)
 		self.DisplayUpdater:SetScript('OnUpdate', function() if Info.InspectArmory_Activate then  self:Update_Display() end end)
-		self.DisplayUpdater:Hide()
 	end
 	
 	do --<< Tab >>--
@@ -596,7 +596,6 @@ function IA:CreateInspectFrame()
 		self.Model:TryOn(HeadSlotItem)
 		self.Model:TryOn(BackSlotItem)
 		self.Model:Undress()
-		self.Model:SetScript('OnEnter', function() if Info.InspectArmory_Activate then self.DisplayUpdater:Show() end end)
 		self.Model:SetScript('OnMouseDown', function(self, button)
 			self.StartX, self.StartY = GetCursorPosition()
 			
@@ -2449,48 +2448,49 @@ end
 
 
 function IA:Update_Display(Force)
-	if (self.Model:IsMouseOver() or Force) and (KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly') then
+	local Slot, Mouseover
+	
+	if (self:IsMouseOver() and (KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly')) or Force then
 		for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-			if self[SlotName]:IsMouseOver() or Force == SlotName then
-				if self[SlotName].Gradation.ItemLevel and KF.db.Modules.Armory.Inspect.Level.Display ~= 'Hide' then
-					self[SlotName].Gradation.ItemLevel:Show()
-				end
-				
-				if self[SlotName].Gradation.ItemEnchant and KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Hide' then
-					self[SlotName].Gradation.ItemEnchant:Show()
-				end
-				
-				for i = 1, MAX_NUM_SOCKETS do
-					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Inspect.Gem.Display ~= 'Hide' then
-						if self[SlotName]['Socket'..i].GemType then
-							self[SlotName]['Socket'..i]:Show()
-						end
-					else
-						break
-					end
-				end
-			else
-				if self[SlotName].Gradation.ItemLevel and KF.db.Modules.Armory.Inspect.Level.Display ~= 'Always' then
-					self[SlotName].Gradation.ItemLevel:Hide()
-				end
-				
-				if self[SlotName].Gradation.ItemEnchant and KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Always' and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not self[SlotName].IsEnchanted) then
-					self[SlotName].Gradation.ItemEnchant:Hide()
-				end
-				
-				for i = 1, MAX_NUM_SOCKETS do
-					if self[SlotName]['Socket'..i] and KF.db.Modules.Armory.Inspect.Gem.Display ~= 'Always' then
-						if self[SlotName]['Socket'..i].GemType and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not self[SlotName]['Socket'..i].GemItemID) then
-							self[SlotName]['Socket'..i]:Hide()
-						end
-					else
-						break
-					end
+			Slot = self[SlotName]
+			Mouseover = Slot.Gradation:IsMouseOver()
+			
+			if Slot.Gradation.ItemLevel then
+				if KF.db.Modules.Armory.Inspect.Level.Display == 'Always' or Mouseover and KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' then
+					Slot.Gradation.ItemLevel:Show()
+				else
+					Slot.Gradation.ItemLevel:Hide()
 				end
 			end
+			
+			if Slot.Gradation.ItemEnchant then
+				if KF.db.Modules.Armory.Inspect.Enchant.Display == 'Always' or Mouseover and KF.db.Modules.Armory.Inspect.Enchant.Display == 'MouseoverOnly' then
+					Slot.Gradation.ItemEnchant:Show()
+				elseif KF.db.Modules.Armory.Inspect.Enchant.Display ~= 'Always' and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not Slot.IsEnchanted) then
+					Slot.Gradation.ItemEnchant:Hide()
+				end
+			end
+			
+			for i = 1, MAX_NUM_SOCKETS do
+				if Slot['Socket'..i] then
+					if KF.db.Modules.Armory.Inspect.Gem.Display == 'Always' or Mouseover and KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly' then
+						if Slot['Socket'..i].GemType then
+							Slot['Socket'..i]:Show()
+						end
+					else
+						if Slot['Socket'..i].GemType and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not Slot['Socket'..i].GemItemID) then
+							Slot['Socket'..i]:Hide()
+						end
+					end
+				else
+					break
+				end
+			end
+			
+			if Force == SlotName then
+				break
+			end
 		end
-	else
-		self.DisplayUpdater:Hide()
 	end
 end
 

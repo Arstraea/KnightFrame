@@ -371,15 +371,7 @@ if KF.Modules.CharacterArmory then
 						set = function(info, value)
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
-							if value ~= 'Always' then
-								for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-									if CharacterArmory[SlotName].ItemLevel then
-										CharacterArmory[SlotName].ItemLevel:Hide()
-									end
-								end
-							end
-							
-							CharacterArmory:Update_Display(value == 'Always')
+							CharacterArmory:Update_Display(true)
 							CharacterArmory:Update_Gear()
 						end,
 						values = function()
@@ -412,15 +404,7 @@ if KF.Modules.CharacterArmory then
 						set = function(info, value)
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
-							if value == 'MouseoverOnly' then
-								for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-									if CharacterArmory[SlotName].ItemEnchant then
-										CharacterArmory[SlotName].ItemEnchant:Hide()
-									end
-								end
-							end
-							
-							CharacterArmory:Update_Display(value == 'Always')
+							CharacterArmory:Update_Display(true)
 							CharacterArmory:Update_Gear()
 						end,
 						values = function()
@@ -454,24 +438,7 @@ if KF.Modules.CharacterArmory then
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
 							CharacterArmory:Update_Durability()
-							
-							if value == 'Always' or value == 'DamagedOnly' then
-								for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-									if CharacterArmory[SlotName].Durability then
-										CharacterArmory[SlotName].Durability:Show()
-									end
-								end
-							else
-								for _, SlotName in pairs(Info.Armory_Constants.GearList) do
-									if CharacterArmory[SlotName].Durability then
-										CharacterArmory[SlotName].Durability:Hide()
-									end
-								end
-								
-								if value == 'MouseoverOnly' then
-									CharacterArmory:Update_Display()
-								end
-							end
+							CharacterArmory:Update_Display(true)
 						end,
 						values = function()
 							return {

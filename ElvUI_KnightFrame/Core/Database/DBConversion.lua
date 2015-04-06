@@ -637,5 +637,12 @@ function KF:DBConversions(Data)
 				end
 			end
 		end
+		
+		if Data.Install_Complete == '3.1_14' then
+			KnightFrame_ArmoryDB = type(KnightFrame_ArmoryDB) == 'table' and KnightFrame_ArmoryDB or {}
+			KnightFrame_ArmoryDB.EnchantString = KnightFrame_ArmoryDB.EnchantString or {}
+			
+			Data.Install_Complete = '3.1_15'
+		end
 	end
-end
+end 
