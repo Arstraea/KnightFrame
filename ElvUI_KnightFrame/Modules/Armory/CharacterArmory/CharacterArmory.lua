@@ -291,12 +291,7 @@ function CA:Setup_CharacterArmory()
 			Slot.EnchantWarning:SetScript('OnLeave', self.OnLeave)
 			
 			-- Durability
-			KF:TextSetting(Slot, nil, { Tag = 'Durability',
-				Font = KF.db.Modules.Armory.Character.Durability.Font,
-				FontSize = KF.db.Modules.Armory.Character.Durability.FontSize,
-				FontStyle = KF.db.Modules.Armory.Character.Durability.FontStyle,
-				directionH = Slot.Direction
-			}, 'BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 3)
+			KF:TextSetting(Slot, nil, { Tag = 'Durability', FontSize = 10, directionH = Slot.Direction }, 'BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 3)
 			
 			-- Gem Socket
 			for i = 1, MAX_NUM_SOCKETS do
@@ -415,13 +410,13 @@ function CA:Update_Durability()
 			Slot.Durability:SetFormattedText("%s%.0f%%|r", E:RGBToHex(R, G, B), (CurrentDurability / MaxDurability) * 100)
 			
 			if (KF.db.Modules.Armory.Character.Durability.Display == 'MouseoverOnly' and not Slot:IsMouseOver()) or KF.db.Modules.Armory.Character.Durability.Display == 'Hide' then
-				Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 2)
+				Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
 			else
-				Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Durability:GetText() and (Slot.Direction == 'LEFT' and 3 or -1) or 0, Slot.Durability:GetText() and -1 or 0)
+				Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, -2)
 			end
 		elseif Slot.Durability then
 			Slot.Durability:SetText('')
-			Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 2)
+			Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
 		end
 	end
 	
@@ -616,20 +611,18 @@ function CA:Update_Gear()
 					--<< ItemLevel Parts >>--
 					if BasicItemLevel then
 						if ItemUpgradeID then
-							if ItemUpgradeID == '0' or not KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel and ItemRarity == 7 then
+							if ItemUpgradeID == '0' or ItemRarity == 7 then
 								ItemUpgradeID = nil
 							else
 								ItemUpgradeID = TrueItemLevel - BasicItemLevel
 							end
 						end
 						
-						Slot.ItemLevel:SetText(
-							(not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel
-							or
-							KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel and (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or '')
-							or
-							TrueItemLevel
-						)
+						Slot.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or ''))
+						
+						if KF.db.Modules.Armory.Character.Level.Display == 'Always' or KF.db.Modules.Armory.Character.Level.Display == 'MouseoverOnly' and Slot.Mouseovered then
+							Slot.ItemLevel:Show()
+						end
 					end
 					
 					if KF.db.Modules.Armory.Character.NoticeMissing ~= false then
@@ -794,7 +787,7 @@ end
 
 
 function CA:Update_Display(Force)
-	local Slot, Mouseover, SocketVisible
+	local Slot, Mouseover
 	
 	if (PaperDollFrame:IsMouseOver() and (KF.db.Modules.Armory.Character.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Durability.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Character.Gem.Display == 'MouseoverOnly')) or Force then
 		for _, SlotName in pairs(Info.Armory_Constants.GearList) do
@@ -823,52 +816,31 @@ function CA:Update_Display(Force)
 					
 					if Slot.Socket1 then
 						if Slot.Durability:GetText() == '' or KF.db.Modules.Armory.Character.Durability.Display == 'MouseoverOnly' and not Mouseover then
-							Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 2)
+							Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
 						else
-							Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Durability:GetText() and (Slot.Direction == 'LEFT' and 3 or -1) or 0, Slot.Durability:GetText() and -1 or 0)
+							Slot.Socket1:Point('BOTTOM'..Slot.Direction, Slot.Durability, 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, -2)
 						end
 					end
 				else
 					Slot.Durability:Hide()
 					
-					Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 2 or -2, 2)
+					Slot.Socket1:Point('BOTTOM'..Slot.Direction, _G['Character'..SlotName], 'BOTTOM'..(Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 3)
 				end
 			end
 			
-			
-			SocketVisible = nil
-			
-			if Slot.Socket1 then
-				for i = 1, MAX_NUM_SOCKETS do
+			for i = 1, MAX_NUM_SOCKETS do
+				if Slot['Socket'..i] then
 					if KF.db.Modules.Armory.Character.Gem.Display == 'Always' or Mouseover and KF.db.Modules.Armory.Character.Gem.Display == 'MouseoverOnly' then
 						if Slot['Socket'..i].GemType then
 							Slot['Socket'..i]:Show()
-							Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
 						end
 					else
-						if SocketVisible == nil then
-							SocketVisible = false
-						end
-						
-						if Slot['Socket'..i].GemType and KF.db.Modules.Armory.Character.NoticeMissing and not Slot['Socket'..i].GemItemID then
-							SocketVisible = true
+						if Slot['Socket'..i].GemType and not (KF.db.Modules.Armory.Character.NoticeMissing and not Slot['Socket'..i].GemItemID) then
+							Slot['Socket'..i]:Hide()
 						end
 					end
-				end
-				
-				if SocketVisible then
-					for i = 1, MAX_NUM_SOCKETS do
-						if Slot['Socket'..i].GemType then
-							Slot['Socket'..i]:Show()
-							Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
-						end
-					end
-				elseif SocketVisible == false then
-					for i = 1, MAX_NUM_SOCKETS do
-						Slot['Socket'..i]:Hide()
-					end
-					
-					Slot.SocketWarning:Point(Slot.Direction, Slot.Socket1)
+				else
+					break
 				end
 			end
 			

@@ -1,6 +1,7 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 local DT = E:GetModule('DataTexts')
+local LSM = LibStub('LibSharedMedia-3.0')
 
 local PANEL_HEIGHT = 22
 
@@ -124,9 +125,9 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 	
 	-- Font
 	if DatatextInfo.Font.UseCustomFontStyle == false then
-		FD.Datatext.text:FontTemplate(E.LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
 	else
-		FD.Datatext.text:FontTemplate(E.LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontStyle)
+		FD.Datatext.text:FontTemplate(LSM:Fetch('font', DatatextInfo.Font.Font), DatatextInfo.Font.FontSize, DatatextInfo.Font.FontStyle)
 	end
 	
 	-- Display Mode
@@ -208,7 +209,7 @@ KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
 			if Info.FloatingDatatext_Activate then
 				for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
 					if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[DatatextName] and IsDatatextData.Font.UseCustomFontStyle == false then
-						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(E.LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
+						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
 					end
 				end
 			end

@@ -183,6 +183,7 @@ do	-- Modules
 			L['Target Enchant'] = '대상 마법부여'
 			L['String To Replacing'] = '교체할 글자'
 			L['Add New Order'] = '새로운 주문 입력'
+			L['You must input string that target and new both.'] = '대상 마법부여와 교체할 글자 두개 다 입력해야 합니다.'
 			L['Delete Replacing Order'] = '교체주문 삭제'
 	end
 	

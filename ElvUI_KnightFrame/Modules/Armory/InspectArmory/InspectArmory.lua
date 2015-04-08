@@ -1893,7 +1893,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 						--<< ItemLevel Parts >>--
 						if BasicItemLevel then
 							if ItemUpgradeID then
-								if ItemUpgradeID == '0' or not KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel and ItemRarity == 7 then
+								if ItemUpgradeID == '0' then
 									ItemUpgradeID = nil
 								else
 									ItemUpgradeID = TrueItemLevel - BasicItemLevel
@@ -1903,13 +1903,11 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.ILvL = TrueItemLevel or BasicItemLevel
 							
 							Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..TrueItemLevel)
-							Slot.Gradation.ItemLevel:SetText(
-								(not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel
-								or
-								KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel and (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or '')
-								or
-								TrueItemLevel
-							)
+							Slot.Gradation.ItemLevel:SetText((not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel or (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or ''))
+							
+							if KF.db.Modules.Armory.Inspect.Level.Display == 'Always' or KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' and Slot.Mouseovered then
+								Slot.Gradation.ItemLevel:Show()
+							end
 						end
 						
 						--print(SlotName..':', Slot.Link, BasicItemLevel, TrueItemLevel)
@@ -1938,10 +1936,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 							if not Slot.IsEnchanted and Info.Armory_Constants.EnchantableSlots[SlotName] and not (SlotName == 'SecondaryHandSlot' and ItemType ~= 'INVTYPE_WEAPON' and ItemType ~= 'INVTYPE_WEAPONOFFHAND' and ItemType ~= 'INVTYPE_RANGEDRIGHT') then
 								ErrorDetected = true
 								Slot.EnchantWarning:Show()
-								
-								if not KF.db.Modules.Armory.Inspect.Enchant.WarningIconOnly then
-									Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
-								end
+								Slot.Gradation.ItemEnchant:SetText('|cffff0000'..L['Not Enchanted'])
 							end
 							
 							if GemCount_Enable > GemCount_Now or GemCount_Enable > GemCount or GemCount_Now > GemCount then
@@ -2453,7 +2448,7 @@ end
 
 
 function IA:Update_Display(Force)
-	local Slot, Mouseover, SocketVisible
+	local Slot, Mouseover
 	
 	if (self:IsMouseOver() and (KF.db.Modules.Armory.Inspect.Level.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Enchant.Display == 'MouseoverOnly' or KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly')) or Force then
 		for _, SlotName in pairs(Info.Armory_Constants.GearList) do
@@ -2476,41 +2471,21 @@ function IA:Update_Display(Force)
 				end
 			end
 			
-			SocketVisible = nil
-			
-			if Slot['Socket'..i] then
-				for i = 1, MAX_NUM_SOCKETS do
+			for i = 1, MAX_NUM_SOCKETS do
+				if Slot['Socket'..i] then
 					if KF.db.Modules.Armory.Inspect.Gem.Display == 'Always' or Mouseover and KF.db.Modules.Armory.Inspect.Gem.Display == 'MouseoverOnly' then
 						if Slot['Socket'..i].GemType then
 							Slot['Socket'..i]:Show()
 						end
 					else
-						if SocketVisible == nil then
-							SocketVisible = false
-						end
-						
 						if Slot['Socket'..i].GemType and not (KF.db.Modules.Armory.Inspect.NoticeMissing and not Slot['Socket'..i].GemItemID) then
-							SocketVisible = true
+							Slot['Socket'..i]:Hide()
 						end
 					end
-				end
-				
-				if SocketVisible then
-					for i = 1, MAX_NUM_SOCKETS do
-						if Slot['Socket'..i].GemType then
-							Slot['Socket'..i]:Show()
-							Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
-						end
-					end
-				elseif SocketVisible == false then
-					for i = 1, MAX_NUM_SOCKETS do
-						Slot['Socket'..i]:Hide()
-					end
-					
-					Slot.SocketWarning:Point(Slot.Direction, Slot.Socket1)
+				else
+					break
 				end
 			end
-			
 			
 			if Force == SlotName then
 				break

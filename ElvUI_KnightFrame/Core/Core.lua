@@ -93,8 +93,8 @@ function KF:CancelTimer(TimerName)
 end
 
 
-KNIGHTFRAME_ADS_MESSAGE = '용광로 영웅 흑손만 [탱1(보기x)] [딜전클(밀리풀,냥x)] [회드or운무or신사] 3/2/1 올분 템렙경험 귓주세요'--'금토 9시~1시 신화시작 고정공대 [조드] 구합니다. 680 4셋이상 우편주세요. / 섭게글 45703 참조'
-KF:RegisterTimer('광고', 'NewTicker', 40, function()
+KNIGHTFRAME_ADS_MESSAGE = '금토 9시~1시 신화시작 고정공대 [조드] 구합니다. 680 4셋이상 우편주세요. / 섭게글 45703 참조'
+KF:RegisterTimer('광고', 'NewTicker', 120, function()
 	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
 end)
 --/run ElvUI_KnightFrame[1]:CancelTimer('광고')

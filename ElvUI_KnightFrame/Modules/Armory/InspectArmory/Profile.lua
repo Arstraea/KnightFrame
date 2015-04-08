@@ -37,7 +37,7 @@ KF.db.Modules.Armory.Inspect = {
 	
 	Gem = {
 		Display = 'Always', -- Always, MouseoverOnly, Hide
-		SocketSize = 10,
+		SocketSize = 12,
 		WarningSize = 12
 	}
 }
