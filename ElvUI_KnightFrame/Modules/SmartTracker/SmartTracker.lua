@@ -2652,136 +2652,159 @@ do	--<< Inspect System >>--
 	
 	
 	do	-- InspectGroup
+		local HoldType = { FRIEND = true, GUILD = true, RAID = true, FOCUS = true, PLAYER = true, PARTY = true, RAID_PLAYER = true }
+		hooksecurefunc('UnitPopup_ShowMenu', function(Menu, Type, Unit, Name, ...)
+			if Info.SmartTracker_Activate and HoldType[Type] and ENI.NowInspecting and not ENI.NowInspecting._cancelled then
+				ENI.HoldInspecting = 'OPENING_DROPDOWN'
+				
+				ENI.NowInspecting:Cancel()
+				print('멈춘다')
+			end
+		end)
+		
+		hooksecurefunc('UIDropDownMenu_OnHide', function(HidingMenu)
+			if ENI.HoldInspecting == 'OPENING_DROPDOWN' and UIDROPDOWNMENU_MENU_LEVEL == 1 then
+				print('푼다')
+				ENI.HoldInspecting = nil
+			end
+		end)
+		
+		
 		local InspectType, InspectTarget, DelayedMemberExists
 		function ST:InspectGroup()
 			ST.NowInspecting = true
 			
-			DelayedMemberExists = nil
-			
-			if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false then
-				InspectType = 'Updating'
+			if not ENI.HoldInspecting then
+				print('스마트트랙커 파티원 내부살펴보기 진행중')
+				DelayedMemberExists = nil
 				
-				for MemberName in pairs(ST.InspectOrder) do
-					if type(ST.InspectOrder[MemberName]) == 'number' or ST.InspectOrder[MemberName] == 'Delayed' then
-						InspectType = 'Inspecting'
-						break
-					end
-				end
-			else
-				InspectType = 'Inspecting'
-			end
-			
-			if ST.CurrentInspectMemberUnitName then
-				if not UnitExists(ST.CurrentInspectMemberUnitName) or not UnitIsConnected(ST.CurrentInspectMemberUnitName) or not (ST.InspectOrder[ST.CurrentInspectMemberUnitName] and ST.InspectOrder[ST.CurrentInspectMemberUnitName] ~= true) then
-					ST.CurrentInspectMemberUnitName = nil
-				else
-					InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[ST.CurrentInspectMemberUnitName]) or ST.InspectOrder[ST.CurrentInspectMemberUnitName]
-					
-					if type(InspectTarget) == 'number' then
-						if InspectTarget >= 3 then
-							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
-							ST.CurrentInspectMemberUnitName = nil
-						elseif InspectType == 'Updating' then
-							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = tostring(InspectTarget + 1)
-						else
-							ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectTarget + 1
-						end
-					else
-						ST.CurrentInspectMemberUnitName = nil
-					end
-				end
-			end
-			
-			if not ST.CurrentInspectMemberUnitName then
-				ST.CurrentInspectMemberUnitName = nil
-				
-				for MemberName in pairs(ST.InspectOrder) do
-					if not UnitExists(MemberName) then
-						ST.InspectOrder[MemberName] = nil
-					elseif ST.InspectOrder[MemberName] ~= true then
-						InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[MemberName]) or ST.InspectOrder[MemberName]
-						
-						if type(InspectTarget) == 'number' then
-							if ST.CurrentInspectMemberUnitName == nil then
-								ST.CurrentInspectMemberUnitName = false
-							end
-							
-							if not (UnitIsConnected(MemberName) and InspectTarget < 3) then
-								ST.InspectOrder[MemberName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
-								DelayedMemberExists = true
-							else
-								if InspectType == 'Updating' then
-									ST.InspectOrder[MemberName] = tostring(InspectTarget + 1)
-								else
-									ST.InspectOrder[MemberName] = InspectTarget + 1
-								end
-								
-								ST.CurrentInspectMemberUnitName = MemberName
-								break
-							end
-						elseif InspectType == 'Updating' and ST.InspectOrder[MemberName] == 'UpdateDelayed' or ST.InspectOrder[MemberName] == 'Delayed' then
-							DelayedMemberExists = true
-						end
-					end
-				end
-			end
-			
-			if not ST.CurrentInspectMemberUnitName then
-				if DelayedMemberExists and InspectType == 'Inspecting' then
-					if ST.CurrentInspectMemberUnitName == nil then
-						for MemberName in pairs(ST.InspectOrder) do
-							if ST.InspectOrder[MemberName] == 'Delayed' then
-								ST.InspectOrder[MemberName] = 0
-							end
-						end
-					end
-					
-					return
-				elseif KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false and InspectType == 'Updating' then
-					local Check -- if false then just stop this function and if true then notice message.
+				if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false then
+					InspectType = 'Updating'
 					
 					for MemberName in pairs(ST.InspectOrder) do
-						if ST.InspectOrder[MemberName] == 'Update' then
-							if not Check then
-								Check = ST.CurrentInspectMemberUnitName == nil
+						if type(ST.InspectOrder[MemberName]) == 'number' or ST.InspectOrder[MemberName] == 'Delayed' then
+							InspectType = 'Inspecting'
+							break
+						end
+					end
+				else
+					InspectType = 'Inspecting'
+				end
+				
+				if ST.CurrentInspectMemberUnitName then
+					if not UnitExists(ST.CurrentInspectMemberUnitName) or not UnitIsConnected(ST.CurrentInspectMemberUnitName) or not (ST.InspectOrder[ST.CurrentInspectMemberUnitName] and ST.InspectOrder[ST.CurrentInspectMemberUnitName] ~= true) then
+						ST.CurrentInspectMemberUnitName = nil
+					else
+						InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[ST.CurrentInspectMemberUnitName]) or ST.InspectOrder[ST.CurrentInspectMemberUnitName]
+						
+						if type(InspectTarget) == 'number' then
+							if InspectTarget >= 3 then
+								ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
+								ST.CurrentInspectMemberUnitName = nil
+							elseif InspectType == 'Updating' then
+								ST.InspectOrder[ST.CurrentInspectMemberUnitName] = tostring(InspectTarget + 1)
+							else
+								ST.InspectOrder[ST.CurrentInspectMemberUnitName] = InspectTarget + 1
 							end
+						else
+							ST.CurrentInspectMemberUnitName = nil
+						end
+					end
+				end
+				
+				if not ST.CurrentInspectMemberUnitName then
+					ST.CurrentInspectMemberUnitName = nil
+					
+					for MemberName in pairs(ST.InspectOrder) do
+						if not UnitExists(MemberName) then
+							ST.InspectOrder[MemberName] = nil
+						elseif ST.InspectOrder[MemberName] ~= true then
+							InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[MemberName]) or ST.InspectOrder[MemberName]
 							
-							ST.InspectOrder[MemberName] = '0'
-						elseif ST.InspectOrder[MemberName] == 'UpdateDelayed' then
-							if Check == nil then
-								Check = false
-							end
-							
-							if ST.CurrentInspectMemberUnitName == nil then
-								ST.InspectOrder[MemberName] = '0'
+							if type(InspectTarget) == 'number' then
+								if ST.CurrentInspectMemberUnitName == nil then
+									ST.CurrentInspectMemberUnitName = false
+								end
+								
+								if not (UnitIsConnected(MemberName) and InspectTarget < 3) then
+									ST.InspectOrder[MemberName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
+									DelayedMemberExists = true
+								else
+									if InspectType == 'Updating' then
+										ST.InspectOrder[MemberName] = tostring(InspectTarget + 1)
+									else
+										ST.InspectOrder[MemberName] = InspectTarget + 1
+									end
+									
+									ST.CurrentInspectMemberUnitName = MemberName
+									break
+								end
+							elseif InspectType == 'Updating' and ST.InspectOrder[MemberName] == 'UpdateDelayed' or ST.InspectOrder[MemberName] == 'Delayed' then
+								DelayedMemberExists = true
 							end
 						end
 					end
-					
-					if Check ~= nil or DelayedMemberExists then
-						if Check == true then
-							print(L['KF']..' : '..L["Now updating old member's setting."])
+				end
+				
+				if not ST.CurrentInspectMemberUnitName then
+					if DelayedMemberExists and InspectType == 'Inspecting' then
+						if ST.CurrentInspectMemberUnitName == nil then
+							for MemberName in pairs(ST.InspectOrder) do
+								if ST.InspectOrder[MemberName] == 'Delayed' then
+									ST.InspectOrder[MemberName] = 0
+								end
+							end
 						end
 						
 						return
+					elseif KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false and InspectType == 'Updating' then
+						local Check -- if false then just stop this function and if true then notice message.
+						
+						for MemberName in pairs(ST.InspectOrder) do
+							if ST.InspectOrder[MemberName] == 'Update' then
+								if not Check then
+									Check = ST.CurrentInspectMemberUnitName == nil
+								end
+								
+								ST.InspectOrder[MemberName] = '0'
+							elseif ST.InspectOrder[MemberName] == 'UpdateDelayed' then
+								if Check == nil then
+									Check = false
+								end
+								
+								if ST.CurrentInspectMemberUnitName == nil then
+									ST.InspectOrder[MemberName] = '0'
+								end
+							end
+						end
+						
+						if Check ~= nil or DelayedMemberExists then
+							if Check == true then
+								print(L['KF']..' : '..L["Now updating old member's setting."])
+							end
+							
+							return
+						end
 					end
-				end
-				
-				--KnightRaidCooldown.InspectMembers.Number:SetText(nil)
-				
-				if ST.UpdateDataByChanging then
-					ST.UpdateDataByChanging = nil
+					
+					--KnightRaidCooldown.InspectMembers.Number:SetText(nil)
+					
+					if ST.UpdateDataByChanging then
+						ST.UpdateDataByChanging = nil
+					else
+						print(L['KF']..' : |cff2eb7e4'..L['Inspect Complete']..'|r. '..L["All members specialization, talent, glyph setting is saved. SmartTracker will calcurating each spell's cooltime by this data.|r"])
+					end
+					
+					ST.NowInspecting = nil
+					KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
+					KF:CancelTimer('SmartTracker_InspectGroup')
 				else
-					print(L['KF']..' : |cff2eb7e4'..L['Inspect Complete']..'|r. '..L["All members specialization, talent, glyph setting is saved. SmartTracker will calcurating each spell's cooltime by this data.|r"])
+					--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
+					KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
+					NotifyInspect(ST.CurrentInspectMemberUnitName, { Reservation = true, InspectTryCount = 3, CancelInspectByManual = 'SmartTracker' })
 				end
-				
-				ST.NowInspecting = nil
-				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
-				KF:CancelTimer('SmartTracker_InspectGroup')
 			else
-				--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
-				KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
-				NotifyInspect(ST.CurrentInspectMemberUnitName, { Reservation = true, InspectTryCount = 3, CancelInspectByManual = 'SmartTracker' })
+				print('스마트트랙커 파티원 내부살펴보기 |cffff0000정지')
 			end
 		end
 	end
@@ -2824,7 +2847,7 @@ do	--<< Inspect System >>--
 				end
 			end
 			
-			if Check and (KF.db.Modules.SmartTracker.Scan.AutoScanning ~= false or ST.ForceUpdateAll) then
+			if (Check and KF.db.Modules.SmartTracker.Scan.AutoScanning ~= false) or ST.ForceUpdateAll then
 				if not ST.NowInspecting or ST.ForceUpdateAll then
 					for MemberName in pairs(ST.InspectOrder) do
 						if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false and ST.InspectOrder[MemberName] == true and ST.InspectCache[UnitGUID(MemberName)] then

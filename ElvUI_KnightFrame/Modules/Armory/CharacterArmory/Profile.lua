@@ -38,13 +38,13 @@ KF.db.Modules.Armory.Character = {
 	Durability = {
 		Display = 'Always', -- Always, MouseoverOnly, DamagedOnly, Hide
 		Font = nil,
-		FontSize = 8,
+		FontSize = 9,
 		FontStyle = nil
 	},
 	
 	Gem = {
 		Display = 'Always', -- Always, MouseoverOnly, Hide
-		SocketSize = 12,
+		SocketSize = 10,
 		WarningSize = 12
 	}
 }

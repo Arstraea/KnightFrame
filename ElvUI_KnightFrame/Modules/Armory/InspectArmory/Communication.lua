@@ -1,7 +1,7 @@
 ﻿--------------------------------------------------------------------------------
 --<< AISM : Armory Surpport Module for AddOn Communication Inspecting		>>--
 --------------------------------------------------------------------------------
-local Revision = 1.1
+local Revision = 1.2
 local AISM = _G['Armory_InspectSupportModule'] or CreateFrame('Frame', 'Armory_InspectSupportModule', UIParent)
 
 if not AISM.Revision or AISM.Revision < Revision then
@@ -100,6 +100,13 @@ if not AISM.Revision or AISM.Revision < Revision then
 		PF2 = 'Profession',
 		ASP = 'ActiveSpec',
 		SID = 'SetItemData'
+	}
+	AISM.UncheckableDataList = {
+		ActiveSpec = false,
+		Spec2 = false,
+		Glyph2 = false,
+		Profession1 = false,
+		Profession2 = false
 	}
 	for groupNum = 1, MAX_TALENT_GROUPS do
 		AISM.DataTypeTable['GL'..groupNum] = 'Glyph'
@@ -248,10 +255,12 @@ if not AISM.Revision or AISM.Revision < Revision then
 		
 		if self.PlayerData.Profession1 ~= Profession1 then
 			self.PlayerData.Profession1 = Profession1
+			self.UncheckableDataList.Profession1 = FullString
 		end
 		
 		if self.PlayerData.Profession2 ~= Profession2 then
 			self.PlayerData.Profession2 = Profession2
+			self.UncheckableDataList.Profession2 = FullString
 		end
 		
 		self.Updater.ProfessionUpdated = true
@@ -295,6 +304,10 @@ if not AISM.Revision or AISM.Revision < Revision then
 				self.PlayerData['Spec'..groupNum] = Spec
 				self.PlayerData_ShortString['Spec'..groupNum] = Spec
 				self.UpdatedData['Spec'..groupNum] = DataString
+				
+				if self.UncheckableDataList['Spec'..groupNum] then
+					self.UncheckableDataList['Spec'..groupNum] = FullString
+				end
 			end
 		end
 		
@@ -302,6 +315,8 @@ if not AISM.Revision or AISM.Revision < Revision then
 			self.PlayerData.ActiveSpec = ActiveSpec
 			self.PlayerData_ShortString.ActiveSpec = ActiveSpec
 			self.UpdatedData.ActiveSpec = ActiveSpec
+			
+			self.UncheckableDataList.ActiveSpec = ActiveSpec
 		end
 		
 		self.Updater.SpecUpdated = true
@@ -328,6 +343,10 @@ if not AISM.Revision or AISM.Revision < Revision then
 			
 			if self.PlayerData['Glyph'..groupNum] ~= FullString then
 				self.PlayerData['Glyph'..groupNum] = FullString
+				
+				if self.UncheckableDataList['Glyph'..groupNum] then
+					self.UncheckableDataList['Glyph'..groupNum] = FullString
+				end
 			end
 			
 			if groupNum == ActiveSpec and self.PlayerData_ShortString.Glyph1 ~= ShortString then
@@ -364,12 +383,14 @@ if not AISM.Revision or AISM.Revision < Revision then
 					isTransmogrified = nil
 				end
 				
-				ShortString = slotLink and select(2, strsplit(':', slotLink)) or 'F'
-				FullString = (slotLink or 'F')..'/'..(slotName == 'HeadSlot' and not isHelmDisplayed and 'ND' or slotName == 'BackSlot' and not isCloakDisplayed and 'ND' or isTransmogrified and transmogrifiedItemID or '0')
+				ShortString = slotLink and select(2, strsplit(':', slotLink)) or 'F'	-- ITEM ID
+				self.UncheckableDataList[slotName] = slotName == 'HeadSlot' and not isHelmDisplayed and 'ND' or slotName == 'BackSlot' and not isCloakDisplayed and 'ND' or isTransmogrified and transmogrifiedItemID or '0'
 				
 				for i = 1, MAX_NUM_SOCKETS do
-					FullString = FullString..'/'..(select(i, GetInventoryItemGems(slotID)) or 0)
+					self.UncheckableDataList[slotName] = self.UncheckableDataList[slotName]..'/'..(select(i, GetInventoryItemGems(slotID)) or 0)
 				end
+				
+				FullString = (slotLink or 'F')..'/'..self.UncheckableDataList[slotName]
 				
 				if self.PlayerData[slotName] ~= FullString then
 					self.PlayerData[slotName] = FullString
@@ -703,11 +724,20 @@ if not AISM.Revision or AISM.Revision < Revision then
 		--print(Message)
 		
 		if Message:find('AISM_') then
-			if Message == 'AISM_Check' then
+			if Message:find('AISM_Check') then
+				Message = Message:gsub('AISM_Check', '')
+				
 				self.AISMUserList[Sender] = true
 				SendAddonMessage('AISM', 'AISM_CheckResponse', 'WHISPER', Sender)
-			elseif Message == 'AISM_CheckResponse' then
-				self.AISMUserList[Sender] = true
+				SendAddonMessage('AISM', 'AISM_CheckResponse:'..self.Revision, 'WHISPER', Sender)
+			elseif Message:find('AISM_CheckResponse') then
+				Message = Message:gsub('AISM_CheckResponse', '')
+				
+				if Message ~= '' then
+					self.AISMUserList[Sender] = tonumber(strsub(Message, 2))
+				else
+					self.AISMUserList[Sender] = true
+				end
 			elseif Message == 'AISM_UnregistME' then
 				self.AISMUserList[Sender] = nil
 				self.GroupMemberData[Sender] = nil
@@ -720,16 +750,23 @@ if not AISM.Revision or AISM.Revision < Revision then
 				self.AISMUserList[Sender] = nil
 				self.CurrentInspectData[Sender] = nil
 			elseif Message:find('AISM_DataRequestForInspecting:') then
-				local needplayerName, needplayerRealm = Message:match('^.+:(.+)-(.+)$')
+				local needplayerName, needplayerRealm, NeedOnlyUncheckableData = strsplit('/', Message:gsub('AISM_DataRequestForInspecting', ''))
+				print('원격 살펴보기 요청 들어옴 : ', needplayerName, needplayerRealm, NeedOnlyUncheckableData)
 				
 				if needplayerName == playerName and needplayerRealm == playerRealm then
 					local TableToSend = {}
 					
-					for Index, Data in pairs(self.PlayerData) do
-						TableToSend[Index] = Data
+					if not NeedOnlyUncheckableData then
+						for Index, Data in pairs(self.PlayerData) do
+							TableToSend[Index] = Data
+						end
+						
+						self:SettingInspectData(TableToSend)
+					else
+						for Index, Data in pairs(self.UncheckableDataList) do
+							TableToSend[Index] = Data
+						end
 					end
-					
-					self:SettingInspectData(TableToSend)
 					
 					self:SendData(TableToSend, Prefix, Channel, Sender)
 				end

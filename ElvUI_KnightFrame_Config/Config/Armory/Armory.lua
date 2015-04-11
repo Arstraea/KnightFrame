@@ -99,8 +99,6 @@ KF_Config.Options.args.Armory = {
 							descStyle = 'inline',
 							func = function()
 								if EnchantString_Old ~= '' and EnchantString_New ~= '' then
-									KF_Config.Options.args.Armory.args.EnchantString.args.AddNewReplacingOrder.args.HelpDescription.name = ''
-									
 									KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] = EnchantString_New
 									
 									EnchantString_Old = ''
@@ -115,8 +113,6 @@ KF_Config.Options.args.Armory = {
 									end
 								elseif KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] and EnchantString_New == '' then
 									KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] = nil
-								else
-									KF_Config.Options.args.Armory.args.EnchantString.args.AddNewReplacingOrder.args.HelpDescription.name = '    |cffFF7E7E'..L['You must input string that target and new both.']
 								end
 							end,
 							disabled = function()
@@ -153,12 +149,6 @@ KF_Config.Options.args.Armory = {
 							hidden = function()
 								return SelectedEnchantString == ''
 							end
-						},
-						HelpDescription = {
-							type = 'description',
-							name = '',
-							order = 998,
-							width = 'full'
 						}
 					}
 				},
@@ -220,6 +210,10 @@ local BackgroundKeyTable = {
 }
 
 if KF.Modules.CharacterArmory then
+	local function CA_Color(TrueColor, FalseColor)
+		return KF.db.Enable ~= false and KF.db.Modules.Armory.Character.Enable ~= false and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
+	end
+	
 	KF_Config.Options.args.Armory.args.CAEnable = {
 		type = 'toggle',
 		name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Character Armory'] end,
@@ -237,12 +231,12 @@ if KF.Modules.CharacterArmory then
 	local SelectedCABG
 	KF_Config.Options.args.Armory.args.Character = {
 		type = 'group',
-		name = function() return Color('', 'ff787878')..L['Character Armory'] end,
+		name = function() return CA_Color('', 'ff787878')..L['Character Armory'] end,
 		order = 400,
 		args = {
 			NoticeMissing = {
 				type = 'toggle',
-				name = function() return ' '..Color()..'마부 안한거 경고' end,
+				name = function() return ' '..CA_Color()..'마부 안한거 경고' end,
 				order = 1,
 				desc = '',
 				descStyle = 'inline',
@@ -250,7 +244,10 @@ if KF.Modules.CharacterArmory then
 				set = function(_, value)
 					KF.db.Modules.Armory.Character.NoticeMissing = value
 					
+					CharacterArmory:Update_Gear()
+					CharacterArmory:Update_Display(true)
 				end,
+				disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 			},
 			Space1 = {
 				type = 'description',
@@ -259,13 +256,13 @@ if KF.Modules.CharacterArmory then
 			},
 			Background = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'배경 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'배경 설정' end,
 				order = 3,
 				guiInline = true,
 				args = {
 					SelectedBG = {
 						type = 'select',
-						name = function() return ' '..Color()..'배경 뭐로할래' end,
+						name = function() return ' '..CA_Color()..'배경 뭐로할래' end,
 						order = 1,
 						get = function()
 							for Index, Key in pairs(BackgroundKeyTable) do
@@ -290,11 +287,11 @@ if KF.Modules.CharacterArmory then
 								['5'] = '얼라배경',
 							}
 						end,
-						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
 					CustomAddress = {
 						type = 'input',
-						name = function() return ' '..Color()..L['Custom Background Image Address'] end,
+						name = function() return ' '..CA_Color()..L['Custom Background Image Address'] end,
 						order = 2,
 						desc = '',
 						descStyle = 'inline',
@@ -317,13 +314,13 @@ if KF.Modules.CharacterArmory then
 			},
 			Gradation = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'그라데이션 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'그라데이션 설정' end,
 				order = 5,
 				guiInline = true,
 				args = {
 					Display = {
 						type = 'toggle',
-						name = function() return ' '..Color()..'배경 뭐로할래' end,
+						name = function() return ' '..CA_Color()..'배경 뭐로할래' end,
 						order = 1,
 						get = function() return KF.db.Modules.Armory.Character.Gradation.Display end,
 						set = function(_, value)
@@ -359,20 +356,35 @@ if KF.Modules.CharacterArmory then
 			},
 			Level = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'아이템레벨 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'아이템레벨 설정' end,
 				order = 7,
 				guiInline = true,
+				get = function(info) return KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] end,
+				set = function(info, value)
+					KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
+					
+					for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+						if CharacterArmory[SlotName] and CharacterArmory[SlotName].ItemLevel then
+							CharacterArmory[SlotName].ItemLevel:FontTemplate(
+								E.LSM:Fetch('font', KF.db.Modules.Armory.Character.Level.Font)
+								,
+								KF.db.Modules.Armory.Character.Level.FontSize
+								,
+								KF.db.Modules.Armory.Character.Level.FontStyle
+							)
+						end
+					end
+				end,
 				args = {
 					Display = {
 						type = 'select',
-						name = function() return ' '..Color()..'템렙 표시방법?' end,
+						name = function() return ' '..CA_Color()..'템렙 표시방법?' end,
 						order = 1,
-						get = function(Info) return KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] end,
 						set = function(info, value)
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
-							CharacterArmory:Update_Display(true)
 							CharacterArmory:Update_Gear()
+							CharacterArmory:Update_Display(true)
 						end,
 						values = function()
 							return {
@@ -383,6 +395,57 @@ if KF.Modules.CharacterArmory then
 						end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
+					ShowUpgradeLevel = {
+						type = 'toggle',
+						name = function() return ' '..CA_Color()..'업글레벨 표시할래?' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel = value
+							
+							CharacterArmory:Update_Gear()
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					Space = {
+						type = 'description',
+						name = ' ',
+						order = 3
+					},
+					Font = {
+						type = 'select', dialogControl = 'LSM30_Font',
+						name = function() return ' '..CA_Color()..L['Font'] end,
+						order = 4,
+						values = function()
+							return AceGUIWidgetLSMlists and AceGUIWidgetLSMlists.font or {}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..L['Font Size'] end,
+						order = 5,
+						desc = '',
+						descStyle = 'inline',
+						min = 6,
+						max = 22,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontStyle = {
+						type = 'select',
+						name = function() return ' '..CA_Color()..L['Font Outline'] end,
+						order = 6,
+						desc = '',
+						descStyle = 'inline',
+						values = {
+							NONE = L['None'],
+							OUTLINE = 'OUTLINE',
+							
+							MONOCHROMEOUTLINE = 'MONOCROMEOUTLINE',
+							THICKOUTLINE = 'THICKOUTLINE'
+						},
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					}
 				}
 			},
 			Space4 = {
@@ -392,20 +455,35 @@ if KF.Modules.CharacterArmory then
 			},
 			Enchant = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'마법부여 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'마법부여 설정' end,
 				order = 9,
 				guiInline = true,
+				get = function(info) return KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] end,
+				set = function(info, value)
+					KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
+					
+					for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+						if CharacterArmory[SlotName] and CharacterArmory[SlotName].ItemEnchant then
+							CharacterArmory[SlotName].ItemEnchant:FontTemplate(
+								E.LSM:Fetch('font', KF.db.Modules.Armory.Character.Enchant.Font)
+								,
+								KF.db.Modules.Armory.Character.Enchant.FontSize
+								,
+								KF.db.Modules.Armory.Character.Enchant.FontStyle
+							)
+						end
+					end
+				end,
 				args = {
 					Display = {
 						type = 'select',
-						name = function() return ' '..Color()..'마부 표시방법?' end,
+						name = function() return ' '..CA_Color()..'마부 표시방법?' end,
 						order = 1,
-						get = function(Info) return KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] end,
 						set = function(info, value)
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
-							CharacterArmory:Update_Display(true)
 							CharacterArmory:Update_Gear()
+							CharacterArmory:Update_Display(true)
 						end,
 						values = function()
 							return {
@@ -416,6 +494,75 @@ if KF.Modules.CharacterArmory then
 						end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
+					WarningSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..'경고 아이콘 크기' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Character.Enchant.WarningSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								if CharacterArmory[SlotName] and CharacterArmory[SlotName].EnchantWarning then
+									CharacterArmory[SlotName].EnchantWarning:Size(value)
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					WarningIconOnly = {
+						type = 'toggle',
+						name = function() return ' '..CA_Color()..'경고 아이콘만 보기' end,
+						order = 3,
+						set = function(_, value)
+							KF.db.Modules.Armory.Character.Enchant.WarningIconOnly = value
+							
+							CharacterArmory:Update_Gear()
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end,
+					},
+					Space = {
+						type = 'description',
+						name = ' ',
+						order = 4
+					},
+					Font = {
+						type = 'select', dialogControl = 'LSM30_Font',
+						name = function() return ' '..CA_Color()..L['Font'] end,
+						order = 5,
+						values = function()
+							return AceGUIWidgetLSMlists and AceGUIWidgetLSMlists.font or {}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..L['Font Size'] end,
+						order = 6,
+						desc = '',
+						descStyle = 'inline',
+						min = 6,
+						max = 22,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontStyle = {
+						type = 'select',
+						name = function() return ' '..CA_Color()..L['Font Outline'] end,
+						order = 7,
+						desc = '',
+						descStyle = 'inline',
+						values = {
+							NONE = L['None'],
+							OUTLINE = 'OUTLINE',
+							
+							MONOCHROMEOUTLINE = 'MONOCROMEOUTLINE',
+							THICKOUTLINE = 'THICKOUTLINE'
+						},
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					}
 				}
 			},
 			Space5 = {
@@ -425,15 +572,30 @@ if KF.Modules.CharacterArmory then
 			},
 			Durability = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'내구도 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'내구도 설정' end,
 				order = 11,
 				guiInline = true,
+				get = function(info) return KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] end,
+				set = function(info, value)
+					KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
+					
+					for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+						if CharacterArmory[SlotName] and CharacterArmory[SlotName].Durability then
+							CharacterArmory[SlotName].Durability:FontTemplate(
+								E.LSM:Fetch('font', KF.db.Modules.Armory.Character.Durability.Font)
+								,
+								KF.db.Modules.Armory.Character.Durability.FontSize
+								,
+								KF.db.Modules.Armory.Character.Durability.FontStyle
+							)
+						end
+					end
+				end,
 				args = {
 					Display = {
 						type = 'select',
-						name = function() return ' '..Color()..'내구도 표시방법?' end,
+						name = function() return ' '..CA_Color()..'내구도 표시방법?' end,
 						order = 1,
-						get = function(Info) return KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] end,
 						set = function(info, value)
 							KF.db.Modules.Armory.Character[(info[#info - 1])][(info[#info])] = value
 							
@@ -450,6 +612,46 @@ if KF.Modules.CharacterArmory then
 						end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
+					Space = {
+						type = 'description',
+						name = ' ',
+						order = 2
+					},
+					Font = {
+						type = 'select', dialogControl = 'LSM30_Font',
+						name = function() return ' '..CA_Color()..L['Font'] end,
+						order = 3,
+						values = function()
+							return AceGUIWidgetLSMlists and AceGUIWidgetLSMlists.font or {}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..L['Font Size'] end,
+						order = 4,
+						desc = '',
+						descStyle = 'inline',
+						min = 6,
+						max = 22,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					FontStyle = {
+						type = 'select',
+						name = function() return ' '..CA_Color()..L['Font Outline'] end,
+						order = 5,
+						desc = '',
+						descStyle = 'inline',
+						values = {
+							NONE = L['None'],
+							OUTLINE = 'OUTLINE',
+							
+							MONOCHROMEOUTLINE = 'MONOCROMEOUTLINE',
+							THICKOUTLINE = 'THICKOUTLINE'
+						},
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					}
 				}
 			},
 			Space6 = {
@@ -459,20 +661,20 @@ if KF.Modules.CharacterArmory then
 			},
 			Gem = {
 				type = 'group',
-				name = function() return Color('ffffffff', 'ff787878')..'보석홈 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..'보석홈 설정' end,
 				order = 13,
 				guiInline = true,
+				get = function(Info) return KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] end,
 				args = {
 					Display = {
 						type = 'select',
-						name = function() return ' '..Color()..'보석홈 표시방법?' end,
+						name = function() return ' '..CA_Color()..'보석홈 표시방법?' end,
 						order = 1,
-						get = function(Info) return KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] end,
 						set = function(Info, value)
 							KF.db.Modules.Armory.Character[(Info[#Info - 1])][(Info[#Info])] = value
 							
-							CharacterArmory:Update_Display(true)
 							CharacterArmory:Update_Gear()
+							CharacterArmory:Update_Display(true)
 						end,
 						values = function()
 							return {
@@ -483,7 +685,57 @@ if KF.Modules.CharacterArmory then
 						end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
+					SocketSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..'소켓 크기' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Character.Gem.SocketSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								for i = 1, MAX_NUM_SOCKETS do
+									if CharacterArmory[SlotName] and CharacterArmory[SlotName]['Socket'..i] then
+										CharacterArmory[SlotName]['Socket'..i]:Size(value)
+									else
+										break
+									end
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
+					WarningSize = {
+						type = 'range',
+						name = function() return ' '..CA_Color()..'경고 아이콘 크기' end,
+						order = 3,
+						set = function(_, value)
+							KF.db.Modules.Armory.Character.Gem.WarningSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								if CharacterArmory[SlotName] and CharacterArmory[SlotName].SocketWarning then
+									CharacterArmory[SlotName].SocketWarning:Size(value)
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+					},
 				}
+			},
+			CreditSpace = {
+				type = 'description',
+				name = ' ',
+				order = 998
+			},
+			Credit = {
+				type = 'header',
+				name = KF_Config.Credit,
+				order = 999
 			}
 		}
 	}
@@ -491,6 +743,10 @@ end
 
 
 if KF.Modules.InspectArmory then
+	local function IA_Color(TrueColor, FalseColor)
+		return KF.db.Enable ~= false and KF.db.Modules.Armory.Inspect.Enable ~= false and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
+	end
+	
 	KF_Config.Options.args.Armory.args.IAEnable = {
 		type = 'toggle',
 		name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Inspect Armory'] end,
@@ -510,7 +766,436 @@ if KF.Modules.InspectArmory then
 		name = function() return Color('', 'ff787878')..L['Inspect Armory'] end,
 		order = 500,
 		args = {
-			
+			NoticeMissing = {
+				type = 'toggle',
+				name = function() return ' '..IA_Color()..'마부 안한거 경고' end,
+				order = 1,
+				desc = '',
+				descStyle = 'inline',
+				get = function() return KF.db.Modules.Armory.Inspect.NoticeMissing end,
+				set = function(_, value)
+					KF.db.Modules.Armory.Inspect.NoticeMissing = value
+					
+					if InspectArmory.LastDataSetting then
+						InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+					end
+					InspectArmory:Update_Display(true)
+				end,
+				disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+			},
+			Space1 = {
+				type = 'description',
+				name = ' ',
+				order = 2
+			},
+			Background = {
+				type = 'group',
+				name = function() return IA_Color('ffffffff', 'ff787878')..'배경 설정' end,
+				order = 3,
+				guiInline = true,
+				args = {
+					SelectedBG = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..'배경 뭐로할래' end,
+						order = 1,
+						get = function()
+							for Index, Key in pairs(BackgroundKeyTable) do
+								if Key == KF.db.Modules.Armory.Inspect.Background.SelectedBG then
+									return Index
+								end
+							end
+							
+							return '1'
+						end,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Background.SelectedBG = BackgroundKeyTable[value]
+							
+							InspectArmory:Update_BG()
+						end,
+						values = function()
+							return {
+								['1'] = '숨기기',
+								['2'] = '직접 선택',
+								['3'] = '우주배경',
+								['4'] = '호드배경',
+								['5'] = '얼라배경',
+							}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					CustomAddress = {
+						type = 'input',
+						name = function() return ' '..IA_Color()..L['Custom Background Image Address'] end,
+						order = 2,
+						desc = '',
+						descStyle = 'inline',
+						get = function() return KF.db.Modules.Armory.Inspect.Background.CustomAddress end,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Background.CustomAddress = value
+							
+							InspectArmory:Update_BG()
+						end,
+						width = 'double',
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end,
+						hidden = function() return KF.db.Modules.Armory.Inspect.Background.SelectedBG ~= 'CUSTOM' end
+					},
+				}
+			},
+			Space2 = {
+				type = 'description',
+				name = ' ',
+				order = 4
+			},
+			Gradation = {
+				type = 'group',
+				name = function() return IA_Color('ffffffff', 'ff787878')..'그라데이션 설정' end,
+				order = 5,
+				guiInline = true,
+				args = {
+					Display = {
+						type = 'toggle',
+						name = function() return ' '..IA_Color()..'배경 뭐로할래' end,
+						order = 1,
+						get = function() return KF.db.Modules.Armory.Inspect.Gradation.Display end,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Gradation.Display = value
+							
+							if InspectArmory and InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					Color = {
+						type = 'color',
+						name = function() return ' '..(KF.db.Enable == true and KF.db.Modules.Armory.Inspect.Enable == true and KF.db.Modules.Armory.Inspect.Gradation.Display == true and KF:Color_Value() or '')..'그라데이션 표시' end,
+						order = 2,
+						get = function() 
+							return KF.db.Modules.Armory.Inspect.Gradation.Color[1],
+								   KF.db.Modules.Armory.Inspect.Gradation.Color[2],
+								   KF.db.Modules.Armory.Inspect.Gradation.Color[3],
+								   KF.db.Modules.Armory.Inspect.Gradation.Color[4]
+						end,
+						set = function(Info, r, g, b, a)
+							KF.db.Modules.Armory.Inspect.Gradation.Color = { r, g, b, a }
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false or KF.db.Modules.Armory.Inspect.Gradation.Display == false end
+					},
+				}
+			},
+			Space3 = {
+				type = 'description',
+				name = ' ',
+				order = 6
+			},
+			Level = {
+				type = 'group',
+				name = function() return IA_Color('ffffffff', 'ff787878')..'아이템레벨 설정' end,
+				order = 7,
+				guiInline = true,
+				get = function(info) return KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] end,
+				set = function(info, value)
+					KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] = value
+					
+					for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+						if InspectArmory[SlotName] and InspectArmory[SlotName].Gradation and InspectArmory[SlotName].Gradation.ItemLevel then
+							InspectArmory[SlotName].Gradation.ItemLevel:FontTemplate(
+								E.LSM:Fetch('font', KF.db.Modules.Armory.Inspect.Level.Font)
+								,
+								KF.db.Modules.Armory.Inspect.Level.FontSize
+								,
+								KF.db.Modules.Armory.Inspect.Level.FontStyle
+							)
+						end
+					end
+				end,
+				args = {
+					Display = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..'템렙 표시방법?' end,
+						order = 1,
+						set = function(info, value)
+							KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] = value
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+							InspectArmory:Update_Display(true)
+						end,
+						values = function()
+							return {
+								['Always'] = '항상 표시',
+								['MouseoverOnly'] = '마우스오버',
+								['Hide'] = '숨기기'
+							}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					ShowUpgradeLevel = {
+						type = 'toggle',
+						name = function() return ' '..IA_Color()..'업글레벨 표시할래?' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel = value
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					Space = {
+						type = 'description',
+						name = ' ',
+						order = 3
+					},
+					Font = {
+						type = 'select', dialogControl = 'LSM30_Font',
+						name = function() return ' '..IA_Color()..L['Font'] end,
+						order = 4,
+						values = function()
+							return AceGUIWidgetLSMlists and AceGUIWidgetLSMlists.font or {}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					FontSize = {
+						type = 'range',
+						name = function() return ' '..IA_Color()..L['Font Size'] end,
+						order = 5,
+						desc = '',
+						descStyle = 'inline',
+						min = 6,
+						max = 22,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					FontStyle = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..L['Font Outline'] end,
+						order = 6,
+						desc = '',
+						descStyle = 'inline',
+						values = {
+							NONE = L['None'],
+							OUTLINE = 'OUTLINE',
+							
+							MONOCHROMEOUTLINE = 'MONOCROMEOUTLINE',
+							THICKOUTLINE = 'THICKOUTLINE'
+						},
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					}
+				}
+			},
+			Space4 = {
+				type = 'description',
+				name = ' ',
+				order = 8
+			},
+			Enchant = {
+				type = 'group',
+				name = function() return IA_Color('ffffffff', 'ff787878')..'마법부여 설정' end,
+				order = 9,
+				guiInline = true,
+				get = function(info) return KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] end,
+				set = function(info, value)
+					KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] = value
+					
+					for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+						if InspectArmory[SlotName] and InspectArmory[SlotName].Gradation and InspectArmory[SlotName].Gradation.ItemEnchant then
+							InspectArmory[SlotName].Gradation.ItemEnchant:FontTemplate(
+								E.LSM:Fetch('font', KF.db.Modules.Armory.Inspect.Enchant.Font)
+								,
+								KF.db.Modules.Armory.Inspect.Enchant.FontSize
+								,
+								KF.db.Modules.Armory.Inspect.Enchant.FontStyle
+							)
+						end
+					end
+				end,
+				args = {
+					Display = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..'마부 표시방법?' end,
+						order = 1,
+						set = function(info, value)
+							KF.db.Modules.Armory.Inspect[(info[#info - 1])][(info[#info])] = value
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+							InspectArmory:Update_Display(true)
+						end,
+						values = function()
+							return {
+								['Always'] = '항상 표시',
+								['MouseoverOnly'] = '마우스오버',
+								['Hide'] = '숨기기'
+							}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					WarningSize = {
+						type = 'range',
+						name = function() return ' '..IA_Color()..'경고 아이콘 크기' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Enchant.WarningSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								if InspectArmory[SlotName] and InspectArmory[SlotName].EnchantWarning then
+									InspectArmory[SlotName].EnchantWarning:Size(value)
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					WarningIconOnly = {
+						type = 'toggle',
+						name = function() return ' '..IA_Color()..'경고 아이콘만 보기' end,
+						order = 3,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Enchant.WarningIconOnly = value
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end,
+					},
+					Space = {
+						type = 'description',
+						name = ' ',
+						order = 4
+					},
+					Font = {
+						type = 'select', dialogControl = 'LSM30_Font',
+						name = function() return ' '..IA_Color()..L['Font'] end,
+						order = 5,
+						values = function()
+							return AceGUIWidgetLSMlists and AceGUIWidgetLSMlists.font or {}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					FontSize = {
+						type = 'range',
+						name = function() return ' '..IA_Color()..L['Font Size'] end,
+						order = 6,
+						desc = '',
+						descStyle = 'inline',
+						min = 6,
+						max = 22,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					FontStyle = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..L['Font Outline'] end,
+						order = 7,
+						desc = '',
+						descStyle = 'inline',
+						values = {
+							NONE = L['None'],
+							OUTLINE = 'OUTLINE',
+							
+							MONOCHROMEOUTLINE = 'MONOCROMEOUTLINE',
+							THICKOUTLINE = 'THICKOUTLINE'
+						},
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					}
+				}
+			},
+			Space5 = {
+				type = 'description',
+				name = ' ',
+				order = 10
+			},
+			Gem = {
+				type = 'group',
+				name = function() return IA_Color('ffffffff', 'ff787878')..'보석홈 설정' end,
+				order = 11,
+				guiInline = true,
+				get = function(Info) return KF.db.Modules.Armory.Inspect[(Info[#Info - 1])][(Info[#Info])] end,
+				args = {
+					Display = {
+						type = 'select',
+						name = function() return ' '..IA_Color()..'보석홈 표시방법?' end,
+						order = 1,
+						set = function(Info, value)
+							KF.db.Modules.Armory.Inspect[(Info[#Info - 1])][(Info[#Info])] = value
+							
+							if InspectArmory.LastDataSetting then
+								InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
+							end
+							InspectArmory:Update_Display(true)
+						end,
+						values = function()
+							return {
+								['Always'] = '항상 표시',
+								['MouseoverOnly'] = '마우스오버',
+								['Hide'] = '숨기기'
+							}
+						end,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					SocketSize = {
+						type = 'range',
+						name = function() return ' '..IA_Color()..'소켓 크기' end,
+						order = 2,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Gem.SocketSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								for i = 1, MAX_NUM_SOCKETS do
+									if InspectArmory[SlotName] and InspectArmory[SlotName]['Socket'..i] then
+										InspectArmory[SlotName]['Socket'..i]:Size(value)
+									else
+										break
+									end
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+					WarningSize = {
+						type = 'range',
+						name = function() return ' '..IA_Color()..'경고 아이콘 크기' end,
+						order = 3,
+						set = function(_, value)
+							KF.db.Modules.Armory.Inspect.Gem.WarningSize = value
+							
+							for _, SlotName in pairs(Info.Armory_Constants.GearList) do
+								if InspectArmory[SlotName] and InspectArmory[SlotName].SocketWarning then
+									InspectArmory[SlotName].SocketWarning:Size(value)
+								end
+							end
+						end,
+						min = 6,
+						max = 50,
+						step = 1,
+						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
+					},
+				}
+			},
+			CreditSpace = {
+				type = 'description',
+				name = ' ',
+				order = 998
+			},
+			Credit = {
+				type = 'header',
+				name = KF_Config.Credit,
+				order = 999
+			}
 		}
 	}
 end

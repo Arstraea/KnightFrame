@@ -1,6 +1,9 @@
 ﻿local Revision = 1.5
 local ENI = _G['EnhancedNotifyInspect'] or CreateFrame('Frame', 'EnhancedNotifyInspect', UIParent)
 
+-- 유닛팝업창을 열면 자동으로 살펴보기가 열린 동안 중지되도록 기능추가
+
+
 if not ENI.Revision or ENI.Revision < Revision then
 	ENI.InspectList = {}
 	ENI.Revision = Revision
