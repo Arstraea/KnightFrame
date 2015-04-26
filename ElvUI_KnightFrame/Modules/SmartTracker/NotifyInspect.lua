@@ -40,7 +40,6 @@ if not ENI.Revision or ENI.Revision < Revision then
 						ENI.InspectList[(ENI.InspectList[i])].InspectTryCount = ENI.InspectList[(ENI.InspectList[i])].InspectTryCount - 1
 					end
 					
-					print('NOTIFY_INSPECT : ', UnitID)
 					ENI.Original_BlizzardNotifyInspect(UnitID)
 					
 					if ENI.InspectList[(ENI.InspectList[i])].CancelInspectByManual then

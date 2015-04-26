@@ -182,7 +182,7 @@ KF_Config.Options.args.FloatingDatatext = {
 							Message = L['The data of datatext that uses the same name already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?']
 							return
 						elseif KF.db.Modules.FloatingDatatext[CurrentDatatextName] then
-							KF:FloatingDatatext_Delete(CurrentDatatextName)
+							KF:FloatingDatatext_Delete(CurrentDatatextName, true)
 						elseif SelectedDatatext ~= '0' and DatatextInfo.Name ~= SelectedDatatext then
 							KF:FloatingDatatext_Delete(SelectedDatatext, true)
 							E.db.movers[CurrentDatatextName] = E.db.movers[SelectedDatatext]

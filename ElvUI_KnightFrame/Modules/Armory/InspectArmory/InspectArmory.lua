@@ -51,11 +51,17 @@ IA.Default_CurrentInspectData = {
 		Finger1Slot = {}, Trinket0Slot = {}, Trinket1Slot = {}, SecondaryHandSlot = {}
 	},
 	SetItem = {},
-	Specialization = { [1] = {}, [2] = {} },
-	Glyph = { [1] = {}, [2] = {} },
+	Specialization = {},
+	Glyph = {},
 	Profession = { [1] = {}, [2] = {} },
 	PvP = {}
 }
+for i = 1, MAX_TALENT_GROUPS do
+	IA.Default_CurrentInspectData.Specialization[i] = {}
+	IA.Default_CurrentInspectData.Glyph[i] = {}
+end
+
+
 IA.MainStats = {	-- STR, INT, AGI, 
 	WARRIOR = STR,
 	HUNTER = AGI,
@@ -1314,7 +1320,7 @@ function IA:CreateInspectFrame()
 			end
 		end)
 		InspectArmory_UnitPopup:SetScript('OnClick', function(self)
-			local SendChannel
+			local SendChannel, InspectWork
 			
 			if AISM and AISM.AISMUserList[self.Data.TableIndex] then
 				if self.Data.Realm == Info.MyRealm then
@@ -1326,36 +1332,42 @@ function IA:CreateInspectFrame()
 				end
 			end
 			
-			if AISM and SendChannel then
-				ENI.CancelInspect(self.Data.TableIndex)
-				IA:UnregisterEvent('INSPECT_READY')
-				
-				IA.NeedModelSetting = true
-				wipe(IA.CurrentInspectData)
-				E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
-				AISM.CurrentInspectData[self.Data.TableIndex] = {
-					UnitID = self.Data.Unit,
-				}
-				
-				local TableIndex = self.Data.TableIndex
-				AISM:RegisterInspectDataRequest(function(User, Prefix, UserData)
-					if Prefix == 'AISM_Inspect' and User == TableIndex then
-						E:CopyTable(IA.CurrentInspectData, UserData)
-						IA:ShowFrame(IA.CurrentInspectData)
-						
-						return true
-					end
-				end, 'InspectArmory', true)
-				
-				SendAddonMessage('AISM_Inspect', 'AISM_DataRequestForInspecting:'..self.Data.Name..'-'..self.Data.Realm..(self.Data.Unit and '-true' or ''), SendChannel, self.Data.TableIndex)
-			end
-			
 			if self.Data.Unit then
 				if ENI.HoldInspecting == 'OPENING_DROPDOWN' then
 					ENI.HoldInspecting = nil
 				end
 				
-				IA.InspectUnit(self.Data.Unit, { CancelInspectByManual = 'KnightInspect' })
+				InspectWork = IA.InspectUnit(self.Data.Unit, { CancelInspectByManual = 'KnightInspect' })
+			end
+			
+			if AISM and SendChannel then
+				AISM.CurrentInspectData[self.Data.TableIndex] = {
+					UnitID = self.Data.Unit
+				}
+				
+				if not InspectWork then
+					ENI.CancelInspect(self.Data.TableIndex)
+					IA:UnregisterEvent('INSPECT_READY')
+					
+					IA.NeedModelSetting = true
+					wipe(IA.CurrentInspectData)
+					E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
+				end
+				
+				local TableIndex = self.Data.TableIndex
+				AISM:RegisterInspectDataRequest(function(User, Prefix, UserData)
+					if Prefix == 'AISM_Inspect' and User == TableIndex then
+						E:CopyTable(IA.CurrentInspectData, UserData)
+						
+						if not InspectWork then
+							IA:ShowFrame(IA.CurrentInspectData)
+						end
+						
+						return true
+					end
+				end, 'InspectArmory', true)
+				
+				SendAddonMessage('AISM_Inspect', 'AISM_DataRequestForInspecting:'..self.Data.Name..'-'..self.Data.Realm..(InspectWork and '-true' or ''), SendChannel, self.Data.TableIndex)
 			end
 			
 			DropDownList1:Hide()
@@ -1527,7 +1539,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	local Slot, SlotTexture, SlotLink, CheckSpace, R, G, B, TooltipText, TransmogrifiedItem, SetName, SetItemCount, SetItemMax, SetOptionCount
 	for _, SlotName in pairs(Info.Armory_Constants.GearList) do
 		Slot = IA[SlotName]
-		IA.CurrentInspectData.Gear[SlotName] = {}
+		IA.CurrentInspectData.Gear[SlotName] = IA.CurrentInspectData.Gear[SlotName] or {}
 		
 		SlotTexture = GetInventoryItemTexture(UnitID, Slot.ID)
 		
@@ -1650,6 +1662,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	IA.CurrentInspectData.guildPoint, IA.CurrentInspectData.guildNumMembers = GetInspectGuildInfo(UnitID)
 	IA.CurrentInspectData.guildEmblem = { GetGuildLogoInfo(UnitID) }
 	
+	
 	if NeedReinspect then
 		return
 	end
@@ -1699,6 +1712,8 @@ IA.InspectUnit = function(UnitID, Properties)
 		IA.ForbidUpdatePvPInformation = true
 		IA:RegisterEvent('INSPECT_READY')
 		IA:RegisterEvent('INSPECT_HONOR_UPDATE')
+		
+		return true
 	end
 end
 
@@ -2001,7 +2016,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 						end
 						
 						if Slot.TransmogrifyAnchor then --<< Transmogrify Parts >>--
-							Slot.TransmogrifyAnchor.Link = DataTable.Gear[SlotName].Transmogrify ~= 'NotDisplayed' and DataTable.Gear[SlotName].Transmogrify
+							Slot.TransmogrifyAnchor.Link = DataTable.Gear[SlotName].Transmogrify ~= 'NotDisplayed' and DataTable.Gear[SlotName].Transmogrify or nil
 							
 							if type(Slot.TransmogrifyAnchor.Link) == 'number' then
 								Slot.TransmogrifyAnchor:Show()
@@ -2150,7 +2165,6 @@ function IA:InspectFrame_DataSetting(DataTable)
 				
 				if Name then
 					if Info.ClassRole[DataTable.Class][Name] then
-						
 						SpecRole = Info.ClassRole[DataTable.Class][Name].Role
 						
 						if groupNum == SpecGroup then
@@ -2432,7 +2446,7 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 		if i == self.LastActiveSpec then
 			R, G, B = RAID_CLASS_COLORS[DataTable.Class].r, RAID_CLASS_COLORS[DataTable.Class].g, RAID_CLASS_COLORS[DataTable.Class].b
 		else
-			R, G, B = .3, .3, .3
+			R, G, B = .4, .4, .4
 		end
 		
 		self.Spec['Spec'..i].TopBorder:SetTexture(R, G, B)

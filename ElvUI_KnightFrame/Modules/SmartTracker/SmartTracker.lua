@@ -235,8 +235,6 @@ do	--<< About Window's Layout and Appearance >>--
 		})
 		Window.DisplayArea:SetBackdropColor(1, 1, 1, .1)
 		Window.DisplayArea:SetBackdropBorderColor(unpack(E.media.bordercolor))
-		Window.DisplayArea:EnableMouseWheel()
-		Window.DisplayArea:SetScript('OnMouseWheel', self.DisplayArea_OnMouseWheel)
 		KF:TextSetting(Window.DisplayArea, nil, { FontSize = 11, directionH = 'RIGHT' })
 		
 		Window.Tab = CreateFrame('Frame', nil, Window)
@@ -288,11 +286,9 @@ do	--<< About Window's Layout and Appearance >>--
 	
 	function ST:SetWindowDisplayingStatus(Window)
 		if KF.db.Modules.SmartTracker.Window[Window.Name].Enable and KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
-			Window.DisplayArea:Show()
-			--Window.DisplayArea:SetAlpha(Window:GetAlpha())	--이부분 고쳐야된다
+			Window.DisplayArea:SetAlpha(Window:GetAlpha())	--이부분 고쳐야된다
 		else
-			--Window.DisplayArea:SetAlpha(0)
-			Window.DisplayArea:Hide()
+			Window.DisplayArea:SetAlpha(0)
 		end
 	end
 
@@ -1452,6 +1448,10 @@ do	--<< System >>--
 				
 				if TrackerType == 'Window' then
 					self:RedistributeCooldownData(Tracker)
+					
+					if KF.db.Modules.SmartTracker.Window[Tracker.Name].Enable and KF.db.Modules.SmartTracker.Window[Tracker.Name].Appearance.Area_Show then
+						E:UIFrameFadeIn(Tracker.DisplayArea, 1)
+					end
 				else
 					self:DistributeIconData(Tracker)
 				end
@@ -2231,6 +2231,14 @@ do	--<< System >>--
 			--end
 		end
 		
+		if Window.BarRemains then
+			Window.DisplayArea:EnableMouseWheel(true)
+			Window.DisplayArea:SetScript('OnMouseWheel', self.DisplayArea_OnMouseWheel)
+		else
+			Window.DisplayArea:EnableMouseWheel(false)
+			Window.DisplayArea:SetScript('OnMouseWheel', nil)
+		end
+		
 		--print('RV= ', Window.Reverse and 'T' or 'F', ' / CL= ', CurrentLine, ' / WL= ', Window.CurrentWheelLine, ' / SK= ', TotalSkipped)
 		if Window.Reverse then
 			if CurrentLine > 0 then
@@ -2658,13 +2666,11 @@ do	--<< Inspect System >>--
 				ENI.HoldInspecting = 'OPENING_DROPDOWN'
 				
 				ENI.NowInspecting:Cancel()
-				print('멈춘다')
 			end
 		end)
 		
 		hooksecurefunc('UIDropDownMenu_OnHide', function(HidingMenu)
 			if ENI.HoldInspecting == 'OPENING_DROPDOWN' and UIDROPDOWNMENU_MENU_LEVEL == 1 then
-				print('푼다')
 				ENI.HoldInspecting = nil
 			end
 		end)
@@ -2675,7 +2681,6 @@ do	--<< Inspect System >>--
 			ST.NowInspecting = true
 			
 			if not ENI.HoldInspecting then
-				print('스마트트랙커 파티원 내부살펴보기 진행중')
 				DelayedMemberExists = nil
 				
 				if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false then
@@ -2803,8 +2808,6 @@ do	--<< Inspect System >>--
 					KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
 					NotifyInspect(ST.CurrentInspectMemberUnitName, { Reservation = true, InspectTryCount = 3, CancelInspectByManual = 'SmartTracker' })
 				end
-			else
-				print('스마트트랙커 파티원 내부살펴보기 |cffff0000정지')
 			end
 		end
 	end

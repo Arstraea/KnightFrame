@@ -200,23 +200,67 @@ function KF:FloatingDatatext_Delete(DatatextName, SaveProfile)
 end
 
 
-KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
-	if AddOnName == 'ElvUI_Config' then
-		hooksecurefunc(DT, 'LoadDataTexts', function()
-			if frameCount == 0 then return end
-			
-			if Info.FloatingDatatext_Activate then
-				for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
-					if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[DatatextName] and IsDatatextData.Font.UseCustomFontStyle == false then
-						KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(E.LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
+hooksecurefunc(DT, 'LoadDataTexts', function()
+	if FloatingDatatextCount == 0 then return end
+	
+	if Info.FloatingDatatext_Activate then
+		local Data
+		
+		for DatatextName, IsDatatextData in pairs(KF.db.Modules.FloatingDatatext) do
+			if type(IsDatatextData) == 'table' and KF.UIParent.Datatext[DatatextName] then
+				Data = nil
+				if IsDatatextData.Display.PvPMode ~= '' and DT.RegisteredDataTexts[(IsDatatextData.Display.PvPMode)] and (Info.InstanceType == 'arena' or Info.InstanceType =='pvp') then
+					Data = 'PvPMode'
+				elseif IsDatatextData.Display.Mode == '0' and IsDatatextData.Display[Info.Role] ~= '' and DT.RegisteredDataTexts[(IsDatatextData.Display[Info.Role])] then
+					Data = Info.Role
+				elseif IsDatatextData.Display.Mode ~= '' and DT.RegisteredDataTexts[(IsDatatextData.Display.Mode)] then
+					Data = 'Mode'
+				end
+				
+				if Data then
+					Data = DT.RegisteredDataTexts[(IsDatatextData.Display[Data])]
+					
+					if Data.eventFunc then
+						Data.eventFunc(KF.UIParent.Datatext[DatatextName].Datatext, 'ELVUI_FORCE_RUN')
+					end
+					
+					if Data.onUpdate then
+						Data.onUpdate(KF.UIParent.Datatext[DatatextName].Datatext, 20000)
 					end
 				end
+				
+				if IsDatatextData.Font.UseCustomFontStyle == false then
+					KF.UIParent.Datatext[DatatextName].Datatext.text:FontTemplate(E.LSM:Fetch('font', DT.db.font), DT.db.fontSize, DT.db.FontStyle)
+				end
 			end
-		end)
-		
-		KF:UnregisterEventList('ADDON_LOADED', 'FloatingDatatext')
+		end
 	end
-end, 'FloatingDatatext')
+end)
+
+
+local EDT = E:GetModule('ExtraDataTexts')
+if EDT then
+	EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
+	
+	function EDT:ExtendClickFunction(data)
+		EDT:ExtendClickFunction_(data)
+		
+		if data.onClick then
+			data.enhanceOnClick = data.onClick
+			data.onClick = function(self, Button)
+				if DT.RegisteredPanels[self:GetParent():GetName()] then
+					data.enhanceOnClick(self, Button)
+				else
+					data.origOnClick(self, Button)
+				end
+			end
+		end
+		
+	end
+end
+
+
+
 
 
 --------------------------------------------------------------------------------

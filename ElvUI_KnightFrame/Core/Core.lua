@@ -93,10 +93,11 @@ function KF:CancelTimer(TimerName)
 end
 
 
-KNIGHTFRAME_ADS_MESSAGE = '금토 9시~1시 신화시작 고정공대 [조드] 구합니다. 680 4셋이상 우편주세요. / 섭게글 45911 참조'
+KNIGHTFRAME_ADS_MESSAGE = '금토 9시~1시 검용신화공대 [조드]구합니다. 685 4셋이상 우편주세요. / 6킬,섭게 46212 참조'
 KF:RegisterTimer('광고', 'NewTicker', 120, function()
 	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
 end)
+
 --/run ElvUI_KnightFrame[1]:CancelTimer('광고')
 
 
@@ -462,7 +463,6 @@ local function ClearCheckedBossList(Force)
 		wipe(Info.CheckedBossList)
 		
 		if next(Info.CheckedBossList) then
-			print('와이프가 잘 안먹히네')
 			Info.CheckedBossList = {}
 		end
 		

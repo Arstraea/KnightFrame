@@ -200,7 +200,7 @@ KF_Config.Options.args.CustomPanel = {
 							Message = L['Custom Panel that named same is already exists.']..'|n'..L['Are you sure you want to OVERWRITE it?']
 							return
 						elseif KF.db.Modules.CustomPanel[CurrentPanelName] then
-							KF:CustomPanel_Delete(CurrentPanelName)
+							KF:CustomPanel_Delete(CurrentPanelName, true)
 						elseif SelectedPanel ~= '0' and PanelInfo.Name ~= SelectedPanel then
 							KF:CustomPanel_Delete(SelectedPanel, true)
 							E.db.movers[CurrentPanelName] = E.db.movers[SelectedPanel]
