@@ -252,12 +252,12 @@ if not AISM.Revision or AISM.Revision < Revision then
 		
 		if self.PlayerData.Profession1 ~= Profession1 then
 			self.PlayerData.Profession1 = Profession1
-			self.UncheckableDataList.Profession1 = FullString
+			self.UncheckableDataList.Profession1 = Profession1
 		end
 		
 		if self.PlayerData.Profession2 ~= Profession2 then
 			self.PlayerData.Profession2 = Profession2
-			self.UncheckableDataList.Profession2 = FullString
+			self.UncheckableDataList.Profession2 = Profession2
 		end
 		
 		self.Updater.ProfessionUpdated = true

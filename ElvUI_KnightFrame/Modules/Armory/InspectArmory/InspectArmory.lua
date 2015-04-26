@@ -1355,11 +1355,12 @@ function IA:CreateInspectFrame()
 				end
 				
 				local TableIndex = self.Data.TableIndex
+				
 				AISM:RegisterInspectDataRequest(function(User, Prefix, UserData)
 					if Prefix == 'AISM_Inspect' and User == TableIndex then
 						E:CopyTable(IA.CurrentInspectData, UserData)
 						
-						if not InspectWork then
+						if not InspectWork or IA:IsShown() and IA.LastDataSetting == TableIndex then
 							IA:ShowFrame(IA.CurrentInspectData)
 						end
 						
@@ -2140,8 +2141,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 	do	--<< Specialization Page Setting >>--
 		local SpecGroup, TalentID, Name, Color, Texture, SpecRole
 		
-		if DataTable.Specialization.ActiveSpec then
-			SpecGroup = DataTable.Specialization.ActiveSpec
+		if DataTable.Specialization.ActiveSpec or next(DataTable.Specialization[2]) then
+			SpecGroup = DataTable.Specialization.ActiveSpec or 1
 			
 			for i = 2, MAX_TALENT_GROUPS do
 				self.Spec['Spec'..i]:Show()
