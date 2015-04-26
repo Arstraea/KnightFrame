@@ -238,27 +238,27 @@ hooksecurefunc(DT, 'LoadDataTexts', function()
 end)
 
 
-local EDT = E:GetModule('ExtraDataTexts')
-if EDT then
-	EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
-	
-	function EDT:ExtendClickFunction(data)
-		EDT:ExtendClickFunction_(data)
+if IsAddOnLoaded('ElvUI_Enhanced') then
+	local EDT = E:GetModule('ExtraDataTexts')
+	if EDT then
+		EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
 		
-		if data.onClick then
-			data.enhanceOnClick = data.onClick
-			data.onClick = function(self, Button)
-				if DT.RegisteredPanels[self:GetParent():GetName()] then
-					data.enhanceOnClick(self, Button)
-				else
-					data.origOnClick(self, Button)
+		function EDT:ExtendClickFunction(data)
+			EDT:ExtendClickFunction_(data)
+			
+			if data.onClick then
+				data.enhanceOnClick = data.onClick
+				data.onClick = function(self, Button)
+					if DT.RegisteredPanels[self:GetParent():GetName()] then
+						data.enhanceOnClick(self, Button)
+					else
+						data.origOnClick(self, Button)
+					end
 				end
 			end
 		end
-		
 	end
 end
-
 
 
 
