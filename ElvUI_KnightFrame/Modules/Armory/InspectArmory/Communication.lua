@@ -278,7 +278,7 @@ if not AISM.Revision or AISM.Revision < Revision then
 	end
 	
 	function AISM:GetPlayerSpecSetting()
-		local GroupNum, DataString, Spec, Talent, isSelected
+		local DataString, Spec, Talent, isSelected
 		
 		ActiveSpec = GetActiveSpecGroup()
 		

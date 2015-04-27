@@ -240,23 +240,34 @@ end)
 
 if IsAddOnLoaded('ElvUI_Enhanced') then
 	local EDT = E:GetModule('ExtraDataTexts')
+	
 	if EDT then
 		EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
 		
-		function EDT:ExtendClickFunction(data)
-			EDT:ExtendClickFunction_(data)
+		function EDT:ExtendClickFunction(data, name)
+			if not data.onClick then
+				EDT:ExtendClickFunction_(data)
+			end
 			
-			if data.onClick then
-				data.enhanceOnClick = data.onClick
+			if not data.enhancedOnClick then
+				data.enhancedOnClick = data.onClick
 				data.onClick = function(self, Button)
 					if DT.RegisteredPanels[self:GetParent():GetName()] then
-						data.enhanceOnClick(self, Button)
-					else
+						data.enhancedOnClick(self, Button)
+					elseif data.origOnClick then
 						data.origOnClick(self, Button)
 					end
 				end
 			end
 		end
+		
+		for name in pairs(DT.RegisteredDataTexts) do
+			EDT:ExtendClickFunction(DT.RegisteredDataTexts[name])
+		end
+		
+		hooksecurefunc(DT, 'RegisterDatatext', function(self, name)
+			EDT:ExtendClickFunction(DT.RegisteredDataTexts[name])	
+		end)
 	end
 end
 
