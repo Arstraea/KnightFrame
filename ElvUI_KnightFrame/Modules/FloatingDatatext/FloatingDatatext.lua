@@ -245,7 +245,7 @@ if IsAddOnLoaded('ElvUI_Enhanced') then
 		EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
 		
 		function EDT:ExtendClickFunction(data, name)
-			if not data.onClick then
+			if not (data.onClick and data.origOnClick) then
 				EDT:ExtendClickFunction_(data)
 			end
 			
