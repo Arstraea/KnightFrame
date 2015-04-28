@@ -8,7 +8,7 @@ KF.db.Modules.Armory.Character = {
 	
 	NoticeMissing = true,
 	
-	Background = {
+	Backdrop = {
 		SelectedBG = 'Space',
 		CustomAddress = ''
 	},

@@ -184,6 +184,15 @@ do	-- Modules
 			L['String To Replacing'] = '교체할 글자'
 			L['Add New Order'] = '새로운 주문 입력'
 			L['Delete Replacing Order'] = '교체주문 삭제'
+			
+		L['Notice Missing Enchant or Gems'] = '마부&보석 누락 경고 표시'
+		
+		L['Select Backdrop'] = '배경 선택'
+			L['Custom'] = '개인 설정'
+			L['Space BG'] = '우주'
+			L['The Empire BG'] = 'Empire길드'
+			L['Castle BG'] = '고성'
+		L['Custom Backdrop Image Address'] = '개인 배경파일 경로'
 	end
 	
 	do -- Secretary

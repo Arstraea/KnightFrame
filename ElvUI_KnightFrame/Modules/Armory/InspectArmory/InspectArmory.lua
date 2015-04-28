@@ -512,7 +512,7 @@ function IA:CreateInspectFrame()
 		self.Message = self.MessageFrame.Page.text
 	end
 	
-	do --<< Background >>--
+	do --<< Backdrop >>--
 		self.BG = self:CreateTexture(nil, 'OVERLAY')
 		self.BG:Point('TOPLEFT', self.Tab, 'BOTTOMLEFT', 0, -38)
 		self.BG:Point('BOTTOMRIGHT', self.BP, 'TOPRIGHT')
@@ -2461,12 +2461,12 @@ end
 
 
 function IA:Update_BG()
-	if KF.db.Modules.Armory.Inspect.Background.SelectedBG == 'HIDE' then
+	if KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG == 'HIDE' then
 		self.BG:SetTexture(nil)
-	elseif KF.db.Modules.Armory.Inspect.Background.SelectedBG == 'CUSTOM' then
-		self.BG:SetTexture(KF.db.Modules.Armory.Inspect.Background.CustomAddress)
+	elseif KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG == 'CUSTOM' then
+		self.BG:SetTexture(KF.db.Modules.Armory.Inspect.Backdrop.CustomAddress)
 	else
-		self.BG:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Inspect.Background.SelectedBG)
+		self.BG:SetTexture(Info.Armory_Constants.BlizzardBackdropList[KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG] or 'Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG)
 	end
 end
 

@@ -201,12 +201,30 @@ KF_Config.Options.args.Armory = {
 }
 
 
-local BackgroundKeyTable = {
-	['1'] = 'HIDE',
-	['2'] = 'CUSTOM',
-	['3'] = 'Space',
-	['4'] = 'Horde',
-	['5'] = 'Alliance',
+local BackdropKeyTable = {
+	['0'] = 'HIDE',
+	['1'] = 'CUSTOM',
+	['2'] = 'Space',
+	['3'] = 'TheEmpire',
+	['4'] = 'Castle',
+	['5'] = 'Alliance-text',
+	['6'] = 'Horde-text',
+	['7'] = 'Alliance-bliz',
+	['8'] = 'Horde-bliz',
+	['9'] = 'Arena-bliz'
+}
+
+local BackgroundList = {
+	['0'] = '|cff712633'..HIDE,
+	['1'] = '|cffceff00'..L['Custom'],
+	['2'] = KF:Color_Value()..L['Space BG'],
+	['3'] = KF:Color_Value()..L['The Empire BG'],
+	['4'] = KF:Color_Value()..L['Castle BG'],
+	['5'] = KF:Color_Value()..FACTION_HORDE,
+	['6'] = KF:Color_Value()..FACTION_ALLIANCE,
+	['7'] = FACTION_HORDE..' 2',
+	['8'] = FACTION_ALLIANCE..' 2',
+	['9'] = ARENA
 }
 
 if KF.Modules.CharacterArmory then
@@ -236,7 +254,7 @@ if KF.Modules.CharacterArmory then
 		args = {
 			NoticeMissing = {
 				type = 'toggle',
-				name = function() return ' '..CA_Color()..'마부 안한거 경고' end,
+				name = function() return ' '..CA_Color()..L['Notice Missing Enchant or Gems'] end,
 				order = 1,
 				desc = '',
 				descStyle = 'inline',
@@ -247,26 +265,27 @@ if KF.Modules.CharacterArmory then
 					CharacterArmory:Update_Gear()
 					CharacterArmory:Update_Display(true)
 				end,
-				disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
+				disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end,
+				width = 'full'
 			},
 			Space1 = {
 				type = 'description',
 				name = ' ',
 				order = 2
 			},
-			Background = {
+			Backdrop = {
 				type = 'group',
-				name = function() return CA_Color('ffffffff', 'ff787878')..'배경 설정' end,
+				name = function() return CA_Color('ffffffff', 'ff787878')..L['Backdrop'] end,
 				order = 3,
 				guiInline = true,
 				args = {
 					SelectedBG = {
 						type = 'select',
-						name = function() return ' '..CA_Color()..'배경 뭐로할래' end,
+						name = function() return ' '..CA_Color()..L['Select Backdrop'] end,
 						order = 1,
 						get = function()
-							for Index, Key in pairs(BackgroundKeyTable) do
-								if Key == KF.db.Modules.Armory.Character.Background.SelectedBG then
+							for Index, Key in pairs(BackdropKeyTable) do
+								if Key == KF.db.Modules.Armory.Character.Backdrop.SelectedBG then
 									return Index
 								end
 							end
@@ -274,36 +293,28 @@ if KF.Modules.CharacterArmory then
 							return '1'
 						end,
 						set = function(_, value)
-							KF.db.Modules.Armory.Character.Background.SelectedBG = BackgroundKeyTable[value]
+							KF.db.Modules.Armory.Character.Backdrop.SelectedBG = BackdropKeyTable[value]
 							
 							CharacterArmory:Update_BG()
 						end,
-						values = function()
-							return {
-								['1'] = '숨기기',
-								['2'] = '직접 선택',
-								['3'] = '우주배경',
-								['4'] = '호드배경',
-								['5'] = '얼라배경',
-							}
-						end,
+						values = function() return BackgroundList end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end
 					},
 					CustomAddress = {
 						type = 'input',
-						name = function() return ' '..CA_Color()..L['Custom Background Image Address'] end,
+						name = function() return ' '..CA_Color()..L['Custom Backdrop Image Address'] end,
 						order = 2,
 						desc = '',
 						descStyle = 'inline',
-						get = function() return KF.db.Modules.Armory.Character.Background.CustomAddress end,
+						get = function() return KF.db.Modules.Armory.Character.Backdrop.CustomAddress end,
 						set = function(_, value)
-							KF.db.Modules.Armory.Character.Background.CustomAddress = value
+							KF.db.Modules.Armory.Character.Backdrop.CustomAddress = value
 							
 							CharacterArmory:Update_BG()
 						end,
 						width = 'double',
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Character.Enable == false end,
-						hidden = function() return KF.db.Modules.Armory.Character.Background.SelectedBG ~= 'CUSTOM' end
+						hidden = function() return KF.db.Modules.Armory.Character.Backdrop.SelectedBG ~= 'CUSTOM' end
 					},
 				}
 			},
@@ -768,7 +779,7 @@ if KF.Modules.InspectArmory then
 		args = {
 			NoticeMissing = {
 				type = 'toggle',
-				name = function() return ' '..IA_Color()..'마부 안한거 경고' end,
+				name = function() return ' '..IA_Color()..L['Notice Missing Enchant or Gems'] end,
 				order = 1,
 				desc = '',
 				descStyle = 'inline',
@@ -788,19 +799,19 @@ if KF.Modules.InspectArmory then
 				name = ' ',
 				order = 2
 			},
-			Background = {
+			Backdrop = {
 				type = 'group',
-				name = function() return IA_Color('ffffffff', 'ff787878')..'배경 설정' end,
+				name = function() return IA_Color('ffffffff', 'ff787878')..L['Backdrop'] end,
 				order = 3,
 				guiInline = true,
 				args = {
 					SelectedBG = {
 						type = 'select',
-						name = function() return ' '..IA_Color()..'배경 뭐로할래' end,
+						name = function() return ' '..IA_Color()..L['Select Backdrop'] end,
 						order = 1,
 						get = function()
-							for Index, Key in pairs(BackgroundKeyTable) do
-								if Key == KF.db.Modules.Armory.Inspect.Background.SelectedBG then
+							for Index, Key in pairs(BackdropKeyTable) do
+								if Key == KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG then
 									return Index
 								end
 							end
@@ -808,36 +819,28 @@ if KF.Modules.InspectArmory then
 							return '1'
 						end,
 						set = function(_, value)
-							KF.db.Modules.Armory.Inspect.Background.SelectedBG = BackgroundKeyTable[value]
+							KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG = BackdropKeyTable[value]
 							
 							InspectArmory:Update_BG()
 						end,
-						values = function()
-							return {
-								['1'] = '숨기기',
-								['2'] = '직접 선택',
-								['3'] = '우주배경',
-								['4'] = '호드배경',
-								['5'] = '얼라배경',
-							}
-						end,
+						values = function() return BackgroundList end,
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end
 					},
 					CustomAddress = {
 						type = 'input',
-						name = function() return ' '..IA_Color()..L['Custom Background Image Address'] end,
+						name = function() return ' '..IA_Color()..L['Custom Backdrop Image Address'] end,
 						order = 2,
 						desc = '',
 						descStyle = 'inline',
-						get = function() return KF.db.Modules.Armory.Inspect.Background.CustomAddress end,
+						get = function() return KF.db.Modules.Armory.Inspect.Backdrop.CustomAddress end,
 						set = function(_, value)
-							KF.db.Modules.Armory.Inspect.Background.CustomAddress = value
+							KF.db.Modules.Armory.Inspect.Backdrop.CustomAddress = value
 							
 							InspectArmory:Update_BG()
 						end,
 						width = 'double',
 						disabled = function() return KF.db.Enable == false or KF.db.Modules.Armory.Inspect.Enable == false end,
-						hidden = function() return KF.db.Modules.Armory.Inspect.Background.SelectedBG ~= 'CUSTOM' end
+						hidden = function() return KF.db.Modules.Armory.Inspect.Backdrop.SelectedBG ~= 'CUSTOM' end
 					},
 				}
 			},

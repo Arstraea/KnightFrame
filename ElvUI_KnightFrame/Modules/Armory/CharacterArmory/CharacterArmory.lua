@@ -212,7 +212,7 @@ function CA:Setup_CharacterArmory()
 	self.DisplayUpdater:SetScript('OnShow', function() if Info.CharacterArmory_Activate then self:Update_Display(true) end end)
 	self.DisplayUpdater:SetScript('OnUpdate', function() if Info.CharacterArmory_Activate then self:Update_Display() end end)
 	
-	--<< Background >>--
+	--<< Backdrop >>--
 	self.BG = self:CreateTexture(nil, 'OVERLAY')
 	self.BG:SetPoint('TOPLEFT', self, -7, -20)
 	self.BG:SetPoint('BOTTOMRIGHT', self, 7, 2)
@@ -783,12 +783,12 @@ end
 
 
 function CA:Update_BG()
-	if KF.db.Modules.Armory.Character.Background.SelectedBG == 'HIDE' then
+	if KF.db.Modules.Armory.Character.Backdrop.SelectedBG == 'HIDE' then
 		self.BG:SetTexture(nil)
-	elseif KF.db.Modules.Armory.Character.Background.SelectedBG == 'CUSTOM' then
-		self.BG:SetTexture(KF.db.Modules.Armory.Character.Background.CustomAddress)
+	elseif KF.db.Modules.Armory.Character.Backdrop.SelectedBG == 'CUSTOM' then
+		self.BG:SetTexture(KF.db.Modules.Armory.Character.Backdrop.CustomAddress)
 	else
-		self.BG:SetTexture('Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Character.Background.SelectedBG)
+		self.BG:SetTexture(Info.Armory_Constants.BlizzardBackdropList[KF.db.Modules.Armory.Character.Backdrop.SelectedBG] or 'Interface\\AddOns\\ElvUI_KnightFrame\\Modules\\Armory\\Media\\Graphics\\'..KF.db.Modules.Armory.Character.Backdrop.SelectedBG)
 	end
 end
 

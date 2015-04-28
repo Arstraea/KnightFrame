@@ -242,11 +242,21 @@ if IsAddOnLoaded('ElvUI_Enhanced') then
 	local EDT = E:GetModule('ExtraDataTexts')
 	
 	if EDT then
+		local enhancedClickMenu
+		
 		EDT.ExtendClickFunction_ = EDT.ExtendClickFunction
 		
-		function EDT:ExtendClickFunction(data, name)
-			if not (data.onClick and data.origOnClick) then
+		function EDT:ExtendClickFunction(data)
+			if data.onClick and data.origOnClick and not enhancedClickMenu then
+				enhancedClickMenu = data.onClick
+			end
+			
+			if not data.onClick or enhancedClickMenu and data.onClick ~= enhancedClickMenu then
 				EDT:ExtendClickFunction_(data)
+			end
+			
+			if data.onClick and data.origOnClick and not enhancedClickMenu then
+				enhancedClickMenu = data.onClick
 			end
 			
 			if not data.enhancedOnClick then
@@ -264,10 +274,6 @@ if IsAddOnLoaded('ElvUI_Enhanced') then
 		for name in pairs(DT.RegisteredDataTexts) do
 			EDT:ExtendClickFunction(DT.RegisteredDataTexts[name])
 		end
-		
-		hooksecurefunc(DT, 'RegisterDatatext', function(self, name)
-			EDT:ExtendClickFunction(DT.RegisteredDataTexts[name])	
-		end)
 	end
 end
 
