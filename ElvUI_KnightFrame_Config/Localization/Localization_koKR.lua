@@ -192,7 +192,21 @@ do	-- Modules
 			L['Space BG'] = '우주'
 			L['The Empire BG'] = 'Empire길드'
 			L['Castle BG'] = '고성'
-		L['Custom Backdrop Image Address'] = '개인 배경파일 경로'
+			L['Custom Backdrop Image Address'] = '개인 배경파일 경로'
+		
+		L['Gradation'] = '그라데이션'
+			L['Display Gradation'] = '그라데이션 표시'
+			L['Default Color'] = '기본 표시색'
+		
+		L['Display Method'] = '표시 방법'
+			L['Show Upgrade Level'] = '업글레벨 표시'
+			L['Warning Size'] = '경고표시 크기'
+			L['Show Warning Only'] = '경고만 표시'
+			L['Only Damaged'] = '손상된 것만'
+		
+		L['Gem Socket'] = '보석홈'
+			L['Socket Size'] = '소켓 크기'
+		
 	end
 	
 	do -- Secretary
