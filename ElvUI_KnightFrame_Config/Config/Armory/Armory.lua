@@ -213,27 +213,13 @@ KF_Config.Options.args.Armory = {
 local BackdropKeyTable = {
 	['0'] = 'HIDE',
 	['1'] = 'CUSTOM',
-	['2'] = 'Space',
-	['3'] = 'TheEmpire',
-	['4'] = 'Castle',
-	['5'] = 'Alliance-text',
-	['6'] = 'Horde-text',
-	['7'] = 'Alliance-bliz',
-	['8'] = 'Horde-bliz',
-	['9'] = 'Arena-bliz'
+	['2'] = 'Space'
 }
 
 local BackgroundList = {
-	['0'] = '|cff712633'..HIDE,
-	['1'] = '|cffceff00'..L['Custom'],
-	['2'] = KF:Color_Value()..L['Space BG'],
-	['3'] = KF:Color_Value()..L['The Empire BG'],
-	['4'] = KF:Color_Value()..L['Castle BG'],
-	['5'] = KF:Color_Value()..FACTION_HORDE,
-	['6'] = KF:Color_Value()..FACTION_ALLIANCE,
-	['7'] = FACTION_HORDE..' 2',
-	['8'] = FACTION_ALLIANCE..' 2',
-	['9'] = ARENA
+	['0'] = HIDE,
+	['1'] = L['Custom'],
+	['2'] = L['Space BG']
 }
 
 local DisplayMethodList = {
