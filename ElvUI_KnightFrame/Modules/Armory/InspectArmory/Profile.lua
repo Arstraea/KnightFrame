@@ -4,7 +4,7 @@ local KF, Info, Timer = unpack(select(2, ...))
 KF.db.Modules.Armory = KF.db.Modules.Armory or {}
 
 KF.db.Modules.Armory.Inspect = {
-	Enable = true,
+	Enable = false,
 	
 	NoticeMissing = true,
 	

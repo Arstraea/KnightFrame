@@ -557,8 +557,6 @@ if ElvDB and ElvDB.profiles then
 										{ [740] = 'DRUID' },
 										{ [97462] = 'WARRIOR' },
 										{ [76577] = 'ROGUE' },
-										{ [159916] = 'MAGE' },
-										{ [172106] = 'HUNTER' },
 										{ [15286] = 'PRIEST' }
 									},
 								},
@@ -643,6 +641,26 @@ function KF:DBConversions(Data)
 			KnightFrame_ArmoryDB.EnchantString = KnightFrame_ArmoryDB.EnchantString or {}
 			
 			Data.Install_Complete = '3.1_15'
+		end
+		
+		if Data.Install_Complete == '3.1_15' then
+			if Data.KnightFrame.Modules then
+				if Data.KnightFrame.Modules.Armory and Data.KnightFrame.Modules.Armory.Inspect then
+					Data.KnightFrame.Modules.Armory.Inspect.Enable = false
+				end
+				
+				if Data.KnightFrame.Modules.SmartTracker and Data.KnightFrame.Modules.SmartTracker.Icon and Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon and Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList then
+					for i, SpellID in pairs(Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList) do
+						if i[172106] then
+							Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList[i][172106] = nil
+						elseif i[159916] then
+							Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList[i][159916] = nil
+						end
+					end
+				end
+			end
+			
+			Data.Install_Complete = '3.1_16'
 		end
 	end
 end 

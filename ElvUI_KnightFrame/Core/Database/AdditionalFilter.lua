@@ -14,7 +14,6 @@ do	-- GENERAL
 	-- WHITELIST
 	RegistFilter('Whitelist', 146555)		-- 분노의 북		Drums of Rage
 	RegistFilter('Whitelist', 178207)		-- 격노의 북		Drums of Fury
-	RegistFilter('Whitelist', 172106)		-- 여우의 상		Aspect of the Fox
 	RegistFilter('Whitelist', 102342)		-- 무쇠 껍질		Ironbark
 	RegistFilter('Whitelist', 114030)		-- 경계				Vigilance
 	RegistFilter('Whitelist', 77764)		-- 쇄도의 포효		Stampeding Roar
@@ -28,11 +27,6 @@ do	-- GENERAL
 	G.unitframe.AuraBarColors[GetSpellInfo(90355)] = { r = .09, g = .51, b = .82 }		-- 시간 왜곡		Ancient Hysteria
 	G.unitframe.AuraBarColors[GetSpellInfo(146555)] = { r = .09, g = .51, b = .82 }		-- 분노의 북		Drums of Rage
 	G.unitframe.AuraBarColors[GetSpellInfo(178207)] = { r = .09, g = .51, b = .82 }		-- 격노의 북		Drums of Fury
-	G.unitframe.AuraBarColors[GetSpellInfo(172106)] = {									-- 여우의 상		Aspect of the Fox
-		r = RAID_CLASS_COLORS.HUNTER.r,
-		g = RAID_CLASS_COLORS.HUNTER.g,
-		b = RAID_CLASS_COLORS.HUNTER.b
-	}
 	G.unitframe.AuraBarColors[GetSpellInfo(156990)] = { r = 1, g = .8, b = 0 }			-- 마라아드의 진실	Maraad's Truth
 	G.unitframe.AuraBarColors[GetSpellInfo(156989)] = { r = .18, g = .72, b = .89 }		-- 리아드린의 정의	Liadrin's Righteousness
 	G.unitframe.AuraBarColors[GetSpellInfo(156987)] = { r = 1, g = .3, b = .3 }			-- 투랄리온의 응징	Uther's Insight

@@ -92,7 +92,11 @@ function KF:CancelTimer(TimerName)
 	end
 end
 
-
+KNIGHTFRAME_ADS_MESSAGE = '금토 밤9~1시 성채정공 [탱1,운무or회드] 구합니다. / 700이상 / 섭게 47055글 참조'
+KF:RegisterTimer('광고', 'NewTicker', 120, function()
+ 	SendChatMessage(KNIGHTFRAME_ADS_MESSAGE, 'CHANNEL', nil, GetChannelName('파티'))
+end)
+--/run ElvUI_KnightFrame[1]:CancelTimer('광고')
 
 
 --------------------------------------------------------------------------------

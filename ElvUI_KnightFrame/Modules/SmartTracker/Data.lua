@@ -6,6 +6,7 @@ local KF, Info, Timer = unpack(select(2, ...))
 -----------------------------------------------------------
 Info.SmartTracker_ResetCooldownMapID = {
 	-- WARLORD OF DRAENORE
+	[1448] = 'Hellfire Citadel',
 	[1205] = 'Blackrock Foundry',
 	[1228] = 'HighMoul',
 	
@@ -191,7 +192,6 @@ do	-- HUNTER DATA
 		[20736] = { Time = 8, Target = true, Level = 52 },												-- 견제 사격
 		[147362] = { Time = 24, Target = true, Level = 22 },											-- 반격의 사격
 		[1543] = { Time = 20, Level = 38 },																-- 섬광
-		[172106] = { Time = 180, Reset = true, Level = 84 },											-- 여우의 상
 		[51753] = { Time = 60, Level = 85 },															-- 위장술
 		[19577] = { Time = 60, TalentID = 19359 },														-- 위협
 		[54216] = { Time = 45, Target = true, Level = 74 },												-- 주인의 부름
@@ -226,9 +226,9 @@ do	-- HUNTER DATA
 			end
 		},
 		
-		[19801] = { Time = 0, Target = true, Level = 35,												-- 평정의 사격
+		[19801] = { Time = 10, Target = true, Level = 35,												-- 평정의 사격
 			Glyph = {
-				[691] = 10							-- 특성: 평정의 사격
+				[691] = -10							-- 특성: 평정의 사격
 			}
 		},
 		
@@ -587,7 +587,7 @@ end
 
 do	-- ROGUE DATA
 	Info.SmartTracker_Data.ROGUE = {
-		[31224] = { Time = 60, Level = 58 },															-- 그림자 망토
+		[31224] = { Time = 90, Level = 58 },															-- 그림자 망토
 		[408] = { Time = 20, Target = true, Level = 40 },												-- 급소 가격
 		[51713] = { Time = 60, Level = 80 },															-- 어둠의 춤
 		[76577] = { Time = 180, Level = 85 },															-- 연막탄
@@ -780,7 +780,6 @@ do	-- MAGE DATA
 		[44572] = { Time = 30, Target = true, Level = 66, Spec = L['Spec_Mage_Frost'] },				-- 동결
 		[66] = { Time = 300, Level = 56 },																-- 투명화
 		[110959] = { Time = 90, TalentID = 16207 },														-- 상급 투명화
-		[159916] = { Time = 120, Level = 87 },															-- 마법 증폭
 		[113724] = { Time = 45, TalentID = 16019 },														-- 서리 고리
 		[157997] = { Time = 25, Charge = 2, TalentID = 21693 },											-- 서리 회오리
 		[157980] = { Time = 25, Charge = 2, TalentID = 19301 },											-- 초신성
@@ -1365,7 +1364,7 @@ do	-- WARLOCK DATA
 			end
 		},
 		
-		[77801] = { Time = 120, Level = 84,																-- 악마의 영혼
+		[77801] = { Time = 120, Reset = true, Level = 84,												-- 악마의 영혼
 			Charge = function(UserGUID)
 				if SmartTracker.InspectCache[UserGUID] and SmartTracker.InspectCache[UserGUID].Talent[19296] then
 					return 2

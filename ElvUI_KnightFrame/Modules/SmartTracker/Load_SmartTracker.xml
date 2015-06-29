@@ -3,7 +3,6 @@
 	<Script file="Data.lua"/>
 	
 	<Script file="Communication.lua"/>
-	<Script file="NotifyInspect.lua"/>
 	
 	<Script file="SmartTracker.lua"/>
 </Ui>

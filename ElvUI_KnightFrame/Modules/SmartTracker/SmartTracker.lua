@@ -286,7 +286,7 @@ do	--<< About Window's Layout and Appearance >>--
 	
 	function ST:SetWindowDisplayingStatus(Window)
 		if KF.db.Modules.SmartTracker.Window[Window.Name].Enable and KF.db.Modules.SmartTracker.Window[Window.Name].Appearance.Area_Show then
-			Window.DisplayArea:SetAlpha(Window:GetAlpha())	--이부분 고쳐야된다
+			Window.DisplayArea:SetAlpha(Window:GetAlpha())
 		else
 			Window.DisplayArea:SetAlpha(0)
 		end
@@ -1345,13 +1345,13 @@ do	--<< System >>--
 		
 		self.CooldownCache[UserGUID].Spec = self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec or self.CooldownCache[UserGUID].Spec
 		
-		if self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec then
+		if self.CooldownCache[UserGUID] and self.CooldownCache[UserGUID].Spec then
 			if DestName and DestName:find('|cff') then DestName = strsub(DestName, 11, -3) end
 			
 			-- Change Cooldown By Talent
 			if Info.SmartTracker_Data[UserClass][SpellID].Talent then
 				for SelectedTalent, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Talent) do
-					if self.InspectCache[UserGUID].Talent[SelectedTalent] then
+					if self.CooldownCache[UserGUID].Talent[SelectedTalent] then
 						Cooldown = Cooldown + ChangingTime
 					end
 				end
@@ -1360,7 +1360,7 @@ do	--<< System >>--
 			-- Change Cooldown By Glyph
 			if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
 				for GlyphID, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Glyph) do
-					if self.InspectCache[UserGUID].Glyph[GlyphID] then
+					if self.CooldownCache[UserGUID].Glyph[GlyphID] then
 						Cooldown = Cooldown + ChangingTime
 					end
 				end
@@ -1970,25 +1970,22 @@ do	--<< System >>--
 			OrderTable[Class] = i
 		end
 		
-		local Result
 		local A = ST.CooldownCache[UserGUID_A]
 		local B = ST.CooldownCache[UserGUID_B]
 		
 		if A.Spec and B.Spec then
 			if Info.ClassRole[A.Class][A.Spec].Role == Info.ClassRole[B.Class][B.Spec].Role then
-				Result = OrderTable[A.Class] < OrderTable[B.Class]
+				return OrderTable[A.Class] < OrderTable[B.Class]
 			else
-				Result = OrderTable[Info.ClassRole[A.Class][A.Spec].Role] < OrderTable[Info.ClassRole[B.Class][B.Spec].Role]
+				return OrderTable[Info.ClassRole[A.Class][A.Spec].Role] < OrderTable[Info.ClassRole[B.Class][B.Spec].Role]
 			end
 		elseif A.Spec then
-			Result = true
+			return true
 		elseif B.Spec then
-			Result = false
+			return false
 		else
-			Result = OrderTable[A.Class] < OrderTable[B.Class]
+			return OrderTable[A.Class] < OrderTable[B.Class]
 		end
-		
-		return Result
 	end
 	
 	
@@ -2520,7 +2517,7 @@ do	--<< Inspect System >>--
 		self.Elapsed = (self.Elapsed or 0) + elapsed
 		
 		if self.Elapsed > 0 then
-			self.Elapsed = -.1
+			self.Elapsed = -.5
 			self.NeedUpdate = nil
 			
 			if self.NeedCheckingSpec then
@@ -2650,7 +2647,6 @@ do	--<< Inspect System >>--
 			ST.InspectCache[UserGUID].Level = UnitLevel(UserName)
 			
 			ST.InspectOrder[UserName] = true
-			ENI.CancelInspect(UserName..(UserRealm and UserRealm ~= '' and UserRealm ~= Info.MyRealm and '-'..UserRealm or ''), 'SmartTracker')
 			
 			for AnchorName, Anchor in pairs(KF.UIParent.ST_Icon) do
 				ST:DistributeIconData(Anchor)
@@ -2680,6 +2676,7 @@ do	--<< Inspect System >>--
 		function ST:InspectGroup()
 			ST.NowInspecting = true
 			
+			-- 여기서 끊어야한다
 			if not ENI.HoldInspecting then
 				DelayedMemberExists = nil
 				
@@ -2916,6 +2913,19 @@ do	--<< Inspect System >>--
 			return
 		elseif ForceUpdateAll then
 			wipe(self.InspectOrder)
+			
+			wipe(self.InspectCache)
+			E.myguid = E.myguid or UnitGUID('player')
+			self.InspectCache[E.myguid] = {
+				Name = E.myname,
+				Class = E.myclass,
+				Talent = {},
+				Glyph = {}
+			}
+			self:CheckPlayerSpec()
+			self:CheckPlayerGlyph()
+			self:CheckPlayerLevel()
+			
 			self.ForceUpdateAll = true
 		end
 		
