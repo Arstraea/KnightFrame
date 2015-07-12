@@ -36,8 +36,11 @@ end
 KF:SetThisFrameMovable(InterfaceOptionsFrame)
 KF:RegisterEventList('ADDON_LOADED', function(Event, AddOnName)
 	if AddOnName == 'Blizzard_GarrisonUI' then
+		KF:SetThisFrameMovable(GarrisonLandingPage)
 		KF:SetThisFrameMovable(GarrisonMissionFrame)
 		KF:SetThisFrameMovable(GarrisonBuildingFrame)
+		KF:SetThisFrameMovable(GarrisonShipyardFrame)
+		KF:SetThisFrameMovable(GarrisonRecruitSelectFrame)
 		
 		KF:UnregisterEventList('ADDON_LOADED', 'GarrisonUpgrade')
 	end

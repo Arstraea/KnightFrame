@@ -2,7 +2,5 @@
 	<Script file="Profile.lua"/>
 	<Script file="Data.lua"/>
 	
-	<Script file="Communication.lua"/>
-	
 	<Script file="SmartTracker.lua"/>
 </Ui>

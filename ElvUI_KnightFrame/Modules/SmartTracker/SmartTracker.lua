@@ -8,7 +8,6 @@ local AnchorCount = 0
 --<< KnightFrame : Smart Tracker											>>--
 --------------------------------------------------------------------------------
 local ST = SmartTracker or CreateFrame('Frame', 'SmartTracker', KF.UIParent)
-local ENI = _G['EnhancedNotifyInspect'] or { CancelInspect = function() end }
 
 ST.DropDownInfo = {}
 
@@ -467,6 +466,15 @@ do	--<< About Window's Layout and Appearance >>--
 		self.ToggleDisplayButton:SetScript('OnEnter', ST.ToggleDisplay_OnEnter)
 		self.ToggleDisplayButton:SetScript('OnLeave', ST.ToggleDisplay_OnLeave)
 		self.ToggleDisplayButton:SetScript('OnClick', ST.ToggleDisplay_OnClick)
+		
+		self.InspectDisplayButton = CreateFrame('Button', nil, self.ToggleDisplayButton)
+		self.InspectDisplayButton:Size(ST.TAB_HEIGHT - 8)
+		self.InspectDisplayButton:Point('RIGHT', self.ToggleDisplayButton, 'LEFT', -2, 0)
+		self.InspectDisplayButton.Texture = self.InspectDisplayButton:CreateTexture(nil, 'OVERLAY')
+		self.InspectDisplayButton.Texture:SetInside()
+		self.InspectDisplayButton.Texture:SetTexture('Interface\\MINIMAP\\TRACKING\\None')
+		self.InspectDisplayButton.Texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+		KF:TextSetting(self.InspectDisplayButton, nil, { Tag = 'Count', FontSize = 12, FontStyle = 'OUTLINE', directionH = 'CENTER' }, 'CENTER', 0, 1)
 		
 		self.BrezTracker = CreateFrame('Frame')
 		self.BrezTracker:SetScript('OnUpdate', ST.ResurrectionTracking)
@@ -1301,16 +1309,19 @@ do	--<< System >>--
 	function ST:GetTimeFormat(InputTime)
 		if InputTime > 60 then
 			return string.format('%d:%.2d', InputTime / 60, InputTime % 60)
-		elseif InputTime <= 9.9 then
-			return string.format('|cffb90624%.1f|r', InputTime)
+		elseif InputTime >= 0 then
+			if InputTime <= 9.9 then
+				return string.format('|cffb90624%.1f|r', InputTime)
+			else
+				return string.format('%d', InputTime)
+			end
 		else
-			return string.format('%d', InputTime)
+			return '0'
 		end
 	end
 	
 	
 	function ST:GetUserRoleIcon(UserGUID)
-		local RoleIcon = ''
 		local Spec, Class
 		
 		if self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec then
@@ -1323,19 +1334,19 @@ do	--<< System >>--
 			Class = self.CooldownCache[UserGUID].Class
 		end
 		
-		if Spec and Class then
+		if Spec and Class and Info.ClassRole[Class] and Info.ClassRole[Class][Spec] then
 			Spec = Info.ClassRole[Class][Spec].Role
 			
 			if Spec == 'Tank' then
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:12:12:1:-1|t'
+				return '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:12:12:1:-1|t'
 			elseif Spec == 'Healer' then
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:1:0|t'
+				return '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:12:12:1:0|t'
 			else
-				RoleIcon = '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:12:12:1:-1|t'
+				return '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:12:12:1:-1|t'
 			end
 		end
 		
-		return RoleIcon
+		return ''
 	end
 	
 	
@@ -1345,13 +1356,13 @@ do	--<< System >>--
 		
 		self.CooldownCache[UserGUID].Spec = self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec or self.CooldownCache[UserGUID].Spec
 		
-		if self.CooldownCache[UserGUID] and self.CooldownCache[UserGUID].Spec then
+		if self.InspectCache[UserGUID] and self.InspectCache[UserGUID].Spec then
 			if DestName and DestName:find('|cff') then DestName = strsub(DestName, 11, -3) end
 			
 			-- Change Cooldown By Talent
 			if Info.SmartTracker_Data[UserClass][SpellID].Talent then
 				for SelectedTalent, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Talent) do
-					if self.CooldownCache[UserGUID].Talent[SelectedTalent] then
+					if self.InspectCache[UserGUID].Talent[SelectedTalent] then
 						Cooldown = Cooldown + ChangingTime
 					end
 				end
@@ -1360,7 +1371,7 @@ do	--<< System >>--
 			-- Change Cooldown By Glyph
 			if Info.SmartTracker_Data[UserClass][SpellID].Glyph then
 				for GlyphID, ChangingTime in pairs(Info.SmartTracker_Data[UserClass][SpellID].Glyph) do
-					if self.CooldownCache[UserGUID].Glyph[GlyphID] then
+					if self.InspectCache[UserGUID].Glyph[GlyphID] then
 						Cooldown = Cooldown + ChangingTime
 					end
 				end
@@ -2494,11 +2505,12 @@ do	--<< Inspect System >>--
 				arg1 = UnitName(arg1)
 				
 				if Info.CurrentGroupMode ~= 'NoGroup' and arg1 then
-					ST.InspectOrder[arg1] = 'Delayed'
-					
-					if not ST.NowInspecting then
+					if not ST.NowInspecting and ST.InspectOrder[arg1] == true then
 						ST.UpdateDataByChanging = true
 					end
+					
+					ST.InspectOrder[arg1] = 'Delayed'
+					
 					self.GroupMemberCount = GetNumGroupMembers()
 					KF:RegisterTimer('SmartTracker_InspectGroup', 'NewTicker', 1, ST.InspectGroup, nil, true)
 				end
@@ -2602,6 +2614,7 @@ do	--<< Inspect System >>--
 			
 			_, UserClass, _, _, _, UserName, UserRealm = GetPlayerInfoByGUID(UserGUID)
 			
+			if UserName == ST.HoldInspect then ST.HoldInspect = nil end
 			if UserName == E.myname or not UnitExists(UserName) then return end
 			
 			for i = 1, MAX_RAID_MEMBERS do
@@ -2657,27 +2670,26 @@ do	--<< Inspect System >>--
 	
 	do	-- InspectGroup
 		local HoldType = { FRIEND = true, GUILD = true, RAID = true, FOCUS = true, PLAYER = true, PARTY = true, RAID_PLAYER = true }
-		hooksecurefunc('UnitPopup_ShowMenu', function(Menu, Type, Unit, Name, ...)
-			if Info.SmartTracker_Activate and HoldType[Type] and ENI.NowInspecting and not ENI.NowInspecting._cancelled then
-				ENI.HoldInspecting = 'OPENING_DROPDOWN'
-				
-				ENI.NowInspecting:Cancel()
+		hooksecurefunc('NotifyInspect', function(UnitID, Ignore)
+			if not Ignore and ST.NowInspecting then
+				ST.HoldInspect = UnitName(UnitID)
 			end
 		end)
-		
+		hooksecurefunc('UnitPopup_ShowMenu', function(Menu, Type, Unit, Name, ...)
+			if Info.SmartTracker_Activate and HoldType[Type] and ST.NowInspecting then
+				ST.HoldInspect = 'OPENING_DROPDOWN'
+			end
+		end)
 		hooksecurefunc('UIDropDownMenu_OnHide', function(HidingMenu)
-			if ENI.HoldInspecting == 'OPENING_DROPDOWN' and UIDROPDOWNMENU_MENU_LEVEL == 1 then
-				ENI.HoldInspecting = nil
+			if ST.HoldInspect == 'OPENING_DROPDOWN' and UIDROPDOWNMENU_MENU_LEVEL == 1 then
+				ST.HoldInspect = nil
 			end
 		end)
 		
 		
 		local InspectType, InspectTarget, DelayedMemberExists
 		function ST:InspectGroup()
-			ST.NowInspecting = true
-			
-			-- 여기서 끊어야한다
-			if not ENI.HoldInspecting then
+			if not ST.HoldInspect then
 				DelayedMemberExists = nil
 				
 				if KF.db.Modules.SmartTracker.Scan.UpdateInspectCache ~= false then
@@ -2718,7 +2730,7 @@ do	--<< Inspect System >>--
 					ST.CurrentInspectMemberUnitName = nil
 					
 					for MemberName in pairs(ST.InspectOrder) do
-						if not UnitExists(MemberName) then
+						if not UnitExists(MemberName) or MemberName == E.myname then
 							ST.InspectOrder[MemberName] = nil
 						elseif ST.InspectOrder[MemberName] ~= true then
 							InspectTarget = InspectType == 'Updating' and tonumber(ST.InspectOrder[MemberName]) or ST.InspectOrder[MemberName]
@@ -2789,11 +2801,10 @@ do	--<< Inspect System >>--
 						end
 					end
 					
-					--KnightRaidCooldown.InspectMembers.Number:SetText(nil)
-					
+					ST.InspectDisplayButton.Count:SetText(nil)
 					if ST.UpdateDataByChanging then
 						ST.UpdateDataByChanging = nil
-					else
+					elseif ST.NowInspecting then
 						print(L['KF']..' : |cff2eb7e4'..L['Inspect Complete']..'|r. '..L["All members specialization, talent, glyph setting is saved. SmartTracker will calcurating each spell's cooltime by this data.|r"])
 					end
 					
@@ -2801,9 +2812,11 @@ do	--<< Inspect System >>--
 					KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 					KF:CancelTimer('SmartTracker_InspectGroup')
 				else
-					--KnightRaidCooldown.InspectMembers.Number:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..NeedUpdating)
+					ST.InspectDisplayButton.Count:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4').."123")
+					
+					ST.NowInspecting = true
 					KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
-					NotifyInspect(ST.CurrentInspectMemberUnitName, { Reservation = true, InspectTryCount = 3, CancelInspectByManual = 'SmartTracker' })
+					NotifyInspect(ST.CurrentInspectMemberUnitName, true)
 				end
 			end
 		end
@@ -2830,7 +2843,7 @@ do	--<< Inspect System >>--
 				if UnitExists(Info.CurrentGroupMode..i) and not UnitIsUnit(Info.CurrentGroupMode..i, 'player') then
 					MemberName = UnitName(Info.CurrentGroupMode..i)
 					
-					if MemberName then
+					if MemberName and MemberName ~= E.myname then
 						if MemberName == UNKNOWNOBJECT then
 							return
 						elseif ST.InspectOrder[MemberName] == true then
