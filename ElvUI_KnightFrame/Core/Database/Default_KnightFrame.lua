@@ -36,6 +36,8 @@ KF.db.Modules = {
 	ShowChatTab = true,
 	TooltipTalent = true,
 	
+	AddBuffWatch = {},
+	
 	SpellAlert = {
 		Enable = true,
 		

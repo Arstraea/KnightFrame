@@ -731,17 +731,16 @@ if KF.Modules.InspectArmory then
 	
 	KF_Config.Options.args.Armory.args.IAEnable = {
 		type = 'toggle',
-		name = L['Enable']..' : '..L['Inspect Armory'], --function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Inspect Armory'] end,
+		name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Inspect Armory'] end,
 		order = 2,
 		desc = '',
 		descStyle = 'inline',
-		get = false, --function() return KF.db.Modules.Armory.Inspect.Enable end,
+		get = function() return KF.db.Modules.Armory.Inspect.Enable end,
 		set = function(_, value)
 			KF.db.Modules.Armory.Inspect.Enable = value
 			
 			KF.Modules.InspectArmory()
-		end,
-		disabled = true
+		end
 	}
 	
 	KF_Config.Options.args.Armory.args.Inspect = {

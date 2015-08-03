@@ -2556,6 +2556,11 @@ do	--<< Inspect System >>--
 	end)
 	
 	
+	function ST:ClearHoldInspecting()
+		ST.HoldInspect = nil
+	end
+	
+	
 	function ST:CheckPlayerSpec()
 		wipe(ST.InspectCache[E.myguid].Talent)
 		
@@ -2614,7 +2619,10 @@ do	--<< Inspect System >>--
 			
 			_, UserClass, _, _, _, UserName, UserRealm = GetPlayerInfoByGUID(UserGUID)
 			
-			if UserName == ST.HoldInspect then ST.HoldInspect = nil end
+			if ST.HoldInspect and UserName == ST.HoldInspect then
+				KF:CancelTimer('HoldSmartTrackerInspecting')
+				KF:RegisterTimer('HoldSmartTrackerInspecting', 'NewTicker', 2, ST.ClearHoldInspecting, 1)
+			end
 			if UserName == E.myname or not UnitExists(UserName) then return end
 			
 			for i = 1, MAX_RAID_MEMBERS do
@@ -2672,6 +2680,7 @@ do	--<< Inspect System >>--
 		local HoldType = { FRIEND = true, GUILD = true, RAID = true, FOCUS = true, PLAYER = true, PARTY = true, RAID_PLAYER = true }
 		hooksecurefunc('NotifyInspect', function(UnitID, Ignore)
 			if not Ignore and ST.NowInspecting then
+				KF:CancelTimer('HoldSmartTrackerInspecting')
 				ST.HoldInspect = UnitName(UnitID)
 			end
 		end)

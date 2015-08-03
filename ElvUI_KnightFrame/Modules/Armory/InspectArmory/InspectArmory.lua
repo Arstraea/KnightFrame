@@ -5,7 +5,7 @@ local KF, Info, Timer = unpack(select(2, ...))
 --<< KnightFrame : Upgrade Inspect Frame like Wow-Armory					>>--
 --------------------------------------------------------------------------------
 local IA = InspectArmory or CreateFrame('Frame', 'InspectArmory', E.UIParent)
-local ENI = _G['EnhancedNotifyInspect'] or { CancelInspect = function() end }
+local ClientVersion = select(4, GetBuildInfo())
 local AISM = _G['Armory_InspectSupportModule']
 local ButtonName = L['Knight Inspect']
 
@@ -27,19 +27,19 @@ IA.PageList = { Character = 'CHARACTER', Info = 'INFO', Spec = 'TALENTS' }
 IA.InfoPageCategoryList = { 'Profession', 'PvP', 'Guild' }
 IA.UnitPopupList = { FRIEND = true, GUILD = true, RAID = true, FOCUS = true, PLAYER = true, PARTY = true, RAID_PLAYER = true }
 IA.ModelList = {
-	Human = { RaceID = 1, [2] = { x = 0.02, y = -0.025, z = -0.6 }, [3] = { x = -0.01, y = -0.08, z = -0.6 } },
-	Dwarf = { RaceID = 3, [2] = { x = -0.01, y = -0.23, z = -0.9 }, [3] = { x = -0.03, y = -0.15, z = -0.8 } },
-	NightElf = { RaceID = 4, [2] = { z = -0.7 }, [3] = { x = -0.02, y = -0.04, z = -0.7 }},
-	Gnome = { RaceID = 7, [2] = { y = -0.2, z = -1 }, [3] = { x = -0.01, y = -0.19, z = -0.9 } },
-	Draenei = { RaceID = 11, [2] = { x = -0.04, y = -0.08, z = -0.7 }, [3] = { x = -0.02, y = -0.01, z = -0.6 }},
-	Worgen = { RaceID = 22, [2] = { x = -0.09, y = -0.1, z = -0.4 }, [3] = { x = -0.01, y = 0.01, z = 0.06 }},
-	Orc = { RaceID = 2, [2] = { y = -0.06, z = -1 }, [3] = { x = -0.01, y = -0.05, z = -0.7 }},
-	Scourge = { RaceID = 5, [2] = { y = -0.08, z = -0.7 }, [3] = { y = -0.05, z = -0.6 }},
-	Tauren = { RaceID = 6, [2] = { y = -0.09, z = -0.7 }, [3] = { y = -0.16, z = -0.6 } },
-	Troll = { RaceID = 8, [2] = { y = -0.14, z = -1.1 }, [3] = { y = -0.11, z = -0.8 }},
-	BloodElf = { RaceID = 10, [2] = { x = 0.02, y = -0.01, z = -0.5 }, [3] = { x = 0.04, y = -0.01, z = -0.6 }},
-	Goblin = { RaceID = 9, [2] = { y = -0.23, z = -1.3 }, [3] = { x = -0.01, y = -0.25, z = -1.3 } },
-	Pandaren = { RaceID = 24, [2] = { x = 0.02, y = 0.02, z = -0.6 }, [3] = { x = 0, y = -0.05, z = -1 } },
+	Human =		{ RaceID = 1, 	[2] = { x = 0.02, y = -0.025, z = -0.6 }, 	[3] = { x = -0.01, y = -0.08, z = -0.6 }},
+	Dwarf = 	{ RaceID = 3, 	[2] = { x = -0.01, y = -0.23, z = -0.9 }, 	[3] = { x = -0.03, y = -0.15, z = -0.8 }},
+	NightElf = 	{ RaceID = 4, 	[2] = { z = -0.7 }, 						[3] = { x = -0.02, y = -0.04, z = -0.7 }},
+	Gnome = 	{ RaceID = 7, 	[2] = { y = -0.2, z = -1 }, 				[3] = { x = -0.01, y = -0.19, z = -0.9 }},
+	Draenei = 	{ RaceID = 11, 	[2] = { x = -0.04, y = -0.08, z = -0.7 }, 	[3] = { x = -0.02, y = -0.01, z = -0.6 }},
+	Worgen = 	{ RaceID = 22, 	[2] = { x = -0.09, y = -0.1, z = -0.4 }, 	[3] = { x = -0.01, y = 0.01, z = 0.06 }	},
+	Orc = 		{ RaceID = 2, 	[2] = { y = -0.06, z = -1 }, 				[3] = { x = -0.01, y = -0.05, z = -0.7 }},
+	Scourge = 	{ RaceID = 5, 	[2] = { y = -0.08, z = -0.7 }, 				[3] = { y = -0.05, z = -0.6 }			},
+	Tauren = 	{ RaceID = 6, 	[2] = { y = -0.09, z = -0.7 }, 				[3] = { y = -0.16, z = -0.6 } 			},
+	Troll = 	{ RaceID = 8, 	[2] = { y = -0.14, z = -1.1 }, 				[3] = { y = -0.11, z = -0.8 }			},
+	BloodElf = 	{ RaceID = 10, 	[2] = { x = 0.02, y = -0.01, z = -0.5 }, 	[3] = { x = 0.04, y = -0.01, z = -0.6 }	},
+	Goblin = 	{ RaceID = 9, 	[2] = { y = -0.23, z = -1.3 }, 				[3] = { x = -0.01, y = -0.25, z = -1.3 }},
+	Pandaren = 	{ RaceID = 24, 	[2] = { x = 0.02, y = 0.02, z = -0.6 }, 	[3] = { x = 0, y = -0.05, z = -1 }		},
 }
 IA.CurrentInspectData = {}
 IA.Default_CurrentInspectData = {
@@ -60,38 +60,6 @@ for i = 1, MAX_TALENT_GROUPS do
 	IA.Default_CurrentInspectData.Specialization[i] = {}
 	IA.Default_CurrentInspectData.Glyph[i] = {}
 end
-
-
-IA.MainStats = {	-- STR, INT, AGI, 
-	WARRIOR = STR,
-	HUNTER = AGI,
-	SHAMAN = {
-		[(L['Spec_Shaman_Elemental'])] = INT,
-		[(L['Spec_Shaman_Enhancement'])] = AGI,
-		[(L['Spec_Shaman_Restoration'])] = INT
-	},
-	MONK = {
-		[(L['Spec_Monk_Brewmaster'])] = AGI,
-		[(L['Spec_Monk_Mistweaver'])] = INT,
-		[(L['Spec_Monk_Windwalker'])] = AGI
-	},
-	ROGUE = AGI,
-	DEATHKNIGHT = STR,
-	MAGE = INT,
-	DRUID = {
-		[(L['Spec_Druid_Balance'])] = INT,
-		[(L['Spec_Druid_Feral'])] = AGI,
-		[(L['Spec_Druid_Guardian'])] = AGI,
-		[(L['Spec_Druid_Restoration'])] = INT
-	},
-	PALADIN = {
-		[(L['Spec_Paladin_Holy'])] = INT,
-		[(L['Spec_Paladin_Protection'])] = STR,
-		[(L['Spec_Paladin_Retribution'])] = STR
-	},
-	PRIEST = INT,
-	WARLOCK = INT
-}
 
 
 do --<< Button Script >>--
@@ -175,9 +143,8 @@ do --<< Button Script >>--
 					if type(IA.SetItem[SetName]) == 'table' then
 						for dataType, Data in pairs(IA.SetItem[SetName]) do
 							if type(dataType) == 'string' then -- Means SetOption Data
-								
-								
 								_G['GameTooltipTextLeft'..(i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$'))]:SetText(Data)
+								
 								--[[
 								local CurrentLineNum = i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$')
 								local CurrentText = _G['GameTooltipTextLeft'..CurrentLineNum]:GetText()
@@ -401,7 +368,6 @@ function IA:CreateInspectFrame()
 					AISM.RegisteredFunction.InspectArmory = nil
 				end
 				
-				ENI.CancelInspect(TableIndex)
 				IA:UnregisterEvent('INSPECT_READY')
 				IA:UnregisterEvent('INSPECT_HONOR_UPDATE')
 			end
@@ -1333,10 +1299,6 @@ function IA:CreateInspectFrame()
 			end
 			
 			if self.Data.Unit then
-				if ENI.HoldInspecting == 'OPENING_DROPDOWN' then
-					ENI.HoldInspecting = nil
-				end
-				
 				InspectWork = IA.InspectUnit(self.Data.Unit, { CancelInspectByManual = 'KnightInspect' })
 			end
 			
@@ -1346,7 +1308,6 @@ function IA:CreateInspectFrame()
 				}
 				
 				if not InspectWork then
-					ENI.CancelInspect(self.Data.TableIndex)
 					IA:UnregisterEvent('INSPECT_READY')
 					
 					IA.NeedModelSetting = true
@@ -1529,7 +1490,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	if not Name then
 		_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
 	end
-	
+	print('INSPECT_READY', Name, Realm, not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm))
 	if not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm) then
 		return
 	elseif HasInspectHonorData() then
@@ -1643,13 +1604,27 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	end
 	
 	-- Specialization
-	IA.CurrentInspectData.Specialization[1].SpecializationID = GetInspectSpecialization(UnitID)
+	local CurrentSpec = GetInspectSpecialization(UnitID)
+	IA.CurrentInspectData.Specialization[1].SpecializationID = CurrentSpec
+	KnightFrame_ArmoryDB[ClientVersion] = KnightFrame_ArmoryDB[ClientVersion] or { Specialization = {} }
+	KnightFrame_ArmoryDB[ClientVersion].Specialization[CurrentSpec] = KnightFrame_ArmoryDB[ClientVersion].Specialization[CurrentSpec] or {}
+	
 	local TalentID, isSelected
 	for i = 1, MAX_TALENT_TIERS do
 		for k = 1, NUM_TALENT_COLUMNS do
 			TalentID, _, _, isSelected = GetTalentInfo(i, k, 1, true, UnitID)
 			
-			IA.CurrentInspectData.Specialization[1]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] = { TalentID, isSelected }
+			print(Name, '/', TalentID, isSelected)
+			TalentID = TalentID or KnightFrame_ArmoryDB[ClientVersion].Specialization[CurrentSpec][((i - 1) * NUM_TALENT_COLUMNS + k)]
+			isSelected = isSelected or false
+			
+			if TalentID then
+				KnightFrame_ArmoryDB[ClientVersion].Specialization[CurrentSpec][((i - 1) * NUM_TALENT_COLUMNS + k)] = TalentID
+				
+				IA.CurrentInspectData.Specialization[1]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)] = { TalentID, isSelected }
+			else
+				NeedReinspect = true
+			end
 		end
 	end
 	
@@ -1666,8 +1641,8 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	IA.CurrentInspectData.guildPoint, IA.CurrentInspectData.guildNumMembers = GetInspectGuildInfo(UnitID)
 	IA.CurrentInspectData.guildEmblem = { GetGuildLogoInfo(UnitID) }
 	
-	
 	if NeedReinspect then
+		NotifyInspect(IA.CurrentInspectData.UnitID)
 		return
 	end
 	
@@ -1676,16 +1651,25 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	
 	if IA.ReinspectCount > 0 then
 		IA.ReinspectCount = IA.ReinspectCount - 1
+		
+		NotifyInspect(IA.CurrentInspectData.UnitID)
 	else
-		ENI.CancelInspect(TableIndex, 'KnightInspect')
 		IA:UnregisterEvent('INSPECT_READY')
 	end
 end
 
 
-IA.InspectUnit = function(UnitID, Properties)
-	if UnitID == 'mouseover' and not UnitExists('mouseover') and UnitExists('target') then
+IA.InspectUnit = function(UnitID)
+	if UnitID == 'mouseover' and not UnitExists('mouseover') and UnitExists('target') or UnitID ~= 'target' and UnitIsUnit(UnitID, 'target') then
 		UnitID = 'target'
+	end
+	
+	if UnitID ~= 'focus' and UnitIsUnit(UnitID, 'focus') then
+		UnitID = 'focus'
+	end
+	
+	if UnitInParty(UnitID) or UnitInRaid(UnitID) then
+		UnitID = GetUnitName(UnitID, true)
 	end
 	
 	if not UnitIsPlayer(UnitID) then
@@ -1697,8 +1681,6 @@ IA.InspectUnit = function(UnitID, Properties)
 		
 		return
 	else
-		UnitID = NotifyInspect(UnitID, Properties) or UnitID
-		
 		wipe(IA.CurrentInspectData)
 		E:CopyTable(IA.CurrentInspectData, IA.Default_CurrentInspectData)
 		
@@ -1716,6 +1698,8 @@ IA.InspectUnit = function(UnitID, Properties)
 		IA.ForbidUpdatePvPInformation = true
 		IA:RegisterEvent('INSPECT_READY')
 		IA:RegisterEvent('INSPECT_HONOR_UPDATE')
+		
+		NotifyInspect(IA.CurrentInspectData.UnitID)
 		
 		return true
 	end
@@ -2394,6 +2378,7 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 	
 	for i = 1, MAX_TALENT_TIERS do
 		for k = 1, NUM_TALENT_COLUMNS do
+			print(DataTable.Name, ' / ', DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1])
 			TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1], 1)
 			
 			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon.Texture:SetTexture(Texture)
@@ -2545,7 +2530,6 @@ end
 KF.Modules[#KF.Modules + 1] = 'InspectArmory'
 KF.Modules.InspectArmory = function(RemoveOrder)
 	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.Armory and KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable ~= false and not Info.InspectArmory_Activate then
-		Default_NotifyInspect = NotifyInspect
 		Default_InspectUnit = InspectUnit
 		
 		if IA.CreateInspectFrame then
@@ -2553,15 +2537,11 @@ KF.Modules.InspectArmory = function(RemoveOrder)
 		end
 		IA:Update_BG()
 		
-		NotifyInspect = ENI.NotifyInspect or NotifyInspect
 		InspectUnit = IA.InspectUnit
 		
 		Info.InspectArmory_Activate = true
 	elseif Info.InspectArmory_Activate then
-		NotifyInspect = Default_NotifyInspect
 		InspectUnit = Default_InspectUnit
-		Default_NotifyInspect = nil
-		Default_InspectUnit = nil
 		
 		Info.InspectArmory_Activate = nil
 	end

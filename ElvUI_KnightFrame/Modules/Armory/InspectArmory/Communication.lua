@@ -1,7 +1,7 @@
 ﻿--------------------------------------------------------------------------------
 --<< AISM : Armory Support Module for AddOn Communication Inspecting		>>--
 --------------------------------------------------------------------------------
-local Revision = 1.2
+local Revision = 1.3
 local AISM = _G['Armory_InspectSupportModule'] or CreateFrame('Frame', 'Armory_InspectSupportModule', UIParent)
 
 if not AISM.Revision or AISM.Revision < Revision then

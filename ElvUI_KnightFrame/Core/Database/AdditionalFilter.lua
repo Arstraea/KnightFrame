@@ -51,6 +51,14 @@ do	-- GENERAL
 		b = RAID_CLASS_COLORS.DRUID.b
 	}
 	
+	-- Legendary
+	G.unitframe.AuraBarColors[GetSpellInfo(187616)] = { r = .09, g = .51, b = .82 }		-- 니스라무스		Nithramus
+	G.unitframe.AuraBarColors[GetSpellInfo(187617)] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Sanctus
+	G.unitframe.AuraBarColors[GetSpellInfo(187618)] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Etheralus
+	G.unitframe.AuraBarColors[GetSpellInfo(187619)] = { r = .09, g = .51, b = .82 }		-- 토라수스			Thorasus
+	G.unitframe.AuraBarColors[GetSpellInfo(187620)] = { r = .09, g = .51, b = .82 }		-- 말루스			Maalus
+	
+	
 	-- Raid Utility Filter Group
 	G.unitframe.aurafilters[(L['Raid Utility Filter'])] = {
 		type = 'Whitelist',
@@ -194,13 +202,51 @@ do	-- WARLORD OF DRAENORE
 		-- Blackhand
 		RegistFilter('RaidDebuffs', 175583)			-- 살아있는 불길		Living Blaze
 		RegistFilter('RaidDebuffs', 156743, 1)		-- 관통상				Impaled
+	
+	
+	-- Hellfire Citadel
+		-- Normal Mob
+		RegistFilter('RaidDebuffs', 184587, 1)		-- 필멸의 손길			Touch of Mortality
 end
 
 
 do	-- BuffWatch
-	tinsert(G.unitframe.buffwatch.PALADIN, {		-- 신념의 봉화			Beacon of Faith
-		enabled = true, id = 156910, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 }, 
-		style = 'coloredIcon', displayText = false, decimalThreshold = 5,
-		textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
-	})
+	local function AddBuffWatch(Class, SpellID, Data)
+		if KF.db.Modules.AddBuffWatch[SpellID] then
+			return
+		end
+		
+		if E.global and E.global.unitframe and E.global.unitframe.buffwatch and E.global.unitframe.buffwatch[Class] and type(E.global.unitframe.buffwatch[Class]) == 'table' then
+			for i = 1, #E.global.unitframe.buffwatch[Class] do
+				if E.global.unitframe.buffwatch[Class][i].id == SpellID then
+					KF.db.Modules.AddBuffWatch[SpellID] = true
+					return
+				end
+			end
+		else
+			return
+		end
+		
+		Data.id = SpellID
+		tinsert(E.global.unitframe.buffwatch[Class], Data)
+		
+		KF.db.Modules.AddBuffWatch[SpellID] = true
+	end
+	
+	KF.Modules[#KF.Modules + 1] = 'AddBuffWatch'
+	KF.Modules.AddBuffWatch = function()
+		-- 신념의 봉화			Beacon of Faith
+		AddBuffWatch('PALADIN', 156910, {
+			enabled = true, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 }, 
+			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
+			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
+		})
+		
+		-- 의지의 명료함		Clarity of Will
+		AddBuffWatch('PRIEST', 152118, {
+			enabled = true, point = 'BOTTOM', color = { r = .89, g = 1, b = .6 }, 
+			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
+			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
+		})
+	end
 end

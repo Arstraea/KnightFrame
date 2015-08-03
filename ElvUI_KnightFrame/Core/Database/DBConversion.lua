@@ -637,9 +637,6 @@ function KF:DBConversions(Data)
 		end
 		
 		if Data.Install_Complete == '3.1_14' then
-			KnightFrame_ArmoryDB = type(KnightFrame_ArmoryDB) == 'table' and KnightFrame_ArmoryDB or {}
-			KnightFrame_ArmoryDB.EnchantString = KnightFrame_ArmoryDB.EnchantString or {}
-			
 			Data.Install_Complete = '3.1_15'
 		end
 		
@@ -649,12 +646,16 @@ function KF:DBConversions(Data)
 					Data.KnightFrame.Modules.Armory.Inspect.Enable = false
 				end
 				
-				if Data.KnightFrame.Modules.SmartTracker and Data.KnightFrame.Modules.SmartTracker.Icon and Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon and Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList then
-					for i, SpellID in pairs(Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList) do
-						if i[172106] then
-							Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList[i][172106] = nil
-						elseif i[159916] then
-							Data.KnightFrame.Modules.SmartTracker.Icon.RaidIcon.SpellList[i][159916] = nil
+				if Data.KnightFrame.Modules.SmartTracker and Data.KnightFrame.Modules.SmartTracker.Icon and Data.KnightFrame.Modules.SmartTracker.Icon then
+					for GroupName in pairs(Data.KnightFrame.Modules.SmartTracker.Icon) do
+						if Data.KnightFrame.Modules.SmartTracker.Icon[GroupName].SpellList then
+							for i, Group in pairs(Data.KnightFrame.Modules.SmartTracker.Icon[GroupName].SpellList) do
+								if Group[172106] then
+									Data.KnightFrame.Modules.SmartTracker.Icon[GroupName].SpellList[i][172106] = nil
+								elseif Group[159916] then
+									Data.KnightFrame.Modules.SmartTracker.Icon[GroupName].SpellList[i][159916] = nil
+								end
+							end
 						end
 					end
 				end
