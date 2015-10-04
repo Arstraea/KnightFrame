@@ -7,11 +7,9 @@ local KF, Info, Timer = unpack(select(2, ...))
 local Value = {}
 local LFDRoleCheckPopupDescriptionDefaultPoint = { LFDRoleCheckPopupDescription:GetPoint() }
 
-local SoundOff
-
 local function NoticeProposal_TurnOnSound(Sound)
 	if GetCVar('Sound_EnableAllSound') == '0' then
-		SoundOff = true
+		KF.db.Modules.Secretary.SoundOff = true
 		SetCVar('Sound_EnableAllSound', '1')
 		
 		if Sound:find('\\') then
@@ -24,18 +22,21 @@ end
 
 
 local function NoticeProposal_TurnOffSound()
-	if SoundOff then
+	if KF.db.Modules.Secretary.SoundOff then
 		SetCVar('Sound_EnableAllSound', '0')
-		SoundOff = nil
+		KF.db.Modules.Secretary.SoundOff = nil
 	end
 end
+NoticeProposal_TurnOffSound()
 
 
 local function NoticeProposal(EventName, ...)
 	if KF.db.Modules.Secretary.NoticeProposal then
-		if EventName == 'LFG_PROPOSAL_SHOW' then
+		local arg1, arg2, arg3 = ...
+		
+		if EventName == 'LFG_PROPOSAL_SHOW'  or (EventName == 'READY_CHECK' and arg1 ~= E.myname) then
 			NoticeProposal_TurnOnSound('ReadyCheck')
-		elseif EventName == 'LFG_PROPOSAL_SUCCEEDED' or EventName == 'LFG_PROPOSAL_FAILED' then
+		elseif EventName == 'LFG_PROPOSAL_SUCCEEDED' or EventName == 'LFG_PROPOSAL_FAILED' or EventName == 'READY_CHECK_FINISHED' or (EventName == 'READY_CHECK_CONFIRM' and arg1 == 'player') then
 			NoticeProposal_TurnOffSound()
 		elseif EventName == 'UPDATE_BATTLEFIELD_STATUS' then
 			local BattleField_Status = GetBattlefieldStatus(...)
@@ -54,6 +55,9 @@ KF:RegisterEventList('LFG_PROPOSAL_SHOW', NoticeProposal, 'Secretary_NoticePropo
 KF:RegisterEventList('LFG_PROPOSAL_SUCCEEDED', NoticeProposal, 'Secretary_NoticeProposal')
 KF:RegisterEventList('LFG_PROPOSAL_FAILED', NoticeProposal, 'Secretary_NoticeProposal')
 KF:RegisterEventList('UPDATE_BATTLEFIELD_STATUS', NoticeProposal, 'Secretary_NoticeProposal')
+KF:RegisterEventList('READY_CHECK', NoticeProposal, 'Secretary_NoticeProposal')
+KF:RegisterEventList('READY_CHECK_CONFIRM', NoticeProposal, 'Secretary_NoticeProposal')
+KF:RegisterEventList('READY_CHECK_FINISHED', NoticeProposal, 'Secretary_NoticeProposal')
 
 
 --<< Create Check Button >>--

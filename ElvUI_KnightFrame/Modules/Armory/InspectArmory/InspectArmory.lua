@@ -20,7 +20,8 @@ local GLYPH_SLOT_HEIGHT = 22
 
 local HeadSlotItem = 99568
 local BackSlotItem = 102246
-local Default_NotifyInspect, Default_InspectUnit
+local InspectorInterval = 0.25
+local Default_InspectUnit
 
 --<< Key Table >>--
 IA.PageList = { Character = 'CHARACTER', Info = 'INFO', Spec = 'TALENTS' }
@@ -131,49 +132,54 @@ do --<< Button Script >>--
 			GameTooltip:SetOwner(self, 'ANCHOR_RIGHT')
 			GameTooltip:SetHyperlink(self.Link)
 			
-			local CurrentLineText, SetName
+			local CurrentLineText, SetName, TooltipText, CurrentTextType
+			local CheckSpace = 2
+			
 			for i = 1, GameTooltip:NumLines() do
 				CurrentLineText = _G['GameTooltipTextLeft'..i]:GetText()
 				
 				SetName = CurrentLineText:match('^(.+) %((%d)/(%d)%)$')
 				
-				if SetName then
-					local SetCount = 0
+				if SetName and type(IA.SetItem[SetName]) == 'table' then
+					local SetCount, SetOptionCount = 0, 0
 					
-					if type(IA.SetItem[SetName]) == 'table' then
-						for dataType, Data in pairs(IA.SetItem[SetName]) do
-							if type(dataType) == 'string' then -- Means SetOption Data
-								_G['GameTooltipTextLeft'..(i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$'))]:SetText(Data)
-								
-								--[[
-								local CurrentLineNum = i + #IA.SetItem[SetName] + 1 + dataType:match('^.+(%d)$')
-								local CurrentText = _G['GameTooltipTextLeft'..CurrentLineNum]:GetText()
-								local CurrentTextType = CurrentText:match("^%((%d)%)%s.+:%s.+$") or true
-								
-								if Data ~= CurrentTextType then
-									if Data == true and CurrentTextType ~= true then
-										_G['GameTooltipTextLeft'..CurrentLineNum]:SetText(GREEN_FONT_COLOR_CODE..(strsub(CurrentText, (strlen(CurrentTextType) + 4))))
-									else
-										_G['GameTooltipTextLeft'..CurrentLineNum]:SetText(GRAY_FONT_COLOR_CODE..'('..Data..') '..CurrentText)
-									end
-								end
-								]]
-							else
-								if Data:find(LIGHTYELLOW_FONT_COLOR_CODE) then
+					for k = 1, GameTooltip:NumLines() do
+						TooltipText = _G['GameTooltipTextLeft'..(i+k)]:GetText()
+						
+						if TooltipText == ' ' then
+							CheckSpace = CheckSpace - 1
+							
+							if CheckSpace == 0 then break end
+						elseif CheckSpace == 2 then
+							if IA.SetItem[SetName][k] then
+								if IA.SetItem[SetName][k]:find(LIGHTYELLOW_FONT_COLOR_CODE) then
 									SetCount = SetCount + 1
 								end
 								
-								_G['GameTooltipTextLeft'..(i + dataType)]:SetText(Data)
+								_G['GameTooltipTextLeft'..(i + k)]:SetText(IA.SetItem[SetName][k])
+							end
+						elseif TooltipText:find(Info.Armory_Constants.ItemSetBonusKey) then
+							SetOptionCount = SetOptionCount + 1
+							CurrentTextType = TooltipText:match("^%((%d)%)%s.+:%s.+$") or true
+							
+							if IA.SetItem[SetName]['SetOption'..SetOptionCount] and  IA.SetItem[SetName]['SetOption'..SetOptionCount] ~= CurrentTextType then
+								if IA.SetItem[SetName]['SetOption'..SetOptionCount] == true and CurrentTextType ~= true then
+									_G['GameTooltipTextLeft'..(i+k)]:SetText(GREEN_FONT_COLOR_CODE..(strsub(TooltipText, (strlen(CurrentTextType) + 4))))
+								else
+									_G['GameTooltipTextLeft'..(i+k)]:SetText(GRAY_FONT_COLOR_CODE..'('..IA.SetItem[SetName]['SetOption'..SetOptionCount]..') '..TooltipText)
+								end
 							end
 						end
-						
-						_G['GameTooltipTextLeft'..i]:SetText(string.gsub(CurrentLineText, ' %(%d/', ' %('..SetCount..'/', 1))
 					end
+					
+					_G['GameTooltipTextLeft'..i]:SetText(string.gsub(CurrentLineText, ' %(%d/', ' %('..SetCount..'/', 1))
 					
 					break
 				elseif Info.Armory_Constants.CanTransmogrifySlot[self.SlotName] and Info.Armory_Constants.ItemBindString[CurrentLineText] and self.TransmogrifyAnchor.Link then
 					_G['GameTooltipTextLeft'..i]:SetText(E:RGBToHex(1, .5, 1)..TRANSMOGRIFIED_HEADER..'|n'..(GetItemInfo(self.TransmogrifyAnchor.Link) or self.TransmogrifyAnchor.Link)..'|r|n'..CurrentLineText)
 				end
+				
+				if CheckSpace == 0 then break end
 			end
 			
 			GameTooltip:Show()
@@ -1440,6 +1446,40 @@ function IA:CreateInspectFrame()
 		self.Updater:Hide()
 	end
 	
+	do --<< Inspector >>--
+		self.Inspector = CreateFrame('Frame')
+		self.Inspector:SetScript('OnUpdate', function(_, elapsed)
+			if Info.InspectArmory_Activate then
+				self.Inspector.elapsed = (self.Inspector.elapsed or InspectorInterval) - elapsed
+				
+				if self.Inspector.elapsed < 0 then
+					self.Inspector.elapsed = nil
+					
+					if self.CurrentInspectData then
+						local UnitID = self.CurrentInspectData.UnitID
+						
+						if UnitID then
+							local Name, Realm = UnitFullName(UnitID)
+							Realm = Realm ~= '' and Realm ~= Info.MyRealm and Realm or nil
+							
+							if Name and Name == self.CurrentInspectData.Name and Realm == self.CurrentInspectData.Realm then
+								NotifyInspect(UnitID)
+								return
+							else
+								print(L['KF']..' : '..L['Inspect is canceled because target was changed or lost.'])
+							end
+						end
+					end
+					
+					self.Inspector:Hide()
+				end
+			else
+				self.Inspector:Hide()
+			end
+		end)
+		self.Inspector:Hide()
+	end
+	
 	HideUIPanel(self)
 	
 	self.CreateInspectFrame = nil
@@ -1490,7 +1530,7 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	if not Name then
 		_, _, _, _, _, Name, Realm = GetPlayerInfoByGUID(InspectedUnitGUID)
 	end
-	print('INSPECT_READY', Name, Realm, not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm))
+	
 	if not (IA.CurrentInspectData.Name == Name and IA.CurrentInspectData.Realm == Realm) then
 		return
 	elseif HasInspectHonorData() then
@@ -1572,8 +1612,8 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 									
 									CurrentSetItem[SetName][k] = TooltipText
 								elseif TooltipText:find(Info.Armory_Constants.ItemSetBonusKey) then
-									TooltipText = (E:RGBToHex(_G['InspectArmoryScanTT_ITextLeft'..(i+k)]:GetTextColor()))..TooltipText..'|r'
-									--TooltipText = TooltipText:match("^%((%d)%)%s.+:%s.+$") or true
+									--TooltipText = (E:RGBToHex(_G['InspectArmoryScanTT_ITextLeft'..(i+k)]:GetTextColor()))..TooltipText..'|r'
+									TooltipText = TooltipText:match("^%((%d)%)%s.+:%s.+$") or true
 									
 									if CurrentSetItem[SetName]['SetOption'..SetOptionCount] and CurrentSetItem[SetName]['SetOption'..SetOptionCount] ~= TooltipText then
 										NeedReinspect = true
@@ -1596,7 +1636,21 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	end
 	
 	if IA.CurrentInspectData.SetItem then
+		local SetOptionText
+		
 		for SetName in pairs(IA.CurrentInspectData.SetItem) do
+			for i = 1, 99 do
+				SetOptionText = IA.CurrentInspectData.SetItem[SetName]['SetOption'..i]
+				
+				if SetOptionText then
+					if type(SetOptionText) == 'number' and #IA.CurrentInspectData.SetItem[SetName] < SetOptionText then
+						NeedReinspect = true
+					end
+				else
+					break
+				end
+			end
+			
 			if not CurrentSetItem[SetName] then
 				IA.CurrentInspectData.SetItem[SetName] = nil
 			end
@@ -1614,7 +1668,6 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 		for k = 1, NUM_TALENT_COLUMNS do
 			TalentID, _, _, isSelected = GetTalentInfo(i, k, 1, true, UnitID)
 			
-			print(Name, '/', TalentID, isSelected)
 			TalentID = TalentID or KnightFrame_ArmoryDB[ClientVersion].Specialization[CurrentSpec][((i - 1) * NUM_TALENT_COLUMNS + k)]
 			isSelected = isSelected or false
 			
@@ -1642,7 +1695,6 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	IA.CurrentInspectData.guildEmblem = { GetGuildLogoInfo(UnitID) }
 	
 	if NeedReinspect then
-		NotifyInspect(IA.CurrentInspectData.UnitID)
 		return
 	end
 	
@@ -1651,8 +1703,6 @@ function IA:INSPECT_READY(InspectedUnitGUID)
 	
 	if IA.ReinspectCount > 0 then
 		IA.ReinspectCount = IA.ReinspectCount - 1
-		
-		NotifyInspect(IA.CurrentInspectData.UnitID)
 	else
 		IA:UnregisterEvent('INSPECT_READY')
 	end
@@ -1693,13 +1743,14 @@ IA.InspectUnit = function(UnitID)
 		
 		IA.CurrentInspectData.Realm = IA.CurrentInspectData.Realm ~= '' and IA.CurrentInspectData.Realm ~= Info.MyRealm and IA.CurrentInspectData.Realm or nil
 		
-		IA.ReinspectCount = 1
+		IA.ReinspectCount = 0
 		IA.NeedModelSetting = true
 		IA.ForbidUpdatePvPInformation = true
 		IA:RegisterEvent('INSPECT_READY')
 		IA:RegisterEvent('INSPECT_HONOR_UPDATE')
 		
-		NotifyInspect(IA.CurrentInspectData.UnitID)
+		print(L['KF']..' : '..format(L["Try inspecting %s. Sometimes this work will take few second for waiting server's response."], '|c'..RAID_CLASS_COLORS[IA.CurrentInspectData.Class].colorStr..IA.CurrentInspectData.Name..(IA.CurrentInspectData.Realm and '-'..IA.CurrentInspectData.Realm or '')..'|r')..(UnitID == 'mouseover' and ' '..L['Mouseover Inspect must hold your mouse position until inspect is over.'] or ''))
+		IA.Inspector:Show()
 		
 		return true
 	end
@@ -1728,6 +1779,7 @@ function IA:ShowFrame(DataTable)
 		if not self:InspectFrame_DataSetting(DataTable) then
 			self.Updater:SetScript('OnUpdate', nil)
 			self.Updater:Hide()
+			self.Inspector:Hide()
 			
 			self:InspectFrame_PvPSetting(DataTable)
 			ShowUIPanel(InspectArmory)
@@ -1737,8 +1789,61 @@ end
 
 
 function IA:InspectFrame_DataSetting(DataTable)
-	local Slot, ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
+	local SpecGroup, Slot, ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
 	local ItemCount, ItemTotal = 0, 0
+	
+	do	--<< Specialization Page Setting >>--
+		local TalentID, Name, Color, Texture, SpecRole
+		
+		if DataTable.Specialization.ActiveSpec or next(DataTable.Specialization[2]) then
+			SpecGroup = DataTable.Specialization.ActiveSpec or 1
+			
+			for i = 2, MAX_TALENT_GROUPS do
+				self.Spec['Spec'..i]:Show()
+			end
+		else
+			SpecGroup = 1
+			
+			for i = 2, MAX_TALENT_GROUPS do
+				self.Spec['Spec'..i]:Hide()
+			end
+		end
+		
+		self.SpecIcon:SetTexture('Interface\\ICONS\\INV_Misc_QuestionMark')
+		for groupNum = 1, MAX_TALENT_GROUPS do
+			Color = '|cff808080'
+			
+			Name = nil
+			
+			if DataTable.Specialization[groupNum].SpecializationID and DataTable.Specialization[groupNum].SpecializationID ~= 0 then
+				_, Name, _, Texture = GetSpecializationInfoByID(DataTable.Specialization[groupNum].SpecializationID)
+				
+				if Name then
+					if Info.ClassRole[DataTable.Class][Name] then
+						SpecRole = Info.ClassRole[DataTable.Class][Name].Role
+						
+						if groupNum == SpecGroup then
+							Color = Info.ClassRole[DataTable.Class][Name].Color
+							self.SpecIcon:SetTexture(Texture)
+						end
+						
+						Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
+					else
+						self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again.']
+					end
+				end
+			end
+			
+			if not Name then
+				Texture, SpecRole = 'Interface\\ICONS\\INV_Misc_QuestionMark.blp', nil
+				Name = '|cff808080'..L['No Specialization']
+			end
+			
+			self.Spec['Spec'..groupNum].Tab.text:SetText(Color..Name)
+			self.Spec['Spec'..groupNum].Texture:SetTexture(Texture)
+			self.Spec['Spec'..groupNum].Texture:SetDesaturated(groupNum ~= SpecGroup)
+		end
+	end
 	
 	do	--<< Equipment Slot and Enchant, Gem Setting >>--
 		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
@@ -1782,6 +1887,17 @@ function IA:InspectFrame_DataSetting(DataTable)
 					if Slot.Link then
 						do --<< Gem Parts >>--
 							ItemData = { strsplit(':', Slot.Link) }
+							
+							if DataTable.Specialization[SpecGroup].SpecializationID and DataTable.Specialization[SpecGroup].SpecializationID ~= 0 then
+								ItemData[11] = DataTable.Specialization[SpecGroup].SpecializationID
+								
+								Slot.Link = nil
+								
+								for i = 1, #ItemData do
+									Slot.Link = (Slot.Link and Slot.Link..':' or '')..ItemData[i]
+								end
+							end
+							
 							ItemData[4], ItemData[5], ItemData[6], ItemData[7] = 0, 0, 0, 0
 							
 							for i = 1, #ItemData do
@@ -2125,59 +2241,6 @@ function IA:InspectFrame_DataSetting(DataTable)
 		self:ReArrangeCategory()
 	end
 	
-	do	--<< Specialization Page Setting >>--
-		local SpecGroup, TalentID, Name, Color, Texture, SpecRole
-		
-		if DataTable.Specialization.ActiveSpec or next(DataTable.Specialization[2]) then
-			SpecGroup = DataTable.Specialization.ActiveSpec or 1
-			
-			for i = 2, MAX_TALENT_GROUPS do
-				self.Spec['Spec'..i]:Show()
-			end
-		else
-			SpecGroup = 1
-			
-			for i = 2, MAX_TALENT_GROUPS do
-				self.Spec['Spec'..i]:Hide()
-			end
-		end
-		
-		self.SpecIcon:SetTexture('Interface\\ICONS\\INV_Misc_QuestionMark')
-		for groupNum = 1, MAX_TALENT_GROUPS do
-			Color = '|cff808080'
-			
-			Name = nil
-			
-			if DataTable.Specialization[groupNum].SpecializationID and DataTable.Specialization[groupNum].SpecializationID ~= 0 then
-				_, Name, _, Texture = GetSpecializationInfoByID(DataTable.Specialization[groupNum].SpecializationID)
-				
-				if Name then
-					if Info.ClassRole[DataTable.Class][Name] then
-						SpecRole = Info.ClassRole[DataTable.Class][Name].Role
-						
-						if groupNum == SpecGroup then
-							Color = Info.ClassRole[DataTable.Class][Name].Color
-							self.SpecIcon:SetTexture(Texture)
-						end
-						
-						Name = (SpecRole == 'Tank' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank.tga:16:16:-3:0|t' or SpecRole == 'Healer' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer.tga:16:16:-3:-1|t' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps.tga:16:16:-2:-1|t')..Name
-					else
-						self.Spec.Message = L['Specialization data seems to be crashed. Please inspect again.']
-					end
-				end
-			end
-			
-			if not Name then
-				Texture, SpecRole = 'Interface\\ICONS\\INV_Misc_QuestionMark.blp', nil
-				Name = '|cff808080'..L['No Specialization']
-			end
-			
-			self.Spec['Spec'..groupNum].Tab.text:SetText(Color..Name)
-			self.Spec['Spec'..groupNum].Texture:SetTexture(Texture)
-			self.Spec['Spec'..groupNum].Texture:SetDesaturated(groupNum ~= SpecGroup)
-		end
-	end
-	
 	do	--<< Model and Frame Setting When InspectUnit Changed >>--
 		if DataTable.UnitID and UnitIsVisible(DataTable.UnitID) and self.NeedModelSetting then
 			self.Model:SetUnit(DataTable.UnitID)
@@ -2378,7 +2441,6 @@ function IA:ToggleSpecializationTab(Group, DataTable)
 	
 	for i = 1, MAX_TALENT_TIERS do
 		for k = 1, NUM_TALENT_COLUMNS do
-			print(DataTable.Name, ' / ', DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1])
 			TalentID, Name, Texture = GetTalentInfoByID(DataTable.Specialization[Group]['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)][1], 1)
 			
 			self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Icon.Texture:SetTexture(Texture)

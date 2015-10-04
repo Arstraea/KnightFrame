@@ -1,11 +1,15 @@
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
-local function RegistFilter(Filter, SpellID, Priority)
+local function RegistFilter(Filter, SpellID, Priority, Enable)
 	local SpellName = GetSpellInfo(SpellID)
 	
+	if Enable == nil then
+		Enable = true
+	end
+	
 	if SpellName and G.unitframe.aurafilters[Filter] then
-		G.unitframe.aurafilters[Filter].spells[SpellName] = { enable = true, priority = Priority or 0 }
+		G.unitframe.aurafilters[Filter].spells[SpellName] = { enable = Enable, priority = Priority or 0 }
 	end
 end
 
@@ -206,7 +210,54 @@ do	-- WARLORD OF DRAENORE
 	
 	-- Hellfire Citadel
 		-- Normal Mob
-		RegistFilter('RaidDebuffs', 184587, 1)		-- 필멸의 손길			Touch of Mortality
+		RegistFilter('RaidDebuffs', 184587, 1)			-- 필멸의 손길				Touch of Mortality
+		
+		--Gorefiend
+		RegistFilter('RaidDebuffs', 181295, 2)			-- 소화							Digest
+		RegistFilter('RaidDebuffs', 179977, 3)			-- 파멸의 손길				Touch of Doom
+		RegistFilter('RaidDebuffs', 179864, 1)			-- 죽음의 그림자			Shadow of Death
+		RegistFilter('RaidDebuffs', 179909, 1)			-- 이어진 운명				Shared Fate (self root)
+		RegistFilter('RaidDebuffs', 179908, 1)			-- 이어진 운명				Shared Fate (other players root)
+		
+		-- Shadow-Lord Iskar
+		RegistFilter('RaidDebuffs', 181957, 5)			-- 실체없는 바람			Phantasmal Winds
+		RegistFilter('RaidDebuffs', 182200, 2)			-- 지옥 회전 표창			Fel Chakram
+		RegistFilter('RaidDebuffs', 182178, 2)			-- 지옥 회전 표창			Fel Chakram
+		RegistFilter('RaidDebuffs', 182325, 3)			-- 실체없는 상처			Phantasmal Wounds
+		RegistFilter('RaidDebuffs', 185510, 4)			-- 어둠의 결속				Dark Bindings
+		RegistFilter('RaidDebuffs', 182600, 1)			-- 지옥 불꽃					Fel Fire
+		RegistFilter('RaidDebuffs', 179219, 4)			-- 실체없는 지옥 폭탄	Phantasmal Fel Bomb
+		RegistFilter('RaidDebuffs', 181753, 5)			-- 지옥 폭탄					Fel Bomb
+		
+		-- Soulbound Construct (Socrethar)
+		RegistFilter('RaidDebuffs', 182038, 1)			-- 으스러진 방어			Shattered Defenses
+		RegistFilter('RaidDebuffs', 188666, 3)			-- 끝없는 굶주림			Eternal Hunger (Add fixate, Mythic only)
+		
+		-- Tyrant Velhari
+		RegistFilter('RaidDebuffs', 185241, 2)			-- 규탄의 칙령				Edict of Condemnation
+		RegistFilter('RaidDebuffs', 180526, 1)			-- 타락의 샘					Font of Corruption
+		
+		-- Fel Lord Zakuun
+		RegistFilter('RaidDebuffs', 181508, 3)			-- 파괴의 씨앗				Seed of Destruction
+		RegistFilter('RaidDebuffs', 181653, 0, false)	-- 지옥 수정					Fel Crystals (Too Close)
+		RegistFilter('RaidDebuffs', 182008, 1)			-- 잠재적 마력				Latent Energy (Cannot soak)
+		RegistFilter('RaidDebuffs', 189030, 2)			-- 오염물						Befouled
+		
+		-- Xhul' horac
+		RegistFilter('RaidDebuffs', 185656, 3)			-- 어둠지옥 파멸			Shadowfel Annihilation
+		RegistFilter('RaidDebuffs', 186407, 4)			-- 지옥의 쇄도				Fel Surge
+		RegistFilter('RaidDebuffs', 186333, 4)			-- 공허의 쇄도				Void Surge
+		RegistFilter('RaidDebuffs', 186500, 5)			-- 지옥의 사슬				Chains of Fel
+		
+		-- Archimonde
+		RegistFilter('RaidDebuffs', 184964, 6)			-- 구속된 고통				Shackled Torment
+		RegistFilter('RaidDebuffs', 186123, 3)			-- 불러일으킨 혼돈		Wrought Chaos
+		RegistFilter('RaidDebuffs', 185014, 3)			-- 집중된 혼돈				Focused Chaos
+		RegistFilter('RaidDebuffs', 186952, 2)			-- 황천 추방					Nether Banish
+		RegistFilter('RaidDebuffs', 186961, 2)			-- 황천 추방					Nether Banish
+		RegistFilter('RaidDebuffs', 189891, 2)			-- 황천 가르기				Nether Tear
+		RegistFilter('RaidDebuffs', 183634, 4)			-- 어둠지옥 폭발			Shadowfel Burst
+		RegistFilter('RaidDebuffs', 189895, 5)			-- 공허의 별 시선고정	Void Star Fixate
 end
 
 

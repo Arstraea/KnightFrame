@@ -104,6 +104,10 @@ do	-- Modules
 		L['Not Enchanted'] = '마부하지 않음'
 		L['Empty Socket'] = '개의 빈 소켓'
 		L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다.'
+		
+		L["Try inspecting %s. Sometimes this work will take few second for waiting server's response."] = '%s 유저를 살펴봅니다. 서버의 응답을 기다리느라 시간이 조금 걸릴 수도 있습니다.'
+		L['Mouseover Inspect must hold your mouse position until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
+		L['Inspect is canceled because target was changed or lost.'] = '살펴보던 대상이 바뀌거나 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
 	end
 	
 	
@@ -202,10 +206,7 @@ end
 
 do	--Print Message
 	L["You can't inspect while dead."] = '죽은 상태에선 살펴보기를 할 수 없습니다.'
-	L[" Inspect. Sometimes this work will take few second by waiting server's response."] = ' 유저를 살펴봅니다. 서버의 응답을 기다리느라 시간이 조금 걸릴 수도 있습니다.'
-	L['Mouseover Inspect needs to freeze mouse moving until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
-	L['Mouseover Inspect is canceled because cursor left user to inspect.'] = '마우스가 살펴보던 마우스오버 대상에게서 이탈하여 |cffff5675살펴보기가 취소되었습니다|r.'
-	L['Inspect is canceled because target was lost or changed.'] = '타겟을 전환했거나 살펴보던 대상이 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
+	
 	
 	
 	L['Reset skills that have a cool time more than 5 minutes'] = '5분 이상 쿨타임을 가진 스킬의 쿨타임바를 리셋합니다.'

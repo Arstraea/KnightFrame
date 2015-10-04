@@ -1,8 +1,8 @@
 <Bindings>
-  	<Binding name="InspectMouseover" header="KnightFrame" runOnUp="true">
-		InspectUnit('mouseover', { CancelInspectByManual = 'KnightInspect' });
+  	<Binding name="InspectMouseover" header="KnightFrame">
+		InspectUnit('mouseover');
   	</Binding>
-	<Binding name="SpecSwitch" header="KnightFrame" runOnUp="true">
+	<Binding name="SpecSwitch" header="KnightFrame">
 		if GetNumSpecGroups() > 1 then
 			SetActiveSpecGroup(GetActiveSpecGroup() == 1 and 2 or 1)
 		end
