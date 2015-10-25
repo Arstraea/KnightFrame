@@ -108,11 +108,13 @@ do	-- Modules
 		L["Try inspecting %s. Sometimes this work will take few second for waiting server's response."] = '%s 유저를 살펴봅니다. 서버의 응답을 기다리느라 시간이 조금 걸릴 수도 있습니다.'
 		L['Mouseover Inspect must hold your mouse position until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
 		L['Inspect is canceled because target was changed or lost.'] = '살펴보던 대상이 바뀌거나 사라져 |cffff5675살펴보기가 취소되었습니다|r.'
+		L["You can't inspect while dead."] = '죽은 상태에선 살펴보기를 할 수 없습니다.'
 	end
 	
 	
 	do	-- Secretary
-		L['Notice'] = '알림'
+		L['Alarm'] = '알림'
+		L['Hide Objectiveframe because of entering boss battle.'] = '보스와의 전투를 감지하여 임무창을 숨깁니다.'
 	end
 	
 	
@@ -166,11 +168,6 @@ do	-- Modules
 	end
 	
 	
-	do	-- BossEngage
-		L['Hide Objectiveframe because of entering boss battle.'] = '보스와의 전투를 감지하여 임무창을 숨깁니다.'
-	end
-	
-	
 	do	-- in MISC
 		do	-- Calculator
 			L['Command_Calculator'] = { 'rPtks', '계산' }
@@ -204,61 +201,8 @@ do	--Frame Name
 	L['KnightInspectFrame'] = '살펴보기 창'
 end
 
-do	--Print Message
-	L["You can't inspect while dead."] = '죽은 상태에선 살펴보기를 할 수 없습니다.'
-	
-	
-	
-	L['Reset skills that have a cool time more than 5 minutes'] = '5분 이상 쿨타임을 가진 스킬의 쿨타임바를 리셋합니다.'
-	L['Could not find the private channel been stored for the announcement. Channel setting will be chaged to the default.'] = '쿨타임 종료 알림을 위해 지정했었던던 채널을 찾을 수 없습니다. 기본값으로 변경합니다.'
-	L["%s's %s is available!!"] = '%s 님의 %s 재사용 가능!!'
-end
-
-
 do	--Datatexts
 	L['Friends'] = '친구'
-end
-
-
-do	--Extra Function
-	L['Extra Functions'] = '추가 기능'
-
-	--<< Tracker >>--
-	
-	
-	
-	L['Increase Magic Damage Taken'] = '마법피해 증가'
-	L['Weakened Armor'] = '방어도 감소'
-	L['Physical Vulnerability'] = '물리피해 증가'
-	L['Weakened Blows'] = '물리공격력 감소'
-	L['Slow Spell Casting'] = '시전시간 증가'
-	L['Mortal Wonds'] = '받는치유량 감소'
-	
-	
-	
-	
-	
-	
-	
-	L['Shale Spiders'] = '혈암거미'..Exotic
-	
-	L['Dragonhawks'] = '용매'
-	
-	
-	
-	
-	L['Rhinos'] = '코뿔소'..Exotic
-	
-	L['Foxes'] = '여우'
-	
-	
-	
-		
-	--<< RaidCooldown >>--
-	
-	L['Inspect All Members.'] = '파티원 세팅 검사'
-	
-	
 end
 ]]
 

@@ -113,10 +113,9 @@ KF_Config.Options.args.SmartTracker = {
 						},
 						ScanWhenReadyCheck = {
 							type = 'toggle',
-							name = function() return ' '..Color()..L['Update all when ready check.'] end,
+							name = function() return ' '..Color()..L['Update when ready check'] end,
 							order = 3,
-							desc = '',
-							descStyle = 'inline',
+							desc = L['When leader check ready then update all members setting again.']
 						}
 					}
 				},

@@ -215,6 +215,7 @@ do	-- WARLORD OF DRAENORE
 		--Gorefiend
 		RegistFilter('RaidDebuffs', 181295, 2)			-- 소화							Digest
 		RegistFilter('RaidDebuffs', 179977, 3)			-- 파멸의 손길				Touch of Doom
+		RegistFilter('RaidDebuffs', 186770, 4)			-- 영혼의 웅덩이			Pool of Souls
 		RegistFilter('RaidDebuffs', 179864, 1)			-- 죽음의 그림자			Shadow of Death
 		RegistFilter('RaidDebuffs', 179909, 1)			-- 이어진 운명				Shared Fate (self root)
 		RegistFilter('RaidDebuffs', 179908, 1)			-- 이어진 운명				Shared Fate (other players root)

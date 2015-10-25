@@ -9,9 +9,8 @@
 	<Include file="SwitchEquipment\Load_SwitchEquipment.xml"/>
 	<Include file="SynergyIndicator\Load_SynergyIndicator.xml"/>
 	
-	<Include file="Secretary\Load_Secretary.xml"/>
 	<Include file="EmbedMeter\Load_EmbedMeter.xml"/>
+	<Include file="Secretary\Load_Secretary.xml"/>
 	
-	<Include file="BossEngage\Load_BossEngage.xml"/>
 	<Include file="Misc\Load_Misc.xml"/>
 </Ui>

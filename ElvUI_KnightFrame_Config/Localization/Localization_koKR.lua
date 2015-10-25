@@ -11,6 +11,8 @@ do	--General
 	L['Re-Install KnightFrame'] = '나이트프레임 재설치'
 	L['Check PatchNote'] = '패치노트 확인'
 	
+	L['Reset'] = '초기화'
+	L['Delete'] = '삭제'
 	L['Select'] = '선택'
 	L['Please Select'] = '선택하세요'
 	L['Create new one'] = '새로만들기'
@@ -113,6 +115,9 @@ do	-- Modules
 				L["SmartTracker will check new member of groups automatically."] = '구성원이 새로 합류해 해당 유저의 데이터가 없으면 자동으로 캐릭터 세팅을 검사합니다.'
 			L['Update old data'] = '기존 파티원 재검사'
 				L["After new member's scanning, scan old member's setting for updating."] = '새로운 멤버의 검사가 끝난 후, 세팅 업데이트를 위해 기존 멤버들을 재검사합니다.'
+			L['Update when ready check'] = '전준시 재검사'
+				L['When leader check ready then update all members setting again.'] = '전투준비를 했을 때 모든 유저의 데이터를 재검사합니다.'
+				
 		
 		-- Sort Order
 		L['Sort Order'] = '정렬 방법'
@@ -210,7 +215,20 @@ do	-- Modules
 	end
 	
 	do -- Secretary
-	
+		L['Secretary'] = '비서 기능'
+			-- Alarm
+			L['This function will notice you when specific events was happened.'] = '알람기능은 사용자가 원하는 상황일 때에 설정한 방법으로 알려줍니다.'
+			L['Alarm Method'] = '알람 방법'
+				L['Blink Client'] = '창 깜박이기'
+					L['Blink wow client in system tray when you minimized and event happen.'] = '와우를 최소화한 상태에서 이벤트가 발생하면 시작줄에 깜박이게 합니다.'
+				L['TurnOn Sound'] = '사운드 켜기'
+					L["Turn on sounds when you turn off wow's sound and event happen."] = '와우소리를 끈 상태에서 이벤트가 발생하면 소리를 켜 알립니다.'
+			
+			L['ToggleObjectiveFrame'] = '임무창 자동숨김'
+			L['This function will toggle objective frame automatically in specific situation.'] = '이 기능은 특정한 상황에 돌입했을 때 임무창을 자동으로 숨겨줍니다.'
+		
+		L['Event to Alarm'] = '알릴 이벤트'
+			L['Contents Queue'] = '컨텐츠 입장확인'
 	end
 	
 	do -- SynergyIndicator
@@ -250,6 +268,7 @@ do	-- Modules
 	
 	L['Bank Open'] = '은행에서 가방 자동열기'
 	
+	--[[
 	L['RaidCooldown'] = '레이드쿨다운'
 	
 	--General
@@ -315,4 +334,5 @@ do	-- Modules
 		
 		L['Spell ID'] = '주문ID'
 		L['Required'] = '필수입력'
+	]]
 end

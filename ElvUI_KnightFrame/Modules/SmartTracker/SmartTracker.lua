@@ -583,7 +583,7 @@ do	--<< About Bar's Layout and Appearance >>--
 		local Window = self:GetParent()
 		
 		if self.Data.FrameType == 'NamePlate' then
-			if ST.InspectCache[UserGUID] and ST.CooldownCache[UserGUID].Spec ~= ST.InspectCache[UserGUID].Spec then
+			if ST.InspectCache[UserGUID] and ST.CooldownCache[UserGUID] and ST.CooldownCache[UserGUID].Spec ~= ST.InspectCache[UserGUID].Spec then
 				ST.CooldownCache[UserGUID].Spec = ST.InspectCache[UserGUID].Spec
 				
 				self.Data.SettingComplete = nil
@@ -2646,6 +2646,9 @@ do	--<< Inspect System >>--
 			
 			Spec = GetInspectSpecialization(UserName)
 			ST.InspectCache[UserGUID].Spec = Spec and Spec > 0 and select(2, GetSpecializationInfoByID(Spec)) or nil
+			
+			--local a, b for i = 1, MAX_TALENT_TIERS do for k = 1, NUM_TALENT_COLUMNS do a, _, _, b = GetTalentInfo(i, k, 1) if b then print(a) end end end
+			
 			
 			for i = 1, MAX_TALENT_TIERS do
 				for k = 1, NUM_TALENT_COLUMNS do

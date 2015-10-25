@@ -3,5 +3,22 @@ local KF, Info, Timer = unpack(select(2, ...))
 
 KF.db.Modules.Secretary = {
 	Enable = true,
-	NoticeProposal = true
+	
+	Alarm = {
+		Enable = true,
+		
+		AlarmMethod = {
+			Blink = true,
+			Sound = true
+		},
+		
+		Event = {
+			ContentsQueue = true,
+			ReadyCheck = true
+		}
+	},
+	
+	ToggleObjectiveFrame = {
+		Enable = true
+	}
 }

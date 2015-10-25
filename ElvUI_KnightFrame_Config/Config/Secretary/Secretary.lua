@@ -1,133 +1,225 @@
 ﻿local E, L, V, P, G = unpack(ElvUI)
-local KF, Info, Update = unpack(ElvUI_KnightFrame)
+local KF, Info, Timer = unpack(ElvUI_KnightFrame)
+local KF_Config = E:GetModule('KnightFrame_Config')
 
---[[
-if not KF then return
-elseif KF.UIParent then
-	local Value = {}
-	--------------------------------------------------------------------------------
-	--<< KnightFrame : Secretary - Notice proposal								>>--
-	--------------------------------------------------------------------------------
-	local SoundOff
-	local function NoticeProposal_TurnOnSound(Sound)
-		if GetCVar('Sound_EnableAllSound') == '0' then
-			SoundOff = true
-			SetCVar('Sound_EnableAllSound', '1')
-			
-			if Sound:find('\\') then
-				PlaySoundFile(Sound)
-			else
-				PlaySound(Sound)
-			end
-		end
-	end
-	
-	
-	local function NoticeProposal_TurnOffSound()
-		if SoundOff then
-			SetCVar('Sound_EnableAllSound', '0')
-			SoundOff = nil
-		end
-	end
-	
-	
-	local function NoticeProposal(EventName, ...)
-		if KF.db.Extra_Functions.Secretary.NoticeProposal then
-			if EventName == 'LFG_PROPOSAL_SHOW' then
-				NoticeProposal_TurnOnSound('ReadyCheck')
-			elseif EventName == 'LFG_PROPOSAL_SUCCEEDED' or EventName == 'LFG_PROPOSAL_FAILED' then
-				NoticeProposal_TurnOffSound()
-			elseif EventName == 'UPDATE_BATTLEFIELD_STATUS' then
-				local BattleField_Status = GetBattlefieldStatus(...)
-				
-				if BattleField_Status == 'confirm' and not Value['BattleField_Status'] then
-					Value['BattleField_Stauts'] = BattleField_Status
-					NoticeProposal_TurnOnSound('PVPTHROUGHQUEUE')	
-				elseif BattleField_Status == 'none' or BattleField_Status == 'active' then
-					Value['BattleField_Status'] = nil
-					NoticeProposal_TurnOffSound()
-				end
-			end			
-		end
-	end
-	KF:RegisterEventList('LFG_PROPOSAL_SHOW', NoticeProposal, 'Secretary_NoticeProposal')
-	KF:RegisterEventList('LFG_PROPOSAL_SUCCEEDED', NoticeProposal, 'Secretary_NoticeProposal')
-	KF:RegisterEventList('LFG_PROPOSAL_FAILED', NoticeProposal, 'Secretary_NoticeProposal')
-	KF:RegisterEventList('UPDATE_BATTLEFIELD_STATUS', NoticeProposal, 'Secretary_NoticeProposal')
-	
-	
-	--<< Create Check Button >>--
-	for i = 1, 2 do
-		KF:CreateWidget_CheckButton('KF_NoticeProposalButton_'..i, L['Notice'])
-		if KF.db.Extra_Functions.Secretary.NoticeProposal == false then
-			_G['KF_NoticeProposalButton_'..i].CheckButton:Hide()
-		end
-		
-		_G['KF_NoticeProposalButton_'..i]:SetScript('OnClick', function(self)
-			if KF.db.Extra_Functions.Secretary.NoticeProposal == true then
-				KF.db.Extra_Functions.Secretary.NoticeProposal = false
-				self.CheckButton:Hide()
-			else
-				KF.db.Extra_Functions.Secretary.NoticeProposal = true
-				self.CheckButton:Show()
-			end
-		end)
-		_G['KF_NoticeProposalButton_'..i]:SetScript('OnShow', function(self)
-			if KF.db.Extra_Functions.Secretary.NoticeProposal == true then
-				self.CheckButton:Show()
-			else
-				self.CheckButton:Hide()
-			end
-		end)
-	end
-	KF_NoticeProposalButton_2:SetParent(LFDRoleCheckPopup)	
-	KF_NoticeProposalButton_2:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 53)
-	
-	
-	local function NoticeProposal_ButtonSetting(frame)
-		if GetCVar('Sound_EnableAllSound') == '0' then
-			KF_NoticeProposalButton_1:Show()
-			KF_NoticeProposalButton_1:SetParent(frame)
-			KF_NoticeProposalButton_1:ClearAllPoints()
-			
-			if frame:GetName() == 'HonorFrame' then
-				KF_NoticeProposalButton_1:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', -216, -1)
-			elseif frame:GetName() == 'ConquestFrame' then
-				KF_NoticeProposalButton_1:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', -105, 3)
-			else
-				KF_NoticeProposalButton_1:Point('BOTTOMLEFT', frame, 'BOTTOMRIGHT', -95, 3)
-			end
-		else
-			KF_NoticeProposalButton_1:Hide()
-		end
-	end
-	LFDQueueFrame:HookScript('OnShow', NoticeProposal_ButtonSetting)
-	RaidFinderFrame:HookScript('OnShow', NoticeProposal_ButtonSetting)
-	ScenarioQueueFrame:HookScript('OnShow', NoticeProposal_ButtonSetting)
-	
-	
-	KF:RegisterEventList('ADDON_LOADED', function(_, AddOnName)
-		if AddOnName == 'Blizzard_PVPUI' then
-			HonorFrame:HookScript('OnShow', NoticeProposal_ButtonSetting)
-			ConquestFrame:HookScript('OnShow', NoticeProposal_ButtonSetting)
-			
-			KF:UnregisterEventList('ADDON_LOADED', 'Secretary_NoticeProposal')
-		end
-	end, 'Secretary_NoticeProposal')
-	
-	
-	LFDRoleCheckPopup:HookScript('OnShow', function()
-		if GetCVar('Sound_EnableAllSound') == '0' then
-			KF_NoticeProposalButton_2:Show()
-			
-			LFDRoleCheckPopup:SetHeight(200)
-			LFDRoleCheckPopupDescription:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 77)
-		else
-			KF_NoticeProposalButton_2:Hide()
-			
-			LFDRoleCheckPopup:SetHeight(180)
-			LFDRoleCheckPopupDescription:Point('CENTER', LFDRoleCheckPopup, 'BOTTOM', 0, 57)
-		end
-	end)
+if not (KF and KF.Modules and KF.Modules.Secretary and KF_Config) then return end
+
+--------------------------------------------------------------------------------
+--<< KnightFrame : Secretary OptionTable									>>--
+--------------------------------------------------------------------------------
+local SC = KnightFrame_Secretary
+
+
+local function Color(TrueColor, FalseColor)
+	return KF.db.Enable ~= false and KF.db.Modules.Secretary.Enable ~= false and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
 end
-]]
+
+local function Alarm_Color(TrueColor, FalseColor)
+	return KF.db.Enable ~= false and KF.db.Modules.Secretary.Enable ~= false and KF.db.Modules.Secretary.Alarm.Enable ~= false and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
+end
+
+
+
+KF_Config.OptionsCategoryCount = KF_Config.OptionsCategoryCount + 1
+local OptionIndex = KF_Config.OptionsCategoryCount
+KF_Config.Options.args.Secretary = {
+	type = 'group',
+	name = function() return '|cffffffff'..OptionIndex..'. '..KF:Color_Value(L['Secretary']) end,
+	order = 100 + OptionIndex,
+	disabled = function() return KF.db.Enable == false end,
+	childGroups = 'tab',
+	args = {
+		Enable = {
+			type = 'toggle',
+			name = function() return ' '..(KF.db.Enable ~= false and '|cffffffff' or '')..L['Enable']..' : '..(KF.db.Enable ~= false and KF:Color_Value() or '')..L['Secretary'] end,
+			order = 1,
+			desc = '',
+			descStyle = 'inline',
+			get = function() return KF.db.Modules.Secretary.Enable end,
+			set = function(_, value)
+				KF.db.Modules.Secretary.Enable = value
+				
+				KF.Modules.Secretary()
+			end,
+			width = 'full',
+		},
+		Alarm = {
+			type = 'group',
+			name = function() return Color('', 'ff787878')..L['Alarm'] end,
+			order = 100,
+			get = function(info) return KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] end,
+			set = function(info, value)
+				KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] = value
+			end,
+			args = {
+				Space = {
+					type = 'description',
+					name = ' ',
+					order = 1
+				},
+				Enable = {
+					type = 'toggle',
+					name = function() return ' '..Color('ffffffff', 'ff787878')..L['Enable']..' : '..Color(nil, 'ff787878')..L['Alarm'] end,
+					order = 2,
+					desc = function()
+						return Color('ffcccccc', 'ff787878')..L['This function will notice you when specific events was happened.']
+					end,
+					descStyle = 'inline',
+					get = function() return KF.db.Modules.Secretary.Alarm.Enable end,
+					set = function(_, value)
+						KF.db.Modules.Secretary.Alarm.Enable = value
+						
+						KF.Modules.Secretary()
+					end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.Secretary.Enable == false end,
+					width = 'full'
+				},
+				Space1 = {
+					type = 'description',
+					name = ' ',
+					order = 3
+				},
+				AlarmMethod = {
+					type = 'group',
+					name = function() return Alarm_Color('ffffffff', 'ff787878')..L['Alarm Method'] end,
+					order = 4,
+					guiInline = true,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.Secretary.Enable == false or KF.db.Modules.Secretary.Alarm.Enable == false end,
+					args = {
+						Blink = {
+							type = 'toggle',
+							name = function() return ' '..Alarm_Color(nil, 'ff787878')..L['Blink Client'] end,
+							order = 1,
+							desc = function()
+								return Alarm_Color('ffcccccc', 'ff787878')..L['Blink wow client in system tray when you minimized and event happen.']
+							end,
+							descStyle = 'inline',
+							width = 'full'
+						},
+						Sound = {
+							type = 'toggle',
+							name = function() return ' '..Alarm_Color(nil, 'ff787878')..L['TurnOn Sound'] end,
+							order = 2,
+							desc = function()
+								return Alarm_Color('ffcccccc', 'ff787878')..L["Turn on sounds when you turn off wow's sound and event happen."]
+							end,
+							descStyle = 'inline',
+							width = 'full'
+						}
+					}
+				},
+				Space2 = {
+					type = 'description',
+					name = ' ',
+					order = 5
+				},
+				Event = {
+					type = 'group',
+					name = function() return Alarm_Color('ffffffff', 'ff787878')..L['Event to Alarm'] end,
+					order = 6,
+					guiInline = true,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.Secretary.Enable == false or KF.db.Modules.Secretary.Alarm.Enable == false end,
+					args = {
+						ContentsQueue = {
+							type = 'toggle',
+							name = function() return ' '..Alarm_Color(nil, 'ff787878')..L['Contents Queue'] end,
+							order = 1,
+							desc = '',
+							descStyle = 'inline',
+							set = function(info, value)
+								KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] = value
+								
+								if KF.db.Modules.Secretary.Alarm.Event.ReadyCheck then
+									SC:RegisterEvent('LFG_PROPOSAL_SHOW')
+									SC:RegisterEvent('LFG_PROPOSAL_SUCCEEDED')
+									SC:RegisterEvent('LFG_PROPOSAL_FAILED')
+									SC:RegisterEvent('UPDATE_BATTLEFIELD_STATUS')
+									KF:RegisterEventList('LFG_ROLE_CHECK_SHOW', SC.Alarm_PopupSetting, 'Alarm_Initialize')
+								else
+									SC:UnregisterEvent('LFG_PROPOSAL_SHOW')
+									SC:UnregisterEvent('LFG_PROPOSAL_SUCCEEDED')
+									SC:UnregisterEvent('LFG_PROPOSAL_FAILED')
+									SC:UnregisterEvent('UPDATE_BATTLEFIELD_STATUS')
+									KF:UnregisterEventList('LFG_ROLE_CHECK_SHOW', 'Alarm_Initialize')
+								end
+							end
+						},
+						ReadyCheck = {
+							type = 'toggle',
+							name = function() return ' '..Alarm_Color(nil, 'ff787878')..READY_CHECK end,
+							order = 2,
+							desc = '',
+							descStyle = 'inline',
+							set = function(info, value)
+								KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] = value
+								
+								if KF.db.Modules.Secretary.Alarm.Event.ReadyCheck then
+									SC:RegisterEvent('READY_CHECK')
+									SC:RegisterEvent('READY_CHECK_CONFIRM')
+									SC:RegisterEvent('READY_CHECK_FINISHED')
+								else
+									SC:UnregisterEvent('READY_CHECK')
+									SC:UnregisterEvent('READY_CHECK_CONFIRM')
+									SC:UnregisterEvent('READY_CHECK_FINISHED')
+								end
+							end
+						}
+					}
+				},
+				CreditSpace = {
+					type = 'description',
+					name = ' ',
+					order = 998
+				},
+				Credit = {
+					type = 'header',
+					name = KF_Config.Credit,
+					order = 999
+				}
+			}
+		},
+		ToggleObjectiveFrame = {
+			type = 'group',
+			name = function() return Color('', 'ff787878')..L['ToggleObjectiveFrame'] end,
+			order = 200,
+			get = function(info) return KF.db.Modules.Secretary.ToggleObjectiveFrame[(info[#info - 1])][(info[#info])] end,
+			set = function(info, value)
+				KF.db.Modules.Secretary.ToggleObjectiveFrame[(info[#info - 1])][(info[#info])] = value
+			end,
+			args = {
+				Space = {
+					type = 'description',
+					name = ' ',
+					order = 1
+				},
+				Enable = {
+					type = 'toggle',
+					name = function() return ' '..Color('ffffffff', 'ff787878')..L['Enable']..' : '..Color(nil, 'ff787878')..L['ToggleObjectiveFrame'] end,
+					order = 2,
+					desc = function()
+						return Color('ffcccccc', 'ff787878')..L['This function will toggle objective frame automatically in specific situation.']
+					end,
+					descStyle = 'inline',
+					get = function() return KF.db.Modules.Secretary.ToggleObjectiveFrame.Enable end,
+					set = function(_, value)
+						KF.db.Modules.Secretary.ToggleObjectiveFrame.Enable = value
+						
+						KF.Modules.Secretary()
+					end,
+					disabled = function() return KF.db.Enable == false or KF.db.Modules.Secretary.Enable == false end,
+					width = 'full'
+				},
+				CreditSpace = {
+					type = 'description',
+					name = ' ',
+					order = 998
+				},
+				Credit = {
+					type = 'header',
+					name = KF_Config.Credit,
+					order = 999
+				}
+			}
+		}
+	}
+}
