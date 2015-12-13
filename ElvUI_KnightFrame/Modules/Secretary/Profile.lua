@@ -14,7 +14,8 @@ KF.db.Modules.Secretary = {
 		
 		Event = {
 			ContentsQueue = true,
-			ReadyCheck = true
+			ReadyCheck = true,
+			Summon = true
 		}
 	},
 	

@@ -21,7 +21,9 @@ local GLYPH_SLOT_HEIGHT = 22
 local HeadSlotItem = 99568
 local BackSlotItem = 102246
 local InspectorInterval = 0.25
+
 local Default_InspectUnit
+local Default_InspectFrame
 
 --<< Key Table >>--
 IA.PageList = { Character = 'CHARACTER', Info = 'INFO', Spec = 'TALENTS' }
@@ -1846,7 +1848,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 	end
 	
 	do	--<< Equipment Slot and Enchant, Gem Setting >>--
-		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
+		local ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture, CurrentLineText, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount
 		
 		-- Setting except shirt and tabard
 		for _, SlotName in pairs(type(self.GearUpdated) == 'table' and self.GearUpdated or Info.Armory_Constants.GearList) do
@@ -1855,7 +1857,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 			
 			if SlotName ~= 'ShirtSlot' and SlotName ~= 'TabardSlot' then
 				do --<< Clear Setting >>--
-					NeedUpdate, TrueItemLevel, ItemUpgradeID, ItemType = nil, nil, nil, nil
+					NeedUpdate, TrueItemLevel, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType = nil, nil, nil, nil, nil, nil
 					
 					Slot.Link = nil
 					Slot.ILvL = nil
@@ -2012,6 +2014,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 								end
 								
 								Slot.IsEnchanted = true
+							elseif ITEM_UPGRADE_TOOLTIP_FORMAT and CurrentLineText:find(ITEM_UPGRADE_TOOLTIP_FORMAT) then
+								CurrentUpgrade, MaxUpgrade = CurrentLineText:match(Info.Armory_Constants.ItemUpgradeKey)
 							end
 						end
 						
@@ -2020,8 +2024,10 @@ function IA:InspectFrame_DataSetting(DataTable)
 							if ItemUpgradeID then
 								if ItemUpgradeID == '0' or not KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel and ItemRarity == 7 then
 									ItemUpgradeID = nil
-								else
+								elseif CurrentUpgrade or MaxUpgrade then
 									ItemUpgradeID = TrueItemLevel - BasicItemLevel
+								else
+									ItemUpgradeID = nil
 								end
 							end
 							
@@ -2593,6 +2599,7 @@ KF.Modules[#KF.Modules + 1] = 'InspectArmory'
 KF.Modules.InspectArmory = function(RemoveOrder)
 	if not RemoveOrder and KF.db.Enable ~= false and KF.db.Modules.Armory and KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable ~= false and not Info.InspectArmory_Activate then
 		Default_InspectUnit = InspectUnit
+		Default_InspectFrame = _G.InspectFrame
 		
 		if IA.CreateInspectFrame then
 			IA:CreateInspectFrame()
@@ -2600,10 +2607,12 @@ KF.Modules.InspectArmory = function(RemoveOrder)
 		IA:Update_BG()
 		
 		InspectUnit = IA.InspectUnit
+		InspectFrame = IA.Inspector
 		
 		Info.InspectArmory_Activate = true
 	elseif Info.InspectArmory_Activate then
 		InspectUnit = Default_InspectUnit
+		InspectFrame = Default_InspectFrame
 		
 		Info.InspectArmory_Activate = nil
 	end

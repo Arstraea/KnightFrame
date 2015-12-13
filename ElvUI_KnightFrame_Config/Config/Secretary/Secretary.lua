@@ -127,9 +127,9 @@ KF_Config.Options.args.Secretary = {
 							desc = '',
 							descStyle = 'inline',
 							set = function(info, value)
-								KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] = value
+								KF.db.Modules.Secretary.Alarm.Event.ContentsQueue = value
 								
-								if KF.db.Modules.Secretary.Alarm.Event.ReadyCheck then
+								if KF.db.Modules.Secretary.Alarm.Event.ContentsQueue then
 									SC:RegisterEvent('LFG_PROPOSAL_SHOW')
 									SC:RegisterEvent('LFG_PROPOSAL_SUCCEEDED')
 									SC:RegisterEvent('LFG_PROPOSAL_FAILED')
@@ -150,8 +150,8 @@ KF_Config.Options.args.Secretary = {
 							order = 2,
 							desc = '',
 							descStyle = 'inline',
-							set = function(info, value)
-								KF.db.Modules.Secretary.Alarm[(info[#info - 1])][(info[#info])] = value
+							set = function(_, value)
+								KF.db.Modules.Secretary.Alarm.Event.ReadyCheck = value
 								
 								if KF.db.Modules.Secretary.Alarm.Event.ReadyCheck then
 									SC:RegisterEvent('READY_CHECK')
@@ -161,6 +161,24 @@ KF_Config.Options.args.Secretary = {
 									SC:UnregisterEvent('READY_CHECK')
 									SC:UnregisterEvent('READY_CHECK_CONFIRM')
 									SC:UnregisterEvent('READY_CHECK_FINISHED')
+								end
+							end
+						},
+						Summon = {
+							type = 'toggle',
+							name = function() return ' '..Alarm_Color(nil, 'ff787878')..SUMMON end,
+							order = 3,
+							desc = '',
+							descStyle = 'inline',
+							set = function(_, value)
+								KF.db.Modules.Secretary.Alarm.Event.Summon = value
+								
+								if KF.db.Modules.Secretary.Alarm.Event.Summon then
+									SC:RegisterEvent('CONFIRM_SUMMON')
+									SC:RegisterEvent('CANCEL_SUMMON')
+								else
+									SC:UnregisterEvent('CONFIRM_SUMMON')
+									SC:UnregisterEvent('CANCEL_SUMMON')
 								end
 							end
 						}

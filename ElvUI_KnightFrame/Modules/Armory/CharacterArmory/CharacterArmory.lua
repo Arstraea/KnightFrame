@@ -454,7 +454,7 @@ function CA:Update_Gear()
 	if Prof2 and Info.Armory_Constants.ProfessionList[Prof2] then self.PlayerProfession[(Info.Armory_Constants.ProfessionList[Prof2].Key)] = Prof2_Level end
 	]]
 	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
-	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, ItemType, ItemTexture, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
+	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
 	
 	for _, SlotName in pairs(type(self.GearUpdated) == 'table' and self.GearUpdated or Info.Armory_Constants.GearList) do
 		Slot = self[SlotName]
@@ -463,7 +463,7 @@ function CA:Update_Gear()
 		
 		if not (SlotName == 'ShirtSlot' or SlotName == 'TabardSlot') then
 			do --<< Clear Setting >>--
-				NeedUpdate, TrueItemLevel, UsableEffect, ItemUpgradeID, ItemType, ItemTexture = nil, nil, nil, nil, nil, nil
+				NeedUpdate, TrueItemLevel, UsableEffect, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture = nil, nil, nil, nil, nil, nil, nil, nil
 				
 				Slot.ItemLevel:SetText(nil)
 				Slot.IsEnchanted = nil
@@ -608,8 +608,10 @@ function CA:Update_Gear()
 							end
 							
 							Slot.IsEnchanted = true
-						elseif CurrentLineText:find(ITEM_SPELL_TRIGGER_ONUSE) then
+						elseif ITEM_SPELL_TRIGGER_ONUSE and CurrentLineText:find(ITEM_SPELL_TRIGGER_ONUSE) then
 							UsableEffect = true
+						elseif ITEM_UPGRADE_TOOLTIP_FORMAT and CurrentLineText:find(ITEM_UPGRADE_TOOLTIP_FORMAT) then
+							CurrentUpgrade, MaxUpgrade = CurrentLineText:match(Info.Armory_Constants.ItemUpgradeKey)
 						end
 					end
 					
@@ -618,8 +620,10 @@ function CA:Update_Gear()
 						if ItemUpgradeID then
 							if ItemUpgradeID == '0' or not KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel and ItemRarity == 7 then
 								ItemUpgradeID = nil
-							else
+							elseif CurrentUpgrade or MaxUpgrade then
 								ItemUpgradeID = TrueItemLevel - BasicItemLevel
+							else
+								ItemUpgradeID = nil
 							end
 						end
 						

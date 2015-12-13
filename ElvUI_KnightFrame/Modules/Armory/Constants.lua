@@ -6,6 +6,7 @@ Info.Armory_Constants = {
 	ItemLevelKey_Alt = ITEM_LEVEL_ALT:gsub('%%d', '.+'):gsub('%(.+%)', '%%((.+)%%)'),
 	EnchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)'),
 	ItemSetBonusKey = ITEM_SET_BONUS:gsub('%%s', '(.+)'),
+	ItemUpgradeKey = ITEM_UPGRADE_TOOLTIP_FORMAT:gsub('%%d', '(.+)'),
 	--TransmogrifiedKey = TRANSMOGRIFIED:gsub('%%s', '(.+)'),
 	
 	GearList = {
@@ -20,7 +21,9 @@ Info.Armory_Constants = {
 	UpgradeColor = {
 		[16] = '|cffff9614',
 		[12] = '|cfff88ef4',
+		[10] = '|cffff9614',
 		[8] = '|cff2eb7e4',
+		[5] = '|cfff88ef4',
 		[4] = '|cffceff00'
 	},
 	
