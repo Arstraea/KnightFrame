@@ -67,9 +67,9 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 			E:CreateMover(Panel, PanelTag..'_'..Panel.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF')
 		end
 		
-		E.CreatedMovers[Panel.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTERElvUIParent'
+		E.CreatedMovers[Panel.mover.name].point = E:HasMoverBeenMoved(PanelName) and E.db.movers[PanelName] or PanelInfo.Location or 'CENTER,ElvUIParent'
 		Panel.mover:ClearAllPoints()
-		Panel.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Panel.mover.name].point)}))
+		Panel.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[Panel.mover.name].point)}))
 		
 		FrameLinkByID[Panel.Count] = PanelName
 	end

@@ -81,9 +81,9 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 			E:CreateMover(FD, 'KF_Datatext_'..FD.Count, DatatextInfo.Name or DatatextName, nil, nil, nil, 'ALL,KF,KF_Datatext')
 		end
 		
-		E.CreatedMovers[FD.mover.name].point = E:HasMoverBeenMoved(DatatextName) and E.db.movers[DatatextName] or DatatextInfo.Location or 'CENTERElvUIParent'
+		E.CreatedMovers[FD.mover.name].point = E:HasMoverBeenMoved(DatatextName) and E.db.movers[DatatextName] or DatatextInfo.Location or 'CENTER,ElvUIParent'
 		FD.mover:ClearAllPoints()
-		FD.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[FD.mover.name].point)}))
+		FD.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[FD.mover.name].point)}))
 	end
 	
 	-- Parent

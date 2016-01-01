@@ -324,9 +324,9 @@ do	--<< About Window's Layout and Appearance >>--
 				E:CreateMover(Window, 'ST_Window_'..Window.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 				Window:SetScript('OnSizeChanged', self.OnSizeChanged)
 			end
-			E.CreatedMovers[Window.mover.name].point = E:HasMoverBeenMoved(WindowName) and E.db.movers[WindowName] or KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Location or 'CENTERElvUIParent'
+			E.CreatedMovers[Window.mover.name].point = E:HasMoverBeenMoved(WindowName) and E.db.movers[WindowName] or KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Location or 'CENTER,ElvUIParent'
 			Window.mover:ClearAllPoints()
-			Window.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Window.mover.name].point)}))
+			Window.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[Window.mover.name].point)}))
 			
 			--초기화 여기서
 			Window.Name = WindowName
@@ -440,7 +440,7 @@ do	--<< About Window's Layout and Appearance >>--
 		KF.UIParent.ST_Window[(L['SmartTracker_MainWindow'])] = self:Window_Setup(self, 1)
 		
 		if KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location then
-			self:SetPoint(unpack({string.split('\031', KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location)}))
+			self:SetPoint(unpack({string.split(',', KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location)}))
 			--KF.db.Modules.SmartTracker.Window[1].Location = nil
 		else
 			self:Point('CENTER')
@@ -1233,9 +1233,9 @@ do	--<< About Icon >>--
 				E:CreateMover(Anchor, 'ST_Icon_'..Anchor.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 			end
 			
-			E.CreatedMovers[Anchor.mover.name].point = E:HasMoverBeenMoved(AnchorName) and E.db.movers[AnchorName] or KF.db.Modules.SmartTracker.Icon[AnchorName].Appearance.Location or 'CENTERElvUIParent'
+			E.CreatedMovers[Anchor.mover.name].point = E:HasMoverBeenMoved(AnchorName) and E.db.movers[AnchorName] or KF.db.Modules.SmartTracker.Icon[AnchorName].Appearance.Location or 'CENTER,ElvUIParent'
 			Anchor.mover:ClearAllPoints()
-			Anchor.mover:SetPoint(unpack({string.split('\031', E.CreatedMovers[Anchor.mover.name].point)}))
+			Anchor.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[Anchor.mover.name].point)}))
 			
 			--초기화 여기서
 			Anchor.Name = AnchorName

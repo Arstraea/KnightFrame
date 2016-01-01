@@ -78,7 +78,7 @@ KF.db.Modules.SmartTracker = {
 			Enable = true,
 			
 			Appearance = {
-				Location = 'TOPLEFTElvUIParentTOPLEFT11-220',
+				Location = 'TOPLEFT,ElvUIParent,TOPLEFT,11,-220',
 				
 				Area_Width = 360,
 				Area_Height = 394,

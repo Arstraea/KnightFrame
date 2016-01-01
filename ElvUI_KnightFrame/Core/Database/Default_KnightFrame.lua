@@ -24,7 +24,7 @@ KF.db.Modules = {
 		Lock = false
 	},
 	
-	WorldStateAlwaysUpFrame = 'TOPElvUIParentTOP0-54',
+	WorldStateAlwaysUpFrame = 'TOP,ElvUIParent,TOP,0,-54',
 	
 	MinimapBackdropWhenFarmMode = true,
 	

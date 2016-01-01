@@ -536,7 +536,7 @@ if ElvDB and ElvDB.profiles then
 								RaidIcon = {
 									ShowBattleResurrectionIcon = true,
 									Appearance = {
-										Location = 'TOPLEFTElvUIParentTOPLEFT11-186',
+										Location = 'TOPLEFT,ElvUIParent,TOPLEFT,11,-186',
 										
 										Icon_Height = 30,
 										Arrangement = 'Left to Right'	-- Left to Right, Right to Left, Center, Top To Bottom, Bottom To Top
@@ -563,7 +563,7 @@ if ElvDB and ElvDB.profiles then
 								SupportIcon = {
 									ShowBattleResurrectionIcon = false,
 									Appearance = {
-										Location = 'BOTTOMElvUIParentBOTTOM0432',
+										Location = 'BOTTOM,ElvUIParent,BOTTOM,0,432',
 										
 										Icon_Height = 30
 									},
