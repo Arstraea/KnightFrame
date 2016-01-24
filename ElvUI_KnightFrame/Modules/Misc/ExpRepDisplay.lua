@@ -322,9 +322,9 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 			
 			ReputationBarMover:ClearAllPoints()
 			if E:HasMoverBeenMoved('ReputationBarMover') then
-				ReputationBarMover:SetPoint(unpack({string.split(',', E.db.movers.ReputationBarMover)}))
+				ReputationBarMover:SetPoint(unpack({string.split(Info.MoverDelimiter, E.db.movers.ReputationBarMover)}))
 			else
-				ReputationBarMover:SetPoint(unpack({string.split(',', moverData.point)}))
+				ReputationBarMover:SetPoint(unpack({string.split(Info.MoverDelimiter, moverData.point)}))
 			end
 			
 			ElvUI_ReputationBar:ClearAllPoints()
@@ -343,9 +343,9 @@ KF.Modules.ExpRepDisplay = function(RemoveOrder)
 			
 			ExperienceBarMover:ClearAllPoints()
 			if E:HasMoverBeenMoved('ExperienceBarMover') then
-				ExperienceBarMover:SetPoint(unpack({string.split(',', E.db.movers.ExperienceBarMover)}))
+				ExperienceBarMover:SetPoint(unpack({string.split(Info.MoverDelimiter, E.db.movers.ExperienceBarMover)}))
 			else
-				ExperienceBarMover:SetPoint(unpack({string.split(',', moverData.point)}))
+				ExperienceBarMover:SetPoint(unpack({string.split(Info.MoverDelimiter, moverData.point)}))
 			end
 			
 			ElvUI_ExperienceBar:ClearAllPoints()

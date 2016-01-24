@@ -6,44 +6,44 @@ local KF_Config = E:GetModule('KnightFrame_Config')
 --<< KnightFrame : 1680x1050 Install Data - Moonlight						>>--
 --------------------------------------------------------------------------------
 KF_Config.Install_Layout_Data.Moonlight['1680x1050'] = {
-	TotemBarMover = 'BOTTOM,ElvUIParent,BOTTOM,0,256',
-	BNETMover = 'TOPRIGHT,ElvUIParent,TOPRIGHT,-224,-238',
-	VehicleSeatMover = 'CENTER,UIParent,BOTTOM,464,228',
-	GMMover = 'TOPRIGHT,ElvUIParent,TOPRIGHT,-14,-238',
-	BagsMover = 'TOPRIGHT,UIParent,TOPRIGHT,-272,-6',
-	TempEnchantMover = 'TOPRIGHT,ElvUIParent,TOPRIGHT,-20,-251',
-	AltPowerBarMover = 'TOP,ElvUIParent,TOP,0,-120',
-	AlertFrameMover = 'TOP,ElvUIParent,TOP,0,-170',
-	MinimapMover = 'BOTTOM,ElvUIParent,BOTTOM,-1,4',
-	BuffsMover = 'TOPRIGHT,ElvUIParent,TOPRIGHT,-14,-42',
-	DebuffsMover = 'TOPRIGHT,ElvUIParent,TOPRIGHT,-14,-188',
-	BossButton = 'CENTER,UIParent,BOTTOM,0,400',
+	TotemBarMover = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'256',
+	BNETMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-224'..Info.MoverDelimiter..'-238',
+	VehicleSeatMover = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'464'..Info.MoverDelimiter..'228',
+	GMMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-14'..Info.MoverDelimiter..'-238',
+	BagsMover = 'TOPRIGHT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-272'..Info.MoverDelimiter..'-6',
+	TempEnchantMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-20'..Info.MoverDelimiter..'-251',
+	AltPowerBarMover = 'TOP'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOP'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'-120',
+	AlertFrameMover = 'TOP'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOP'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'-170',
+	MinimapMover = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-1'..Info.MoverDelimiter..'4',
+	BuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-14'..Info.MoverDelimiter..'-42',
+	DebuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-14'..Info.MoverDelimiter..'-188',
+	BossButton = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'400',
 	
 	--UnitFrame
-	ElvUF_PlayerMover = 'BOTTOM,UIParent,BOTTOM,-232,276',
-	ElvUF_TargetMover = 'BOTTOM,UIParent,BOTTOM,232,276',
-	ElvUF_TargetTargetMover = 'CENTER,UIParent,BOTTOM,412,305',
-	ElvUF_FocusMover = 'CENTER,UIParent,BOTTOM,-412,305',
-	ElvUF_FocusCastbarMover = 'TOP,ElvUIParent,TOP,0,-200',
-	ElvUF_FocusTargetMover = 'CENTER,UIParent,BOTTOM,-412,267',
-	ElvUF_PetMover = 'CENTER,UIParent,BOTTOM,0,313',
-	ElvUF_AssistMover = 'LEFT,UIParent,LEFT,10,16',
-	ElvUF_TankMover = 'LEFT,UIParent,LEFT,10,72',
-	ArenaHeaderMover = 'BOTTOMRIGHT,UIParent,RIGHT,-68,-188',
-	BossHeaderMover = 'BOTTOMRIGHT,UIParent,RIGHT,-68,-188',
-	ElvUF_PartyMover = 'BOTTOMLEFT,UIParent,BOTTOMLEFT,4,198',
-	ElvUF_RaidMover = 'BOTTOMLEFT,UIParent,BOTTOMLEFT,4,189',
-	ElvUF_Raid40Mover = 'BOTTOMLEFT,UIParent,BOTTOMLEFT,4,189',
+	ElvUF_PlayerMover = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-232'..Info.MoverDelimiter..'276',
+	ElvUF_TargetMover = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'232'..Info.MoverDelimiter..'276',
+	ElvUF_TargetTargetMover = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'412'..Info.MoverDelimiter..'305',
+	ElvUF_FocusMover = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-412'..Info.MoverDelimiter..'305',
+	ElvUF_FocusCastbarMover = 'TOP'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOP'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'-200',
+	ElvUF_FocusTargetMover = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-412'..Info.MoverDelimiter..'267',
+	ElvUF_PetMover = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'313',
+	ElvUF_AssistMover = 'LEFT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'LEFT'..Info.MoverDelimiter..'10'..Info.MoverDelimiter..'16',
+	ElvUF_TankMover = 'LEFT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'LEFT'..Info.MoverDelimiter..'10'..Info.MoverDelimiter..'72',
+	ArenaHeaderMover = 'BOTTOMRIGHT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'RIGHT'..Info.MoverDelimiter..'-68'..Info.MoverDelimiter..'-188',
+	BossHeaderMover = 'BOTTOMRIGHT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'RIGHT'..Info.MoverDelimiter..'-68'..Info.MoverDelimiter..'-188',
+	ElvUF_PartyMover = 'BOTTOMLEFT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'4'..Info.MoverDelimiter..'198',
+	ElvUF_RaidMover = 'BOTTOMLEFT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'4'..Info.MoverDelimiter..'189',
+	ElvUF_Raid40Mover = 'BOTTOMLEFT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'4'..Info.MoverDelimiter..'189',
 	
 	--Actionbar
-	ElvAB_1 = 'BOTTOM,UIParent,BOTTOM,0,188',
-	ElvAB_2 = 'BOTTOM,UIParent,BOTTOM,-261,188',
-	ElvAB_3 = 'BOTTOM,UIParent,BOTTOM,0,188',
-	ElvAB_4 = 'RIGHT,UIParent,RIGHT,-4,0',
-	ElvAB_5 = 'BOTTOM,UIParent,BOTTOM,261,188',
-	ElvAB_6 = 'BOTTOM,UIParent,BOTTOM,0,600',
-	ShiftAB = 'BOTTOM,UIParent,BOTTOM,-310,251',
-	PetAB = 'BOTTOM,ElvUIParent,BOTTOM,0,251',
+	ElvAB_1 = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'188',
+	ElvAB_2 = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-261'..Info.MoverDelimiter..'188',
+	ElvAB_3 = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'188',
+	ElvAB_4 = 'RIGHT'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'RIGHT'..Info.MoverDelimiter..'-4'..Info.MoverDelimiter..'0',
+	ElvAB_5 = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'261'..Info.MoverDelimiter..'188',
+	ElvAB_6 = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'600',
+	ShiftAB = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-310'..Info.MoverDelimiter..'251',
+	PetAB = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'251',
 }
 
 
@@ -166,7 +166,7 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 					[1] = 'BlueItemInfo3'
 				}
 			},
-			Location = 'BOTTOMLEFT,LeftChatPanel,BOTTOMRIGHT,5,0'
+			Location = 'BOTTOMLEFT'..Info.MoverDelimiter..'LeftChatPanel'..Info.MoverDelimiter..'BOTTOMRIGHT'..Info.MoverDelimiter..'5'..Info.MoverDelimiter..'0'
 		},
 		[(L['MeterAddonPanel'])] = {
 			Width = 384,
@@ -184,7 +184,7 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 					[1] = 'MicroMenu'
 				}
 			},
-			Location = 'BOTTOMRIGHT,RightChatPanel,BOTTOMLEFT,-5,0'
+			Location = 'BOTTOMRIGHT'..Info.MoverDelimiter..'RightChatPanel'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'-5'..Info.MoverDelimiter..'0'
 		},
 	}
 	E.db.KnightFrame.Modules.FloatingDatatext = {
@@ -202,7 +202,7 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 				UseCustomFontStyle = true,
 				FontSize = 12
 			},
-			Location = 'BOTTOM,ElvUIParent,BOTTOM,136,7'
+			Location = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'136'..Info.MoverDelimiter..'7'
 		},
 		KnightText1 = {
 			Display = {
@@ -213,20 +213,20 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 				Caster = 'Spell/Heal Power',
 				Healer = 'Spell/Heal Power'
 			},
-			Location = 'BOTTOM,ElvUIParent,BOTTOM,220,8'
+			Location = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'220'..Info.MoverDelimiter..'8'
 		},
 		KnightText2 = {
 			Display = {
 				Mode = 'Crit Chance',
 				PvPMode = 'PvP Resilience'
 			},
-			Location = 'BOTTOMRIGHT,ElvUIParent,BOTTOMRIGHT,-478,8'
+			Location = 'BOTTOMRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOMRIGHT'..Info.MoverDelimiter..'-478'..Info.MoverDelimiter..'8'
 		},
 		KnightText3 = {
 			Display = {
 				Mode = 'Mastery'
 			},
-			Location = 'BOTTOMRIGHT,ElvUIParent,BOTTOMRIGHT,-386,8'
+			Location = 'BOTTOMRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOMRIGHT'..Info.MoverDelimiter..'-386'..Info.MoverDelimiter..'8'
 		}
 	}
 	E.db.KnightFrame.Modules.ExpRepDisplay = {
@@ -234,6 +234,6 @@ KF_Config.Install_Profile_Data.Moonlight['1680x1050'] = function()
 		EmbedLocation = 'DP'
 	}
 	E.db.KnightFrame.Modules.SmartTracker = {
-		Location = 'TOPLEFT,ElvUIParent,TOPLEFT,11,-258'
+		Location = 'TOPLEFT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPLEFT'..Info.MoverDelimiter..'11'..Info.MoverDelimiter..'-258'
 	}
 end

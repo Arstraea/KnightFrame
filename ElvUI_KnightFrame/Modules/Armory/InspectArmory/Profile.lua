@@ -18,7 +18,7 @@ KF.db.Modules.Armory.Inspect = {
 	
 	Level = {
 		Display = 'Always', -- Always, MouseoverOnly, Hide
-		ShowUpgradeLevel = false,
+		ShowUpgradeLevel = true,
 		Font = nil,
 		FontSize = 10,
 		FontStyle = nil

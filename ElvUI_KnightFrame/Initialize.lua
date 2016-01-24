@@ -17,6 +17,11 @@ local Information = {
 	
 	MyRealm = gsub(E.myrealm,'[%s%-]','')
 }
+if tonumber(E.version) >= 8.47 then
+	Information.MoverDelimiter = ','
+else
+	Information.MoverDelimiter = '\031'
+end
 
 local Core = E:NewModule(Information.Name, 'AceEvent-3.0', 'AceConsole-3.0', 'AceHook-3.0')
 Core.db = {}

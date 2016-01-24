@@ -18,7 +18,7 @@ KF.db.Modules.Armory.Character = {
 	
 	Level = {
 		Display = 'Always', -- Always, MouseoverOnly, Hide
-		ShowUpgradeLevel = false,
+		ShowUpgradeLevel = true,
 		Font = nil,
 		FontSize = 10,
 		FontStyle = nil

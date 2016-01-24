@@ -324,9 +324,9 @@ do	--<< About Window's Layout and Appearance >>--
 				E:CreateMover(Window, 'ST_Window_'..Window.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 				Window:SetScript('OnSizeChanged', self.OnSizeChanged)
 			end
-			E.CreatedMovers[Window.mover.name].point = E:HasMoverBeenMoved(WindowName) and E.db.movers[WindowName] or KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Location or 'CENTER,ElvUIParent'
+			E.CreatedMovers[Window.mover.name].point = E:HasMoverBeenMoved(WindowName) and E.db.movers[WindowName] or KF.db.Modules.SmartTracker.Window[WindowName].Appearance.Location or 'CENTER'..Info.MoverDelimiter..'ElvUIParent'
 			Window.mover:ClearAllPoints()
-			Window.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[Window.mover.name].point)}))
+			Window.mover:SetPoint(unpack({string.split(Info.MoverDelimiter, E.CreatedMovers[Window.mover.name].point)}))
 			
 			--초기화 여기서
 			Window.Name = WindowName
@@ -440,7 +440,7 @@ do	--<< About Window's Layout and Appearance >>--
 		KF.UIParent.ST_Window[(L['SmartTracker_MainWindow'])] = self:Window_Setup(self, 1)
 		
 		if KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location then
-			self:SetPoint(unpack({string.split(',', KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location)}))
+			self:SetPoint(unpack({string.split(Info.MoverDelimiter, KF.db.Modules.SmartTracker.Window[(L['SmartTracker_MainWindow'])].Appearance.Location)}))
 			--KF.db.Modules.SmartTracker.Window[1].Location = nil
 		else
 			self:Point('CENTER')
@@ -1233,9 +1233,9 @@ do	--<< About Icon >>--
 				E:CreateMover(Anchor, 'ST_Icon_'..Anchor.Count..'_Mover', nil, nil, nil, nil, 'ALL,KF,KF_SmartTracker')
 			end
 			
-			E.CreatedMovers[Anchor.mover.name].point = E:HasMoverBeenMoved(AnchorName) and E.db.movers[AnchorName] or KF.db.Modules.SmartTracker.Icon[AnchorName].Appearance.Location or 'CENTER,ElvUIParent'
+			E.CreatedMovers[Anchor.mover.name].point = E:HasMoverBeenMoved(AnchorName) and E.db.movers[AnchorName] or KF.db.Modules.SmartTracker.Icon[AnchorName].Appearance.Location or 'CENTER'..Info.MoverDelimiter..'ElvUIParent'
 			Anchor.mover:ClearAllPoints()
-			Anchor.mover:SetPoint(unpack({string.split(',', E.CreatedMovers[Anchor.mover.name].point)}))
+			Anchor.mover:SetPoint(unpack({string.split(Info.MoverDelimiter, E.CreatedMovers[Anchor.mover.name].point)}))
 			
 			--초기화 여기서
 			Anchor.Name = AnchorName
@@ -2613,7 +2613,6 @@ do	--<< Inspect System >>--
 		local UnitID, UserClass, UserName, UserRealm, Spec, Talent, IsSelected, GlyphID
 		function ST:INSPECT_READY(UserGUID)
 			if Info.CurrentGroupMode == 'NoGroup' then
-				KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 				return
 			end
 			
@@ -2699,7 +2698,7 @@ do	--<< Inspect System >>--
 		end)
 		
 		
-		local InspectType, InspectTarget, DelayedMemberExists
+		local InspectType, InspectTarget, DelayedMemberExists, InspectCount
 		function ST:InspectGroup()
 			if not ST.HoldInspect then
 				DelayedMemberExists = nil
@@ -2740,6 +2739,7 @@ do	--<< Inspect System >>--
 				
 				if not ST.CurrentInspectMemberUnitName then
 					ST.CurrentInspectMemberUnitName = nil
+					InspectCount = 0
 					
 					for MemberName in pairs(ST.InspectOrder) do
 						if not UnitExists(MemberName) or MemberName == E.myname then
@@ -2756,14 +2756,17 @@ do	--<< Inspect System >>--
 									ST.InspectOrder[MemberName] = InspectType == 'Updating' and 'UpdateDelayed' or 'Delayed'
 									DelayedMemberExists = true
 								else
-									if InspectType == 'Updating' then
-										ST.InspectOrder[MemberName] = tostring(InspectTarget + 1)
-									else
-										ST.InspectOrder[MemberName] = InspectTarget + 1
+									if not ST.CurrentInspectMemberUnitName then
+										if InspectType == 'Updating' then
+											ST.InspectOrder[MemberName] = tostring(InspectTarget + 1)
+										else
+											ST.InspectOrder[MemberName] = InspectTarget + 1
+										end
+										
+										ST.CurrentInspectMemberUnitName = MemberName
 									end
 									
-									ST.CurrentInspectMemberUnitName = MemberName
-									break
+									InspectCount = InspectCount + 1
 								end
 							elseif InspectType == 'Updating' and ST.InspectOrder[MemberName] == 'UpdateDelayed' or ST.InspectOrder[MemberName] == 'Delayed' then
 								DelayedMemberExists = true
@@ -2821,13 +2824,12 @@ do	--<< Inspect System >>--
 					end
 					
 					ST.NowInspecting = nil
-					KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 					KF:CancelTimer('SmartTracker_InspectGroup')
 				else
-					ST.InspectDisplayButton.Count:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4').."123")
+					ST.InspectDisplayButton.Count:SetText((InspectType == 'Updating' and '|cffceff00' or '|cff2eb7e4')..InspectCount)
 					
 					ST.NowInspecting = true
-					KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
+					
 					NotifyInspect(ST.CurrentInspectMemberUnitName, true)
 				end
 			end
@@ -2895,7 +2897,6 @@ do	--<< Inspect System >>--
 	
 	function ST:PrepareGroupInspect(ForceUpdateAll)
 		if Info.CurrentGroupMode == 'NoGroup' then
-			KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 			KF:CancelTimer('SmartTracker_CheckGroupMember')
 			KF:CancelTimer('SmartTracker_InspectGroup')
 			
@@ -3037,6 +3038,7 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 			ST:BossBattleStart()
 		end
 		
+		KF:RegisterEventList('INSPECT_READY', ST.INSPECT_READY, 'SmartTracker')
 		KF:RegisterEventList('UNIT_SPELLCAST_SUCCEEDED', ST.UNIT_SPELLCAST_SUCCEEDED, 'SmartTracker')
 		KF:RegisterEventList('COMBAT_LOG_EVENT_UNFILTERED', ST.COMBAT_LOG_EVENT_UNFILTERED, 'SmartTracker')
 		KF:RegisterEventList('GROUP_ROSTER_UPDATE', function() ST:PrepareGroupInspect() end, 'SmartTracker_PrepareGroupInspect')
@@ -3069,6 +3071,7 @@ KF.Modules.SmartTracker = function(RemoveOrder)
 		KF:UnregisterCallback('BossBattleStart', 'SmartTracker')
 		KF:UnregisterCallback('BossBattleEnd', 'SmartTracker')
 		
+		KF:UnregisterEventList('INSPECT_READY', 'SmartTracker')
 		KF:UnregisterEventList('UNIT_SPELLCAST_SUCCEEDED', 'SmartTracker')
 		KF:UnregisterEventList('COMBAT_LOG_EVENT_UNFILTERED', 'SmartTracker')
 		KF:UnregisterEventList('GROUP_ROSTER_UPDATE', 'SmartTracker_PrepareGroupInspect')

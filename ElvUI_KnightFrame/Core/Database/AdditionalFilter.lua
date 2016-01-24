@@ -251,13 +251,14 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 186500, 5)			-- 지옥의 사슬				Chains of Fel
 		
 		-- Archimonde
+		RegistFilter('RaidDebuffs', 183586, 4)			-- 파멸의 불					Doomfire
 		RegistFilter('RaidDebuffs', 184964, 6)			-- 구속된 고통				Shackled Torment
 		RegistFilter('RaidDebuffs', 186123, 3)			-- 불러일으킨 혼돈		Wrought Chaos
 		RegistFilter('RaidDebuffs', 185014, 3)			-- 집중된 혼돈				Focused Chaos
 		RegistFilter('RaidDebuffs', 186952, 2)			-- 황천 추방					Nether Banish
 		RegistFilter('RaidDebuffs', 186961, 2)			-- 황천 추방					Nether Banish
 		RegistFilter('RaidDebuffs', 189891, 2)			-- 황천 가르기				Nether Tear
-		RegistFilter('RaidDebuffs', 183634, 4)			-- 어둠지옥 폭발			Shadowfel Burst
+		RegistFilter('RaidDebuffs', 183634, 5)			-- 어둠지옥 폭발			Shadowfel Burst
 		RegistFilter('RaidDebuffs', 189895, 5)			-- 공허의 별 시선고정	Void Star Fixate
 end
 

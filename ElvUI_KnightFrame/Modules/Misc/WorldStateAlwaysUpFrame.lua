@@ -11,6 +11,6 @@ WorldStateAlwaysUpFrame:ClearAllPoints()
 WorldStateAlwaysUpFrame:Point('CENTER', KF_WorldStateAlwaysUpFrame)
 
 KF.InitializeFunction.WorldStateFrame = function()
-	KF_WorldStateAlwaysUpFrame:SetPoint(unpack({string.split(',', KF.db.Modules.WorldStateAlwaysUpFrame)}))
+	KF_WorldStateAlwaysUpFrame:SetPoint(unpack({string.split(Info.MoverDelimiter, KF.db.Modules.WorldStateAlwaysUpFrame)}))
 	E:CreateMover(KF_WorldStateAlwaysUpFrame, 'KF_WorldStateAlwaysUpFrameMover', L['FrameTag']..L['KF_WorldStateAlwaysUpFrame'])
 end
