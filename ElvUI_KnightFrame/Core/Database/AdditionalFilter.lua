@@ -250,7 +250,11 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 186333, 4)			-- 공허의 쇄도				Void Surge
 		RegistFilter('RaidDebuffs', 186500, 5)			-- 지옥의 사슬				Chains of Fel
 		
+		-- Mannoroth
+		RegistFilter('RaidDebuffs', 186526, 5)			-- 폭발적인 파멸의 쐐기
+		
 		-- Archimonde
+		RegistFilter('RaidDebuffs', 188070, 6)			-- 군단의 징표				Mark of the Legion
 		RegistFilter('RaidDebuffs', 183586, 4)			-- 파멸의 불					Doomfire
 		RegistFilter('RaidDebuffs', 184964, 6)			-- 구속된 고통				Shackled Torment
 		RegistFilter('RaidDebuffs', 186123, 3)			-- 불러일으킨 혼돈		Wrought Chaos
