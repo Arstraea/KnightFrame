@@ -1,5 +1,9 @@
 ﻿if GetLocale() ~= 'koKR' then return end
 
+--Cache global variables
+--Lua functions
+local unpack = unpack
+
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 

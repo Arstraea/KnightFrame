@@ -1,5 +1,14 @@
-﻿local AddOnName, Engine = ...
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, gsub, tonumber, type = unpack, string.gsub, tonumber, type
+
+local AddOnName, Engine = ...
 local E, L, V, P, G  = unpack(ElvUI)
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local GetAddOnMetadata = GetAddOnMetadata
 
 local Information = {
 	Name = 'KnightFrame',

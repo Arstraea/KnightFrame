@@ -1,9 +1,9 @@
-﻿-- Last Code Checking Date		: 2014. 6. 12
--- Last Code Checking Version	: 3.0_02
--- Last Testing ElvUI Version	: 6.9997
-
-local L = LibStub:GetLibrary('AceLocale-3.0'):NewLocale('ElvUI', 'enUS', true)
+﻿local L = LibStub:GetLibrary('AceLocale-3.0'):NewLocale('ElvUI', 'enUS', true)
 if not L then return end
+
+--Cache global variables
+--Lua functions
+local unpack, select = unpack, select
 
 local E = ElvUI[1]
 local KF, DB, Info, Update = unpack(select(2, ...))

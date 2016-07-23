@@ -1,5 +1,13 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, pairs, type, next = unpack, select, pairs, type, next
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Toolkit		 											>>--
@@ -44,10 +52,12 @@ function KF:CompareTable(MainTable, TableToCompare, DB, Properties)
 			DeleteSameValue = boolean,
 		}
 	]]
+	local CreateTable
 	
 	for Index, Value in pairs(MainTable) do
 		if type(Value) == 'table' and TableToCompare[Index] ~= nil and type(TableToCompare[Index]) == 'table' then
-			local CreateTable
+			CreateTable = nil
+			
 			if not DB[Index] then
 				DB[Index] = {}
 				CreateTable = true

@@ -1,15 +1,24 @@
+--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, type, tinsert = unpack, select, type, tinsert
+
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
+--WoW API / Variables
+local GetSpellInfo = GetSpellInfo
+
+local SpellName
 local function RegistFilter(Filter, SpellID, Priority, Enable)
-	local SpellName = GetSpellInfo(SpellID)
+	SpellName = GetSpellInfo(SpellID)
 	
 	if Enable == nil then
 		Enable = true
 	end
 	
 	if SpellName and G.unitframe.aurafilters[Filter] then
-		G.unitframe.aurafilters[Filter].spells[SpellName] = { enable = Enable, priority = Priority or 0 }
+		G.unitframe.aurafilters[Filter].spells[SpellID] = { enable = Enable, priority = Priority or 0 }
 	end
 end
 

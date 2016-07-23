@@ -1,8 +1,14 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, pairs, type = unpack, select, pairs, type
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 local DT = E:GetModule('DataTexts')
 
-local PANEL_HEIGHT = 22
+--WoW API / Variables
+local CreateFrame = CreateFrame
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Create Floating Datatext									>>--
@@ -10,6 +16,7 @@ local PANEL_HEIGHT = 22
 local Activate = false
 local DeletedDatatext = {}
 local FloatingDatatextCount = 0
+local PANEL_HEIGHT = 22
 
 KF.UIParent.Datatext = {}
 KF.UIParent.MoverType.KF_Datatext = L['Floating Datatext']
@@ -88,7 +95,7 @@ function KF:FloatingDatatext_Create(DatatextName, DatatextInfo)
 	
 	-- Parent
 	FD:SetParent(DatatextInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
-	FD:SetFrameStrata('BACKGROUND')
+	FD:SetFrameStrata('LOW')
 	FD:SetFrameLevel(11)
 	
 	-- Size

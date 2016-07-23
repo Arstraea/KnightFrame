@@ -1,5 +1,13 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local unpack, select, pairs, type = unpack, select, pairs, type
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local LoadAddOn = LoadAddOn
+local EnableAddOn = EnableAddOn
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Load KnightFrame Config									>>--

@@ -1,5 +1,13 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select = unpack, select
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Initialize KnightFrame TopPanel							>>--

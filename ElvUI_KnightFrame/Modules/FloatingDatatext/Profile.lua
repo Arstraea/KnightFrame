@@ -1,5 +1,11 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, type, pairs = unpack, select, type, pairs
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
 
 KF.db.Modules.FloatingDatatext = {
 	Enable = true

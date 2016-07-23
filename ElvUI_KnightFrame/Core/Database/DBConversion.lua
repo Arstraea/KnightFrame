@@ -1,4 +1,9 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, pairs, type = unpack, select, pairs, type
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
 if ElvDB and ElvDB.profiles then
@@ -6,16 +11,26 @@ if ElvDB and ElvDB.profiles then
 		if ElvDB.profiles[ProfileKey].KnightFrame and ElvDB.profiles[ProfileKey].KnightFrame.UseProfile then
 			-- Profile parts
 			KF:CompareTable({
+				currentTutorial = 1,
+				hideTutorial = true,
 				general = {
 					loginmessage = false,
 					afk = false,
 					autoRepair = 'GUILD',
 					vendorGrays = true,
 					valuecolor = { r = 46/255, g = 183/255, b = 227/255 },
+					topPanel = false,
 					
 					minimap = {
 						size = 157,
-						locationText = 'SHOW'
+						locationText = 'SHOW',
+						icons = {
+							classHall = {
+								scale = .65,
+								xOffset = -50,
+								yOffset = 10,
+							},
+						},
 					},
 					
 					experience = {
@@ -35,6 +50,10 @@ if ElvDB and ElvDB.profiles then
 					}
 				},
 				bags = {
+					xOffset = -161,
+					yOffset = 354,
+					junkIcon = true,
+					currencyFormat = 'ICON_TEXT',
 					bagBar = {
 						growthDirection = 'HORIZONTAL',
 						size = 24,
@@ -84,8 +103,9 @@ if ElvDB and ElvDB.profiles then
 					emotionIcons = false,
 					chatHistory = false,
 					keywords = '%MYNAME%, ElvUI, KnightFrame, KF',
-					separateSizes = false,
-					panelWidth = 424,
+					separateSizes = true,
+					panelWidth = 415,
+					panelWidthRight = 417,
 					panelTabBackdrop = true,
 					panelTabTransparency = true,
 					fadeUndockedTabs = false
@@ -108,10 +128,7 @@ if ElvDB and ElvDB.profiles then
 				tooltip = {
 					cursorAnchor = true,
 					inspectInfo = false,
-					itemCount = 'BOTH',
-					visibility = {
-						unitFrames = 'SHIFT'
-					},
+					itemCount = 'BOTH'
 				},
 				unitframe = {
 					smoothbars = true,

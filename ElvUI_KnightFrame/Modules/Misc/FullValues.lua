@@ -1,11 +1,22 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, floor, assert, gsub, format = unpack, select, floor, assert, string.gsub, string.format
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local GetMouseFocus = GetMouseFocus
+local GetAttribute = GetAttribute
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local DEAD = DEAD
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Full Values in Tooltip and UnitFrame						>>--
 --------------------------------------------------------------------------------
 --<< Tooltip HP >>--
--- Original Code (Version)		: ElvUI(6.48)
+-- Original Code (Version)		: ElvUI(10.08)
 -- Original Code Location		: ElvUI\modules\tooltip\tooltip.lua
 local TT = E:GetModule('Tooltip')
 function TT:GameTooltipStatusBar_OnValueChanged(tt, value)
@@ -21,7 +32,6 @@ function TT:GameTooltipStatusBar_OnValueChanged(tt, value)
 		end
 	end
 	
-
 	local min, max = tt:GetMinMaxValues()
 	
 	if(value > 0 and max == 1) then
@@ -39,7 +49,7 @@ end
 
 
 --<< UnitFrame HP >>--
--- Original Code (Version)		: ElvUI(6.48)
+-- Original Code (Version)		: ElvUI(10.08)
 -- Original Code Location		: ElvUI\Core\math.lua
 local styles = {
 	['CURRENT'] = '%s',

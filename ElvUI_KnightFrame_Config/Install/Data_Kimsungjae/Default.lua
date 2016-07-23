@@ -1,6 +1,13 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local unpack = unpack
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
+
+--WoW API / Variables
+local SetCVar = SetCVar
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Default Install Data	- Kimsungjae						>>--
@@ -18,6 +25,8 @@ KF_Config.Install_Layout_Data.Kimsungjae.Default = {
 	BuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-21'..Info.MoverDelimiter..'-37',
 	DebuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-21'..Info.MoverDelimiter..'-184',
 	BossButton = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'340',
+	ElvUF_RaidpetMover = 'TOPLEFT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'4'..Info.MoverDelimiter..'736',
+	TalkingHeadFrameMover = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'340',
 	
 	WatchFrameMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-120'..Info.MoverDelimiter..'-308',
 	MicrobarMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-408'..Info.MoverDelimiter..'-4',
@@ -57,19 +66,19 @@ KF_Config.Install_Layout_Data.Kimsungjae.Default = {
 
 
 KF_Config.Install_Profile_Data.Kimsungjae.Default = function()
-	SetCVar('alternateResourceText', 1)
-	SetCVar('statusTextDisplay', 'BOTH')
-	SetCVar('ShowClassColorInNameplate', 1)
-	SetCVar('screenshotQuality', 10)
-	SetCVar('chatMouseScroll', 1)
-	SetCVar('chatStyle', 'classic')
-	SetCVar('WholeChatWindowClickable', 0)
-	SetCVar('showTutorials', 0)
-	SetCVar('UberTooltips', 1)
-	SetCVar('threatWarning', 3)
+	SetCVar("statusTextDisplay", "BOTH")
+	SetCVar("ShowClassColorInNameplate", 1)
+	SetCVar("screenshotQuality", 10)
+	SetCVar("chatMouseScroll", 1)
+	SetCVar("chatStyle", "classic")
+	SetCVar("WholeChatWindowClickable", 0)
+	SetCVar("showTutorials", 0)
+	SetCVar("UberTooltips", 1)
+	SetCVar("threatWarning", 3)
 	SetCVar('alwaysShowActionBars', 1)
 	SetCVar('lockActionBars', 1)
 	SetCVar('SpamFilter', 0)
+	SetCVar("nameplateShowSelf", 0)
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetValue('SHIFT')
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:RefreshValue()
 	

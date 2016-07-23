@@ -1,4 +1,9 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, type = unpack, select, type
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
 if type(L['KF_LocalizedTimeFormat']) == 'table' then

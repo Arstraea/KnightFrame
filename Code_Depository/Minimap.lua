@@ -1,7 +1,15 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local unpack, select = unpack, select
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
+
 if E.private.general.minimap.enable ~= false then
+	--WoW API / Variables
+	local CreateFrame = CreateFrame
+	
 	--------------------------------------------------------------------------------
 	--<< KnightFrame : Minimap Panel											>>--
 	--------------------------------------------------------------------------------

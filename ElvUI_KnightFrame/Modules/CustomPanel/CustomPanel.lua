@@ -1,6 +1,17 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, pairs = unpack, select, pairs
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 local CH = E:GetModule('Chat')
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local IsAddOnLoaded = IsAddOnLoaded
+local GetAddOnInfo = GetAddOnInfo
+local ReloadUI = ReloadUI
 
 local PANEL_HEIGHT = 22
 local SIDE_BUTTON_WIDTH = 16
@@ -78,7 +89,7 @@ function KF:CustomPanel_Create(PanelName, PanelInfo)
 	-- Parent
 	Panel:SetParent(PanelInfo.HideWhenPetBattle and KF.UIParent or E.UIParent)
 	Panel:SetFrameStrata('BACKGROUND')
-	Panel:SetFrameLevel(2)
+	Panel:SetFrameLevel(300)
 	
 	-- Size
 	Panel:Size(PanelInfo.Width, PanelInfo.Height)

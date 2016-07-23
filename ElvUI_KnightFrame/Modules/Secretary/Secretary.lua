@@ -1,5 +1,24 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, find, pairs = unpack, select, find, pairs
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local UnitName = UnitName
+local UnitLevel = UnitLevel
+local UnitClassification = UnitClassification
+local ObjectiveTracker_Collapse = ObjectiveTracker_Collapse
+local ObjectiveTracker_Expand = ObjectiveTracker_Expand
+local GetBattlefieldStatus = GetBattlefieldStatus
+local FlashClientIcon = FlashClientIcon
+local GetCVar = GetCVar
+local SetCVar = SetCVar
+local PlaySoundFile = PlaySoundFile
+local PlaySound = PlaySound
 
 local SC = KnightFrame_Secretary or CreateFrame('Frame', 'KnightFrame_Secretary', KF.UIParent)
 
@@ -9,22 +28,22 @@ local SC = KnightFrame_Secretary or CreateFrame('Frame', 'KnightFrame_Secretary'
 --------------------------------------------------------------------------------
 Info.Secretary_ToggleObjectiveFrame_Toggled = false
 Info.Secretary_ToggleObjectiveFrame_ExceptionList = {
-	--['bossName'] = true <- when you write like this, this function will not active. use this list for kind of quest boss.
+	--['BossName'] = true <- when you write like this, this function will not active. use this list for kind of quest boss.
 }
 
 
+local BossName, BossLevel, PlayerLevel
 function SC:ToggleObjectiveFrame_BossBattleStart()
 	if Info.InstanceType == 'challenge' or Info.InstanceType == 'scenario' then return end
 	
-	local bossName, bossLevel, playerLevel
 	for i = 1, 4 do
-		bossName = UnitName('boss'..i)
-		if bossName then
-			if Info.Secretary_ToggleObjectiveFrame_ExceptionList[bossName] then return end
+		BossName = UnitName('boss'..i)
+		if BossName then
+			if Info.Secretary_ToggleObjectiveFrame_ExceptionList[BossName] then return end
 			
-			bossLevel = UnitLevel('boss'..i)
-			playerLevel = UnitLevel('player')
-			if not (bossLevel == -1 or UnitClassification('boss'..i) == 'worldboss') and (bossLevel > playerLevel + 6 or bossLevel < playerLevel - 6) then return end
+			BossLevel = UnitLevel('boss'..i)
+			PlayerLevel = UnitLevel('player')
+			if not (BossLevel == -1 or UnitClassification('boss'..i) == 'worldboss') and (BossLevel > PlayerLevel + 6 or BossLevel < PlayerLevel - 6) then return end
 		end
 	end
 	
@@ -134,13 +153,14 @@ SC.Alarm_ButtonSetting = function(Frame)
 end
 
 
+local Arg1, Arg2, Arg3, Arg4, Arg5
 SC.Alarm_PopupSetting = function()
 	if Info.Secretary_Alarm_Activate and GetCVar('Sound_EnableAllSound') == '0' then
 		KnightFrame_Secretary_AlarmButton2:Show()
 		
 		LFDRoleCheckPopup:SetHeight(LFDRoleCheckPopup:GetHeight() + 20)
 		
-		local Arg1, Arg2, Arg3, Arg4, Arg5 = unpack(LFDRoleCheckPopupDescriptionDefaultPoint)
+		Arg1, Arg2, Arg3, Arg4, Arg5 = unpack(LFDRoleCheckPopupDescriptionDefaultPoint)
 		LFDRoleCheckPopupDescription:Point(Arg1, Arg2, Arg3, Arg4, Arg5 + 20)
 	elseif KnightFrame_Secretary_AlarmButton2 then
 		KnightFrame_Secretary_AlarmButton2:Hide()

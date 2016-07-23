@@ -1,4 +1,9 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, pairs, string = unpack, select, pairs, string
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 
 --General
@@ -67,6 +72,10 @@ for ClassName, SpecializationIDTable in pairs({
 		Affliction = 265,
 		Demonology = 266,
 		Destruction = 267
+	},
+	DemonHunter = {
+		Havoc = 577,
+		Vengeance = 581
 	}
 }) do
 	L[ClassName] = KF:Color_Class(string.upper(ClassName), LOCALIZED_CLASS_NAMES_MALE[string.upper(ClassName)])

@@ -1,15 +1,48 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, next, pairs, wipe = unpack, select, next, pairs, table.wipe
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
-local wipe = table.wipe
+
+--WoW API / Variables
+local InCombatLockdown = InCombatLockdown
+local GetSpecialization = GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo
+local UnitStat = UnitStat
+local UnitAttackPower = UnitAttackPower
+local IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
+local GetNumGroupMembers = GetNumGroupMembers
+local GetInstanceInfo = GetInstanceInfo
+local UIDropDownMenu_SetSelectedValue = UIDropDownMenu_SetSelectedValue
+local UIDropDownMenu_Initialize = UIDropDownMenu_Initialize
+local UIDropDownMenu_CreateInfo = UIDropDownMenu_CreateInfo
+local UIDropDownMenu_AddButton = UIDropDownMenu_AddButton
+local UIDropDownMenu_SetSelectedValue = UIDropDownMenu_SetSelectedValue
+local IsEncounterInProgress = IsEncounterInProgress
+local UnitAffectingCombat = UnitAffectingCombat
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local MAX_RAID_MEMBERS = MAX_RAID_MEMBERS
+local UnitExists = UnitExists
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UNKNOWNOBJECT = UNKNOWNOBJECT
+local COMBATLOG_UNKNOWN_UNIT = COMBATLOG_UNKNOWN_UNIT
+local UnitIsDead = UnitIsDead
+local UnitIsFriend = UnitIsFriend
+local UnitIsEnemy = UnitIsEnemy
+local UnitName = UnitName
+local SendAddonMessage = SendAddonMessage
+local LE_PARTY_CATEGORY_INSTANCE = LE_PARTY_CATEGORY_INSTANCE
+
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Register Callbacks	 									>>--
 --------------------------------------------------------------------------------
 function KF:RegisterCallback(RegisterName, InputFunction, FunctionName)
 	KF.Callbacks[RegisterName] = KF.Callbacks[RegisterName] or {}
-	
-	FunctionName = FunctionName or (#KF.Callbacks[RegisterName] + 1)
-	KF.Callbacks[RegisterName][FunctionName] = InputFunction
+	KF.Callbacks[RegisterName][FunctionName or (#KF.Callbacks[RegisterName] + 1)] = InputFunction
 end
 
 
@@ -273,10 +306,21 @@ Info.ClassRole = {
 			Color = '|cffba1706',
 			Role = 'Caster'
 		}
+	},
+	DEMONHUNTER = {
+		[(L['Spec_DemonHunter_Havoc'])] = { --파멸
+			Color = '|cff9482c9',
+			Role = 'Melee'
+		},
+		[(L['Spec_DemonHunter_Vengeance'])] = { --복수
+			Color = '|cff00ff10',
+			Role = 'Tank'
+		}
 	}
 }
 
 
+local PlayerInt, Base, PosBuff, NegBuff
 local function CheckRole()
 	if Info.Role and InCombatLockdown() then return end
 	
@@ -293,10 +337,10 @@ local function CheckRole()
 	end
 	
 	if not Check then
-		local _, playerint = UnitStat('player', 4)
-		local base, posBuff, negBuff = UnitAttackPower('player')
+		_, PlayerInt = UnitStat('player', 4)
+		Base, PosBuff, NegBuff = UnitAttackPower('player')
 		
-		if (base + posBuff + negBuff > playerint) or (UnitStat('player', 2) > playerint) then
+		if (Base + PosBuff + NegBuff > PlayerInt) or (UnitStat('player', 2) > PlayerInt) then
 			Check = 'Melee'
 		else
 			Check = 'Caster'
@@ -316,6 +360,7 @@ KF:RegisterEventList('ACTIVE_TALENT_GROUP_CHANGED', CheckRole, 'CheckRole')
 KF:RegisterEventList('PLAYER_TALENT_UPDATE', CheckRole, 'CheckRole')
 KF:RegisterEventList('CHARACTER_POINTS_CHANGED', CheckRole, 'CheckRole')
 KF:RegisterEventList('UNIT_INVENTORY_CHANGED', CheckRole, 'CheckRole')
+KF:RegisterEventList('UPDATE_BONUS_ACTIONBAR', CheckRole, 'CheckRole')
 
 
 
@@ -392,41 +437,42 @@ local function ConfigMode_OnClick(self)
 	UIDropDownMenu_SetSelectedValue(ElvUIMoverPopupWindowDropDown, self.value)
 end
 
+local DropDownInfo
 hooksecurefunc(E, 'CreateMoverPopup', function()
 	UIDropDownMenu_Initialize(ElvUIMoverPopupWindowDropDown, function()
-		local info = UIDropDownMenu_CreateInfo()
-		info.func = ConfigMode_OnClick
+		DropDownInfo = UIDropDownMenu_CreateInfo()
+		DropDownInfo.func = ConfigMode_OnClick
 		
 		for _, configMode in ipairs(E.ConfigModeLayouts) do
-			info.text = E.ConfigModeLocalizedStrings[configMode]
-			info.value = configMode
-			UIDropDownMenu_AddButton(info)
+			DropDownInfo.text = E.ConfigModeLocalizedStrings[configMode]
+			DropDownInfo.value = configMode
+			UIDropDownMenu_AddButton(DropDownInfo)
 		end
 		
 		-- Blank
-		info.text = ' '
-		info.value = nil
-		info.disabled = 1
-		info.notCheckable = 1
-		UIDropDownMenu_AddButton(info)
+		DropDownInfo.text = ' '
+		DropDownInfo.value = nil
+		DropDownInfo.disabled = 1
+		DropDownInfo.notCheckable = 1
+		UIDropDownMenu_AddButton(DropDownInfo)
 		
 		-- Add KnightFrame Mode
-		info.text = KF:Color_Value('       [Knight Frame]')
-		info.disabled = 1
-		info.notCheckable = 1
-		UIDropDownMenu_AddButton(info)
+		DropDownInfo.text = KF:Color_Value('       [Knight Frame]')
+		DropDownInfo.disabled = 1
+		DropDownInfo.notCheckable = 1
+		UIDropDownMenu_AddButton(DropDownInfo)
 		
-		info.text = KF:Color_Value('1. ')..ALL
-		info.value = 'KF'
-		info.disabled = nil
-		info.notCheckable = nil
-		UIDropDownMenu_AddButton(info)
+		DropDownInfo.text = KF:Color_Value('1. ')..ALL
+		DropDownInfo.value = 'KF'
+		DropDownInfo.disabled = nil
+		DropDownInfo.notCheckable = nil
+		UIDropDownMenu_AddButton(DropDownInfo)
 		
 		local DropdownCount = 2
 		for MoverType, Text in pairs(KF.UIParent.MoverType) do
-			info.text = KF:Color_Value(DropdownCount..'. ')..Text
-			info.value = MoverType
-			UIDropDownMenu_AddButton(info)
+			DropDownInfo.text = KF:Color_Value(DropdownCount..'. ')..Text
+			DropDownInfo.value = MoverType
+			UIDropDownMenu_AddButton(DropDownInfo)
 			
 			DropdownCount = DropdownCount + 1
 		end
@@ -526,11 +572,12 @@ if BigWigsLoader and BigWigsLoader.RegisterMessage then
 end
 
 
+local checkWiped
 function KF:CheckCombatEnd()
 	if UnitAffectingCombat('player') then
 		return false
 	elseif UnitIsDeadOrGhost('player') then
-		local checkWiped = 'wipe'
+		checkWiped = 'wipe'
 		
 		if Info.CurrentGroupMode ~= 'NoGroup' then
 			for i = 1, Info.CurrentGroupMode == 'party' and 4 or MAX_RAID_MEMBERS do

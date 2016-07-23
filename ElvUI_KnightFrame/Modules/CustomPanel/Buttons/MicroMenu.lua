@@ -1,5 +1,43 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, gsub = unpack, select, gsub
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local ToggleFrame = ToggleFrame
+local ShowUIPanel = ShowUIPanel
+local HideUIPanel = HideUIPanel
+
+local CHARACTER_BUTTON = CHARACTER_BUTTON
+local ToggleCharacter = ToggleCharacter
+local SPELLBOOK_ABILITIES_BUTTON = SPELLBOOK_ABILITIES_BUTTON
+local ToggleSpellBook = ToggleSpellBook
+local TALENTS_BUTTON = TALENTS_BUTTON
+local TalentMicroButton_OnClick = TalentMicroButton_OnClick
+local QUESTLOG_BUTTON = QUESTLOG_BUTTON
+local ToggleQuestLog = ToggleQuestLog
+local COLLECTIONS = COLLECTIONS
+local ToggleCollectionsJournal = ToggleCollectionsJournal
+local ACHIEVEMENT_BUTTON = ACHIEVEMENT_BUTTON
+local ToggleAchievementFrame = ToggleAchievementFrame
+local SOCIAL_BUTTON = SOCIAL_BUTTON
+local ToggleFriendsFrame = ToggleFriendsFrame
+local ACHIEVEMENTS_GUILD_TAB = ACHIEVEMENTS_GUILD_TAB
+local ToggleGuildFrame = ToggleGuildFrame
+local SLASH_CALENDAR1 = SLASH_CALENDAR1
+local LFG_TITLE = LFG_TITLE
+local PVEFrame_ToggleFrame = PVEFrame_ToggleFrame
+local ENCOUNTER_JOURNAL = ENCOUNTER_JOURNAL
+local ToggleEncounterJournal = ToggleEncounterJournal
+local PLAYER_V_PLAYER = PLAYER_V_PLAYER
+local TogglePVPUI = TogglePVPUI
+local MAINMENU_BUTTON = MAINMENU_BUTTON
+local BLIZZARD_STORE = BLIZZARD_STORE
+local ToggleStoreUI = ToggleStoreUI
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Panel - MicroMenu Button									>>--
@@ -93,33 +131,20 @@ KF.UIParent.Button.MicroMenu = {
 			KF:TextSetting(KF_MicroMenuHolder, '', { Tag = 'tag', FontSize = 12 }, 'TOP', 0, -3)
 			KF:TextSetting(KF_MicroMenuHolder, '', { FontSize = 12 }, 'CENTER', 0, 11)
 			
-			CreateMiniButton(Button1, -93, -6, '|cff1784d1'..CHARACTER_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleCharacter('PaperDollFrame') Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button2, -62, -6, '|cff228b22'..SPELLBOOK_ABILITIES_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) if not SpellBookFrame:IsShown() then ShowUIPanel(SpellBookFrame) else HideUIPanel(SpellBookFrame) end Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button3, -31, -6, '|cff1784d1'..TALENTS_BUTTON, function()
-				ToggleFrame(KF_MicroMenuHolder)
-				
-				if not PlayerTalentFrame then TalentFrame_LoadUI() end
-				if not GlyphFrame then GlyphFrame_LoadUI() end
-				
-				if not PlayerTalentFrame:IsShown() then
-					ShowUIPanel(PlayerTalentFrame)
-				else
-					HideUIPanel(PlayerTalentFrame)
-				end
-				
-				Button.text:SetText(KF.UIParent.Button.MicroMenu.Text)
-			end)
-			CreateMiniButton(Button4, 0, -6, '|cff228b22'..QUESTLOG_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleQuestLog() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button5, 31, -6, '|cff228b22'..COLLECTIONS, function() ToggleFrame(KF_MicroMenuHolder) ToggleCollectionsJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button6, 62, -6, '|cff1784d1'..ACHIEVEMENT_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleAchievementFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button7, 93, -6, '|cff228b22'..SOCIAL_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleFriendsFrame(1) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button8, -93, -24, '|cff1784d1'..ACHIEVEMENTS_GUILD_TAB, function() ToggleFrame(KF_MicroMenuHolder) if IsInGuild() then if not GuildFrame then LoadAddOn('Blizzard_GuildUI') end GuildFrame_Toggle() else if not LookingForGuildFrame then LoadAddOn('Blizzard_LookingForGuildUI') end if not LookingForGuildFrame then return end LookingForGuildFrame_Toggle() end Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button9, -62, -24, '|cff228b22'..string.gsub(string.gsub(SLASH_CALENDAR1, '/', ''), '^%l', string.upper), function() ToggleFrame(KF_MicroMenuHolder) if(not CalendarFrame) then LoadAddOn('Blizzard_Calendar') end Calendar_Toggle() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button10, -31, -24, '|cff1784d1'..LFG_TITLE, function() ToggleFrame(KF_MicroMenuHolder) PVEFrame_ToggleFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button11, 0, -24, '|cff1784d1'..ENCOUNTER_JOURNAL, function() ToggleFrame(KF_MicroMenuHolder) if not IsAddOnLoaded('Blizzard_EncounterJournal') then LoadAddOn('Blizzard_EncounterJournal') end ToggleFrame(EncounterJournal) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button12, 31, -24, '|cff228b22'..PLAYER_V_PLAYER, function() ToggleFrame(KF_MicroMenuHolder) TogglePVPUI() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button13, 62, -24, '|cff1784d1'..MAINMENU_BUTTON, function() ToggleFrame(KF_MicroMenuHolder) ToggleFrame(GameMenuFrame) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
-			CreateMiniButton(Button14, 93, -24, '|cff228b22'..BLIZZARD_STORE, function() ToggleFrame(KF_MicroMenuHolder) ToggleStoreUI() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button1,	-93, -6,	'|cff1784d1'..CHARACTER_BUTTON,						function() ToggleFrame(KF_MicroMenuHolder) ToggleCharacter('PaperDollFrame') Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button2,	-62, -6,	'|cff228b22'..SPELLBOOK_ABILITIES_BUTTON,	function() ToggleFrame(KF_MicroMenuHolder) ToggleSpellBook(BOOKTYPE_SPELL) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button3,	-31, -6,	'|cff1784d1'..TALENTS_BUTTON,							function() ToggleFrame(KF_MicroMenuHolder) TalentMicroButton_OnClick(TalentMicroButton) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button4,	0, -6,		'|cff228b22'..QUESTLOG_BUTTON,						function() ToggleFrame(KF_MicroMenuHolder) ToggleQuestLog() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button5,	31, -6,		'|cff1784d1'..COLLECTIONS,									function() ToggleFrame(KF_MicroMenuHolder) ToggleCollectionsJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button6,	62, -6,		'|cff228b22'..ACHIEVEMENT_BUTTON,					function() ToggleFrame(KF_MicroMenuHolder) ToggleAchievementFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button7,	93, -6,		'|cff1784d1'..SOCIAL_BUTTON,							function() ToggleFrame(KF_MicroMenuHolder) ToggleFriendsFrame(1) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button8,	-93, -24,	'|cff228b22'..ACHIEVEMENTS_GUILD_TAB,			function() ToggleFrame(KF_MicroMenuHolder) ToggleGuildFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button9,	-62, -24,	'|cff1784d1'..gsub(gsub(SLASH_CALENDAR1, '/', ''), '^%l', string.upper), function() ToggleFrame(KF_MicroMenuHolder) GameTimeFrame:Click() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button10,	-31, -24,	'|cff228b22'..LFG_TITLE,										function() ToggleFrame(KF_MicroMenuHolder) PVEFrame_ToggleFrame() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button11,	0, -24,		'|cff1784d1'..ENCOUNTER_JOURNAL,					function() ToggleFrame(KF_MicroMenuHolder) ToggleEncounterJournal() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button12,	31, -24,	'|cff228b22'..PLAYER_V_PLAYER,							function() ToggleFrame(KF_MicroMenuHolder) TogglePVPUI() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button13,	62, -24,	'|cff1784d1'..MAINMENU_BUTTON,						function() ToggleFrame(KF_MicroMenuHolder) ToggleFrame(GameMenuFrame) Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
+			CreateMiniButton(Button14,	93, -24,	'|cff228b22'..BLIZZARD_STORE,							function() ToggleFrame(KF_MicroMenuHolder) ToggleStoreUI() Button.text:SetText(KF.UIParent.Button.MicroMenu.Text) end)
 		else
 			ToggleFrame(KF_MicroMenuHolder)
 		end

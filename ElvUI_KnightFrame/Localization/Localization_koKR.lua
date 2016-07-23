@@ -1,4 +1,10 @@
-﻿if GetLocale() ~= 'koKR' then return end
+﻿local GetLocale = GetLocale
+
+if GetLocale() ~= 'koKR' then return end
+
+--Cache global variables
+--Lua functions
+local unpack, select = unpack, select
 
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
@@ -51,7 +57,6 @@ do	-- Modules
 		L['Floating Datatext'] = '독립형 정보문자'
 		L['Current Spec'] = '현재 전문화'
 		L['Equipped Set'] = '장착중인 장비세트'
-		L['Change Specialization group.'] = '전문화를 서로 교체합니다.'
 		L['Toggle Talent frame.'] = '특성창을 엽니다.'
 		L['Change Loot Specialization.'] = '전리품 획득시 전문화를 변경합니다.'
 	end

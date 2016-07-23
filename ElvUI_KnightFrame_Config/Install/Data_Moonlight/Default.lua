@@ -1,6 +1,14 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack = unpack
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
+
+--WoW API / Variables
+local SetCVar = SetCVar
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Default Install Data	- Moonlight							>>--
@@ -18,6 +26,8 @@ KF_Config.Install_Layout_Data.Moonlight.Default = {
 	BuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-14'..Info.MoverDelimiter..'-42',
 	DebuffsMover = 'TOPRIGHT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'TOPRIGHT'..Info.MoverDelimiter..'-14'..Info.MoverDelimiter..'-188',
 	BossButton = 'CENTER'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'400',
+	ElvUF_RaidpetMover = 'TOPLEFT'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOMLEFT'..Info.MoverDelimiter..'4'..Info.MoverDelimiter..'736',
+	TalkingHeadFrameMover = 'BOTTOM'..Info.MoverDelimiter..'ElvUIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'0'..Info.MoverDelimiter..'340',
 	
 	--UnitFrame
 	ElvUF_PlayerMover = 'BOTTOM'..Info.MoverDelimiter..'UIParent'..Info.MoverDelimiter..'BOTTOM'..Info.MoverDelimiter..'-253'..Info.MoverDelimiter..'282',
@@ -47,19 +57,19 @@ KF_Config.Install_Layout_Data.Moonlight.Default = {
 }
 
 KF_Config.Install_Profile_Data.Moonlight.Default = function()
-	SetCVar('alternateResourceText', 1)
-	SetCVar('statusTextDisplay', 'BOTH')
-	SetCVar('ShowClassColorInNameplate', 1)
-	SetCVar('screenshotQuality', 10)
-	SetCVar('chatMouseScroll', 1)
-	SetCVar('chatStyle', 'classic')
-	SetCVar('WholeChatWindowClickable', 0)
-	SetCVar('showTutorials', 0)
-	SetCVar('UberTooltips', 1)
-	SetCVar('threatWarning', 3)
+	SetCVar("statusTextDisplay", "BOTH")
+	SetCVar("ShowClassColorInNameplate", 1)
+	SetCVar("screenshotQuality", 10)
+	SetCVar("chatMouseScroll", 1)
+	SetCVar("chatStyle", "classic")
+	SetCVar("WholeChatWindowClickable", 0)
+	SetCVar("showTutorials", 0)
+	SetCVar("UberTooltips", 1)
+	SetCVar("threatWarning", 3)
 	SetCVar('alwaysShowActionBars', 1)
 	SetCVar('lockActionBars', 1)
 	SetCVar('SpamFilter', 0)
+	SetCVar("nameplateShowSelf", 0)
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:SetValue('SHIFT')
 	InterfaceOptionsActionBarsPanelPickupActionKeyDropDown:RefreshValue()
 	

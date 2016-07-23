@@ -1,20 +1,43 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, print, format = unpack, select, print, format
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
 local DT = E:GetModule('DataTexts')
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local GetNumEquipmentSets = GetNumEquipmentSets
+local GetEquipmentSetInfo = GetEquipmentSetInfo
+local GetNumSpecGroups = GetNumSpecGroups
+local GetSpecialization = GetSpecialization
+local UnitLevel = UnitLevel
+local SHOW_SPEC_LEVEL = SHOW_SPEC_LEVEL
+local GetLootSpecialization = GetLootSpecialization
+local SELECT_LOOT_SPECIALIZATION = SELECT_LOOT_SPECIALIZATION
+local LOOT_SPECIALIZATION_DEFAULT = LOOT_SPECIALIZATION_DEFAULT
+local GetSpecialization = GetSpecialization
+local GetSpecializationInfoByID = GetSpecializationInfoByID
+local GetSpecializationInfo = GetSpecializationInfo
+local TalentMicroButton_OnClick = TalentMicroButton_OnClick
+local EasyMenu = EasyMenu
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Custom DataText - SpecSwitch								>>--
 --------------------------------------------------------------------------------
-local ActiveSpec, ActiveSpecGroup, IsTooltipShow
+local ActiveSpec, IsTooltipShow
 local displayString = ''
 local activeString = '|cff84e1ff['..ACTIVE_PETS..']|r'
 local numSpecGroup
 
 
+local EquipmentSetName, IsEquipped
 local function GetCurrentEquipmentSet()
-	local EquipmentSetName, IsEquipped
 	for i = 1, GetNumEquipmentSets() do
 		EquipmentSetName, _, _, IsEquipped = GetEquipmentSetInfo(i)
+		
 		if IsEquipped then
 			return EquipmentSetName
 		end
@@ -28,21 +51,6 @@ local function tooltipSetting(self)
 	
 	-- Specialization
 	DT.tooltip:AddLine(KF:Color_Value('>> ')..L['Current Spec']..' : '..self.text:GetText()..KF:Color_Value(' <<'), 1, 1, 1)
-	
-	numSpecGroup = GetNumSpecGroups()
-	if numSpecGroup > 1 then
-		local Spec, specRole
-		
-		for i = 1, numSpecGroup do
-			Spec = GetSpecialization(false, false, i)
-			
-			if Spec then
-				_, Spec, _, _, _, specRole = GetSpecializationInfo(Spec)
-			end
-			
-			DT.tooltip:AddLine(' '..i..':  '..(Spec and (specRole == 'TANK' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\tank:14:14:2:1|t ' or specRole == 'HEALER' and '|TInterface\\AddOns\\ElvUI\\media\\textures\\healer:14:14:2:0|t ' or '|TInterface\\AddOns\\ElvUI\\media\\textures\\dps:14:14:2:-1|t ')..(Info.ClassRole[E.myclass][Spec] and Info.ClassRole[E.myclass][Spec].Color or '')..Spec or L['No Spec'])..(i == ActiveSpecGroup and GetNumSpecGroups() > 1 and '  '..activeString or ''), 1, 1, 1)
-		end
-	end
 	DT.tooltip:AddLine(' ') -- space
 	
 	-- Current EquipmentSet
@@ -64,11 +72,7 @@ local function tooltipSetting(self)
 		DT.tooltip:AddLine(' ') -- space
 	end
 	
-	if numSpecGroup > 1 then
-		DT.tooltip:AddDoubleLine('- |cff84e1ff'..L['LeftClick'], L['Change Specialization group.'], 1, 1, 1, 1, 1, 1)
-	end
-	
-	DT.tooltip:AddDoubleLine('- |cff84e1ffShift + '..L['LeftClick'], L['Toggle Talent frame.'], 1, 1, 1, 1, 1, 1)
+	DT.tooltip:AddDoubleLine('- |cff84e1ff'..L['LeftClick'], L['Toggle Talent frame.'], 1, 1, 1, 1, 1, 1)
 	
 	if UnitLevel('player') >= SHOW_SPEC_LEVEL then
 		DT.tooltip:AddDoubleLine('- |cff84e1ff'..L['RightClick'], L['Change Loot Specialization.'], 1, 1, 1, 1, 1, 1)
@@ -80,10 +84,9 @@ end
 
 local function OnEvent(self, event)
 	ActiveSpec = GetSpecialization()
-	ActiveSpecGroup = GetActiveSpecGroup()
 	
 	if ActiveSpec then
-		_, ActiveSpec = GetSpecializationInfo(GetSpecialization())
+		_, ActiveSpec = GetSpecializationInfo(ActiveSpec)
 	end
 	
 	self.text:SetText(ActiveSpec and (Info.ClassRole[E.myclass][ActiveSpec] and (Info.Role == 'Tank' and '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\tank:13:13:1:0|t ' or Info.Role == 'Healer' and '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\healer:13:13:1:0|t ' or '|TInterface\\AddOns\\ElvUI_KnightFrame\\Media\\Graphics\\dps:13:13:1:0|t ')..Info.ClassRole[E.myclass][ActiveSpec].Color or '')..ActiveSpec..'|r' or L['No Spec'])
@@ -118,17 +121,8 @@ local menuList = {
 	[2] = { notCheckable = true, func = function() SetLootSpecialization(0) end }
 }
 local function OnClick(self, button)
-	if button == 'LeftButton' and IsShiftKeyDown() then
-		if not PlayerTalentFrame then TalentFrame_LoadUI() end
-		if not GlyphFrame then GlyphFrame_LoadUI() end
-		
-		if not PlayerTalentFrame:IsShown() then
-			ShowUIPanel(PlayerTalentFrame)
-		else
-			HideUIPanel(PlayerTalentFrame)
-		end
-	elseif button == 'LeftButton' and GetNumSpecGroups() > 1 then
-		SetActiveSpecGroup(ActiveSpecGroup == 1 and 2 or 1)
+	if button == 'LeftButton' then
+		TalentMicroButton_OnClick(TalentMicroButton)
 	elseif button == 'RightButton' and UnitLevel('player') >= SHOW_SPEC_LEVEL then
 		if DropDownList1:IsShown() then
 			tooltipSetting(self)
@@ -138,8 +132,9 @@ local function OnClick(self, button)
 			menuList[2].text = ' 0. '..format(LOOT_SPECIALIZATION_DEFAULT, self.text:GetText())
 			
 			if #menuList == 2 then
+				local SpecID, Spec, SpecRole
 				for i = 1, GetNumSpecializations() do
-					local SpecID, Spec, _, _, _, SpecRole = GetSpecializationInfo(i)
+					SpecID, Spec, _, _, _, SpecRole = GetSpecializationInfo(i)
 					
 					if SpecID then
 						menuList[i + 2] = {

@@ -1,10 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="ExpRepDisplay.lua"/>
+	<!--<Script file="ExpRepDisplay.lua"/>-->
+	
 	<Script file="FullValues.lua"/>
 	<Script file="ItemDeleteButton.lua"/>
 	<Script file="LocalizedTimeFormat.lua"/>
-	<Script file="Minimap.lua"/>
-	<Script file="WorldStateAlwaysUpFrame.lua"/>
 	<Script file="BankOpen.lua"/>
+	<Script file="WorldStateAlwaysUpFrame.lua"/>
 	<Script file="Calculator.lua"/>
 </Ui>
