@@ -7,7 +7,7 @@
 ## OptionalDeps: ACP, Skada, SkadaU, Recount, Omen, BlueItemInfo3, DBM-Core, Findparty, InvenCraftInfo2, Examiner
 ## DefaultState: Enabled
 ## Notes: Custom User Interface of Elv UI 10.0 version by Arstraea
-## SavedVariables: KnightFrame_ArmoryDB
+## SavedVariables: KnightFrameDB
 
 Initialize.lua
 Toolkit\Load_Toolkit.xml

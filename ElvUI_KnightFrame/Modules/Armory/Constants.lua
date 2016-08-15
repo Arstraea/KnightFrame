@@ -1,5 +1,30 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, gsub = unpack, select, gsub
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API . Variables
+local GetSpellInfo = GetSpellInfo
+local ITEM_LEVEL = ITEM_LEVEL
+local ITEM_LEVEL_ALT = ITEM_LEVEL_ALT
+local ENCHANTED_TOOLTIP_LINE = ENCHANTED_TOOLTIP_LINE
+local ITEM_SET_BONUS = ITEM_SET_BONUS
+local ITEM_UPGRADE_TOOLTIP_FORMAT = ITEM_UPGRADE_TOOLTIP_FORMAT
+local EMPTY_SOCKET_BLUE = EMPTY_SOCKET_BLUE
+local EMPTY_SOCKET_COGWHEEL = EMPTY_SOCKET_COGWHEEL
+local EMPTY_SOCKET_HYDRAULIC = EMPTY_SOCKET_HYDRAULIC
+local EMPTY_SOCKET_META = EMPTY_SOCKET_META
+local EMPTY_SOCKET_NO_COLOR = EMPTY_SOCKET_NO_COLOR
+local EMPTY_SOCKET_PRISMATIC = EMPTY_SOCKET_PRISMATIC
+local EMPTY_SOCKET_RED = EMPTY_SOCKET_RED
+local EMPTY_SOCKET_YELLOW = EMPTY_SOCKET_YELLOW
+local ITEM_BIND_ON_EQUIP = ITEM_BIND_ON_EQUIP
+local ITEM_BIND_ON_PICKUP = ITEM_BIND_ON_PICKUP
+local ITEM_BIND_TO_ACCOUNT = ITEM_BIND_TO_ACCOUNT
+local ITEM_BIND_TO_BNETACCOUNT = ITEM_BIND_TO_BNETACCOUNT
 
 Info.Armory_Constants = {
 	ItemLevelKey = ITEM_LEVEL:gsub('%%d', '(.+)'),
@@ -7,7 +32,6 @@ Info.Armory_Constants = {
 	EnchantKey = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)'),
 	ItemSetBonusKey = ITEM_SET_BONUS:gsub('%%s', '(.+)'),
 	ItemUpgradeKey = ITEM_UPGRADE_TOOLTIP_FORMAT:gsub('%%d', '(.+)'),
-	--TransmogrifiedKey = TRANSMOGRIFIED:gsub('%%s', '(.+)'),
 	
 	GearList = {
 		'HeadSlot', 'HandsSlot', 'NeckSlot', 'WaistSlot', 'ShoulderSlot', 'LegsSlot', 'BackSlot', 'FeetSlot', 'ChestSlot', 'Finger0Slot',
@@ -56,6 +80,10 @@ Info.Armory_Constants = {
 		HandsSlot = true, WaistSlot = true, LegsSlot = true, FeetSlot = true, MainHandSlot = true, SecondaryHandSlot = true
 	},
 	
+	CanIllusionSlot = {
+		MainHandSlot = true, SecondaryHandSlot = true
+	},
+	
 	ProfessionList = {},
 	
 	BlizzardBackdropList = {
@@ -64,7 +92,8 @@ Info.Armory_Constants = {
 		['Arena-bliz'] = [[Interface\PVPFrame\PvpBg-NagrandArena-ToastBG]]
 	}
 }
-	
+
+local ProfessionName, ProfessionTexture
 for ProfessionID, ProfessionKey in pairs({
 	[105206] = 'Alchemy',
 	[110396] = 'BlackSmithing',
@@ -79,7 +108,7 @@ for ProfessionID, ProfessionKey in pairs({
 	[102161] = 'Mining',
 	[102216] = 'Skinning'
 }) do
-	local ProfessionName, _, ProfessionTexture = GetSpellInfo(ProfessionID)
+	ProfessionName, _, ProfessionTexture = GetSpellInfo(ProfessionID)
 	
 	Info.Armory_Constants.ProfessionList[ProfessionName] = {
 		Key = ProfessionKey,

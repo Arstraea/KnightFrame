@@ -76,6 +76,7 @@ SC.Alarm_EventList = {
 	LFG_PROPOSAL_SHOW = 'ReadyCheck',
 	LFG_PROPOSAL_SUCCEEDED = false,
 	LFG_PROPOSAL_FAILED = false,
+	GROUP_JOINED = false,
 	
 	READY_CHECK = function(arg1)
 		if arg1 ~= E.myname then
@@ -251,6 +252,7 @@ KF.Modules.Secretary = function(RemoveOrder)
 			SC:RegisterEvent('LFG_PROPOSAL_SHOW')
 			SC:RegisterEvent('LFG_PROPOSAL_SUCCEEDED')
 			SC:RegisterEvent('LFG_PROPOSAL_FAILED')
+			SC:RegisterEvent('GROUP_JOINED')
 			SC:RegisterEvent('UPDATE_BATTLEFIELD_STATUS')
 			KF:RegisterEventList('LFG_ROLE_CHECK_SHOW', SC.Alarm_PopupSetting, 'Alarm_Initialize')
 		end

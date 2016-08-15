@@ -1,15 +1,56 @@
+--Cache global variables
+--Lua functions
+local _G = _G
+local unpack, select, type, pairs, find, tonumber, match, gsub, strupper = unpack, select, type, pairs, find, tonumber, match, gsub, strupper
+
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+
+--WoW API / Variables
+local CreateFrame = CreateFrame
+local GetItemInfo = GetItemInfo
+local CursorHasItem = CursorHasItem
+local IsShiftKeyDown = IsShiftKeyDown
+local SetItemRef = SetItemRef
+local SocketInventoryItem = SocketInventoryItem
+local HandleModifiedItemClick = HandleModifiedItemClick
+local GetCursorInfo = GetCursorInfo
+local AUCTION_CATEGORY_GEMS = AUCTION_CATEGORY_GEMS
+local ClickSocketButton = ClickSocketButton
+local hooksecurefunc = hooksecurefunc
+local GetInventoryItemDurability = GetInventoryItemDurability
+local GetInventoryItemLink = GetInventoryItemLink
+local MAX_NUM_SOCKETS = MAX_NUM_SOCKETS
+local GetInventoryItemGems = GetInventoryItemGems
+local ITEM_MOD_AGILITY_SHORT = ITEM_MOD_AGILITY_SHORT
+local AGI = AGI
+local ITEM_MOD_SPIRIT_SHORT = ITEM_MOD_SPIRIT_SHORT
+local SPI = SPI
+local ITEM_MOD_STAMINA_SHORT = ITEM_MOD_STAMINA_SHORT
+local STA = STA
+local ITEM_MOD_STRENGTH_SHORT = ITEM_MOD_STRENGTH_SHORT
+local STR = STR
+local ITEM_MOD_INTELLECT_SHORT = ITEM_MOD_INTELLECT_SHORT
+local INT = INT
+local ITEM_MOD_CRIT_RATING_SHORT = ITEM_MOD_CRIT_RATING_SHORT
+local CRIT_ABBR = CRIT_ABBR
+local ITEM_SPELL_TRIGGER_ONUSE = ITEM_SPELL_TRIGGER_ONUSE
+local ITEM_UPGRADE_TOOLTIP_FORMAT = ITEM_UPGRADE_TOOLTIP_FORMAT
+local C_Transmog = C_Transmog
+local C_TransmogCollection = C_TransmogCollection
+local LE_TRANSMOG_TYPE_ILLUSION = LE_TRANSMOG_TYPE_ILLUSION
+local LE_TRANSMOG_TYPE_APPEARANCE = LE_TRANSMOG_TYPE_APPEARANCE
+local STAT_AVERAGE_ITEM_LEVEL = STAT_AVERAGE_ITEM_LEVEL
 
 --------------------------------------------------------------------------------
 --<< KnightFrame : Upgrade Character Frame's Item Info like Wow-Armory		>>--
 --------------------------------------------------------------------------------
 local CA = CharacterArmory or CreateFrame('Frame', 'CharacterArmory', PaperDollFrame)
 
-local IsGemType = select(8, GetAuctionItemClasses())
+
 local SlotIDList = {}
 local InsetDefaultPoint = { CharacterFrameInsetRight:GetPoint() }
-local ExpandButtonDefaultPoint = { CharacterFrameExpandButton:GetPoint() }
+--local ExpandButtonDefaultPoint = { CharacterFrameExpandButton:GetPoint() }
 
 do --<< Button Script >>--
 	function CA:OnEnter()
@@ -101,7 +142,7 @@ do --<< Button Script >>--
 		if CursorHasItem() then
 			local CursorType, _, ItemLink = GetCursorInfo()
 			
-			if CursorType == 'item' and select(6, GetItemInfo(ItemLink)) == IsGemType then
+			if CursorType == 'item' and select(6, GetItemInfo(ItemLink)) == AUCTION_CATEGORY_GEMS then
 				SocketInventoryItem(GetInventorySlotInfo(self.SlotName))
 				ClickSocketButton(self.SocketNumber)
 			end
@@ -139,6 +180,25 @@ do --<< Button Script >>--
 			end
 		end
 	end
+	
+	
+	function CA:Illusion_OnEnter()
+		GameTooltip:SetOwner(self, 'ANCHOR_BOTTOM')
+		GameTooltip:AddLine(self.Link, 1, 1, 1)
+		GameTooltip:Show()
+	end
+	
+	
+	function CA:Illusion_OnLeave()
+		GameTooltip:Hide()
+	end
+	
+	
+	function CA:Illusion_OnClick(Button)
+		if IsShiftKeyDown() then
+			HandleModifiedItemClick(self.Link)
+		end
+	end
 end
 
 
@@ -150,7 +210,7 @@ function CA:Setup_CharacterArmory()
 	--<< Updater >>--
 	local args
 	self:SetScript('OnEvent', function(self, Event, ...)
-		if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' or Event == 'PLAYER_EQUIPMENT_CHANGED' then
+		if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_SUCCESS' or Event == 'PLAYER_ENTERING_WORLD' or Event == 'PLAYER_EQUIPMENT_CHANGED' then
 		--if Event == 'SOCKET_INFO_SUCCESS' or Event == 'ITEM_UPGRADE_MASTER_UPDATE' or Event == 'TRANSMOGRIFY_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' then
 			self.GearUpdated = nil
 			self:SetScript('OnUpdate', self.ScanData)
@@ -189,10 +249,10 @@ function CA:Setup_CharacterArmory()
 			CharacterFrame:SetWidth(PANEL_DEFAULT_WIDTH)
 		elseif Info.CharacterArmory_Activate and frameType == 'PaperDollFrame' then
 			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
-			CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
+			--CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
 		else
 			CharacterFrameInsetRight:SetPoint(unpack(InsetDefaultPoint))
-			CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
+			--CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
 		end
 	end)
 	hooksecurefunc('PaperDollFrame_SetLevel', function()
@@ -369,6 +429,31 @@ function CA:Setup_CharacterArmory()
 				
 				Slot.TransmogrifyAnchor:Hide()
 			end
+			
+			-- Illusion
+			if Info.Armory_Constants.CanIllusionSlot[SlotName] then
+				Slot.IllusionAnchor = CreateFrame('Button', nil, Slot)
+				Slot.IllusionAnchor:Size(18)
+				Slot.IllusionAnchor:SetBackdrop({
+					bgFile = E.media.blankTex,
+					edgeFile = E.media.blankTex,
+					tile = false, tileSize = 0, edgeSize = E.mult,
+					insets = { left = 0, right = 0, top = 0, bottom = 0}
+				})
+				Slot.IllusionAnchor:SetFrameLevel(Slot:GetFrameLevel() + 2)
+				Slot.IllusionAnchor:Point('CENTER', _G['Character'..SlotName], 'BOTTOM', 0, -2)
+				Slot.IllusionAnchor:SetScript('OnEnter', self.Illusion_OnEnter)
+				Slot.IllusionAnchor:SetScript('OnLeave', self.Illusion_OnLeave)
+				Slot.IllusionAnchor:SetScript('OnClick', self.Illusion_OnClick)
+				hooksecurefunc(_G['Character'..SlotName].IconBorder, 'SetVertexColor', function(self, r, g, b)
+					Slot.IllusionAnchor:SetBackdropBorderColor(r, g, b)
+				end)
+				
+				Slot.IllusionAnchor.Texture = Slot.IllusionAnchor:CreateTexture(nil, 'OVERLAY')
+				Slot.IllusionAnchor.Texture:SetInside()
+				Slot.IllusionAnchor.Texture:SetTexCoord(.1, .9, .1, .9)
+				Slot.IllusionAnchor:Hide()
+			end
 		end
 		
 		SlotIDList[Slot.ID] = SlotName
@@ -383,7 +468,7 @@ function CA:Setup_CharacterArmory()
 end
 
 
-function CA:ScanData()
+function CA:ScanData(...)
 	self.NeedUpdate = nil
 	
 	if not self.DurabilityUpdated then
@@ -454,7 +539,7 @@ function CA:Update_Gear()
 	if Prof2 and Info.Armory_Constants.ProfessionList[Prof2] then self.PlayerProfession[(Info.Armory_Constants.ProfessionList[Prof2].Key)] = Prof2_Level end
 	]]
 	local ErrorDetected, NeedUpdate, NeedUpdateList, R, G, B
-	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified, TransmogrifyItemID
+	local Slot, ItemLink, ItemData, ItemRarity, BasicItemLevel, TrueItemLevel, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture, UsableEffect, CurrentLineText, GemID, GemCount_Default, GemCount_Enable, GemCount_Now, GemCount, IsTransmogrified
 	
 	for _, SlotName in pairs(type(self.GearUpdated) == 'table' and self.GearUpdated or Info.Armory_Constants.GearList) do
 		Slot = self[SlotName]
@@ -463,7 +548,7 @@ function CA:Update_Gear()
 		
 		if not (SlotName == 'ShirtSlot' or SlotName == 'TabardSlot') then
 			do --<< Clear Setting >>--
-				NeedUpdate, TrueItemLevel, UsableEffect, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture = nil, nil, nil, nil, nil, nil, nil, nil
+				NeedUpdate, TrueItemLevel, UsableEffect, ItemUpgradeID, CurrentUpgrade, MaxUpgrade, ItemType, ItemTexture, IsTransmogrified = nil, nil, nil, nil, nil, nil, nil, nil, nil
 				
 				Slot.ItemLevel:SetText(nil)
 				Slot.IsEnchanted = nil
@@ -483,8 +568,14 @@ function CA:Update_Gear()
 				Slot.SocketWarning.Message = nil
 				
 				if Slot.TransmogrifyAnchor then
+					Slot.TransmogrifyAnchor.SourceID = nil
 					Slot.TransmogrifyAnchor.Link = nil
 					Slot.TransmogrifyAnchor:Hide()
+				end
+				
+				if Slot.IllusionAnchor then
+					Slot.IllusionAnchor.Link = nil
+					Slot.IllusionAnchor:Hide()
 				end
 			end
 			
@@ -492,10 +583,13 @@ function CA:Update_Gear()
 				if not ItemLink:find('%[%]') then -- sometimes itemLink is malformed so we need to update when crashed
 					do --<< Gem Parts >>--
 						ItemData = { strsplit(':', ItemLink) }
-						ItemData[4], ItemData[5], ItemData[6], ItemData[7] = 0, 0, 0, 0
 						
 						for i = 1, #ItemData do
-							ItemData.FixedLink = (ItemData.FixedLink and ItemData.FixedLink..':' or '')..ItemData[i]
+							if i == 4 or i == 5 or i ==6 or i ==7 then
+								ItemData.FixedLink = (ItemData.FixedLink and ItemData.FixedLink..':' or '')..0
+							else
+								ItemData.FixedLink = (ItemData.FixedLink and ItemData.FixedLink..':' or '')..ItemData[i]
+							end
 						end
 						
 						self:ClearTooltip(self.ScanTT)
@@ -530,7 +624,7 @@ function CA:Update_Gear()
 						-- Apply current item's gem setting
 						for i = 1, MAX_NUM_SOCKETS do
 							ItemTexture = _G['Knight_CharacterArmory_ScanTTTexture'..i]:GetTexture()
-							GemID = select(i, GetInventoryItemGems(Slot.ID))
+							GemID = ItemData[i + 3]
 							
 							if Slot['Socket'..i].GemType and Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType] then
 								R, G, B = unpack(Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType])
@@ -541,7 +635,7 @@ function CA:Update_Gear()
 								Slot['Socket'..i].Socket:SetBackdropBorderColor(1, 1, 1)
 							end
 							
-							if ItemTexture or GemID then
+							if ItemTexture or (type(GemID) == 'number' and GemID ~= 0) then
 								if KF.db.Modules.Armory.Character.Gem.Display == 'Always' or KF.db.Modules.Armory.Character.Gem.Display == 'MouseoverOnly' and Slot.Mouseovered or KF.db.Modules.Armory.Character.Gem.Display == 'MissingOnly' then
 									Slot['Socket'..i]:Show()
 									Slot.SocketWarning:Point(Slot.Direction, Slot['Socket'..i], (Slot.Direction == 'LEFT' and 'RIGHT' or 'LEFT'), Slot.Direction == 'LEFT' and 3 or -3, 0)
@@ -573,8 +667,6 @@ function CA:Update_Gear()
 					_, _, ItemRarity, BasicItemLevel, _, _, _, _, ItemType, ItemTexture = GetItemInfo(ItemLink)
 					R, G, B = GetItemQualityColor(ItemRarity)
 					
-					ItemUpgradeID = ItemLink:match(':(%d+)\124h%[')
-					
 					--<< Enchant Parts >>--
 					for i = 1, self.ScanTT:NumLines() do
 						CurrentLineText = _G['Knight_CharacterArmory_ScanTTTextLeft'..i]:GetText()
@@ -600,7 +692,7 @@ function CA:Update_Gear()
 									end
 								end
 								
-								for Old, New in pairs(KnightFrame_ArmoryDB.EnchantString) do
+								for Old, New in pairs(KnightFrameDB.ArmoryDB.EnchantString) do
 									CurrentLineText = gsub(CurrentLineText, Old, New)
 								end
 								
@@ -608,17 +700,19 @@ function CA:Update_Gear()
 							end
 							
 							Slot.IsEnchanted = true
-						elseif ITEM_SPELL_TRIGGER_ONUSE and CurrentLineText:find(ITEM_SPELL_TRIGGER_ONUSE) then
+						elseif CurrentLineText:find(ITEM_SPELL_TRIGGER_ONUSE) then
 							UsableEffect = true
-						elseif ITEM_UPGRADE_TOOLTIP_FORMAT and CurrentLineText:find(ITEM_UPGRADE_TOOLTIP_FORMAT) then
+						elseif CurrentLineText:find(ITEM_UPGRADE_TOOLTIP_FORMAT) then
 							CurrentUpgrade, MaxUpgrade = CurrentLineText:match(Info.Armory_Constants.ItemUpgradeKey)
 						end
 					end
 					
 					--<< ItemLevel Parts >>--
+					ItemUpgradeID = ItemData[12]
+					
 					if BasicItemLevel then
 						if ItemUpgradeID then
-							if ItemUpgradeID == '0' or not KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel and ItemRarity == 7 then
+							if ItemUpgradeID == '' or not KF.db.Modules.Armory.Character.Level.ShowUpgradeLevel and ItemRarity == 7 then
 								ItemUpgradeID = nil
 							elseif CurrentUpgrade or MaxUpgrade then
 								ItemUpgradeID = TrueItemLevel - BasicItemLevel
@@ -655,12 +749,22 @@ function CA:Update_Gear()
 					end
 					
 					--<< Transmogrify Parts >>--
-					if Slot.TransmogrifyAnchor then
-						IsTransmogrified, _, _, _, _, TransmogrifyItemID = GetTransmogrifySlotInfo(Slot.ID)
+					if Slot.TransmogrifyAnchor and C_Transmog.GetSlotInfo(Slot.ID, LE_TRANSMOG_TYPE_APPEARANCE) then
+						_, _, Slot.TransmogrifyAnchor.SourceID = C_Transmog.GetSlotVisualInfo(Slot.ID, LE_TRANSMOG_TYPE_APPEARANCE)
+						_, _, _, _, _, Slot.TransmogrifyAnchor.Link = C_TransmogCollection.GetAppearanceSourceInfo(Slot.TransmogrifyAnchor.SourceID)
+						
+						Slot.TransmogrifyAnchor:Show()
+					end
+					
+					--<< Illusion Parts >>--
+					if Slot.IllusionAnchor then
+						IsTransmogrified, _, _, _, _, _, _, ItemTexture = C_Transmog.GetSlotInfo(Slot.ID, LE_TRANSMOG_TYPE_ILLUSION)
 						
 						if IsTransmogrified then
-							_, Slot.TransmogrifyAnchor.Link = GetItemInfo(TransmogrifyItemID)
-							Slot.TransmogrifyAnchor:Show()
+							Slot.IllusionAnchor.Texture:SetTexture(ItemTexture)
+							_, _, Slot.IllusionAnchor.Link = C_TransmogCollection.GetIllusionSourceInfo(select(3, C_Transmog.GetSlotVisualInfo(Slot.ID, LE_TRANSMOG_TYPE_ILLUSION)))
+							
+							Slot.IllusionAnchor:Show()
 						end
 					end
 					
@@ -919,7 +1023,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		if PaperDollFrame:IsShown() then
 			CharacterFrame:SetWidth(CharacterFrame.Expanded and 650 or 444)
 			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
-			CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', -3, 7)
+			--CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', -3, 7)
 		end
 		
 		-- Run KnightArmory
@@ -927,7 +1031,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		CA:RegisterEvent('PLAYER_EQUIPMENT_CHANGED')
 		CA:RegisterEvent('UNIT_INVENTORY_CHANGED')
 		CA:RegisterEvent('ITEM_UPGRADE_MASTER_UPDATE')
-		CA:RegisterEvent('TRANSMOGRIFY_UPDATE')
+		CA:RegisterEvent('TRANSMOGRIFY_SUCCESS')
 		CA:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
 		CA:RegisterEvent('UPDATE_INVENTORY_DURABILITY')
 		CA:RegisterEvent('PLAYER_ENTERING_WORLD')
@@ -945,7 +1049,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		CharacterFrame:SetHeight(424)
 		CharacterFrame:SetWidth(PaperDollFrame:IsShown() and CharacterFrame.Expanded and CHARACTERFRAME_EXPANDED_WIDTH or PANEL_DEFAULT_WIDTH)
 		CharacterFrameInsetRight:SetPoint(unpack(InsetDefaultPoint))
-		CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
+		--CharacterFrameExpandButton:SetPoint(unpack(ExpandButtonDefaultPoint))
 		
 		-- Move rightside equipment slots to default position
 		CharacterHandsSlot:SetPoint('TOPRIGHT', CharacterFrameInset, 'TOPRIGHT', -4, -2)

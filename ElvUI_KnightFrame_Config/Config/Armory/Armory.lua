@@ -1,11 +1,16 @@
-﻿local E, L, V, P, G = unpack(ElvUI)
+﻿--Cache global variables
+--Lua functions
+local _G = _G
+local unpack = unpack
+
+local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(ElvUI_KnightFrame)
 local KF_Config = E:GetModule('KnightFrame_Config')
 
 if not (KF and KF.Modules and (KF.Modules.CharacterArmory or KF.Modules.InspectArmory) and KF_Config) then return end
 
 local function Color(TrueColor, FalseColor)
-	return KF.db.Enable ~= false and (KF.db.Modules.Armory.Character.Enable ~= false or KF.db.Modules.Armory.Inspect.Enable ~= false) and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
+	return KF.db.Enable ~= false and (KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable ~= false or KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable ~= false) and (TrueColor == '' and '' or TrueColor and '|c'..TrueColor or KF:Color_Value()) or FalseColor and '|c'..FalseColor or ''
 end
 
 local EnchantString_Old, EnchantString_New = '', ''
@@ -45,7 +50,7 @@ KF_Config.Options.args.Armory = {
 							set = function(_, value)
 								EnchantString_Old = value
 							end,
-							disabled = function() return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) end,
+							disabled = function() return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) end,
 						},
 						NewString = {
 							type = 'input',
@@ -57,7 +62,7 @@ KF_Config.Options.args.Armory = {
 							set = function(_, value)
 								EnchantString_New = value
 							end,
-							disabled = function() return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) end,
+							disabled = function() return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) end,
 						},
 						Space = {
 							type = 'description',
@@ -76,7 +81,7 @@ KF_Config.Options.args.Armory = {
 							values = function()
 								local List = {}
 								
-								for Old, New in pairs(KnightFrame_ArmoryDB.EnchantString) do
+								for Old, New in pairs(KnightFrameDB.ArmoryDB.EnchantString) do
 									if not SelectedEnchantString then
 										SelectedEnchantString = Old
 									end
@@ -92,7 +97,7 @@ KF_Config.Options.args.Armory = {
 								
 								return List
 							end,
-							disabled = function() return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) end,
+							disabled = function() return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) end,
 						},
 						Space2 = {
 							type = 'description',
@@ -102,13 +107,13 @@ KF_Config.Options.args.Armory = {
 						},
 						AddButton = {
 							type = 'execute',
-							name = function() return ((KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) or EnchantString_Old == '' or EnchantString_New == '') and '|cff787878' or KF:Color_Value())..L['Add New Order'] end,
+							name = function() return ((KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) or EnchantString_Old == '' or EnchantString_New == '') and '|cff787878' or KF:Color_Value())..L['Add New Order'] end,
 							order = 6,
 							desc = '',
 							descStyle = 'inline',
 							func = function()
 								if EnchantString_Old ~= '' and EnchantString_New ~= '' then
-									KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] = EnchantString_New
+									KnightFrameDB.ArmoryDB.EnchantString[EnchantString_Old] = EnchantString_New
 									
 									EnchantString_Old = ''
 									EnchantString_New = ''
@@ -120,12 +125,12 @@ KF_Config.Options.args.Armory = {
 									if InspectArmory and InspectArmory.LastDataSetting then
 										InspectArmory:InspectFrame_DataSetting(InspectArmory.CurrentInspectData)
 									end
-								elseif KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] and EnchantString_New == '' then
-									KnightFrame_ArmoryDB.EnchantString[EnchantString_Old] = nil
+								elseif KnightFrameDB.ArmoryDB.EnchantString[EnchantString_Old] and EnchantString_New == '' then
+									KnightFrameDB.ArmoryDB.EnchantString[EnchantString_Old] = nil
 								end
 							end,
 							disabled = function()
-								return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) or EnchantString_Old == '' or EnchantString_New == ''
+								return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) or EnchantString_Old == '' or EnchantString_New == ''
 							end
 						},
 						Space3 = {
@@ -141,8 +146,8 @@ KF_Config.Options.args.Armory = {
 							desc = '',
 							descStyle = 'inline',
 							func = function()
-								if KnightFrame_ArmoryDB.EnchantString[SelectedEnchantString] then
-									KnightFrame_ArmoryDB.EnchantString[SelectedEnchantString] = nil
+								if KnightFrameDB.ArmoryDB.EnchantString[SelectedEnchantString] then
+									KnightFrameDB.ArmoryDB.EnchantString[SelectedEnchantString] = nil
 									SelectedEnchantString = ''
 									
 									if CharacterArmory then
@@ -154,7 +159,7 @@ KF_Config.Options.args.Armory = {
 									end
 								end
 							end,
-							disabled = function() return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) end,
+							disabled = function() return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) end,
 							hidden = function()
 								return SelectedEnchantString == ''
 							end
@@ -178,19 +183,19 @@ KF_Config.Options.args.Armory = {
 								local List = ''
 								local Order = 1
 								
-								if KnightFrame_ArmoryDB.EnchantString and next(KnightFrame_ArmoryDB.EnchantString) then
-									for Old, New in pairs(KnightFrame_ArmoryDB.EnchantString) do
+								if KnightFrameDB.ArmoryDB.EnchantString and next(KnightFrameDB.ArmoryDB.EnchantString) then
+									for Old, New in pairs(KnightFrameDB.ArmoryDB.EnchantString) do
 										List = List..'    '..Color('ffffffff', 'ff787878')..Order..'. '..Color('ffFF7E7E', 'ff787878')..Old..'|r  '..Color('ffceff00', 'ff787878')..'->|r  '..Color(nil, 'ff787878')..New..'|r|n'
 										Order = Order + 1
 									end
 								else
-									List = '    |cffFF7E7E'..L['There is no replacing order.']
+									List = '    '..Color('FFFF7E7E', 'ff787878')..L['There is no replacing order.']
 								end
 								
 								return List
 							end,
 							order = 1,
-							disabled = function() return KF.db.Enable == false or (KF.db.Modules.Armory.Character.Enable == false and KF.db.Modules.Armory.Inspect.Enable == false) end,
+							disabled = function() return KF.db.Enable == false or (not(KF.db.Modules.Armory.Character and KF.db.Modules.Armory.Character.Enable == true) and not(KF.db.Modules.Armory.Inspect and KF.db.Modules.Armory.Inspect.Enable == true)) end,
 						}
 					}
 				},

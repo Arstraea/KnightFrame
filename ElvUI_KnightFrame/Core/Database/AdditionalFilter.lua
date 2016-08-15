@@ -9,15 +9,12 @@ local KF, Info, Timer = unpack(select(2, ...))
 --WoW API / Variables
 local GetSpellInfo = GetSpellInfo
 
-local SpellName
 local function RegistFilter(Filter, SpellID, Priority, Enable)
-	SpellName = GetSpellInfo(SpellID)
-	
 	if Enable == nil then
 		Enable = true
 	end
 	
-	if SpellName and G.unitframe.aurafilters[Filter] then
+	if GetSpellInfo(SpellID) and G.unitframe.aurafilters[Filter] then
 		G.unitframe.aurafilters[Filter].spells[SpellID] = { enable = Enable, priority = Priority or 0 }
 	end
 end
@@ -34,42 +31,42 @@ do	-- GENERAL
 	RegistFilter('Whitelist', 106898)		-- 쇄도의 포효		Stampeding Roar
 	
 	-- AuraBarColors
-	G.unitframe.AuraBarColors[GetSpellInfo(2825)] = { r = .09, g = .51, b = .82 }		-- 피의 욕망		Bloodlust
-	G.unitframe.AuraBarColors[GetSpellInfo(32182)] = { r = .09, g = .51, b = .82 }		-- 영웅심			Heroism
-	G.unitframe.AuraBarColors[GetSpellInfo(80353)] = { r = .09, g = .51, b = .82 }		-- 고대의 격분		Ancient Hysteria
-	G.unitframe.AuraBarColors[GetSpellInfo(90355)] = { r = .09, g = .51, b = .82 }		-- 시간 왜곡		Ancient Hysteria
-	G.unitframe.AuraBarColors[GetSpellInfo(146555)] = { r = .09, g = .51, b = .82 }		-- 분노의 북		Drums of Rage
-	G.unitframe.AuraBarColors[GetSpellInfo(178207)] = { r = .09, g = .51, b = .82 }		-- 격노의 북		Drums of Fury
-	G.unitframe.AuraBarColors[GetSpellInfo(156990)] = { r = 1, g = .8, b = 0 }			-- 마라아드의 진실	Maraad's Truth
-	G.unitframe.AuraBarColors[GetSpellInfo(156989)] = { r = .18, g = .72, b = .89 }		-- 리아드린의 정의	Liadrin's Righteousness
-	G.unitframe.AuraBarColors[GetSpellInfo(156987)] = { r = 1, g = .3, b = .3 }			-- 투랄리온의 응징	Uther's Insight
-	G.unitframe.AuraBarColors[GetSpellInfo(156988)] = {									-- 우서의 통찰		Uther's Insight
+	G.unitframe.AuraBarColors[2825] = { r = .09, g = .51, b = .82 }		-- 피의 욕망		Bloodlust
+	G.unitframe.AuraBarColors[32182] = { r = .09, g = .51, b = .82 }		-- 영웅심			Heroism
+	G.unitframe.AuraBarColors[80353] = { r = .09, g = .51, b = .82 }		-- 고대의 격분		Ancient Hysteria
+	G.unitframe.AuraBarColors[90355] = { r = .09, g = .51, b = .82 }		-- 시간 왜곡		Ancient Hysteria
+	G.unitframe.AuraBarColors[146555] = { r = .09, g = .51, b = .82 }		-- 분노의 북		Drums of Rage
+	G.unitframe.AuraBarColors[178207] = { r = .09, g = .51, b = .82 }		-- 격노의 북		Drums of Fury
+	G.unitframe.AuraBarColors[156990] = { r = 1, g = .8, b = 0 }			-- 마라아드의 진실	Maraad's Truth
+	G.unitframe.AuraBarColors[156989] = { r = .18, g = .72, b = .89 }		-- 리아드린의 정의	Liadrin's Righteousness
+	G.unitframe.AuraBarColors[156987] = { r = 1, g = .3, b = .3 }			-- 투랄리온의 응징	Uther's Insight
+	G.unitframe.AuraBarColors[156988] = {									-- 우서의 통찰		Uther's Insight
 		r = RAID_CLASS_COLORS.PALADIN.r,
 		g = RAID_CLASS_COLORS.PALADIN.g,
 		b = RAID_CLASS_COLORS.PALADIN.b
 	}
-	G.unitframe.AuraBarColors[GetSpellInfo(77764)] = {									-- 쇄도의 포효		Stampeding Roar
+	G.unitframe.AuraBarColors[77764] = {									-- 쇄도의 포효		Stampeding Roar
 		r = RAID_CLASS_COLORS.DRUID.r,
 		g = RAID_CLASS_COLORS.DRUID.g,
 		b = RAID_CLASS_COLORS.DRUID.b
 	}
-	G.unitframe.AuraBarColors[GetSpellInfo(77761)] = {									-- 쇄도의 포효		Stampeding Roar
+	G.unitframe.AuraBarColors[77761] = {									-- 쇄도의 포효		Stampeding Roar
 		r = RAID_CLASS_COLORS.DRUID.r,
 		g = RAID_CLASS_COLORS.DRUID.g,
 		b = RAID_CLASS_COLORS.DRUID.b
 	}
-	G.unitframe.AuraBarColors[GetSpellInfo(106898)] = {									-- 쇄도의 포효		Stampeding Roar
+	G.unitframe.AuraBarColors[106898] = {									-- 쇄도의 포효		Stampeding Roar
 		r = RAID_CLASS_COLORS.DRUID.r,
 		g = RAID_CLASS_COLORS.DRUID.g,
 		b = RAID_CLASS_COLORS.DRUID.b
 	}
 	
 	-- Legendary
-	G.unitframe.AuraBarColors[GetSpellInfo(187616)] = { r = .09, g = .51, b = .82 }		-- 니스라무스		Nithramus
-	G.unitframe.AuraBarColors[GetSpellInfo(187617)] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Sanctus
-	G.unitframe.AuraBarColors[GetSpellInfo(187618)] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Etheralus
-	G.unitframe.AuraBarColors[GetSpellInfo(187619)] = { r = .09, g = .51, b = .82 }		-- 토라수스			Thorasus
-	G.unitframe.AuraBarColors[GetSpellInfo(187620)] = { r = .09, g = .51, b = .82 }		-- 말루스			Maalus
+	G.unitframe.AuraBarColors[187616] = { r = .09, g = .51, b = .82 }		-- 니스라무스		Nithramus
+	G.unitframe.AuraBarColors[187617] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Sanctus
+	G.unitframe.AuraBarColors[187618] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Etheralus
+	G.unitframe.AuraBarColors[187619] = { r = .09, g = .51, b = .82 }		-- 토라수스			Thorasus
+	G.unitframe.AuraBarColors[187620] = { r = .09, g = .51, b = .82 }		-- 말루스			Maalus
 	
 	
 	-- Raid Utility Filter Group
@@ -304,6 +301,12 @@ do	-- BuffWatch
 		-- 신념의 봉화			Beacon of Faith
 		AddBuffWatch('PALADIN', 156910, {
 			enabled = true, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 }, 
+			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
+			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
+		})
+		
+		AddBuffWatch('PALADIN', 223306, {
+			enabled = true, point = 'BOTTOMRIGHT', color = { r = .87, g = .7, b = .09 }, 
 			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
 			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
 		})
