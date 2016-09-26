@@ -54,6 +54,14 @@ KF:RegisterEventList('ADDON_LOADED', function(Event, AddOnName)
 	end
 end, 'GarrisonUpgrade')
 
+KF:RegisterEventList('ADDON_LOADED', function(Event, AddOnName)
+	if AddOnName == 'Blizzard_OrderHallUI' then
+		KF:SetThisFrameMovable(OrderHallMissionFrame)
+		
+		KF:UnregisterEventList('ADDON_LOADED', 'OrderHall')
+	end
+end, 'OrderHall')
+
 
 -- Fix blizzard bug that when user check his dead reason then tooltip's width is locked.
 GameTooltip:HookScript("OnTooltipCleared", function(self) self:SetMinimumWidth(0) end)

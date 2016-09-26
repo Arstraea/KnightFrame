@@ -79,6 +79,7 @@ do	-- GENERAL
 	RegistFilter(L['Raid Utility Filter'], 145629)	-- 대마법 지대				Anti-Magic Shell
 	RegistFilter(L['Raid Utility Filter'], 31821)	-- 헌신의 오라				Devotion Aura
 	RegistFilter(L['Raid Utility Filter'], 81782)	-- 신의 권능: 방벽			Power Word: Barrier
+	RegistFilter(L['Raid Utility Filter'], 179202, 6)	-- 안주의 눈					Eye of Anzu
 	
 	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약		Draenic Agility Potion
 	RegistFilter(L['Raid Utility Filter'], 156426)	-- 드레나이 지능 물약		Draenic Intellect Potion
@@ -235,6 +236,7 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 182600, 1)			-- 지옥 불꽃					Fel Fire
 		RegistFilter('RaidDebuffs', 179219, 4)			-- 실체없는 지옥 폭탄	Phantasmal Fel Bomb
 		RegistFilter('RaidDebuffs', 181753, 5)			-- 지옥 폭탄					Fel Bomb
+		RegistFilter('RaidDebuffs', 185239, 0, false)	-- 안주의 광휘				Radiance of Anzu
 		
 		-- Soulbound Construct (Socrethar)
 		RegistFilter('RaidDebuffs', 182038, 1)			-- 으스러진 방어			Shattered Defenses
@@ -270,6 +272,13 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 189891, 2)			-- 황천 가르기				Nether Tear
 		RegistFilter('RaidDebuffs', 183634, 5)			-- 어둠지옥 폭발			Shadowfel Burst
 		RegistFilter('RaidDebuffs', 189895, 5)			-- 공허의 별 시선고정	Void Star Fixate
+end
+
+
+do	-- Legion
+	-- Il'gynoth
+		-- 
+		RegistFilter('RaidDebuffs', 208929)
 end
 
 

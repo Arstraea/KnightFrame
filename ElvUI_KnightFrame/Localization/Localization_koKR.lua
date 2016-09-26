@@ -108,7 +108,10 @@ do	-- Modules
 	do	-- Armory
 		L['Not Enchanted'] = '마부하지 않음'
 		L['Empty Socket'] = '개의 빈 소켓'
+		L['%s Points Available!!'] = '%s 포인트 사용 가능'
 		L['Character model may differ because it was constructed by the inspect data.'] = '대상에게서 전송받은 데이터로 재현한 캐릭터 모델입니다. 캐릭터의 생김세가 다를 수 있습니다.'
+		L['Specialization data seems to be crashed. Please inspect again.'] = '특성 정보가 잘못 로드되었습니다. 대상을 다시 살펴보길 권장합니다.'
+		L['PvP talents become available at level %s.'] = '명예 특성은 캐릭터 레벨이 %s 이상일 때부터 사용할 수 있습니다.'
 		
 		L["Try inspecting %s. Sometimes this work will take few second for waiting server's response."] = '%s 유저를 살펴봅니다. 서버의 응답을 기다리느라 시간이 조금 걸릴 수도 있습니다.'
 		L['Mouseover Inspect must hold your mouse position until inspect is over.'] = '|cff2eb7e4마우스오버 살펴보기|r는 살펴보기가 끝날 때 까지 |cffff5675마우스를 유저에게서 떼면 안됩니다|r.'
@@ -120,51 +123,6 @@ do	-- Modules
 	do	-- Secretary
 		L['Alarm'] = '알림'
 		L['Hide Objectiveframe because of entering boss battle.'] = '보스와의 전투를 감지하여 임무창을 숨깁니다.'
-	end
-	
-	
-	do	-- SynergyIndicator
-		L['Applied'] = '적용중'
-		L['Non-applied'] = '비적용중'
-		L['Elixirs'] = '영약 도핑'
-		L['Foods'] = '음식 도핑'
-		L['Bloodlust Debuff'] = '블러드 디버프'
-		L['Resurrection Debuff'] = '부활 디버프'
-		
-		L['Bat'] = '박쥐'
-		L['Bears'] = '곰'
-		L['Birds of Prey'] = '맹금'
-		L['Boars'] = '멧돼지'
-		L['Cats'] = '살쾡이'
-		L['Dog'] = '개'
-		L['Dragonhawk'] = '용매'
-		L['Goats'] = '염소'
-		L['Gorillas'] = '고릴라'
-		L['Hydras'] = '히드라'
-		L['Hyenas'] = '하이에나'
-		L['Porcupine'] = '호저'
-		L['Raptors'] = '랩터'
-		L['Ravagers'] = '칼날발톱'
-		L['Serpents'] = '뱀'
-		L['Sporebats'] = '포자날개'
-		L['Stags'] = '순록'
-		L['Tallstriders'] = '타조'
-		L['Wasp'] = '말벌'
-		L['Wind Serpents'] = '천둥매'
-		L['Wolves'] = '늑대'
-		
-		local Exotic = '|cff1784d1(특수)|r'
-		L['Chimaeras'] = '키메라'..Exotic
-		L['Clefthooves'] = '갈래발굽'..Exotic
-		L['Core Hounds'] = '심장부사냥개'..Exotic
-		L['Devilsaurs'] = '데빌사우루스'..Exotic
-		L['Quilen'] = '기렌'..Exotic
-		L['Rylak'] = '라일라크'..Exotic
-		L['Silithids'] = '실리시드'..Exotic
-		L['Shale Spider'] = '혈암거미'..Exotic
-		L['Spirit Beasts'] = '야수정령'..Exotic
-		L['Water Striders'] = '소금쟁이'..Exotic
-		L['Worms'] = '벌레'..Exotic
 	end
 	
 	
@@ -193,23 +151,6 @@ do	-- Modules
 end
 
 
-
---[[
-do	--General
-	L['instance'] = '무작 파티'
-	L['battleground'] = '전장'
-	L['Not Implemented'] = '미구현'
-	L['DataTexts'] = '정보문자'
-end
-
-do	--Frame Name
-	L['KnightInspectFrame'] = '살펴보기 창'
-end
-
-do	--Datatexts
-	L['Friends'] = '친구'
-end
-]]
 
 
 --------------------------------------------------------------------------------

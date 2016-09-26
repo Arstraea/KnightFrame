@@ -148,7 +148,7 @@ SC.Alarm_ButtonSetting = function(Frame)
 		else
 			KnightFrame_Secretary_AlarmButton1:Point('BOTTOMLEFT', Frame, 'BOTTOMRIGHT', -95, 3)
 		end
-	else
+	elseif KnightFrame_Secretary_AlarmButton1 then
 		KnightFrame_Secretary_AlarmButton1:Hide()
 	end
 end

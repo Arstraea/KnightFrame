@@ -13,7 +13,7 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 --<< KnightFrame : Toolkit		 											>>--
 --------------------------------------------------------------------------------
 function KF:Color_Value(InputText)
-	return E:RGBToHex(E.media.rgbvaluecolor[1], E.media.rgbvaluecolor[2], E.media.rgbvaluecolor[3])..(InputText and InputText..'|r' or '')
+	return E:RGBToHex(unpack(E.media.rgbvaluecolor))..(InputText and InputText..'|r' or '')
 end	
 
 
@@ -24,11 +24,11 @@ end
 
 function KF:TextSetting(self, Text, Style, ...)
 	if Style and Style.Tag then
-		self[Style.Tag] = self[Style.Tag] or self:CreateFontString(nil, 'OVERLAY')
+		self[Style.Tag] = self[Style.Tag] or self:CreateFontString(nil, 'OVERLAY', Style.Inherit)
 		self = self[Style.Tag]
 	else
 		Style = Style or {}
-		self.text = self.text or self:CreateFontString(nil, 'OVERLAY')
+		self.text = self.text or self:CreateFontString(nil, 'OVERLAY', Style.Inherit)
 		self = self.text
 	end
 	

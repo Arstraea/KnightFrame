@@ -4,5 +4,5 @@
 	<Script file="EnchantList.lua"/>
 	
 	<Include file="CharacterArmory\Load_CharacterArmory.xml"/>
-	<!--<Include file="InspectArmory\Load_InspectArmory.xml"/>-->
+	<Include file="InspectArmory\Load_InspectArmory.xml"/>
 </Ui>
