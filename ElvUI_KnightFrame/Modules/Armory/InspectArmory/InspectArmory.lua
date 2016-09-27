@@ -613,7 +613,7 @@ function IA:CreateInspectFrame()
 					
 					self.rotation = (EndX - self.StartX) / 34 + self:GetFacing()
 					self:SetFacing(self.rotation)
-					print(self.rotation)
+					
 					self.StartX, self.StartY = GetCursorPosition()
 				end)
 			elseif button == 'RightButton' then
@@ -625,7 +625,6 @@ function IA:CreateInspectFrame()
 					Y = (EndY - self.StartY) / 45 + Y
 					
 					self:SetPosition(Z, X, Y)
-					print("X : "..X, "Y : "..Y)
 					self.StartX, self.StartY = GetCursorPosition()
 				end)
 			end
@@ -636,7 +635,7 @@ function IA:CreateInspectFrame()
 		self.Model:SetScript('OnMouseWheel', function(self, spining)
 			local Z, X, Y = self:GetPosition()
 			Z = (spining > 0 and Z + 0.5 or Z - 0.5)
-			print("Z : ", Z)
+			
 			self:SetPosition(Z, X, Y)
 		end)
 	end

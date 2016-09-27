@@ -462,19 +462,19 @@ function CA:Setup_CharacterArmory()
 		self.ArtifactMonitor:SetScript('OnUpdate', function(_, Elapsed)
 			self.ArtifactMonitor.CurrentPower:UpdateAnimatedValue(Elapsed)
 			
-			if self.ArtifactMonitor.UpdateData then
+			if not self.ArtifactMonitor.UpdateData then
 				CA:LegionArtifactMonitor_UpdateData()
 			end
 			
-			if self.ArtifactMonitor.SearchPowerItem then
+			if not self.ArtifactMonitor.SearchPowerItem then
 				CA:LegionArtifactMonitor_SearchPowerItem()
 			end
 		end)
 		self.ArtifactMonitor:SetScript('OnEvent', function(_, Event)
 			if Event == 'ARTIFACT_UPDATE' then
-				self.ArtifactMonitor.UpdateData = true
+				self.ArtifactMonitor.UpdateData = nil
 			elseif Event == 'BAG_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' then
-				self.ArtifactMonitor.SearchPowerItem = true
+				self.ArtifactMonitor.SearchPowerItem = nil
 			end
 		end)
 		
@@ -1245,8 +1245,6 @@ do --<< Artifact Monitor >>
 	
 	
 	function CA:LegionArtifactMonitor_UpdateData()
-		self.ArtifactMonitor.UpdateData = false
-		
 		Artifact_ItemID, _, _, _, Artifact_Power, Artifact_Rank = C_ArtifactUI.GetEquippedArtifactInfo()
 		
 		if Artifact_ItemID then
@@ -1270,13 +1268,15 @@ do --<< Artifact Monitor >>
 			self.ArtifactMonitor.BarExpected:SetMinMaxValues(0, Legion_ArtifactData.XPForNextPoint)
 		end
 		
-		self.ArtifactMonitor.UpdateData = nil
+		self.ArtifactMonitor.UpdateData = true
 	end
 	
 	
 	local PowerItemLink, SearchingText, SearchingPhase, CurrentItemPower, TotalPower, LowestPower, LowestPower_BagID, LowestPower_SlotID, LowestPower_Link
 	function CA:LegionArtifactMonitor_SearchPowerItem()
-		self.ArtifactMonitor.SearchPowerItem = false
+		if not self.ArtifactMonitor.UpdateData then
+			CA:LegionArtifactMonitor_UpdateData()
+		end
 		
 		LowestPower = nil
 		TotalPower = 0
@@ -1337,7 +1337,7 @@ do --<< Artifact Monitor >>
 			self.ArtifactMonitor.BarExpected:SetValue(TotalPower)
 		end
 		
-		self.ArtifactMonitor.SearchPowerItem = nil
+		self.ArtifactMonitor.SearchPowerItem = true
 	end
 end
 
