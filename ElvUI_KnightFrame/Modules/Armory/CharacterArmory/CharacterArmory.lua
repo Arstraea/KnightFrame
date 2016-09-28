@@ -1282,7 +1282,7 @@ do --<< Artifact Monitor >>
 		TotalPower = 0
 		
 		if Legion_ArtifactData.ItemID then
-			for BagID = 1, NUM_BAG_SLOTS do
+			for BagID = 0, NUM_BAG_SLOTS do
 				for SlotID = 1, GetContainerNumSlots(BagID) do
 					_, _, _, _, _, _, PowerItemLink = GetContainerItemInfo(BagID, SlotID)
 					
