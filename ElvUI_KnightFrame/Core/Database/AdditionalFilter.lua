@@ -279,6 +279,13 @@ do	-- Legion
 	-- Il'gynoth
 		-- 
 		RegistFilter('RaidDebuffs', 208929)
+		
+	-- Ursoc
+		-- 돌진대상자
+		RegistFilter('RaidDebuffs', 198006, 6)
+		
+		-- 돌진디버프
+		RegistFilter('RaidDebuffs', 198108, 6)
 end
 
 

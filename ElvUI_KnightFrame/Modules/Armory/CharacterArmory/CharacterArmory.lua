@@ -55,6 +55,12 @@ local DefaultPosition = {
 }
 local Legion_ArtifactData = {}
 local COLORSTRING_ARTIFACT = E:RGBToHex(BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].r, BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].g, BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].b)
+
+local Default_Panel_Width = PANEL_DEFAULT_WIDTH
+local Default_Panel_Width_Expand = CHARACTERFRAME_EXPANDED_WIDTH
+local CharacterArmory_Panel_Width = 448
+local CharacterArmory_Panel_Width_Expand = 650
+
 --local ExpandButtonDefaultPoint = { CharacterFrameExpandButton:GetPoint() }
 
 do --<< Button Script >>--
@@ -231,11 +237,11 @@ function CA:Setup_CharacterArmory()
 		end
 	end)
 	self:SetScript('OnShow', self.ScanData)
-	hooksecurefunc('CharacterFrame_Collapse', function() if Info.CharacterArmory_Activate and PaperDollFrame:IsShown() then CharacterFrame:SetWidth(448) end end)
-	hooksecurefunc('CharacterFrame_Expand', function() if Info.CharacterArmory_Activate and PaperDollFrame:IsShown() then CharacterFrame:SetWidth(650) end end)
 	hooksecurefunc('ToggleCharacter', function(frameType)
+		self.ArtifactMonitor.AddPower.Button:ClearAllPoints()
+		
 		if frameType ~= 'PaperDollFrame' and frameType ~= 'PetPaperDollFrame' then
-			CharacterFrame:SetWidth(PANEL_DEFAULT_WIDTH)
+			CharacterFrame:SetWidth(Default_Panel_Width)
 		elseif Info.CharacterArmory_Activate and frameType == 'PaperDollFrame' then
 			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
 			--CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', 0, 1)
@@ -471,7 +477,7 @@ function CA:Setup_CharacterArmory()
 			end
 		end)
 		self.ArtifactMonitor:SetScript('OnEvent', function(_, Event)
-			if Event == 'ARTIFACT_UPDATE' then
+			if Event == 'ARTIFACT_UPDATE' or Event == 'ARTIFACT_XP_UPDATE' then
 				self.ArtifactMonitor.UpdateData = nil
 			elseif Event == 'BAG_UPDATE' or Event == 'PLAYER_ENTERING_WORLD' then
 				self.ArtifactMonitor.SearchPowerItem = nil
@@ -490,6 +496,7 @@ function CA:Setup_CharacterArmory()
 		self.ArtifactMonitor.BarBorder = CreateFrame('Frame', nil, self.ArtifactMonitor)
 		self.ArtifactMonitor.BarBorder:Height(5)
 		self.ArtifactMonitor.BarBorder:Point('BOTTOMLEFT', 40, 4 + E.Border)
+		self.ArtifactMonitor.BarBorder:Point('RIGHT')
 		self.ArtifactMonitor.BarBorder:SetBackdrop({
 			bgFile = E.media.normTex,
 			edgeFile = E.media.blankTex,
@@ -579,6 +586,14 @@ function CA:Setup_CharacterArmory()
 		Mixin(self.ArtifactMonitor.CurrentPower, AnimatedNumericFontStringMixin)
 		self.ArtifactMonitor.CurrentPower:SetTextColor(BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].r, BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].g, BAG_ITEM_QUALITY_COLORS[LE_ITEM_QUALITY_ARTIFACT].b)
 		
+		-- Available Artifact Power
+		KF:TextSetting(self.ArtifactMonitor.BarExpected, nil, { Tag = 'AvailablePower',
+			Font = KF.db.Modules.Armory.Character.Enchant.Font,
+			FontSize = 9,
+			FontStyle = KF.db.Modules.Armory.Character.Enchant.FontStyle,
+			directionH = 'LEFT'
+		}, 'TOPRIGHT', self.ArtifactMonitor.BarBorder, 'BOTTOMRIGHT', 0, -1)
+		
 		-- Artifact Traits Rank
 		KF:TextSetting(self.ArtifactMonitor, nil, { Tag = 'TraitRank',
 			Font = KF.db.Modules.Armory.Character.Level.Font,
@@ -605,26 +620,28 @@ function CA:Setup_CharacterArmory()
 			directionH = 'RIGHT'
 		}, 'BOTTOMRIGHT', self.ArtifactMonitor.RequirePower, 'TOPRIGHT', 0, 2)
 		
-		self.ArtifactMonitor.AddPower = CreateFrame('Button', nil, self.ArtifactMonitor, 'SecureActionButtonTemplate')
+		self.ArtifactMonitor.AddPower = CreateFrame('Frame', nil, self.ArtifactMonitor)
 		self.ArtifactMonitor.AddPower:Point('BOTTOMLEFT', 39, 0)
-		self.ArtifactMonitor.AddPower:Point('TOPRIGHT', self.ArtifactMonitor, 'BOTTOMRIGHT', 0, 12 + E.Border * 2)
-		self.ArtifactMonitor.AddPower:SetFrameLevel(CharacterFrame_Level + 5)
+		self.ArtifactMonitor.AddPower:Point('TOPRIGHT')
+		self.ArtifactMonitor.AddPower:SetFrameLevel(CharacterFrame_Level + 6)
 		self.ArtifactMonitor.AddPower:SetScript('OnEnter', self.OnEnter)
 		self.ArtifactMonitor.AddPower:SetScript('OnLeave', self.OnLeave)
-		self.ArtifactMonitor.AddPower:SetAttribute('type', 'macro')
 		
 		self.ArtifactMonitor.AddPower.Texture = self.ArtifactMonitor.AddPower:CreateTexture(nil, 'OVERLAY')
 		self.ArtifactMonitor.AddPower.Texture:Size(15)
 		self.ArtifactMonitor.AddPower.Texture:SetTexture('Interface\\GLUES\\CharacterSelect\\Glue-Char-Up')
-		self.ArtifactMonitor.AddPower.Texture:Point('RIGHT')
+		self.ArtifactMonitor.AddPower.Texture:Point('LEFT', self.ArtifactMonitor.TraitRank, 'RIGHT', 1, 0)
 		self.ArtifactMonitor.AddPower.Texture:Hide()
+		
+		self.ArtifactMonitor.AddPower.Button = CreateFrame('Button', nil, UIParent, 'SecureActionButtonTemplate')
+		self.ArtifactMonitor.AddPower.Button:SetFrameLevel(CharacterFrame_Level + 5)
+		self.ArtifactMonitor.AddPower.Button:SetAttribute('type', 'macro')
 		
 		self.ArtifactMonitor.ScanTT = CreateFrame('GameTooltip', 'Knight_CharacterArmory_ArtifactScanTT', nil, 'GameTooltipTemplate')
 		self.ArtifactMonitor.ScanTT:SetOwner(UIParent, 'ANCHOR_NONE')
 		
 		self.ArtifactMonitor:Hide()
 	end
-	
 	self.Setup_CharacterArmory = nil
 end
 
@@ -1210,6 +1227,7 @@ do --<< Artifact Monitor >>
 				end
 				
 				self.ArtifactMonitor:Point('LEFT', CharacterSecondaryHandSlot, 1, 0)
+				--self.ArtifactMonitor:Width(210)
 			else
 				-- << Case : Mainhand only artifact >>
 				-- Hide SecondaryHandSlot and move MainHandSlot to center.
@@ -1218,6 +1236,7 @@ do --<< Artifact Monitor >>
 				CharacterSecondaryHandSlot:Hide()
 				
 				self.ArtifactMonitor:Point('LEFT', CharacterMainHandSlot, 1, 0)
+				--self.ArtifactMonitor:Width(232)
 				return
 			end
 		else
@@ -1272,6 +1291,17 @@ do --<< Artifact Monitor >>
 	end
 	
 	
+	local escapes = {
+		['|c%x%x%x%x%x%x%x%x'] = '', -- color start
+		['|r'] = '', -- color end
+	}
+	local function CleanString(str)
+		for k, v in pairs(escapes) do
+			str = str:gsub(k, v)
+		end
+		return str
+	end
+
 	local PowerItemLink, SearchingText, SearchingPhase, CurrentItemPower, TotalPower, LowestPower, LowestPower_BagID, LowestPower_SlotID, LowestPower_Link
 	function CA:LegionArtifactMonitor_SearchPowerItem()
 		if not self.ArtifactMonitor.UpdateData then
@@ -1280,6 +1310,7 @@ do --<< Artifact Monitor >>
 		
 		LowestPower = nil
 		TotalPower = 0
+		self.ArtifactMonitor.AddPower.Button.HasPowerItem = nil
 		
 		if Legion_ArtifactData.ItemID then
 			for BagID = 0, NUM_BAG_SLOTS do
@@ -1290,14 +1321,15 @@ do --<< Artifact Monitor >>
 						self:ClearTooltip(self.ArtifactMonitor.ScanTT)
 						self.ArtifactMonitor.ScanTT:SetHyperlink(PowerItemLink)
 						SearchingPhase = 1
+						CurrentItemPower = 0
 						
 						for i = 1, self.ArtifactMonitor.ScanTT:NumLines() do
-							SearchingText = _G['Knight_CharacterArmory_ArtifactScanTTTextLeft' .. i]:GetText()
+							SearchingText = CleanString(_G['Knight_CharacterArmory_ArtifactScanTTTextLeft' .. i]:GetText())
 							
-							if SearchingPhase == 1 and SearchingText:find(ARTIFACT_POWER) then
+							if SearchingPhase == 1 and SearchingText == ARTIFACT_POWER then
 								SearchingPhase = 2
 							elseif SearchingPhase == 2 and SearchingText:find(ITEM_SPELL_TRIGGER_ONUSE) then
-								CurrentItemPower = tonumber(SearchingText:match('%d+'))
+								CurrentItemPower = tonumber(SearchingText:gsub(',', ''):match('%d+'))
 								TotalPower = TotalPower + CurrentItemPower
 								
 								if not LowestPower or LowestPower > CurrentItemPower then
@@ -1310,22 +1342,34 @@ do --<< Artifact Monitor >>
 								break
 							end
 						end
+						
+						if SearchingPhase == 2 and not (LowestPower and LowestPower > 0) then
+							LowestPower = CurrentItemPower
+							LowestPower_BagID = BagID
+							LowestPower_SlotID = SlotID
+							LowestPower_Link = PowerItemLink
+						end
 					end
 				end
 			end
 			
-			if LowestPower and LowestPower > 0 then
-				self.ArtifactMonitor.AddPower.Link = LowestPower_Link
-				self.ArtifactMonitor.AddPower:SetAttribute('macrotext', '/use '..LowestPower_BagID..' '..LowestPower_SlotID)
-				self.ArtifactMonitor.AddPower:Enable()
-				self.ArtifactMonitor.BarBorder:Point('RIGHT', -17, 0)
+			if LowestPower then
 				self.ArtifactMonitor.AddPower.Texture:Show()
+				self.ArtifactMonitor.AddPower.Link = LowestPower_Link
+				self.ArtifactMonitor.AddPower.Button:SetAttribute('macrotext', '/use '..LowestPower_BagID..' '..LowestPower_SlotID)
+				self.ArtifactMonitor.AddPower.Button.HasPowerItem = true
+				
+				if LowestPower > 0 then
+					self.ArtifactMonitor.BarExpected.AvailablePower:SetText(KF:Color_Value('+'..BreakUpLargeNumbers(TotalPower)))
+				else
+					self.ArtifactMonitor.BarExpected.AvailablePower:SetText()
+				end
 			else
-				self.ArtifactMonitor.AddPower.Link = nil
-				self.ArtifactMonitor.AddPower:SetAttribute('macrotext', nil)
-				self.ArtifactMonitor.AddPower:Disable()
-				self.ArtifactMonitor.BarBorder:Point('RIGHT')
 				self.ArtifactMonitor.AddPower.Texture:Hide()
+				self.ArtifactMonitor.AddPower.Link = nil
+				self.ArtifactMonitor.AddPower.Button:SetAttribute('macrotext', nil)
+				
+				self.ArtifactMonitor.BarExpected.AvailablePower:SetText()
 			end
 			
 			if TotalPower + Legion_ArtifactData.XP > Legion_ArtifactData.XPForNextPoint then
@@ -1448,6 +1492,8 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		Info.CharacterArmory_Activate = true
 		
 		-- Setting frame
+		PANEL_DEFAULT_WIDTH = CharacterArmory_Panel_Width
+		CHARACTERFRAME_EXPANDED_WIDTH = CharacterArmory_Panel_Width_Expand
 		CharacterFrame:SetHeight(444)
 		
 		-- Move right equipment slots
@@ -1455,11 +1501,6 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		
 		-- Move bottom equipment slots
 		CharacterMainHandSlot:SetPoint('BOTTOMLEFT', PaperDollItemsFrame, 'BOTTOMLEFT', 185, 14)
-		
-		--[[
-		if not IsAddOnLoaded('Blizzard_ArtifactUI') then
-			CA.Legion_ArtifactUI_Loaded = LoadAddOn('Blizzard_ArtifactUI')
-		end]]
 		
 		if CA.Setup_CharacterArmory then
 			CA:Setup_CharacterArmory()
@@ -1480,7 +1521,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		CharacterModelFrame.BackgroundBotRight:Hide()
 		
 		if PaperDollFrame:IsShown() then
-			CharacterFrame:SetWidth(CharacterFrame.Expanded and 650 or 444)
+			CharacterFrame:SetWidth(CharacterFrame.Expanded and CharacterArmory_Panel_Width_Expand or CharacterArmory_Panel_Width)
 			CharacterFrameInsetRight:SetPoint('TOPLEFT', CharacterFrameInset, 'TOPRIGHT', 110, 0)
 			--CharacterFrameExpandButton:SetPoint('BOTTOMRIGHT', CharacterFrameInsetRight, 'BOTTOMLEFT', -3, 7)
 		end
@@ -1495,6 +1536,7 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		CA:RegisterEvent('UPDATE_INVENTORY_DURABILITY')
 		CA:RegisterEvent('PLAYER_ENTERING_WORLD')
 		CA.ArtifactMonitor:RegisterEvent('ARTIFACT_UPDATE')
+		CA.ArtifactMonitor:RegisterEvent('ARTIFACT_XP_UPDATE')
 		CA.ArtifactMonitor:RegisterEvent('BAG_UPDATE')
 		CA.ArtifactMonitor:RegisterEvent('PLAYER_ENTERING_WORLD')
 		
@@ -1508,6 +1550,8 @@ KF.Modules.CharacterArmory = function(RemoveOrder)
 		Info.CharacterArmory_Activate = nil
 		
 		-- Setting frame to default
+		PANEL_DEFAULT_WIDTH = Default_Panel_Width
+		CHARACTERFRAME_EXPANDED_WIDTH = Default_Panel_Width_Expand
 		CharacterFrame:SetHeight(424)
 		CharacterFrame:SetWidth(PaperDollFrame:IsShown() and CharacterFrame.Expanded and CHARACTERFRAME_EXPANDED_WIDTH or PANEL_DEFAULT_WIDTH)
 		CharacterFrameInsetRight:SetPoint(unpack(DefaultPosition.InsetDefaultPoint))
