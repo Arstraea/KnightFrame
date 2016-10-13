@@ -5,6 +5,7 @@ local unpack, select, type, pairs, find, tonumber, match, gsub, strupper = unpac
 
 local E, L, V, P, G = unpack(ElvUI)
 local KF, Info, Timer = unpack(select(2, ...))
+local ElvUI_BagModule = E:GetModule('Bags')
 local Lib_Search = LibStub('LibItemSearch-1.2-ElvUI')
 
 --WoW API / Variables
@@ -238,8 +239,6 @@ function CA:Setup_CharacterArmory()
 	end)
 	self:SetScript('OnShow', self.ScanData)
 	hooksecurefunc('ToggleCharacter', function(frameType)
-		self.ArtifactMonitor.AddPower.Button:ClearAllPoints()
-		
 		if frameType ~= 'PaperDollFrame' and frameType ~= 'PetPaperDollFrame' then
 			CharacterFrame:SetWidth(Default_Panel_Width)
 		elseif Info.CharacterArmory_Activate and frameType == 'PaperDollFrame' then
@@ -623,9 +622,6 @@ function CA:Setup_CharacterArmory()
 		self.ArtifactMonitor.AddPower = CreateFrame('Frame', nil, self.ArtifactMonitor)
 		self.ArtifactMonitor.AddPower:Point('BOTTOMLEFT', 39, 0)
 		self.ArtifactMonitor.AddPower:Point('TOPRIGHT')
-		self.ArtifactMonitor.AddPower:SetFrameLevel(CharacterFrame_Level + 6)
-		self.ArtifactMonitor.AddPower:SetScript('OnEnter', self.OnEnter)
-		self.ArtifactMonitor.AddPower:SetScript('OnLeave', self.OnLeave)
 		
 		self.ArtifactMonitor.AddPower.Texture = self.ArtifactMonitor.AddPower:CreateTexture(nil, 'OVERLAY')
 		self.ArtifactMonitor.AddPower.Texture:Size(15)
@@ -633,14 +629,28 @@ function CA:Setup_CharacterArmory()
 		self.ArtifactMonitor.AddPower.Texture:Point('LEFT', self.ArtifactMonitor.TraitRank, 'RIGHT', 1, 0)
 		self.ArtifactMonitor.AddPower.Texture:Hide()
 		
-		self.ArtifactMonitor.AddPower.Button = CreateFrame('Button', nil, UIParent, 'SecureActionButtonTemplate')
-		self.ArtifactMonitor.AddPower.Button:SetFrameLevel(CharacterFrame_Level + 5)
-		self.ArtifactMonitor.AddPower.Button:SetAttribute('type', 'macro')
+		self.ArtifactMonitor.AddPower.Button = CreateFrame('Button', nil, self.ArtifactMonitor.AddPower)
+		self.ArtifactMonitor.AddPower.Button:SetInside()
+		self.ArtifactMonitor.AddPower.Button:SetFrameLevel(CharacterFrame_Level + 6)
+		self.ArtifactMonitor.AddPower.Button:SetScript('OnEnter', self.OnEnter)
+		self.ArtifactMonitor.AddPower.Button:SetScript('OnLeave', self.OnLeave)
+		self.ArtifactMonitor.AddPower.Button:SetScript('OnClick', function()
+			if E.private.bags.enable then
+				OpenAllBags()
+				ElvUI_ContainerFrameEditBox:SetText('POWER')
+				self.ArtifactMonitor.NowSearchingPowerItem = true
+			end
+		end)
 		
 		self.ArtifactMonitor.ScanTT = CreateFrame('GameTooltip', 'Knight_CharacterArmory_ArtifactScanTT', nil, 'GameTooltipTemplate')
 		self.ArtifactMonitor.ScanTT:SetOwner(UIParent, 'ANCHOR_NONE')
 		
 		self.ArtifactMonitor:Hide()
+		
+		if E.private.bags.enable then
+			hooksecurefunc(ElvUI_BagModule, 'CloseBags', function() self:LegionArtifactMonitor_ClearPowerItemSearching() end)
+			ElvUI_ContainerFrame:HookScript('OnHide', function() self:LegionArtifactMonitor_ClearPowerItemSearching() end)
+		end
 	end
 	self.Setup_CharacterArmory = nil
 end
@@ -1310,7 +1320,6 @@ do --<< Artifact Monitor >>
 		
 		LowestPower = nil
 		TotalPower = 0
-		self.ArtifactMonitor.AddPower.Button.HasPowerItem = nil
 		
 		if Legion_ArtifactData.ItemID then
 			for BagID = 0, NUM_BAG_SLOTS do
@@ -1355,9 +1364,8 @@ do --<< Artifact Monitor >>
 			
 			if LowestPower then
 				self.ArtifactMonitor.AddPower.Texture:Show()
-				self.ArtifactMonitor.AddPower.Link = LowestPower_Link
-				self.ArtifactMonitor.AddPower.Button:SetAttribute('macrotext', '/use '..LowestPower_BagID..' '..LowestPower_SlotID)
-				self.ArtifactMonitor.AddPower.Button.HasPowerItem = true
+				self.ArtifactMonitor.AddPower.Button:Show()
+				self.ArtifactMonitor.AddPower.Button.Link = LowestPower_Link
 				
 				if LowestPower > 0 then
 					self.ArtifactMonitor.BarExpected.AvailablePower:SetText(KF:Color_Value('+'..BreakUpLargeNumbers(TotalPower)))
@@ -1366,10 +1374,11 @@ do --<< Artifact Monitor >>
 				end
 			else
 				self.ArtifactMonitor.AddPower.Texture:Hide()
-				self.ArtifactMonitor.AddPower.Link = nil
-				self.ArtifactMonitor.AddPower.Button:SetAttribute('macrotext', nil)
+				self.ArtifactMonitor.AddPower.Button:Hide()
+				self.ArtifactMonitor.AddPower.Button.Link = nil
 				
 				self.ArtifactMonitor.BarExpected.AvailablePower:SetText()
+				self:LegionArtifactMonitor_ClearPowerItemSearching()
 			end
 			
 			if TotalPower + Legion_ArtifactData.XP > Legion_ArtifactData.XPForNextPoint then
@@ -1382,6 +1391,14 @@ do --<< Artifact Monitor >>
 		end
 		
 		self.ArtifactMonitor.SearchPowerItem = true
+	end
+	
+	
+	function CA:LegionArtifactMonitor_ClearPowerItemSearching()
+		if self.ArtifactMonitor.NowSearchingPowerItem and E.private.bags.enable and ElvUI_ContainerFrameEditBox and ElvUI_ContainerFrameEditBox:GetText() == 'POWER' then
+			ElvUI_BagModule.ResetAndClear(ElvUI_ContainerFrameEditBox)
+			self.ArtifactMonitor.NowSearchingPowerItem = nil
+		end
 	end
 end
 
