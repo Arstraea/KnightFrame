@@ -66,33 +66,33 @@ Info.Armory_Constants = {
 		IRON =   { .76, .76, .76 },
 		LIFE =   { .07, .74,   0 },
 		SHADOW = {  .7, .48, .88 },
-		STORM =  { .67, .84,   1 }
+		WIND =  { .67, .84,   1 }
 	},
 	
 	ArtifactType = {
 		-- Warriors
 		[128910] = { 'IRON', 'BLOOD', 'SHADOW' },	--Arms
-		[128908] = { 'FIRE', 'STORM', 'IRON' },		--Fury
+		[128908] = { 'FIRE', 'WIND', 'IRON' },		--Fury
 		[128289] = { 'IRON', 'BLOOD', 'FIRE' },		--Protection
 		
 		-- Hunter
-		[128861] = { 'STORM', 'ARCANE', 'IRON' },	--Beast Mastery
-		[128826] = { 'STORM', 'BLOOD', 'LIFE' },	--Markmanship
-		[128808] = { 'STORM', 'IRON', 'BLOOD' },	--Survival
+		[128861] = { 'WIND', 'ARCANE', 'IRON' },	--Beast Mastery
+		[128826] = { 'WIND', 'BLOOD', 'LIFE' },	--Markmanship
+		[128808] = { 'WIND', 'IRON', 'BLOOD' },	--Survival
 		
 		-- Shaman
-		[128935] = { 'STORM', 'FROST', 'STORM' },	--Elemental
-		[128819] = { 'FIRE', 'IRON', 'STORM' },		--Enhancement
+		[128935] = { 'WIND', 'FROST', 'WIND' },	--Elemental
+		[128819] = { 'FIRE', 'IRON', 'WIND' },		--Enhancement
 		[128911] = { 'LIFE', 'FROST', 'LIFE' },		--Restoration
 		
 		-- Monk
-		[128938] = { 'LIFE', 'STORM', 'IRON' },		--Brewmaster
-		[128937] = { 'FROST', 'LIFE', 'STORM' },	--Mistweaver
-		[128940] = { 'STORM', 'IRON', 'STORM' },	--Windwalker
+		[128938] = { 'LIFE', 'WIND', 'IRON' },		--Brewmaster
+		[128937] = { 'FROST', 'LIFE', 'WIND' },	--Mistweaver
+		[128940] = { 'WIND', 'IRON', 'WIND' },	--Windwalker
 		
 		-- Rogue
 		[128870] = { 'SHADOW', 'IRON', 'BLOOD' },	--Assasination
-		[128872] = { 'BLOOD', 'IRON', 'STORM' },	--Outlaw
+		[128872] = { 'BLOOD', 'IRON', 'WIND' },	--Outlaw
 		[128476] = { 'FEL', 'SHADOW', 'FEL' },		--Subtlety
 		
 		-- Death Knight

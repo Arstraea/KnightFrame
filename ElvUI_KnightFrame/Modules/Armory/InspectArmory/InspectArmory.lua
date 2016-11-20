@@ -1863,6 +1863,7 @@ function IA:InspectFrame_DataSetting(DataTable)
 										Slot['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
 										Slot['Socket'..i].Socket:SetBackdropBorderColor(R, G, B)
 									else
+										R, G, B = 0, 0, 0
 										Slot['Socket'..i].Socket:SetBackdropColor(1, 1, 1, .5)
 										Slot['Socket'..i].Socket:SetBackdropBorderColor(1, 1, 1)
 									end
