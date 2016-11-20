@@ -29,22 +29,15 @@ do	-- GENERAL
 	RegistFilter('Whitelist', 77764)		-- 쇄도의 포효		Stampeding Roar
 	RegistFilter('Whitelist', 77761)		-- 쇄도의 포효		Stampeding Roar
 	RegistFilter('Whitelist', 106898)		-- 쇄도의 포효		Stampeding Roar
+	RegistFilter('Whitelist', 64901)		-- 희망의 상징		Symbol of Hope
 	
 	-- AuraBarColors
-	G.unitframe.AuraBarColors[2825] = { r = .09, g = .51, b = .82 }		-- 피의 욕망		Bloodlust
+	G.unitframe.AuraBarColors[2825] = { r = .09, g = .51, b = .82 }			-- 피의 욕망		Bloodlust
 	G.unitframe.AuraBarColors[32182] = { r = .09, g = .51, b = .82 }		-- 영웅심			Heroism
 	G.unitframe.AuraBarColors[80353] = { r = .09, g = .51, b = .82 }		-- 고대의 격분		Ancient Hysteria
 	G.unitframe.AuraBarColors[90355] = { r = .09, g = .51, b = .82 }		-- 시간 왜곡		Ancient Hysteria
 	G.unitframe.AuraBarColors[146555] = { r = .09, g = .51, b = .82 }		-- 분노의 북		Drums of Rage
 	G.unitframe.AuraBarColors[178207] = { r = .09, g = .51, b = .82 }		-- 격노의 북		Drums of Fury
-	G.unitframe.AuraBarColors[156990] = { r = 1, g = .8, b = 0 }			-- 마라아드의 진실	Maraad's Truth
-	G.unitframe.AuraBarColors[156989] = { r = .18, g = .72, b = .89 }		-- 리아드린의 정의	Liadrin's Righteousness
-	G.unitframe.AuraBarColors[156987] = { r = 1, g = .3, b = .3 }			-- 투랄리온의 응징	Uther's Insight
-	G.unitframe.AuraBarColors[156988] = {									-- 우서의 통찰		Uther's Insight
-		r = RAID_CLASS_COLORS.PALADIN.r,
-		g = RAID_CLASS_COLORS.PALADIN.g,
-		b = RAID_CLASS_COLORS.PALADIN.b
-	}
 	G.unitframe.AuraBarColors[77764] = {									-- 쇄도의 포효		Stampeding Roar
 		r = RAID_CLASS_COLORS.DRUID.r,
 		g = RAID_CLASS_COLORS.DRUID.g,
@@ -61,12 +54,18 @@ do	-- GENERAL
 		b = RAID_CLASS_COLORS.DRUID.b
 	}
 	
+	-- Paladins
+	G.unitframe.AuraBarColors[105809] = { r = RAID_CLASS_COLORS.PALADIN.r, g = RAID_CLASS_COLORS.PALADIN.g, b = RAID_CLASS_COLORS.PALADIN.b }	-- 신성한 복수자	Holy Avenger
+	G.unitframe.AuraBarColors[31842] = { r = RAID_CLASS_COLORS.PALADIN.r, g = RAID_CLASS_COLORS.PALADIN.g, b = RAID_CLASS_COLORS.PALADIN.b }	-- 응징의 격노		Avenging Wrath
+	G.unitframe.AuraBarColors[214202] = { r = RAID_CLASS_COLORS.PALADIN.r, g = RAID_CLASS_COLORS.PALADIN.g, b = RAID_CLASS_COLORS.PALADIN.b }	-- 법의 통치		Rule of Law
+	
 	-- Legendary
 	G.unitframe.AuraBarColors[187616] = { r = .09, g = .51, b = .82 }		-- 니스라무스		Nithramus
 	G.unitframe.AuraBarColors[187617] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Sanctus
 	G.unitframe.AuraBarColors[187618] = { r = .09, g = .51, b = .82 }		-- 에테랄루스		Etheralus
 	G.unitframe.AuraBarColors[187619] = { r = .09, g = .51, b = .82 }		-- 토라수스			Thorasus
 	G.unitframe.AuraBarColors[187620] = { r = .09, g = .51, b = .82 }		-- 말루스			Maalus
+	G.unitframe.AuraBarColors[64901] = { r = .09, g = .51, b = .82 }		-- 희망의 상징		Symbol of Hope
 	
 	
 	-- Raid Utility Filter Group
@@ -77,15 +76,16 @@ do	-- GENERAL
 	RegistFilter(L['Raid Utility Filter'], 97463)	-- 재집결의 함성			Rallying Cry
 	RegistFilter(L['Raid Utility Filter'], 98007)	-- 정신의 고리 토템			Spirit Link Totem
 	RegistFilter(L['Raid Utility Filter'], 145629)	-- 대마법 지대				Anti-Magic Shell
-	RegistFilter(L['Raid Utility Filter'], 31821)	-- 헌신의 오라				Devotion Aura
+	RegistFilter(L['Raid Utility Filter'], 211210)	-- 티르의 보호				Protection of Tyr
 	RegistFilter(L['Raid Utility Filter'], 81782)	-- 신의 권능: 방벽			Power Word: Barrier
-	RegistFilter(L['Raid Utility Filter'], 179202, 6)	-- 안주의 눈					Eye of Anzu
+	RegistFilter(L['Raid Utility Filter'], 64901)	-- 희망의 상징				Symbol of Hope
 	
-	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약		Draenic Agility Potion
-	RegistFilter(L['Raid Utility Filter'], 156426)	-- 드레나이 지능 물약		Draenic Intellect Potion
-	RegistFilter(L['Raid Utility Filter'], 156428)	-- 드레나이 힘 물약			Draenic Strength Potion
-	RegistFilter(L['Raid Utility Filter'], 156430)	-- 드레나이 방어도 물약		Draenic Armor Potion
-	
+	RegistFilter(L['Raid Utility Filter'], 188023)	-- 스카글 물약				Skaggldrynk
+	RegistFilter(L['Raid Utility Filter'], 188027)	-- 치명적인 은총의 물약		Potion of Deadly Grace
+	RegistFilter(L['Raid Utility Filter'], 188028)	-- 옛 전쟁의 물약			Potion of the Old War
+	RegistFilter(L['Raid Utility Filter'], 188029)	-- 굽히지 않는 자의 물약	Unbending Potion
+	RegistFilter(L['Raid Utility Filter'], 188030)	-- 지맥격류 물약			Leytorrent Potion
+	RegistFilter(L['Raid Utility Filter'], 229206)	-- 지속되는 힘의 물약		Potion of Prolonged Power
 end
 
 
@@ -154,6 +154,12 @@ end
 
 
 do	-- WARLORD OF DRAENORE
+	RegistFilter(L['Raid Utility Filter'], 156423)	-- 드레나이 민첩성 물약		Draenic Agility Potion
+	RegistFilter(L['Raid Utility Filter'], 156426)	-- 드레나이 지능 물약		Draenic Intellect Potion
+	RegistFilter(L['Raid Utility Filter'], 156428)	-- 드레나이 힘 물약			Draenic Strength Potion
+	RegistFilter(L['Raid Utility Filter'], 156430)	-- 드레나이 방어도 물약		Draenic Armor Potion
+	RegistFilter(L['Raid Utility Filter'], 175833)	-- 드레나이 투명 물약		Draenic Invisibility Potion
+	
 	-- Highmoul
 		-- Kargath Bladefist
 		RegistFilter('RaidDebuffs', 158986, 1)		-- 광전사의 돌격		Berserker Rush
@@ -220,7 +226,7 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 184587, 1)			-- 필멸의 손길				Touch of Mortality
 		
 		--Gorefiend
-		RegistFilter('RaidDebuffs', 181295, 2)			-- 소화							Digest
+		RegistFilter('RaidDebuffs', 181295, 2)			-- 소화						Digest
 		RegistFilter('RaidDebuffs', 179977, 3)			-- 파멸의 손길				Touch of Doom
 		RegistFilter('RaidDebuffs', 186770, 4)			-- 영혼의 웅덩이			Pool of Souls
 		RegistFilter('RaidDebuffs', 179864, 1)			-- 죽음의 그림자			Shadow of Death
@@ -233,10 +239,11 @@ do	-- WARLORD OF DRAENORE
 		RegistFilter('RaidDebuffs', 182178, 2)			-- 지옥 회전 표창			Fel Chakram
 		RegistFilter('RaidDebuffs', 182325, 3)			-- 실체없는 상처			Phantasmal Wounds
 		RegistFilter('RaidDebuffs', 185510, 4)			-- 어둠의 결속				Dark Bindings
-		RegistFilter('RaidDebuffs', 182600, 1)			-- 지옥 불꽃					Fel Fire
-		RegistFilter('RaidDebuffs', 179219, 4)			-- 실체없는 지옥 폭탄	Phantasmal Fel Bomb
-		RegistFilter('RaidDebuffs', 181753, 5)			-- 지옥 폭탄					Fel Bomb
+		RegistFilter('RaidDebuffs', 182600, 1)			-- 지옥 불꽃				Fel Fire
+		RegistFilter('RaidDebuffs', 179219, 4)			-- 실체없는 지옥 폭탄		Phantasmal Fel Bomb
+		RegistFilter('RaidDebuffs', 181753, 5)			-- 지옥 폭탄				Fel Bomb
 		RegistFilter('RaidDebuffs', 185239, 0, false)	-- 안주의 광휘				Radiance of Anzu
+		RegistFilter(L['Raid Utility Filter'], 179202, 6)	-- 안주의 눈			Eye of Anzu
 		
 		-- Soulbound Construct (Socrethar)
 		RegistFilter('RaidDebuffs', 182038, 1)			-- 으스러진 방어			Shattered Defenses
@@ -244,13 +251,13 @@ do	-- WARLORD OF DRAENORE
 		
 		-- Tyrant Velhari
 		RegistFilter('RaidDebuffs', 185241, 2)			-- 규탄의 칙령				Edict of Condemnation
-		RegistFilter('RaidDebuffs', 180526, 1)			-- 타락의 샘					Font of Corruption
+		RegistFilter('RaidDebuffs', 180526, 1)			-- 타락의 샘				Font of Corruption
 		
 		-- Fel Lord Zakuun
 		RegistFilter('RaidDebuffs', 181508, 3)			-- 파괴의 씨앗				Seed of Destruction
-		RegistFilter('RaidDebuffs', 181653, 0, false)	-- 지옥 수정					Fel Crystals (Too Close)
+		RegistFilter('RaidDebuffs', 181653, 0, false)	-- 지옥 수정				Fel Crystals (Too Close)
 		RegistFilter('RaidDebuffs', 182008, 1)			-- 잠재적 마력				Latent Energy (Cannot soak)
-		RegistFilter('RaidDebuffs', 189030, 2)			-- 오염물						Befouled
+		RegistFilter('RaidDebuffs', 189030, 2)			-- 오염물					Befouled
 		
 		-- Xhul' horac
 		RegistFilter('RaidDebuffs', 185656, 3)			-- 어둠지옥 파멸			Shadowfel Annihilation
@@ -263,15 +270,15 @@ do	-- WARLORD OF DRAENORE
 		
 		-- Archimonde
 		RegistFilter('RaidDebuffs', 188070, 6)			-- 군단의 징표				Mark of the Legion
-		RegistFilter('RaidDebuffs', 183586, 4)			-- 파멸의 불					Doomfire
+		RegistFilter('RaidDebuffs', 183586, 4)			-- 파멸의 불				Doomfire
 		RegistFilter('RaidDebuffs', 184964, 6)			-- 구속된 고통				Shackled Torment
-		RegistFilter('RaidDebuffs', 186123, 3)			-- 불러일으킨 혼돈		Wrought Chaos
+		RegistFilter('RaidDebuffs', 186123, 3)			-- 불러일으킨 혼돈			Wrought Chaos
 		RegistFilter('RaidDebuffs', 185014, 3)			-- 집중된 혼돈				Focused Chaos
-		RegistFilter('RaidDebuffs', 186952, 2)			-- 황천 추방					Nether Banish
-		RegistFilter('RaidDebuffs', 186961, 2)			-- 황천 추방					Nether Banish
+		RegistFilter('RaidDebuffs', 186952, 2)			-- 황천 추방				Nether Banish
+		RegistFilter('RaidDebuffs', 186961, 2)			-- 황천 추방				Nether Banish
 		RegistFilter('RaidDebuffs', 189891, 2)			-- 황천 가르기				Nether Tear
 		RegistFilter('RaidDebuffs', 183634, 5)			-- 어둠지옥 폭발			Shadowfel Burst
-		RegistFilter('RaidDebuffs', 189895, 5)			-- 공허의 별 시선고정	Void Star Fixate
+		RegistFilter('RaidDebuffs', 189895, 5)			-- 공허의 별 시선고정		Void Star Fixate
 end
 
 
@@ -316,20 +323,28 @@ do	-- BuffWatch
 	KF.Modules.AddBuffWatch = function()
 		-- 신념의 봉화			Beacon of Faith
 		AddBuffWatch('PALADIN', 156910, {
-			enabled = true, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 }, 
+			enabled = true, point = 'TOPRIGHT', color = { r = .18, g = .72, b = .89 },
 			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
 			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
 		})
 		
+		-- 고결의 봉화			Beacon of Virtue
+		AddBuffWatch('PALADIN', 200025, {
+			enabled = true, point = 'TOPRIGHT', color = { r = .87, g = .7, b = .09 },
+			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
+			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
+		})
+		
+		-- 신념 수여			Bestow Faith
 		AddBuffWatch('PALADIN', 223306, {
-			enabled = true, point = 'BOTTOMRIGHT', color = { r = .87, g = .7, b = .09 }, 
+			enabled = true, point = 'BOTTOMRIGHT', color = { r = .87, g = .7, b = .09 },
 			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
 			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
 		})
 		
 		-- 의지의 명료함		Clarity of Will
 		AddBuffWatch('PRIEST', 152118, {
-			enabled = true, point = 'BOTTOM', color = { r = .89, g = 1, b = .6 }, 
+			enabled = true, point = 'BOTTOM', color = { r = .89, g = 1, b = .6 },
 			style = 'coloredIcon', displayText = false, decimalThreshold = 5,
 			textColor = { r = 1, g = 1, b = 1 }, textThreshold = -1, xOffset = 0, yOffset = 0
 		})

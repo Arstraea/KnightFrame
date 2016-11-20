@@ -779,12 +779,17 @@ function CA:Update_Gear()
 				if not ItemLink:find('%[%]') then -- sometimes itemLink is malformed so we need to update when crashed
 					--<< Prepare Setting >>
 					ItemData = { strsplit(':', ItemLink) }
-					_, _, Slot.ItemRarity, BasicItemLevel, _, _, _, _, ItemType = GetItemInfo(ItemLink)
+					for i = 1, #ItemData do
+						if tonumber(ItemData[i]) then
+							ItemData[i] = tonumber(ItemData[i])
+						end
+					end
+					Slot.ItemName, _, Slot.ItemRarity, BasicItemLevel, _, _, _, _, ItemType = GetItemInfo(ItemLink)
 					R, G, B = GetItemQualityColor(Slot.ItemRarity)
 					
 					--<< Legion - Artifact Weapon Detection >>--
 					if (SlotName == 'MainHandSlot' or SlotName == 'SecondaryHandSlot') then
-						if Artifact_ItemID and Artifact_ItemID == tonumber(ItemData[2]) then
+						if Artifact_ItemID and Artifact_ItemID == ItemData[2] then
 							Legion_ArtifactData.MajorSlot = SlotName
 							Legion_ArtifactData.ItemID = Artifact_ItemID
 							Legion_ArtifactData.Power = Artifact_Power
@@ -817,13 +822,13 @@ function CA:Update_Gear()
 									self.ArtifactMonitor['Socket'..i].Texture:SetTexture(GemTexture)
 									self.ArtifactMonitor['Socket'..i].Socket.Link = GemLink
 									self.ArtifactMonitor['Socket'..i].Socket.Message = nil
-									self.ArtifactMonitor['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and tonumber(ItemData[i + 3]) or 0
+									self.ArtifactMonitor['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
 									self.ArtifactMonitor['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
 									
 									Slot['Socket'..i].Texture:SetTexture(GemTexture)
 									Slot['Socket'..i].Socket.Link = GemLink
 									Slot['Socket'..i].Socket.Message = nil
-									Slot['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and tonumber(ItemData[i + 3]) or 0
+									Slot['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
 									Slot['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
 									
 									if GemTexture then
@@ -865,7 +870,7 @@ function CA:Update_Gear()
 							
 							for i = 2, #ItemData do
 								if i == 4 or i == 5 or i == 6 or i == 7 then
-									ItemData.FixedLink = ItemData.FixedLink..':'..0
+									ItemData.FixedLink = ItemData.FixedLink..':'
 								else
 									ItemData.FixedLink = ItemData.FixedLink..':'..ItemData[i]
 								end
@@ -900,7 +905,7 @@ function CA:Update_Gear()
 							-- Apply current item's gem setting
 							for i = 1, MAX_NUM_SOCKETS do
 								GemTexture = _G['Knight_CharacterArmory_ScanTTTexture'..i]:GetTexture()
-								GemID = ItemData[i + 3] ~= '' and tonumber(ItemData[i + 3]) or 0
+								GemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
 								_, GemLink = GetItemGem(ItemLink, i)
 								
 								if Slot['Socket'..i].GemType and Info.Armory_Constants.GemColor[Slot['Socket'..i].GemType] then
@@ -1372,6 +1377,12 @@ do --<< Artifact Monitor >>
 				else
 					self.ArtifactMonitor.BarExpected.AvailablePower:SetText()
 				end
+				
+				if TotalPower + Legion_ArtifactData.XP > Legion_ArtifactData.XPForNextPoint then
+					TotalPower = Legion_ArtifactData.XPForNextPoint
+				else
+					TotalPower = TotalPower + Legion_ArtifactData.XP
+				end
 			else
 				self.ArtifactMonitor.AddPower.Texture:Hide()
 				self.ArtifactMonitor.AddPower.Button:Hide()
@@ -1379,12 +1390,6 @@ do --<< Artifact Monitor >>
 				
 				self.ArtifactMonitor.BarExpected.AvailablePower:SetText()
 				self:LegionArtifactMonitor_ClearPowerItemSearching()
-			end
-			
-			if TotalPower + Legion_ArtifactData.XP > Legion_ArtifactData.XPForNextPoint then
-				TotalPower = Legion_ArtifactData.XPForNextPoint
-			else
-				TotalPower = TotalPower + Legion_ArtifactData.XP
 			end
 			
 			self.ArtifactMonitor.BarExpected:SetValue(TotalPower)
