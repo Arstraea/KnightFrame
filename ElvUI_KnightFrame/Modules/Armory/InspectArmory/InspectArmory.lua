@@ -1202,6 +1202,8 @@ function IA:CreateInspectFrame()
 		self.ScanTTForInspecting:SetOwner(UIParent, 'ANCHOR_NONE')
 		self.ScanTT = CreateFrame('GameTooltip', 'InspectArmoryScanTT', nil, 'GameTooltipTemplate')
 		self.ScanTT:SetOwner(UIParent, 'ANCHOR_NONE')
+		self.ScanTT2 = CreateFrame('GameTooltip', 'InspectArmoryScanTT2', nil, 'GameTooltipTemplate')
+		self.ScanTT2:SetOwner(UIParent, 'ANCHOR_NONE')
 	end
 	
 	do --<< UnitPopup Setting >>--
@@ -2196,15 +2198,27 @@ function IA:InspectFrame_DataSetting(DataTable)
 			
 			if self.MainHandSlot.ItemRarity == 6 and self.SecondaryHandSlot.ItemRarity == 6 then
 				self[MinorArtifactSlot].Gradation.ItemLevel:SetText(self[MinorArtifactSlot].ILvL)
-				self[MinorArtifactSlot].ReplaceTooltipLines[2] = format(ITEM_LEVEL, self[MajorArtifactSlot].ILvL)
 				
 				-- Find line starting minor artifact's data in major artifact tooltip.
-				local MajorTooltipStartLine, MinorTooltipStartLine, MinorTooltipStartKey
+				local MajorTooltipStartLine, MinorArtifactName, MinorTooltipStartLine, MinorTooltipStartKey
+				
 				self:ClearTooltip(self.ScanTT)
 				self.ScanTT:SetHyperlink(self[MajorArtifactSlot].Link)
 				
-				for i = 1, self.ScanTT:NumLines() do
-					if _G['InspectArmoryScanTTTextLeft'..i]:GetText() == self[MinorArtifactSlot].ItemName then
+				self:ClearTooltip(self.ScanTT2)
+				self.ScanTT2:SetHyperlink(self[MinorArtifactSlot].Link)
+				
+				for i = 1, self.ScanTT2:NumLines() do
+					if _G['InspectArmoryScanTT2TextLeft'..i]:GetText():find(Info.Armory_Constants.ItemLevelKey) then
+						MinorArtifactName = _G['InspectArmoryScanTT2TextLeft'..(i - 1)]:GetText()
+						self[MinorArtifactSlot].ReplaceTooltipLines[i] = format(ITEM_LEVEL, self[MajorArtifactSlot].ILvL)
+						
+						break
+					end
+				end
+				
+				for i = 2, self.ScanTT:NumLines() do
+					if _G['InspectArmoryScanTTTextLeft'..i]:GetText() == MinorArtifactName then
 						MajorTooltipStartLine = i + 1
 						MinorTooltipStartKey = _G['InspectArmoryScanTTTextLeft'..(i + 1)]:GetText()
 						
@@ -2212,19 +2226,13 @@ function IA:InspectFrame_DataSetting(DataTable)
 					end
 				end
 				
-				self:ClearTooltip(self.ScanTT)
-				self.ScanTT:SetHyperlink(self[MinorArtifactSlot].Link)
-				
-				for i = 1, self.ScanTT:NumLines() do
-					if _G['InspectArmoryScanTTTextLeft'..i]:GetText() == MinorTooltipStartKey then
+				for i = 1, self.ScanTT2:NumLines() do
+					if _G['InspectArmoryScanTT2TextLeft'..i]:GetText() == MinorTooltipStartKey then
 						MinorTooltipStartLine = i
 						
 						break
 					end
 				end
-				
-				self:ClearTooltip(self.ScanTT)
-				self.ScanTT:SetHyperlink(self[MajorArtifactSlot].Link)
 				
 				for i = MajorTooltipStartLine, self.ScanTT:NumLines() do
 					CurrentLineText = _G['InspectArmoryScanTTTextLeft'..i]:GetText()
