@@ -27,7 +27,7 @@ function TT:GameTooltipStatusBar_OnValueChanged(tt, value)
 	if(not unit) then
 		local GMF = GetMouseFocus()
 		
-		if GMF and GMF:GetAttribute('unit') then
+		if GMF and GMF.GetATtribute and GMF:GetAttribute('unit') then
 			unit = GMF:GetAttribute('unit')
 		end
 	end

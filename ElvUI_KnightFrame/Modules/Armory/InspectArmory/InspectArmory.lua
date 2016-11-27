@@ -405,13 +405,6 @@ function IA:CreateInspectFrame()
 		self.Tab = CreateFrame('Frame', nil, self)
 		self.Tab:Point('TOPLEFT', self, SPACING, -SPACING)
 		self.Tab:Point('BOTTOMRIGHT', self, 'TOPRIGHT', -SPACING, -(SPACING + TAB_HEIGHT))
-		self.Tab:SetBackdrop({
-			bgFile = E.media.normTex,
-			edgeFile = E.media.blankTex,
-			tile = false, tileSize = 0, edgeSize = E.mult,
-			insets = { left = 0, right = 0, top = 0, bottom = 0}
-		})
-		self.Tab:SetBackdropBorderColor(0, 0, 0)
 		KF:TextSetting(self.Tab, ' |cff2eb7e4Knight Inspect', { FontSize = 10, FontStyle = 'OUTLINE' }, 'LEFT', 6, 1)
 		self.Tab:SetScript('OnMouseDown', function() self:StartMoving() end)
 		self.Tab:SetScript('OnMouseUp', function() self:StopMovingOrSizing() end)
@@ -434,14 +427,6 @@ function IA:CreateInspectFrame()
 		self.BP = CreateFrame('Frame', nil, self)
 		self.BP:Point('TOPLEFT', self, 'BOTTOMLEFT', SPACING, SPACING + TAB_HEIGHT)
 		self.BP:Point('BOTTOMRIGHT', self, -SPACING, SPACING)
-		self.BP:SetBackdrop({
-			bgFile = E.media.normTex,
-			edgeFile = E.media.blankTex,
-			tile = false, tileSize = 0, edgeSize = E.mult,
-			insets = { left = 0, right = 0, top = 0, bottom = 0}
-		})
-		self.BP:SetBackdropColor(0.09, 0.3, 0.45)
-		self.BP:SetBackdropBorderColor(0, 0, 0)
 		self.BP:SetFrameLevel(CORE_FRAME_LEVEL + 2)
 		
 		self.MessageFrame = CreateFrame('ScrollFrame', nil, self.BP)
@@ -495,25 +480,13 @@ function IA:CreateInspectFrame()
 		self.Message = self.MessageFrame.Page.text
 	end
 	
-	do --<< Backdrop >>--
-		self.BG = self:CreateTexture(nil, 'OVERLAY')
-		self.BG:Point('TOPLEFT', self.Tab, 'BOTTOMLEFT', 0, -38)
-		self.BG:Point('BOTTOMRIGHT', self.BP, 'TOPRIGHT')
-	end
-	
 	do --<< Buttons >>--
 		for ButtonName, ButtonString in pairs(self.PageList) do
 			ButtonName = ButtonName..'Button'
 			
 			self[ButtonName] = CreateFrame('Button', nil, self.BP)
 			self[ButtonName]:Size(70, 20)
-			self[ButtonName]:SetBackdrop({
-				bgFile = E.media.normTex,
-				edgeFile = E.media.blankTex,
-				tile = false, tileSize = 0, edgeSize = E.mult,
-				insets = { left = 0, right = 0, top = 0, bottom = 0}
-			})
-			self[ButtonName]:SetBackdropBorderColor(0, 0, 0)
+			self[ButtonName]:SetTemplate('Transparent')
 			self[ButtonName]:SetFrameLevel(CORE_FRAME_LEVEL + 1)
 			KF:TextSetting(self[ButtonName], _G[ButtonString], { FontSize = 9, FontStyle = 'OUTLINE' })
 			self[ButtonName]:SetScript('OnEnter', self.Button_OnEnter)
@@ -521,7 +494,7 @@ function IA:CreateInspectFrame()
 			self[ButtonName]:SetScript('OnClick', function() IA:ChangePage(ButtonName) end)
 			self[ButtonName].ButtonString = _G[ButtonString]
 		end
-		self.CharacterButton:Point('TOPLEFT', self.BP, 'BOTTOMLEFT', SPACING + 1, 2)
+		self.CharacterButton:Point('TOPLEFT', self.BP, 'BOTTOMLEFT', SPACING + 1, -3)
 		self.InfoButton:Point('TOPLEFT', self.CharacterButton, 'TOPRIGHT', SPACING, 0)
 		self.SpecButton:Point('TOPLEFT', self.InfoButton, 'TOPRIGHT', SPACING, 0)
 	end
@@ -809,6 +782,12 @@ function IA:CreateInspectFrame()
 		
 		-- ItemLevel
 		KF:TextSetting(self.Character, nil, { Tag = 'AverageItemLevel', FontSize = 12 }, 'TOP', self.Model)
+	end
+	
+	do --<< Backdrop >>--
+		self.BG = self:CreateTexture(nil, 'OVERLAY')
+		self.BG:Point('TOPLEFT', self.Tab, 'BOTTOMLEFT', 0, -38)
+		self.BG:Point('BOTTOMRIGHT', self.BP, 'TOPRIGHT')
 	end
 	
 	do --<< Information Page >>--
@@ -1802,6 +1781,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 						Slot['Socket'..i].Texture:SetTexture(nil)
 						Slot['Socket'..i].GemItemID = nil
 						Slot['Socket'..i].GemType = nil
+						Slot['Socket'..i].Socket.Link = nil
+						Slot['Socket'..i].Socket.Message = nil
 						Slot['Socket'..i]:Hide()
 					end
 					Slot.EnchantWarning:Hide()
@@ -1888,6 +1869,8 @@ function IA:InspectFrame_DataSetting(DataTable)
 										else
 											NeedUpdate = true
 										end
+									elseif GemID ~= 0 then
+										NeedUpdate = true
 									end
 								end
 							else
@@ -2030,15 +2013,15 @@ function IA:InspectFrame_DataSetting(DataTable)
 							Slot.ILvL = TrueItemLevel or BasicItemLevel
 							
 							if Slot.ItemLevel then
-								Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..TrueItemLevel)
+								Slot.ItemLevel:SetText((ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffffffff') or '')..Slot.ILvL)
 							end
 							
 							Slot.Gradation.ItemLevel:SetText(
 								(not TrueItemLevel or BasicItemLevel == TrueItemLevel) and BasicItemLevel
 								or
-								KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel and (Slot.Direction == 'LEFT' and TrueItemLevel..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..TrueItemLevel or '')
+								KF.db.Modules.Armory.Inspect.Level.ShowUpgradeLevel and (Slot.Direction == 'LEFT' and Slot.ILvL..' ' or '')..(ItemUpgradeID and (Info.Armory_Constants.UpgradeColor[ItemUpgradeID] or '|cffaaaaaa')..'(+'..ItemUpgradeID..')|r' or '')..(Slot.Direction == 'RIGHT' and ' '..Slot.ILvL or '')
 								or
-								TrueItemLevel
+								Slot.ILvL
 							)
 						end
 						
