@@ -2504,7 +2504,7 @@ function IA:ToggleSpecializationTab(Tab, DataTable)
 	for i in pairs(IA.Default_CurrentInspectData.Specialization) do
 		if i == 1 then	-- Current Spec
 			if DataTable.Specialization[1].SpecializationID and DataTable.Specialization[1].SpecializationID ~= 0 then
-				_, Name, _, _, _, Arg1 = GetSpecializationInfoByID(DataTable.Specialization[1].SpecializationID)
+				_, Name, _, _, Arg1 = GetSpecializationInfoByID(DataTable.Specialization[1].SpecializationID)
 				
 				if Name then
 					if Info.ClassRole[DataTable.Class][Name] then
@@ -2619,7 +2619,7 @@ function IA:ToggleSpecializationTab(Tab, DataTable)
 						self.Spec['Talent'..((i - 1) * MAX_PVP_TALENT_COLUMNS + k)].Icon:SetBackdropBorderColor(0, 0, 0)
 						self.Spec['Talent'..((i - 1) * MAX_PVP_TALENT_COLUMNS + k)].Icon.Texture:SetDesaturated(true)
 						
-						if DataTable.Level < MAX_PLAYER_LEVEL_TABLE[LE_EXPANSION_LEVEL_CURRENT] or DataTable.HonorLevel < Info.Armory_Constants.PvPTalentRequireLevel[(i - 1) * MAX_PVP_TALENT_COLUMNS + k] then
+						if DataTable.Level < MAX_PLAYER_LEVEL_TABLE[LE_EXPANSION_LEVEL_CURRENT] or (DataTable.PrestigeLevel == 0 and DataTable.HonorLevel < Info.Armory_Constants.PvPTalentRequireLevel[(i - 1) * MAX_PVP_TALENT_COLUMNS + k]) then
 							self.Spec['Talent'..((i - 1) * MAX_PVP_TALENT_COLUMNS + k)].text:SetTextColor(.7, .3, .3)
 							self.Spec['Talent'..((i - 1) * NUM_TALENT_COLUMNS + k)].Tooltip.Message = '|cffff0000'..UNLOCKED_AT_HONOR_LEVEL:format(Info.Armory_Constants.PvPTalentRequireLevel[(i - 1) * MAX_PVP_TALENT_COLUMNS + k])
 						else
