@@ -805,6 +805,7 @@ function CA:Update_Gear()
 						GemCount_Default, GemCount_Now, GemCount = 0, 0, 0
 						
 						-- First, Counting default gem sockets
+						
 						if Legion_ArtifactData.ItemID and Legion_ArtifactData.MajorSlot == SlotName then
 							Slot.GemCount_Enable = C_ArtifactUI.GetEquippedArtifactNumRelicSlots()
 							
@@ -812,7 +813,10 @@ function CA:Update_Gear()
 							self.ScanTT:SetInventoryItem('player', Slot.ID)
 							
 							for i = 1, Slot.GemCount_Enable do
-								LockedReason, _, GemTexture, GemLink = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
+								LockedReason = C_ArtifactUI.GetRelicLockedReason(i)
+								_, _, _, GemLink = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
+								GemTexture = select(10, GetItemInfo(GemLink))
+								
 								GemID = Info.Armory_Constants.ArtifactType[Legion_ArtifactData.ItemID][i]
 								R, G, B = unpack(Info.Armory_Constants.GemColor[GemID])
 								
@@ -1279,13 +1283,13 @@ do --<< Artifact Monitor >>
 	
 	
 	function CA:LegionArtifactMonitor_UpdateData()
-		Artifact_ItemID, _, _, _, Artifact_Power, Artifact_Rank = C_ArtifactUI.GetEquippedArtifactInfo()
+		Artifact_ItemID, _, _, _, Artifact_Power, Artifact_Rank, _, _, _, _, _, _, Artifact_Tier = C_ArtifactUI.GetEquippedArtifactInfo()
 		
 		if Artifact_ItemID then
 			Legion_ArtifactData.ItemID = Artifact_ItemID
 			Legion_ArtifactData.Rank = Artifact_Rank
 			Legion_ArtifactData.Power = Artifact_Power
-			Legion_ArtifactData.AvailablePoint, Legion_ArtifactData.XP, Legion_ArtifactData.XPForNextPoint = MainMenuBar_GetNumArtifactTraitsPurchasableFromXP(Artifact_Rank, Artifact_Power)
+			Legion_ArtifactData.AvailablePoint, Legion_ArtifactData.XP, Legion_ArtifactData.XPForNextPoint = MainMenuBar_GetNumArtifactTraitsPurchasableFromXP(Artifact_Rank, Artifact_Power, Artifact_Tier)
 			Legion_ArtifactData.RemainXP = Legion_ArtifactData.XPForNextPoint - Legion_ArtifactData.XP
 			
 			self.ArtifactMonitor.TraitRank:SetText(RANK..' : '..COLORSTRING_ARTIFACT..Artifact_Rank)

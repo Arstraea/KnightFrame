@@ -1,7 +1,7 @@
-## Interface: 70100
+## Interface: 70200
 ## Title: |cff1784d1ElvUI |r|cffffffffKnight Frame|r |cffffdc3cv3
 ## Author: Arstraea
-## Version: 3.2_24
+## Version: 3.2_25
 ## eMail: qjr2513@naver.com
 ## RequiredDeps: ElvUI
 ## OptionalDeps: ACP, Skada, SkadaU, Recount, Omen, BlueItemInfo3, DBM-Core, Findparty, InvenCraftInfo2, Examiner
