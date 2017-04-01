@@ -823,23 +823,28 @@ function CA:Update_Gear()
 								if not LockedReason then
 									GemCount_Now = GemCount_Now + 1
 									
-									self.ArtifactMonitor['Socket'..i].Texture:SetTexture(GemTexture)
-									self.ArtifactMonitor['Socket'..i].Socket.Link = GemLink
-									self.ArtifactMonitor['Socket'..i].Socket.Message = nil
-									self.ArtifactMonitor['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
-									self.ArtifactMonitor['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
-									
-									Slot['Socket'..i].Texture:SetTexture(GemTexture)
-									Slot['Socket'..i].Socket.Link = GemLink
-									Slot['Socket'..i].Socket.Message = nil
-									Slot['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
-									Slot['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
-									
 									if GemTexture then
-										GemCount = GemCount + 1
+										self.ArtifactMonitor['Socket'..i].Texture:SetTexture(GemTexture)
+										self.ArtifactMonitor['Socket'..i].Socket.Link = GemLink
+										self.ArtifactMonitor['Socket'..i].Socket.Message = nil
+										self.ArtifactMonitor['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
+										self.ArtifactMonitor['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
+										
+										Slot['Socket'..i].Texture:SetTexture(GemTexture)
+										Slot['Socket'..i].Socket.Link = GemLink
+										Slot['Socket'..i].Socket.Message = nil
+										Slot['Socket'..i].GemItemID = ItemData[i + 3] ~= '' and ItemData[i + 3] or 0
+										Slot['Socket'..i].Socket:SetBackdropColor(R, G, B, .5)
+										
+										if GemTexture then
+											GemCount = GemCount + 1
+										else
+											self.ArtifactMonitor['Socket'..i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
+											Slot['Socket'.	.i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
+										end
 									else
-										self.ArtifactMonitor['Socket'..i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
-										Slot['Socket'..i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
+										-- Relic data is not loaded.
+										NeedUpdate = true
 									end
 								else
 									Slot.GemCount_Enable = Slot.GemCount_Enable - 1
