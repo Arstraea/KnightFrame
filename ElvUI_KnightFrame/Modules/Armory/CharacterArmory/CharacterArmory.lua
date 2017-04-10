@@ -521,7 +521,7 @@ function CA:Setup_CharacterArmory()
 		E:Flash(self.ArtifactMonitor.BarExpected, 1, true)
 		
 		-- Gem Socket
-		for i = 1, C_ArtifactUI.GetEquippedArtifactNumRelicSlots() or 3 do
+		for i = 1, 3 do
 			self.ArtifactMonitor['Socket'..i] = CreateFrame('Frame', nil, self.ArtifactMonitor)
 			self.ArtifactMonitor['Socket'..i]:Size(KF.db.Modules.Armory.Character.Gem.SocketSize)
 			self.ArtifactMonitor['Socket'..i]:SetBackdrop({
@@ -807,7 +807,7 @@ function CA:Update_Gear()
 						-- First, Counting default gem sockets
 						
 						if Legion_ArtifactData.ItemID and Legion_ArtifactData.MajorSlot == SlotName then
-							Slot.GemCount_Enable = C_ArtifactUI.GetEquippedArtifactNumRelicSlots()
+							Slot.GemCount_Enable = C_ArtifactUI.GetEquippedArtifactNumRelicSlots() or 3
 							
 							self:ClearTooltip(self.ScanTT)
 							self.ScanTT:SetInventoryItem('player', Slot.ID)
@@ -815,8 +815,8 @@ function CA:Update_Gear()
 							for i = 1, Slot.GemCount_Enable do
 								LockedReason = C_ArtifactUI.GetRelicLockedReason(i)
 								_, _, _, GemLink = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
-								GemTexture = select(10, GetItemInfo(GemLink))
 								
+								GemTexture = GemLink and select(10, GetItemInfo(GemLink)) or nil
 								GemID = Info.Armory_Constants.ArtifactType[Legion_ArtifactData.ItemID][i]
 								R, G, B = unpack(Info.Armory_Constants.GemColor[GemID])
 								
@@ -840,7 +840,7 @@ function CA:Update_Gear()
 											GemCount = GemCount + 1
 										else
 											self.ArtifactMonitor['Socket'..i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
-											Slot['Socket'.	.i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
+											Slot['Socket'..i].Socket.Message = format(RELIC_TOOLTIP_TYPE, E:RGBToHex(R, G, B).._G['RELIC_SLOT_TYPE_'..GemID])
 										end
 									else
 										-- Relic data is not loaded.
